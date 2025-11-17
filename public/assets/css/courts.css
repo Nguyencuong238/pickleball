@@ -1,0 +1,669 @@
+/* ===================================
+   Courts Page Specific Styles
+   =================================== */
+
+/* Main Search Bar */
+.main-search-bar {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 1rem;
+    padding: 2rem;
+    background: white;
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-xl);
+    margin-top: 2rem;
+}
+
+.search-input-group {
+    position: relative;
+}
+
+.search-icon,
+.location-icon {
+    position: absolute;
+    left: 1.25rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: var(--text-light);
+    pointer-events: none;
+}
+
+.main-search-input {
+    width: 100%;
+    padding: 1rem 1.25rem 1rem 3.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all var(--transition-base);
+}
+
+.main-search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 217, 181, 0.1);
+}
+
+.search-location-group {
+    position: relative;
+    min-width: 200px;
+}
+
+.location-select {
+    width: 100%;
+    padding: 1rem 1.25rem 1rem 3.5rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    background: white;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.location-select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0, 217, 181, 0.1);
+}
+
+.search-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.search-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* View Toggle Bar */
+.view-toggle-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: 2rem;
+}
+
+.toggle-left {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.view-mode-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: white;
+    transition: all var(--transition-base);
+}
+
+.view-mode-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.view-mode-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.view-mode-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+}
+
+.toggle-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.result-text {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.result-text strong {
+    color: var(--primary-color);
+    font-weight: 700;
+}
+
+.filter-mobile-btn {
+    display: none;
+}
+
+/* Courts Layout */
+.courts-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 2rem;
+}
+
+.courts-sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+/* Price Range Filter */
+.price-range-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.price-input {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.875rem;
+}
+
+.price-slider {
+    position: relative;
+    height: 40px;
+}
+
+.price-slider input[type="range"] {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: transparent;
+    pointer-events: none;
+    -webkit-appearance: none;
+}
+
+.price-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--primary-color);
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: all;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.price-slider input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    background: var(--primary-color);
+    border: 2px solid white;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: all;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Rating Stars */
+.rating-stars {
+    font-size: 0.875rem;
+}
+
+/* Court Cards */
+.courts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.5rem;
+}
+
+.courts-grid.active {
+    display: grid;
+}
+
+.court-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.court-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.court-link {
+    display: block;
+    color: inherit;
+}
+
+.court-image {
+    position: relative;
+    height: 220px;
+    overflow: hidden;
+}
+
+.court-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-slow);
+}
+
+.court-card:hover .court-image img {
+    transform: scale(1.05);
+}
+
+.court-badges {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.badge {
+    padding: 0.375rem 0.75rem;
+    border-radius: 2rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+}
+
+.badge-featured {
+    background: rgba(255, 217, 61, 0.95);
+    color: #1A1A1A;
+}
+
+.badge-premium {
+    background: rgba(147, 51, 234, 0.95);
+    color: white;
+}
+
+.badge-available {
+    background: rgba(16, 185, 129, 0.95);
+    color: white;
+}
+
+.favorite-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    transition: all var(--transition-base);
+}
+
+.favorite-btn:hover {
+    background: white;
+    transform: scale(1.1);
+}
+
+.favorite-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--text-primary);
+    transition: all var(--transition-base);
+}
+
+.favorite-btn:hover svg,
+.favorite-btn.active svg {
+    fill: var(--accent-red);
+    stroke: var(--accent-red);
+}
+
+.court-content {
+    padding: 1.5rem;
+}
+
+.court-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.court-name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.court-location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.court-location .icon {
+    width: 16px;
+    height: 16px;
+}
+
+.court-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.rating-star {
+    font-size: 1.125rem;
+}
+
+.rating-value {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.rating-count {
+    font-size: 0.875rem;
+    color: var(--text-light);
+}
+
+.court-features {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.feature-tag {
+    padding: 0.375rem 0.75rem;
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
+.court-info {
+    padding: 1rem;
+    background: var(--bg-light);
+    border-radius: var(--radius-md);
+    margin-bottom: 1rem;
+}
+
+.info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.875rem;
+}
+
+.info-row:not(:last-child) {
+    margin-bottom: 0.5rem;
+}
+
+.info-label {
+    color: var(--text-secondary);
+}
+
+.info-value {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.price-row {
+    padding-top: 0.5rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.price-value {
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 1rem;
+}
+
+/* Map View */
+.courts-map {
+    display: none;
+    height: 600px;
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+}
+
+.courts-map.active {
+    display: block;
+}
+
+.map-container {
+    width: 100%;
+    height: 100%;
+}
+
+.map-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-light);
+    color: var(--text-secondary);
+}
+
+.map-placeholder svg {
+    width: 80px;
+    height: 80px;
+    stroke: var(--text-light);
+    margin-bottom: 1rem;
+}
+
+.map-placeholder p {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* List View Styles */
+.courts-grid.list-view {
+    grid-template-columns: 1fr;
+}
+
+.courts-grid.list-view .court-card {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+}
+
+.courts-grid.list-view .court-link {
+    display: contents;
+}
+
+.courts-grid.list-view .court-image {
+    height: 100%;
+    min-height: 200px;
+}
+
+.courts-grid.list-view .court-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.courts-grid.list-view .court-info {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+
+/* CTA Banner */
+.cta-banner {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.cta-banner .cta-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 1rem;
+}
+
+.cta-banner .cta-description {
+    font-size: 1.125rem;
+    color: rgba(255, 255, 255, 0.95);
+    margin-bottom: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .courts-layout {
+        grid-template-columns: 280px 1fr;
+    }
+}
+
+@media (max-width: 1024px) {
+    .courts-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .courts-sidebar {
+        position: static;
+        display: none;
+    }
+
+    .courts-sidebar.show-mobile {
+        display: block;
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 320px;
+        max-width: 90%;
+        background: white;
+        z-index: 1001;
+        overflow-y: auto;
+        padding: 1rem;
+        box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-mobile-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .filter-mobile-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .courts-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    }
+
+    .courts-grid.list-view {
+        grid-template-columns: 1fr;
+    }
+
+    .courts-grid.list-view .court-card {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-search-bar {
+        grid-template-columns: 1fr;
+        padding: 1.5rem;
+    }
+
+    .search-btn {
+        width: 100%;
+    }
+
+    .view-toggle-bar {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: stretch;
+    }
+
+    .toggle-left,
+    .toggle-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .view-mode-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .courts-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .court-header {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .court-rating {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-search-bar {
+        padding: 1rem;
+    }
+
+    .main-search-input,
+    .location-select {
+        padding: 0.875rem 1rem 0.875rem 3rem;
+    }
+
+    .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .view-mode-btn {
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    .view-mode-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .court-content {
+        padding: 1rem;
+    }
+}
+
+/* Filter Overlay */
+.filter-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+}
+
+.filter-overlay.active {
+    display: block;
+}

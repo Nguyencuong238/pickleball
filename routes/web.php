@@ -1,0 +1,88 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Front\HomeController;
+use App\Http\Controllers\Front\NewsController as FrontNewsController;
+use App\Http\Controllers\Front\DashboardController;
+use App\Http\Controllers\Front\HomeYardStadiumController;
+use App\Http\Controllers\Front\HomeYardTournamentController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\UserPermissionController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\StadiumController;
+use App\Http\Controllers\Admin\TournamentController;
+use App\Http\Controllers\Admin\PageController;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::get('/register', [AuthController::class, 'showRegister']);
+Route::post('/register', [AuthController::class, 'register']);
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+
+// Admin Login Routes
+Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');
+Route::post('/admin/login', [AuthController::class, 'adminLogin']);
+
+// Route bảo vệ
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware('auth');
+
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/booking', [HomeController::class, 'booking'])->name('booking');
+Route::get('/courts', [HomeController::class, 'courts'])->name('courts');
+Route::get('/tournaments', [HomeController::class, 'tournaments'])->name('tournaments');
+Route::get('/social', [HomeController::class, 'social'])->name('social');
+Route::get('/news', [HomeController::class, 'news'])->name('news');
+Route::get('/news/{slug}', [FrontNewsController::class, 'show'])->name('news.show');
+Route::get('/page/{page}', [PageController::class, 'show'])->name('page.show');
+Route::get('/courts-detail', [HomeController::class, 'courtsDetail'])->name('courts-detail');
+Route::get('/tournaments-detail', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
+
+// User Dashboard Route
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('user.dashboard');
+
+// HomeYard Dashboard and Stadium CRUD Routes
+Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyard.')->group(function () {
+    Route::get('/dashboard', function () {
+        $user = auth()->user();
+        return view('home-yard.dashboard', compact('user'));
+    })->name('dashboard');
+    Route::resource('stadiums', HomeYardStadiumController::class);
+    Route::resource('tournaments', HomeYardTournamentController::class);
+    Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
+    Route::delete('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
+});
+
+// Admin routes for managing user permissions
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/users', [UserPermissionController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [UserPermissionController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserPermissionController::class, 'update'])->name('users.update');
+    Route::resource('news', NewsController::class);
+    Route::resource('pages', PageController::class);
+});
+
+// Admin Stadium and Tournament CRUD
+Route::middleware(['auth', 'role:admin|home_yard'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('stadiums', StadiumController::class);
+    Route::resource('tournaments', TournamentController::class);
+    Route::post('tournaments/{tournament}/athletes', [TournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
+    Route::delete('tournaments/{tournament}/athletes/{athlete}', [TournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
+});
