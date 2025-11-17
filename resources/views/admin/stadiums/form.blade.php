@@ -90,20 +90,20 @@
         <!-- Banner Image -->
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Banner Image</label>
-            <small style="color: #64748b; display: block; margin-bottom: 8px;">Recommended size: 1920x600px (JPG, PNG, WebP, max 2MB)</small>
+            <small style="color: #64748b; display: block; margin-bottom: 8px;">Recommended size: 1920x600px (JPG, JPEG, SVG, PNG, WebP, max 2MB)</small>
             @if(isset($stadium) && $stadium->getFirstMedia('banner'))
                 <div style="margin-bottom: 10px;">
                     <img src="{{ $stadium->getFirstMedia('banner')->getUrl() }}" alt="{{ $stadium->name }}" style="max-width: 300px; max-height: 150px; border-radius: 6px; border: 1px solid #e2e8f0;">
                 </div>
             @endif
-            <input type="file" name="banner" class="form-control" accept="image/jpeg,image/png,image/webp"
+            <input type="file" name="banner" class="form-control" accept="image/jpeg,image/png,image/webp,image/jpg,image/svg"
                 style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
         </div>
 
         <!-- Gallery Images -->
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Gallery Images</label>
-            <small style="color: #64748b; display: block; margin-bottom: 8px;">Upload multiple images (JPG, PNG, WebP, max 2MB each)</small>
+            <small style="color: #64748b; display: block; margin-bottom: 8px;">Upload multiple images (JPG, JPEG, SVG, PNG, WebP, max 2MB each)</small>
             
             @if(isset($stadium) && $stadium->getMedia('images')->count() > 0)
                 <div style="margin-bottom: 15px;">
@@ -123,7 +123,7 @@
                 </div>
             @endif
             
-            <input type="file" name="gallery[]" class="form-control" accept="image/jpeg,image/png,image/webp" multiple
+            <input type="file" name="gallery[]" class="form-control" accept="image/jpeg,image/png,image/webp,image/jpg,image/svg" multiple
                 style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
         </div>
 

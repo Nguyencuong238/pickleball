@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-detail.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/courts.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/court-detail.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/gallery-lightbox.css') }}">
 @endsection
 
 @section('content')
@@ -125,7 +126,7 @@
                         $bannerUrl = $stadium->getFirstMediaUrl('banner') ?: asset('assets/images/court_default.svg');
                     @endphp
                     <img src="{{ $bannerUrl }}" alt="{{ $stadium->name }}">
-                    <button class="gallery-view-all">
+                    <button class="gallery-view-all" onclick="openGalleryLightbox()">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                             <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -136,7 +137,7 @@
                 </div>
                 <div class="gallery-thumbnails">
                     @forelse($stadium->getMedia('images') as $image)
-                        <img src="{{ $image->getUrl() }}" alt="{{ $stadium->name }} - Gallery">
+                        <img src="{{ $image->getUrl() }}" alt="{{ $stadium->name }} - Gallery" class="gallery-thumb" onclick="openGalleryLightbox({{ $loop->index }})">
                     @empty
                         <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%230088CC' width='400' height='300'/%3E%3Ctext x='200' y='160' font-family='Arial' font-size='24' fill='white' text-anchor='middle'%3EFacilities%3C/text%3E%3C/svg%3E" alt="Facilities">
                         <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 300'%3E%3Crect fill='%23FF6B6B' width='400' height='300'/%3E%3Ctext x='200' y='160' font-family='Arial' font-size='24' fill='white' text-anchor='middle'%3EAmenities%3C/text%3E%3C/svg%3E" alt="Amenities">
@@ -147,6 +148,38 @@
             </div>
         </div>
     </section>
+
+    <!-- Gallery Lightbox Modal -->
+    <div id="galleryLightbox" class="gallery-lightbox">
+        <div class="lightbox-container">
+            <button class="lightbox-close" onclick="closeLightbox()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <line x1="18" y1="6" x2="6" y2="18"/>
+                    <line x1="6" y1="6" x2="18" y2="18"/>
+                </svg>
+            </button>
+            
+            <button class="lightbox-nav prev" onclick="prevImage()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="15 18 9 12 15 6"/>
+                </svg>
+            </button>
+
+            <img id="lightboxImage" class="lightbox-image" src="" alt="">
+
+            <button class="lightbox-nav next" onclick="nextImage()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <polyline points="9 18 15 12 9 6"/>
+                </svg>
+            </button>
+
+            <div class="lightbox-counter">
+                <span id="currentIndex">1</span> / <span id="totalImages">1</span>
+            </div>
+
+            <div class="lightbox-thumbnails" id="lightboxThumbnails"></div>
+        </div>
+    </div>
 
     <!-- Main Content -->
     <section class="court-detail-section section">
@@ -598,7 +631,107 @@
 @section('js')
     <script src="{{ asset('assets/js/tournament-detail.js') }}"></script>
     <script>
+        // Gallery Lightbox JavaScript
+        let currentImageIndex = 0;
+        let galleryImages = [];
+
+        function initGalleryLightbox() {
+            // Collect all gallery images
+            const galleryThumbs = document.querySelectorAll('.gallery-thumbnails .gallery-thumb');
+            const bannerImg = document.querySelector('.gallery-main img');
+            
+            // Start with banner image
+            if (bannerImg && bannerImg.src !== '{{ asset('assets/images/court_default.svg') }}') {
+                galleryImages.push(bannerImg.src);
+            }
+            
+            // Add thumbnail images
+            galleryThumbs.forEach(thumb => {
+                galleryImages.push(thumb.src);
+            });
+
+            // Update total images count
+            document.getElementById('totalImages').textContent = galleryImages.length;
+
+            // Populate lightbox thumbnails
+            const lightboxThumbnails = document.getElementById('lightboxThumbnails');
+            galleryImages.forEach((img, index) => {
+                const thumbDiv = document.createElement('div');
+                thumbDiv.className = 'lightbox-thumbnail' + (index === 0 ? ' active' : '');
+                thumbDiv.innerHTML = `<img src="${img}" alt="Image ${index + 1}">`;
+                thumbDiv.addEventListener('click', () => showImage(index));
+                lightboxThumbnails.appendChild(thumbDiv);
+            });
+        }
+
+        function openGalleryLightbox(startIndex = 0) {
+            if (galleryImages.length === 0) {
+                initGalleryLightbox();
+            }
+            
+            currentImageIndex = startIndex;
+            showImage(startIndex);
+            document.getElementById('galleryLightbox').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox() {
+            document.getElementById('galleryLightbox').classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+
+        function showImage(index) {
+            if (galleryImages.length === 0) return;
+            
+            currentImageIndex = (index + galleryImages.length) % galleryImages.length;
+            
+            // Update image
+            document.getElementById('lightboxImage').src = galleryImages[currentImageIndex];
+            
+            // Update counter
+            document.getElementById('currentIndex').textContent = currentImageIndex + 1;
+            
+            // Update thumbnail active state
+            document.querySelectorAll('.lightbox-thumbnail').forEach((thumb, idx) => {
+                thumb.classList.toggle('active', idx === currentImageIndex);
+            });
+
+            // Scroll thumbnail into view
+            const activeThumbnail = document.querySelectorAll('.lightbox-thumbnail')[currentImageIndex];
+            if (activeThumbnail) {
+                activeThumbnail.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }
+
+        function nextImage() {
+            showImage(currentImageIndex + 1);
+        }
+
+        function prevImage() {
+            showImage(currentImageIndex - 1);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            const lightbox = document.getElementById('galleryLightbox');
+            if (lightbox.classList.contains('active')) {
+                if (e.key === 'ArrowRight') nextImage();
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'Escape') closeLightbox();
+            }
+        });
+
+        // Close on background click
+        document.getElementById('galleryLightbox').addEventListener('click', (e) => {
+            if (e.target.id === 'galleryLightbox') {
+                closeLightbox();
+            }
+        });
+
+        // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
+            initGalleryLightbox();
+
             // Tab switching functionality
             const tabButtons = document.querySelectorAll('.tab-btn');
             const tabPanes = document.querySelectorAll('.tab-pane');
