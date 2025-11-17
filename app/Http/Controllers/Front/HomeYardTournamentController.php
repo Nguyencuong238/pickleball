@@ -40,6 +40,17 @@ class HomeYardTournamentController extends Controller
             'prizes' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'status' => 'required|in:upcoming,ongoing,completed,cancelled',
+            'competition_format' => 'nullable|string|in:single,double,mixed',
+            'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
+            'registration_benefits' => 'nullable|string',
+            'competition_rules' => 'nullable|string',
+            'event_timeline' => 'nullable|string',
+            'social_information' => 'nullable|string',
+            'organizer_email' => 'nullable|email',
+            'organizer_hotline' => 'nullable|string|max:20',
+            'competition_schedule' => 'nullable|string',
+            'results' => 'nullable|string',
+            'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
         $data = $request->only([
@@ -53,10 +64,29 @@ class HomeYardTournamentController extends Controller
             'rules',
             'prizes',
             'status',
+            'competition_format',
+            'tournament_rank',
+            'registration_benefits',
+            'competition_rules',
+            'event_timeline',
+            'social_information',
+            'organizer_email',
+            'organizer_hotline',
+            'competition_schedule',
+            'results',
         ]);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('tournament_images', 'public');
+        }
+
+        // Handle gallery images
+        if ($request->hasFile('gallery')) {
+            $gallery = [];
+            foreach ($request->file('gallery') as $file) {
+                $gallery[] = $file->store('tournament_gallery', 'public');
+            }
+            $data['gallery'] = $gallery;
         }
 
         $data['user_id'] = auth()->id();
@@ -95,6 +125,17 @@ class HomeYardTournamentController extends Controller
             'prizes' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'status' => 'required|in:upcoming,ongoing,completed,cancelled',
+            'competition_format' => 'nullable|string|in:single,double,mixed',
+            'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
+            'registration_benefits' => 'nullable|string',
+            'competition_rules' => 'nullable|string',
+            'event_timeline' => 'nullable|string',
+            'social_information' => 'nullable|string',
+            'organizer_email' => 'nullable|email',
+            'organizer_hotline' => 'nullable|string|max:20',
+            'competition_schedule' => 'nullable|string',
+            'results' => 'nullable|string',
+            'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
         $data = $request->only([
@@ -108,6 +149,16 @@ class HomeYardTournamentController extends Controller
             'rules',
             'prizes',
             'status',
+            'competition_format',
+            'tournament_rank',
+            'registration_benefits',
+            'competition_rules',
+            'event_timeline',
+            'social_information',
+            'organizer_email',
+            'organizer_hotline',
+            'competition_schedule',
+            'results',
         ]);
 
         if ($request->hasFile('image')) {
@@ -115,6 +166,15 @@ class HomeYardTournamentController extends Controller
                 Storage::disk('public')->delete($tournament->image);
             }
             $data['image'] = $request->file('image')->store('tournament_images', 'public');
+        }
+
+        // Handle gallery images
+        if ($request->hasFile('gallery')) {
+            $gallery = $tournament->gallery ?? [];
+            foreach ($request->file('gallery') as $file) {
+                $gallery[] = $file->store('tournament_gallery', 'public');
+            }
+            $data['gallery'] = $gallery;
         }
 
         $tournament->update($data);

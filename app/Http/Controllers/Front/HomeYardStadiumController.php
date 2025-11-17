@@ -35,12 +35,19 @@ class HomeYardStadiumController extends Controller
             'email' => 'nullable|email',
             'website' => 'nullable|url',
             'courts_count' => 'required|integer|min:1',
+            'court_surface' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'opening_hours' => 'nullable|string',
             'amenities' => 'nullable|array',
+            'utilities' => 'nullable|string',
+            'regulations' => 'nullable|string',
             'status' => 'required|in:active,inactive',
+            'featured_status' => 'nullable|in:featured,normal',
+            'verified' => 'nullable|boolean',
+            'rating' => 'nullable|numeric|between:0,5',
+            'rating_count' => 'nullable|integer|min:0',
         ]);
 
         $data = $request->only([
@@ -51,15 +58,29 @@ class HomeYardStadiumController extends Controller
             'email',
             'website',
             'courts_count',
+            'court_surface',
             'latitude',
             'longitude',
             'opening_hours',
             'amenities',
+            'utilities',
+            'regulations',
             'status',
+            'featured_status',
+            'verified',
+            'rating',
+            'rating_count',
         ]);
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('stadium_images', 'public');
+        }
+
+        // Convert utilities text to array
+        if (!empty($data['utilities'])) {
+            $data['utilities'] = array_filter(array_map('trim', explode("\n", $data['utilities'])));
+        } else {
+            $data['utilities'] = null;
         }
 
         $data['user_id'] = auth()->id();
@@ -85,12 +106,19 @@ class HomeYardStadiumController extends Controller
             'email' => 'nullable|email',
             'website' => 'nullable|url',
             'courts_count' => 'required|integer|min:1',
+            'court_surface' => 'nullable|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'latitude' => 'nullable|numeric|between:-90,90',
             'longitude' => 'nullable|numeric|between:-180,180',
             'opening_hours' => 'nullable|string',
             'amenities' => 'nullable|array',
+            'utilities' => 'nullable|string',
+            'regulations' => 'nullable|string',
             'status' => 'required|in:active,inactive',
+            'featured_status' => 'nullable|in:featured,normal',
+            'verified' => 'nullable|boolean',
+            'rating' => 'nullable|numeric|between:0,5',
+            'rating_count' => 'nullable|integer|min:0',
         ]);
 
         $data = $request->only([
@@ -101,11 +129,18 @@ class HomeYardStadiumController extends Controller
             'email',
             'website',
             'courts_count',
+            'court_surface',
             'latitude',
             'longitude',
             'opening_hours',
             'amenities',
+            'utilities',
+            'regulations',
             'status',
+            'featured_status',
+            'verified',
+            'rating',
+            'rating_count',
         ]);
 
         if ($request->hasFile('image')) {
@@ -113,6 +148,13 @@ class HomeYardStadiumController extends Controller
                 Storage::disk('public')->delete($stadium->image);
             }
             $data['image'] = $request->file('image')->store('stadium_images', 'public');
+        }
+
+        // Convert utilities text to array
+        if (!empty($data['utilities'])) {
+            $data['utilities'] = array_filter(array_map('trim', explode("\n", $data['utilities'])));
+        } else {
+            $data['utilities'] = null;
         }
 
         $stadium->update($data);

@@ -93,6 +93,110 @@
                 style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; font-family: inherit;">{{ $tournament->prizes ?? old('prizes') }}</textarea>
         </div>
 
+        <!-- Hình Thức Thi Đấu và Hạng Giải -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Hình Thức Thi Đấu</label>
+                <select name="competition_format" class="form-control"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                    <option value="">-- Chọn --</option>
+                    <option value="single" {{ (isset($tournament) && $tournament->competition_format === 'single') || old('competition_format') === 'single' ? 'selected' : '' }}>Đơn</option>
+                    <option value="double" {{ (isset($tournament) && $tournament->competition_format === 'double') || old('competition_format') === 'double' ? 'selected' : '' }}>Đôi</option>
+                    <option value="mixed" {{ (isset($tournament) && $tournament->competition_format === 'mixed') || old('competition_format') === 'mixed' ? 'selected' : '' }}>Hỗn Hợp</option>
+                </select>
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Hạng Giải</label>
+                <select name="tournament_rank" class="form-control"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                    <option value="">-- Chọn --</option>
+                    <option value="beginner" {{ (isset($tournament) && $tournament->tournament_rank === 'beginner') || old('tournament_rank') === 'beginner' ? 'selected' : '' }}>Sơ Cấp</option>
+                    <option value="intermediate" {{ (isset($tournament) && $tournament->tournament_rank === 'intermediate') || old('tournament_rank') === 'intermediate' ? 'selected' : '' }}>Trung Cấp</option>
+                    <option value="advanced" {{ (isset($tournament) && $tournament->tournament_rank === 'advanced') || old('tournament_rank') === 'advanced' ? 'selected' : '' }}>Cao Cấp</option>
+                    <option value="professional" {{ (isset($tournament) && $tournament->tournament_rank === 'professional') || old('tournament_rank') === 'professional' ? 'selected' : '' }}>Chuyên Nghiệp</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Lợi Ích Đăng Ký -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Lợi Ích Đăng Ký</label>
+            <textarea name="registration_benefits" class="form-control" rows="4"
+                style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; font-family: inherit;">{{ $tournament->registration_benefits ?? old('registration_benefits') }}</textarea>
+        </div>
+
+        <!-- Luật Thi Đấu Chi Tiết -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Luật Thi Đấu Chi Tiết</label>
+            <textarea name="competition_rules" class="form-control" rows="5"
+                style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; font-family: inherit;">{{ $tournament->competition_rules ?? old('competition_rules') }}</textarea>
+        </div>
+
+        <!-- Timeline Sự Kiện -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Timeline Sự Kiện</label>
+            <textarea name="event_timeline" class="form-control" rows="5"
+                style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; font-family: inherit;">{{ $tournament->event_timeline ?? old('event_timeline') }}</textarea>
+        </div>
+
+        <!-- Thông Tin Xã Hội -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Thông Tin Xã Hội (Link, Mạng Xã Hội...)</label>
+            <textarea name="social_information" class="form-control" rows="4"
+                style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; font-family: inherit;">{{ $tournament->social_information ?? old('social_information') }}</textarea>
+        </div>
+
+        <!-- Thông Tin Tổ Chức -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Email Tổ Chức</label>
+                <input type="email" name="organizer_email" class="form-control" value="{{ $tournament->organizer_email ?? old('organizer_email') }}"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+            </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Hotline Tổ Chức</label>
+                <input type="tel" name="organizer_hotline" class="form-control" value="{{ $tournament->organizer_hotline ?? old('organizer_hotline') }}"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+            </div>
+        </div>
+
+        <!-- Lịch Thi Đấu -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Lịch Thi Đấu Chi Tiết</label>
+            <textarea name="competition_schedule" class="form-control" rows="5"
+                style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; font-family: inherit;">{{ $tournament->competition_schedule ?? old('competition_schedule') }}</textarea>
+        </div>
+
+        <!-- Kết Quả -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Kết Quả Giải Đấu</label>
+            <textarea name="results" class="form-control" rows="5"
+                style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; font-family: inherit;">{{ $tournament->results ?? old('results') }}</textarea>
+        </div>
+
+        <!-- Gallery -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Thư Viện Ảnh (Chọn nhiều ảnh)</label>
+            @if(isset($tournament) && $tournament->gallery)
+                <div style="margin-bottom: 15px; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;">
+                    @foreach($tournament->gallery as $index => $image)
+                        <div style="position: relative;">
+                            <img src="{{ asset('storage/' . $image) }}" alt="Gallery" style="width: 100%; height: 100px; object-fit: cover; border-radius: 6px;">
+                            <button type="button" onclick="removeGalleryImage({{ $index }})" style="position: absolute; top: 5px; right: 5px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px;">×</button>
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+            <div style="border: 2px dashed #e2e8f0; border-radius: 6px; padding: 20px; text-align: center; background: #f8fafc; cursor: pointer;" id="dropZone">
+                <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Kéo thả ảnh vào đây hoặc <span style="color: #8b5cf6; font-weight: 600;">bấm chọn file</span></p>
+                <input type="file" id="galleryInput" name="gallery[]" class="form-control" accept="image/*" multiple
+                    style="display: none; width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+            </div>
+            <div id="galleryPreview" style="margin-top: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px;"></div>
+        </div>
+
         <!-- Ảnh -->
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Ảnh Giải Đấu</label>
@@ -128,6 +232,71 @@
                     reader.readAsDataURL(file);
                 }
             });
+
+            // Gallery upload handler
+            const dropZone = document.getElementById('dropZone');
+            const galleryInput = document.getElementById('galleryInput');
+
+            dropZone.addEventListener('click', function() {
+                galleryInput.click();
+            });
+
+            dropZone.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropZone.style.background = '#f1f5f9';
+                dropZone.style.borderColor = '#8b5cf6';
+            });
+
+            dropZone.addEventListener('dragleave', function() {
+                dropZone.style.background = '#f8fafc';
+                dropZone.style.borderColor = '#e2e8f0';
+            });
+
+            dropZone.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropZone.style.background = '#f8fafc';
+                dropZone.style.borderColor = '#e2e8f0';
+                
+                // Transfer dropped files to input
+                galleryInput.files = e.dataTransfer.files;
+                
+                // Trigger change event
+                const event = new Event('change', { bubbles: true });
+                galleryInput.dispatchEvent(event);
+            });
+
+            galleryInput.addEventListener('change', function(e) {
+                const preview = document.getElementById('galleryPreview');
+                preview.innerHTML = '';
+                
+                console.log('Files selected: ' + e.target.files.length);
+                
+                Array.from(e.target.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        const div = document.createElement('div');
+                        div.style.position = 'relative';
+                        
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        img.style.width = '100%';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '6px';
+                        
+                        div.appendChild(img);
+                        preview.appendChild(div);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            function removeGalleryImage(index) {
+                // This would be handled by the controller
+                console.log('Remove image at index: ' + index);
+            }
         </script>
 
         <!-- Buttons -->

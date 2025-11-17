@@ -22,6 +22,17 @@ class Tournament extends Model
         'prizes',
         'status',
         'image',
+        'competition_format',
+        'tournament_rank',
+        'registration_benefits',
+        'competition_rules',
+        'event_timeline',
+        'social_information',
+        'organizer_email',
+        'organizer_hotline',
+        'competition_schedule',
+        'results',
+        'gallery',
     ];
 
     protected $casts = [
@@ -29,6 +40,7 @@ class Tournament extends Model
         'end_date' => 'date',
         'price' => 'decimal:2',
         'max_participants' => 'integer',
+        'gallery' => 'json',
     ];
 
     public function user()
