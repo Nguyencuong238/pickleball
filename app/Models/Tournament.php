@@ -40,7 +40,8 @@ class Tournament extends Model implements HasMedia
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
-        'price' => 'decimal:2',
+        'price' => 'float',
+        'prizes' => 'float',
         'max_participants' => 'integer',
         'gallery' => 'json',
     ];
