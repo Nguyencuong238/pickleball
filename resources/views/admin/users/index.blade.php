@@ -1,10 +1,12 @@
 @extends('layouts.app')
 
+@section('title', 'Quản lý người dùng')
+
 @section('content')
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h2>Manage User Permissions</h2>
+            {{-- <h2>Manage User Permissions</h2> --}}
 
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
@@ -13,10 +15,10 @@
             <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Name</th>
+                        <th>Tên</th>
                         <th>Email</th>
-                        <th>Roles</th>
-                        <th>Actions</th>
+                        <th>Vai trò</th>
+                        <th>Hành động</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -30,12 +32,12 @@
                                 @endforeach
                             </td>
                             <td>
-                                <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-primary">Edit</a>
+                                <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-primary">Sửa</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="text-center">No users found</td>
+                            <td colspan="4" class="text-center">Không tìm thấy người dùng</td>
                         </tr>
                     @endforelse
                 </tbody>

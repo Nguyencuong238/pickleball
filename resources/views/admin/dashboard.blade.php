@@ -2,12 +2,12 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-12">
             <h1 style="font-size: clamp(1.5rem, 4vw, 2.5rem); margin-bottom: 20px;">Bảng Điều Khiển Quản Trị Viên</h1>
             <hr>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Statistics Row -->
     <div class="row mb-4">
@@ -117,7 +117,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title" style="font-size: clamp(1rem, 2vw, 1.2rem);">Quản Lý Người Dùng & Quyền Hạn</h5>
+                    <h5 class="card-title" style="font-size: clamp(1rem, 2vw, 1.2rem);">Quản Lý Người Dùng</h5>
                 </div>
                 <div class="card-body" style="overflow-x: auto;">
                     @if(session('success'))
@@ -168,7 +168,7 @@
     </div>
 
     <!-- Roles & Permissions Section -->
-    <div class="row mt-4">
+    <div class="row mt-4 d-none">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">

@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Admin Dashboard - onePickleball</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -314,7 +315,7 @@
             </a>
 
             <a href="{{ route('admin.pages.index') }}" class="nav-link {{ request()->routeIs('admin.pages.*') ? 'active' : '' }}">
-                <i class="fas fa-file-alt"></i> Trang Tĩnh
+                <i class="fas fa-file-alt"></i> Page
             </a>
 
             <a href="{{ route('admin.stadiums.index') }}" class="nav-link {{ request()->routeIs('admin.stadiums.*') ? 'active' : '' }}">
@@ -327,8 +328,8 @@
 
             <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
 
-            <a href="{{ route('home') }}" class="nav-link">
-                <i class="fas fa-home"></i> Quay Lại Trang Web
+            <a href="{{ route('home') }}" class="nav-link" target="blank">
+                <i class="fas fa-home"></i> Quay Lại Trang Chính
             </a>
 
             <form method="POST" action="{{ route('logout') }}" style="padding: 12px 20px; margin: 10px 0;">

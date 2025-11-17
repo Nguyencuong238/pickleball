@@ -84,7 +84,8 @@
 </div>
 
 <!-- Simple TinyMCE setup for content editor -->
-<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/7/tinymce.min.js" referrerpolicy="origin"></script>
+<script src="https://cdn.tiny.cloud/1/{{ env('TINYMCE') }}/tinymce/8/tinymce.min.js" referrerpolicy="origin"
+        crossorigin="anonymous"></script>
 <script>
     tinymce.init({
         selector: '#contentEditor',

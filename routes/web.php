@@ -51,7 +51,7 @@ Route::get('/social', [HomeController::class, 'social'])->name('social');
 Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{slug}', [FrontNewsController::class, 'show'])->name('news.show');
 Route::get('/page/{page}', [PageController::class, 'show'])->name('page.show');
-Route::get('/courts-detail', [HomeController::class, 'courtsDetail'])->name('courts-detail');
+Route::get('/courts-detail/{court_id}', [HomeController::class, 'courtsDetail'])->name('courts-detail');
 Route::get('/tournaments-detail', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
 
 // User Dashboard Route

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>onePickleball.vn - Cộng Đồng Pickleball Việt Nam</title>
+    <title>OnePickleball - Cộng Đồng Pickleball Việt Nam</title>
     <meta name="description" content="Nền tảng hàng đầu về Pickleball tại Việt Nam - Tin tức, giải đấu, sân thi đấu và cộng đồng">
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
@@ -177,11 +177,11 @@
             </button>
             
             <ul class="nav-menu">
-                <li><a href="{{ route('home') }}" class="nav-link">Trang chủ</a></li>
-                <li><a href="{{ route('tournaments') }}" class="nav-link">Giải đấu</a></li>
-                <li><a href="{{ route('courts') }}" class="nav-link">Sân thi đấu</a></li>
-                <li><a href="{{ route('social') }}" class="nav-link">Giờ đi đấu</a></li>
-                <li><a href="{{ route('news') }}" class="nav-link">Tin tức</a></li>
+                <li><a href="{{ route('home') }}" class="nav-link @if(request()->routeIs('home')) active @endif">Trang chủ</a></li>
+                <li><a href="{{ route('tournaments') }}" class="nav-link @if(request()->routeIs('tournaments')) active @endif">Giải đấu</a></li>
+                <li><a href="{{ route('courts') }}" class="nav-link @if(request()->routeIs('courts')) active @endif">Sân thi đấu</a></li>
+                <li><a href="{{ route('social') }}" class="nav-link @if(request()->routeIs('social')) active @endif">Giờ đi đấu</a></li>
+                <li><a href="{{ route('news') }}" class="nav-link @if(request()->routeIs('news')) active @endif">Tin tức</a></li>
                 <li><a href="#contact" class="nav-link">Liên hệ</a></li>
             </ul>
             

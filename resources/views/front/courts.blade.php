@@ -2,6 +2,11 @@
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/css/courts.css') }}">
+    <style>
+        .price-input {
+            width: 50%;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -53,7 +58,7 @@
                 <div class="stat-box">
                     <div class="stat-icon">🏟️</div>
                     <div class="stat-content">
-                        <div class="stat-number">52</div>
+                        <div class="stat-number">{{ $totalStadiums }}</div>
                         <div class="stat-label">Sân thi đấu</div>
                     </div>
                 </div>
@@ -74,7 +79,7 @@
                 <div class="stat-box">
                     <div class="stat-icon">🎯</div>
                     <div class="stat-content">
-                        <div class="stat-number">320+</div>
+                        <div class="stat-number">{{ $totalCourts }}+</div>
                         <div class="stat-label">Sân đơn lẻ</div>
                     </div>
                 </div>
@@ -117,7 +122,7 @@
                     </button>
                 </div>
                 <div class="toggle-right">
-                    <span class="result-text">Tìm thấy <strong>52 sân</strong></span>
+                    <span class="result-text">Tìm thấy <strong>{{ $totalStadiums }} sân</strong></span>
                     <button class="filter-mobile-btn btn btn-outline">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="4" y1="21" x2="4" y2="14"/>
@@ -159,10 +164,10 @@
                                 <span>-</span>
                                 <input type="number" class="price-input" placeholder="Đến" min="0">
                             </div>
-                            <div class="price-slider">
+                            {{-- <div class="price-slider">
                                 <input type="range" min="0" max="500000" step="10000" value="0" class="range-min">
                                 <input type="range" min="0" max="500000" step="10000" value="500000" class="range-max">
-                            </div>
+                            </div> --}}
                         </div>
 
                         <!-- Rating Filter -->
@@ -283,14 +288,24 @@
                 <div class="courts-main">
                     <!-- Grid View -->
                     <div class="courts-grid active" id="courtsGrid">
-                        <!-- Court Card 1 -->
+                        @forelse($stadiums as $stadium)
+                        <!-- Court Card -->
                         <div class="court-card">
-                            <a href="court-detail.html" class="court-link">
+                            <a href="{{ route('courts-detail', $stadium->id) }}" class="court-link">
                                 <div class="court-image">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'%3E%3Crect fill='%2300A86B' width='400' height='280'/%3E%3Cline x1='0' y1='140' x2='400' y2='140' stroke='white' stroke-width='4'/%3E%3Cline x1='200' y1='0' x2='200' y2='280' stroke='white' stroke-width='2'/%3E%3Crect x='50' y='50' width='300' height='180' fill='none' stroke='white' stroke-width='3'/%3E%3Ctext x='200' y='160' font-family='Arial' font-size='20' fill='white' text-anchor='middle'%3ECOURT%3C/text%3E%3C/svg%3E" alt="Pickleball Rạch Chiếc">
+                                    @php
+                                        $bannerUrl = $stadium->getFirstMediaUrl('banner') ?: ($stadium->image ? asset('storage/' . $stadium->image) : asset('assets/images/court_default.svg'));
+                                    @endphp
+                                    <img src="{{ $bannerUrl }}" alt="{{ $stadium->name }}">
                                     <div class="court-badges">
+                                        @if($stadium->is_featured)
                                         <span class="badge badge-featured">⭐ Nổi bật</span>
+                                        @endif
+                                        @if($stadium->is_premium)
+                                        <span class="badge badge-premium">👑 Premium</span>
+                                        @else
                                         <span class="badge badge-available">✓ Còn chỗ</span>
+                                        @endif
                                     </div>
                                     <button class="favorite-btn" onclick="event.preventDefault();">
                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -301,13 +316,13 @@
                                 <div class="court-content">
                                     <div class="court-header">
                                         <div>
-                                            <h3 class="court-name">Pickleball Rạch Chiếc</h3>
+                                            <h3 class="court-name">{{ $stadium->name }}</h3>
                                             <div class="court-location">
                                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                                     <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                                                     <circle cx="12" cy="10" r="3"/>
                                                 </svg>
-                                                <span>Quận 2, TP.HCM</span>
+                                                <span>{{ $stadium->address }}</span>
                                             </div>
                                         </div>
                                         <div class="court-rating">
@@ -318,147 +333,36 @@
                                     </div>
 
                                     <div class="court-features">
-                                        <span class="feature-tag">🏟️ 8 sân</span>
-                                        <span class="feature-tag">🚿 Phòng tắm</span>
-                                        <span class="feature-tag">🅿️ Bãi đỗ xe</span>
-                                        <span class="feature-tag">☕ Canteen</span>
+                                        <span class="feature-tag">🏟️ {{ $stadium->courts_count }} sân</span>
+                                        @if($stadium->amenities)
+                                            @foreach(is_array($stadium->amenities) ? array_slice($stadium->amenities, 0, 3) : [] as $amenity)
+                                            <span class="feature-tag">{{ $amenity }}</span>
+                                            @endforeach
+                                        @endif
                                     </div>
 
                                     <div class="court-info">
                                         <div class="info-row">
                                             <span class="info-label">Giờ mở cửa:</span>
-                                            <span class="info-value">05:00 - 23:00</span>
+                                            <span class="info-value">{{ $stadium->opening_hours ?? 'Liên hệ' }}</span>
                                         </div>
                                         <div class="info-row price-row">
-                                            <span class="info-label">Giá thuê:</span>
-                                            <span class="price-value">150.000đ - 300.000đ/giờ</span>
+                                            <span class="info-label">Địa chỉ:</span>
+                                            <span class="price-value">{{ $stadium->phone ?? 'Không có' }}</span>
                                         </div>
                                     </div>
 
-                                    <button class="btn btn-primary btn-block" onclick="event.preventDefault(); window.location.href='booking.html';">
+                                    <button class="btn btn-primary btn-block" onclick="event.preventDefault(); window.location.href='{{ route('booking') }}';">
                                         Đặt sân ngay
                                     </button>
                                 </div>
                             </a>
                         </div>
-
-                        <!-- Court Card 2 -->
-                        <div class="court-card">
-                            <a href="court-detail.html" class="court-link">
-                                <div class="court-image">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'%3E%3Crect fill='%230088CC' width='400' height='280'/%3E%3Cline x1='0' y1='140' x2='400' y2='140' stroke='white' stroke-width='4'/%3E%3Cline x1='200' y1='0' x2='200' y2='280' stroke='white' stroke-width='2'/%3E%3Crect x='50' y='50' width='300' height='180' fill='none' stroke='white' stroke-width='3'/%3E%3Ctext x='200' y='160' font-family='Arial' font-size='20' fill='white' text-anchor='middle'%3ECOURT%3C/text%3E%3C/svg%3E" alt="Thảo Điền Sports Club">
-                                    <div class="court-badges">
-                                        <span class="badge badge-premium">👑 Premium</span>
-                                    </div>
-                                    <button class="favorite-btn" onclick="event.preventDefault();">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="court-content">
-                                    <div class="court-header">
-                                        <div>
-                                            <h3 class="court-name">Thảo Điền Sports Club</h3>
-                                            <div class="court-location">
-                                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                                    <circle cx="12" cy="10" r="3"/>
-                                                </svg>
-                                                <span>Thủ Đức, TP.HCM</span>
-                                            </div>
-                                        </div>
-                                        <div class="court-rating">
-                                            <span class="rating-star">⭐</span>
-                                            <span class="rating-value">4.9</span>
-                                            <span class="rating-count">(95)</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="court-features">
-                                        <span class="feature-tag">🏟️ 6 sân</span>
-                                        <span class="feature-tag">🚿 Phòng tắm VIP</span>
-                                        <span class="feature-tag">🅿️ Bãi đỗ xe</span>
-                                        <span class="feature-tag">🏋️ Gym</span>
-                                    </div>
-
-                                    <div class="court-info">
-                                        <div class="info-row">
-                                            <span class="info-label">Giờ mở cửa:</span>
-                                            <span class="info-value">06:00 - 22:00</span>
-                                        </div>
-                                        <div class="info-row price-row">
-                                            <span class="info-label">Giá thuê:</span>
-                                            <span class="price-value">200.000đ - 400.000đ/giờ</span>
-                                        </div>
-                                    </div>
-
-                                    <button class="btn btn-primary btn-block" onclick="event.preventDefault(); window.location.href='booking.html';">
-                                        Đặt sân ngay
-                                    </button>
-                                </div>
-                            </a>
+                        @empty
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                            <p style="font-size: 18px; color: #666;">Hiện không có sân nào khả dụng</p>
                         </div>
-
-                        <!-- Court Card 3 -->
-                        <div class="court-card">
-                            <a href="court-detail.html" class="court-link">
-                                <div class="court-image">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 280'%3E%3Crect fill='%23FF6B6B' width='400' height='280'/%3E%3Cline x1='0' y1='140' x2='400' y2='140' stroke='white' stroke-width='4'/%3E%3Cline x1='200' y1='0' x2='200' y2='280' stroke='white' stroke-width='2'/%3E%3Crect x='50' y='50' width='300' height='180' fill='none' stroke='white' stroke-width='3'/%3E%3Ctext x='200' y='160' font-family='Arial' font-size='20' fill='white' text-anchor='middle'%3ECOURT%3C/text%3E%3C/svg%3E" alt="Cầu Giấy Arena">
-                                    <div class="court-badges">
-                                        <span class="badge badge-available">✓ Còn chỗ</span>
-                                    </div>
-                                    <button class="favorite-btn" onclick="event.preventDefault();">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                        </svg>
-                                    </button>
-                                </div>
-                                <div class="court-content">
-                                    <div class="court-header">
-                                        <div>
-                                            <h3 class="court-name">Cầu Giấy Pickleball Arena</h3>
-                                            <div class="court-location">
-                                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                                    <circle cx="12" cy="10" r="3"/>
-                                                </svg>
-                                                <span>Cầu Giấy, Hà Nội</span>
-                                            </div>
-                                        </div>
-                                        <div class="court-rating">
-                                            <span class="rating-star">⭐</span>
-                                            <span class="rating-value">4.7</span>
-                                            <span class="rating-count">(74)</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="court-features">
-                                        <span class="feature-tag">🏟️ 10 sân</span>
-                                        <span class="feature-tag">🚿 Phòng tắm</span>
-                                        <span class="feature-tag">🅿️ Bãi đỗ xe</span>
-                                        <span class="feature-tag">🏪 Cửa hàng</span>
-                                    </div>
-
-                                    <div class="court-info">
-                                        <div class="info-row">
-                                            <span class="info-label">Giờ mở cửa:</span>
-                                            <span class="info-value">05:30 - 23:00</span>
-                                        </div>
-                                        <div class="info-row price-row">
-                                            <span class="info-label">Giá thuê:</span>
-                                            <span class="price-value">120.000đ - 250.000đ/giờ</span>
-                                        </div>
-                                    </div>
-
-                                    <button class="btn btn-primary btn-block" onclick="event.preventDefault(); window.location.href='booking.html';">
-                                        Đặt sân ngay
-                                    </button>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Add more court cards here (4-12) -->
+                        @endforelse
                     </div>
 
                     <!-- Map View -->
@@ -476,26 +380,47 @@
 
                     <!-- Pagination -->
                     <div class="pagination">
+                        @if($stadiums->onFirstPage())
                         <button class="pagination-btn pagination-prev" disabled>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <polyline points="15 18 9 12 15 6"/>
                             </svg>
                             Trước
                         </button>
+                        @else
+                        <a href="{{ $stadiums->previousPageUrl() }}" class="pagination-btn pagination-prev">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="15 18 9 12 15 6"/>
+                            </svg>
+                            Trước
+                        </a>
+                        @endif
+                        
                         <div class="pagination-numbers">
-                            <button class="pagination-number active">1</button>
-                            <button class="pagination-number">2</button>
-                            <button class="pagination-number">3</button>
-                            <button class="pagination-number">4</button>
-                            <span class="pagination-dots">...</span>
-                            <button class="pagination-number">8</button>
+                            @foreach($stadiums->getUrlRange(1, $stadiums->lastPage()) as $page => $url)
+                                @if($page == $stadiums->currentPage())
+                                <button class="pagination-number active">{{ $page }}</button>
+                                @else
+                                <a href="{{ $url }}" class="pagination-number">{{ $page }}</a>
+                                @endif
+                            @endforeach
                         </div>
-                        <button class="pagination-btn pagination-next">
+                        
+                        @if($stadiums->hasMorePages())
+                        <a href="{{ $stadiums->nextPageUrl() }}" class="pagination-btn pagination-next">
+                            Sau
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                        </a>
+                        @else
+                        <button class="pagination-btn pagination-next" disabled>
                             Sau
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <polyline points="9 18 15 12 9 6"/>
                             </svg>
                         </button>
+                        @endif
                     </div>
                 </div>
             </div>

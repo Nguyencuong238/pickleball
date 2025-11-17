@@ -60,19 +60,19 @@
                                     </td>
                                     <td style="padding: 15px 20px;">
                                         @if($tournament->status === 'upcoming')
-                                            <span style="background-color: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Sắp Diễn Ra</span>
+                                            <span style="background-color: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Sắp Diễn Ra</span>
                                         @elseif($tournament->status === 'ongoing')
-                                            <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Đang Diễn Ra</span>
+                                            <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Đang Diễn Ra</span>
                                         @elseif($tournament->status === 'completed')
-                                            <span style="background-color: #dbeafe; color: #0c4a6e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Hoàn Thành</span>
+                                            <span style="background-color: #dbeafe; color: #0c4a6e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Hoàn Thành</span>
                                         @else
-                                            <span style="background-color: #fee2e2; color: #991b1b; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Huỷ</span>
+                                            <span style="background-color: #fee2e2; color: #991b1b; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Huỷ</span>
                                         @endif
                                     </td>
-                                    <td style="padding: 15px 20px; text-align: center;">
-                                        <a href="{{ route('admin.tournaments.show', $tournament) }}" style="background: #10b981; color: white ; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-right: 5px; cursor: pointer;">
+                                    <td class="d-flex" style="padding: 15px 20px; text-align: center;">
+                                        {{-- <a href="{{ route('admin.tournaments.show', $tournament) }}" style="background: #10b981; color: white ; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-right: 5px; cursor: pointer;">
                                            Chi tiết
-                                        </a>
+                                        </a> --}}
                                         <a href="{{ route('admin.tournaments.edit', $tournament) }}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-right: 5px; cursor: pointer;">
                                             Sửa
                                         </a>

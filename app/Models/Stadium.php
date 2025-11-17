@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Stadium extends Model
+class Stadium extends Model implements HasMedia
 {
-    use HasFactory;
+    use HasFactory, InteractsWithMedia;
 
     protected $fillable = [
         'user_id',
@@ -31,6 +33,8 @@ class Stadium extends Model
         'verified',
         'rating',
         'rating_count',
+        'is_featured',
+        'is_premium',
     ];
 
     protected $casts = [
@@ -42,7 +46,23 @@ class Stadium extends Model
         'rating' => 'float',
         'rating_count' => 'integer',
         'verified' => 'boolean',
+        'is_featured' => 'boolean',
+        'is_premium' => 'boolean',
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('gallery')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->singleFile();
+
+        $this->addMediaCollection('images')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp']);
+
+        $this->addMediaCollection('banner')
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/webp'])
+            ->singleFile();
+    }
 
     public function user()
     {
