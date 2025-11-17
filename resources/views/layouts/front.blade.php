@@ -177,11 +177,11 @@
             </button>
             
             <ul class="nav-menu">
-                <li><a href="{{ route('home') }}" class="nav-link">Trang chủ</a></li>
-                <li><a href="{{ route('tournaments') }}" class="nav-link">Giải đấu</a></li>
-                <li><a href="{{ route('courts') }}" class="nav-link">Sân thi đấu</a></li>
-                <li><a href="{{ route('social') }}" class="nav-link">Giờ đi đấu</a></li>
-                <li><a href="{{ route('news') }}" class="nav-link">Tin tức</a></li>
+                <li><a href="{{ route('home') }}" class="nav-link @if(request()->routeIs('home')) active @endif">Trang chủ</a></li>
+                <li><a href="{{ route('tournaments') }}" class="nav-link @if(request()->routeIs('tournaments')) active @endif">Giải đấu</a></li>
+                <li><a href="{{ route('courts') }}" class="nav-link @if(request()->routeIs('courts')) active @endif">Sân thi đấu</a></li>
+                <li><a href="{{ route('social') }}" class="nav-link @if(request()->routeIs('social')) active @endif">Giờ đi đấu</a></li>
+                <li><a href="{{ route('news') }}" class="nav-link @if(request()->routeIs('news')) active @endif">Tin tức</a></li>
                 <li><a href="#contact" class="nav-link">Liên hệ</a></li>
             </ul>
             

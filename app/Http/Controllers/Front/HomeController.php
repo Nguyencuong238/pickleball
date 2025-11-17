@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\News;
+use App\Models\Stadium;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -21,12 +22,24 @@ class HomeController extends Controller
     
     public function courts()
     {
-        return view('front.courts');
+        $stadiums = Stadium::where('status', 'active')->paginate(10);
+        $totalStadiums = Stadium::where('status', 'active')->count();
+        $totalCourts = Stadium::where('status', 'active')->sum('courts_count');
+        
+        return view('front.courts', [
+            'stadiums' => $stadiums,
+            'totalStadiums' => $totalStadiums,
+            'totalCourts' => $totalCourts,
+        ]);
     }
 
-    public function courtsDetail()
+    public function courtsDetail($court_id)
     {
-        return view('front.courts.courts_detail');
+        $stadium = Stadium::findOrFail($court_id);
+        
+        return view('front.courts.courts_detail', [
+            'stadium' => $stadium,
+        ]);
     }
 
     public function tournaments()

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Stadium;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 
 class StadiumController extends Controller
 {
@@ -35,7 +34,9 @@ class StadiumController extends Controller
             'email' => 'nullable|email',
             'website' => 'nullable|url',
             'courts_count' => 'required|integer|min:1',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'gallery' => 'nullable|array',
+            'gallery.*' => 'image|mimes:jpg,jpeg,png,gif,webp|max:2048',
+            'banner' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
             'opening_hours' => 'nullable|string',
             'amenities' => 'nullable|array',
             'status' => 'required|in:active,inactive',
@@ -56,11 +57,21 @@ class StadiumController extends Controller
             'status',
         ]);
 
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('stadium_images', 'public');
+        $stadium = Stadium::create($data);
+
+        // Upload gallery images
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $image) {
+                $stadium->addMedia($image)
+                    ->toMediaCollection('images');
+            }
         }
 
-        Stadium::create($data);
+        // Upload banner image
+        if ($request->hasFile('banner')) {
+            $stadium->addMedia($request->file('banner'))
+                ->toMediaCollection('banner');
+        }
 
         return redirect()->route('admin.stadiums.index')->with('success', 'Stadium created successfully.');
     }
@@ -80,10 +91,13 @@ class StadiumController extends Controller
             'email' => 'nullable|email',
             'website' => 'nullable|url',
             'courts_count' => 'required|integer|min:1',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'gallery' => 'nullable|array',
+            'gallery.*' => 'image|mimes:jpg,jpeg,png,gif,webp|max:2048',
+            'banner' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
             'opening_hours' => 'nullable|string',
             'amenities' => 'nullable|array',
             'status' => 'required|in:active,inactive',
+            'deleted_media_ids' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -99,26 +113,47 @@ class StadiumController extends Controller
             'status',
         ]);
 
-        if ($request->hasFile('image')) {
-            if ($stadium->image && Storage::disk('public')->exists($stadium->image)) {
-                Storage::disk('public')->delete($stadium->image);
+        $stadium->update($data);
+
+        // Delete marked media files
+        if ($request->filled('deleted_media_ids')) {
+            $deletedIds = array_filter(explode(',', $request->input('deleted_media_ids')));
+            foreach ($deletedIds as $mediaId) {
+                $media = \Spatie\MediaLibrary\MediaCollections\Models\Media::find($mediaId);
+                if ($media) {
+                    $media->delete();
+                }
             }
-            $data['image'] = $request->file('image')->store('stadium_images', 'public');
         }
 
-        $stadium->update($data);
+        // Upload gallery images
+        if ($request->hasFile('gallery')) {
+            foreach ($request->file('gallery') as $image) {
+                $stadium->addMedia($image)
+                    ->toMediaCollection('images');
+            }
+        }
+
+        // Update banner image
+        if ($request->hasFile('banner')) {
+            // Delete old banner
+            $stadium->clearMediaCollection('banner');
+            $stadium->addMedia($request->file('banner'))
+                ->toMediaCollection('banner');
+        }
 
         return redirect()->route('admin.stadiums.index')->with('success', 'Stadium updated successfully.');
     }
 
     public function destroy(Stadium $stadium)
     {
-        if ($stadium->image && Storage::disk('public')->exists($stadium->image)) {
-            Storage::disk('public')->delete($stadium->image);
-        }
+        // Delete all media files
+        $stadium->clearMediaCollection('images');
+        $stadium->clearMediaCollection('banner');
 
         $stadium->delete();
 
         return redirect()->route('admin.stadiums.index')->with('success', 'Stadium deleted successfully.');
     }
+
 }
