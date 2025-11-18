@@ -310,6 +310,10 @@
                 <i class="fas fa-users"></i> Người Dùng
             </a>
 
+            <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
+                <i class="fas fa-newspaper"></i> Danh mục
+            </a>
+
             <a href="{{ route('admin.news.index') }}" class="nav-link {{ request()->routeIs('admin.news.*') ? 'active' : '' }}">
                 <i class="fas fa-newspaper"></i> Tin Tức
             </a>

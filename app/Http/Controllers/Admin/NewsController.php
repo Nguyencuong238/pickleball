@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Models\News;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +24,8 @@ class NewsController extends Controller
 
     public function create()
     {
-        return view('admin.news.create');
+        $categories = Category::all();
+        return view('admin.news.create', compact('categories'));
     }
 
     public function store(Request $request)
@@ -31,24 +33,27 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'category_id' => 'nullable|exists:categories,id',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
-        $data = $request->only('title', 'content');
+        $data = $request->only('title', 'content', 'category_id', 'is_featured');
         $data['author'] = Auth::user()->name;
+        $data['status'] = 'active';
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('news_images', 'public');
         }
 
-        News::create($data);
+        $news = News::create($data);
 
-        return redirect()->route('admin.news.index')->with('success', 'News created successfully.');
+        return redirect()->route('admin.news.index')->with('success', 'Tạo bài viết thành công.');
     }
 
     public function edit(News $news)
     {
-        return view('admin.news.edit', compact('news'));
+        $categories = Category::all();
+        return view('admin.news.edit', compact('news', 'categories'));
     }
 
     public function update(Request $request, News $news)
@@ -56,10 +61,11 @@ class NewsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
+            'category_id' => 'nullable|exists:categories,id',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,svg,webp|max:2048',
         ]);
 
-        $data = $request->only('title', 'content');
+        $data = $request->only('title', 'content', 'category_id', 'is_featured');
 
         if ($request->hasFile('image')) {
             if ($news->image && Storage::disk('public')->exists($news->image)) {
@@ -70,7 +76,7 @@ class NewsController extends Controller
 
         $news->update($data);
 
-        return redirect()->route('admin.news.index')->with('success', 'News updated successfully.');
+        return redirect()->route('admin.news.index')->with('success', 'Cập nhật bài viết thành công.');
     }
 
     public function destroy(News $news)
@@ -81,6 +87,6 @@ class NewsController extends Controller
 
         $news->delete();
 
-        return redirect()->route('admin.news.index')->with('success', 'News deleted successfully.');
+        return redirect()->route('admin.news.index')->with('success', 'Xóa bài viết thành công.');
     }
 }

@@ -50,16 +50,87 @@ class HomeController extends Controller
         return view('front.booking');
     }
     
-    public function courts()
+    public function courts(Request $request)
     {
-        $stadiums = Stadium::where('status', 'active')->paginate(10);
-        $totalStadiums = Stadium::where('status', 'active')->count();
-        $totalCourts = Stadium::where('status', 'active')->sum('courts_count');
+        $query = Stadium::where('status', 'active');
+        
+        // Search functionality - tìm kiếm theo tên hoặc địa chỉ
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('address', 'like', "%{$search}%");
+            });
+        }
+        
+        // Price filter - lọc theo giá
+        if ($request->filled('price_min')) {
+            $priceMin = (int) $request->input('price_min');
+            $query->where('price_per_hour', '>=', $priceMin * 1000);
+        }
+        
+        if ($request->filled('price_max')) {
+            $priceMax = (int) $request->input('price_max');
+            $query->where('price_per_hour', '<=', $priceMax * 1000);
+        }
+        
+        // Location filter - lọc theo địa điểm
+        if ($request->filled('location')) {
+            $location = $request->input('location');
+            $query->where('address', 'like', "%{$location}%");
+        }
+        
+        // Courts count filter - lọc theo số sân
+        if ($request->filled('courts_range')) {
+            $range = $request->input('courts_range');
+            if ($range === '1-3') {
+                $query->whereBetween('courts_count', [1, 3]);
+            } elseif ($range === '4-6') {
+                $query->whereBetween('courts_count', [4, 6]);
+            } elseif ($range === '7+') {
+                $query->where('courts_count', '>=', 7);
+            }
+        }
+        
+        // Rating filter - lọc theo đánh giá
+        if ($request->filled('rating')) {
+            $rating = (float) $request->input('rating');
+            $query->where('rating', '>=', $rating);
+        }
+        
+        // Get total stadiums and courts before pagination
+        $totalStadiums = $query->count();
+        $totalCourts = $query->sum('courts_count');
+        
+        // Get unique locations for filter dropdown
+        $locations = Stadium::where('status', 'active')
+            ->distinct()
+            ->pluck('address')
+            ->map(function ($address) {
+                // Extract city/province from address
+                $parts = explode(',', $address);
+                return trim(end($parts)); // Get last part (usually province)
+            })
+            ->unique()
+            ->sort()
+            ->values();
+        
+        // Paginate results
+        $stadiums = $query->paginate(10)->appends($request->query());
         
         return view('front.courts', [
             'stadiums' => $stadiums,
             'totalStadiums' => $totalStadiums,
             'totalCourts' => $totalCourts,
+            'locations' => $locations,
+            'filters' => [
+                'search' => $request->input('search'),
+                'price_min' => $request->input('price_min'),
+                'price_max' => $request->input('price_max'),
+                'location' => $request->input('location'),
+                'courts_range' => $request->input('courts_range'),
+                'rating' => $request->input('rating'),
+            ],
         ]);
     }
 
@@ -212,7 +283,28 @@ class HomeController extends Controller
 
     public function news()
     {
-        $news = News::paginate(6);
-        return view('front.news', ['news' => $news]);
+        // Featured news (is_featured = true)
+        $featuredNews = News::where('status', 'active')
+            ->where('is_featured', true)
+            ->orderBy('created_at', 'desc')
+            ->first();
+        
+        // All news paginated (excluding featured)
+        $news = News::where('status', 'active')
+            ->orderBy('created_at', 'desc')
+            ->paginate(6);
+        
+        // Categories for filter
+        $categories = News::where('status', 'active')
+            ->distinct()
+            ->pluck('category')
+            ->filter()
+            ->toArray();
+        
+        return view('front.news', [
+            'news' => $news,
+            'featuredNews' => $featuredNews,
+            'categories' => $categories,
+        ]);
     }
 }
