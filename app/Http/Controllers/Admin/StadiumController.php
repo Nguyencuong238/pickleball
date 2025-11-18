@@ -134,8 +134,6 @@ class StadiumController extends Controller
             'website',
             'courts_count',
             'court_surface',
-            'latitude',
-            'longitude',
             'opening_hours',
             'amenities',
             'utilities',

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Laravel\Socialite\Facades\Socialite;
 
 class AuthController extends Controller
 {
@@ -17,7 +18,7 @@ class AuthController extends Controller
 
     public function showRegister()
     {
-        return view('auth.register');
+        return view('auth.login');
     }
 
     // ---------- REGISTER ----------
@@ -26,16 +27,24 @@ class AuthController extends Controller
         $req->validate([
             'name'     => 'required|min:3',
             'email'    => 'required|email|unique:users,email',
-            'password' => 'required|min:6|confirmed'
+            'phone'    => 'nullable|regex:/^\d{10,11}$/',
+            'password' => 'required|min:6|confirmed',
+            'terms'    => 'required'
+        ], [
+            'email.unique' => 'Email này đã được sử dụng. Vui lòng chọn email khác.',
+            'phone.regex' => 'Số điện thoại phải gồm 10 hoặc 11 chữ số.',
+            'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'terms.required' => 'Bạn phải chấp nhận Điều khoản dịch vụ.'
         ]);
 
         User::create([
             'name' => $req->name,
             'email' => $req->email,
+            'phone' => $req->phone,
             'password' => Hash::make($req->password),
         ]);
 
-        return back()->with('success', 'Đăng ký thành công! Đang chuyển sang trang đăng nhập...');
+        return back()->with('success', 'Đăng ký thành công! Vui lòng đăng nhập với tài khoản của bạn.');
     }
 
 
@@ -103,5 +112,47 @@ class AuthController extends Controller
         }
 
         return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng!']);
+    }
+
+    // ---------- GOOGLE OAUTH ----------
+    public function redirectToGoogle()
+    {
+        return Socialite::driver('google')->redirect();
+    }
+
+    public function handleGoogleCallback()
+    {
+        try {
+            $googleUser = Socialite::driver('google')->user();
+        } catch (\Exception $e) {
+            return redirect('/login')->withErrors(['email' => 'Không thể kết nối với Google. Vui lòng thử lại.']);
+        }
+
+        // Find or create user
+        $user = User::where('email', $googleUser->getEmail())->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name' => $googleUser->getName(),
+                'email' => $googleUser->getEmail(),
+                'google_id' => $googleUser->getId(),
+                'password' => Hash::make(str()->random(24)), // Generate random password for OAuth users
+            ]);
+        } else {
+            // Update google_id if user exists but doesn't have it
+            if (!$user->google_id) {
+                $user->update(['google_id' => $googleUser->getId()]);
+            }
+        }
+
+        // Log the user in
+        Auth::login($user);
+
+        // Redirect based on user role
+        if ($user->hasRole('admin')) {
+            return redirect('/admin/dashboard');
+        }
+
+        return redirect('/dashboard');
     }
 }
