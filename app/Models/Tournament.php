@@ -17,6 +17,7 @@ class Tournament extends Model implements HasMedia
         'description',
         'start_date',
         'end_date',
+        'registration_deadline',
         'location',
         'max_participants',
         'price',
@@ -40,6 +41,7 @@ class Tournament extends Model implements HasMedia
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
+        'registration_deadline' => 'datetime',
         'price' => 'float',
         'prizes' => 'float',
         'max_participants' => 'integer',

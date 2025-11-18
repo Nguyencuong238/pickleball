@@ -59,12 +59,8 @@
                                         </span>
                                     </td>
                                     <td style="padding: 15px 20px;">
-                                        @if($tournament->status === 'upcoming')
-                                            <span style="background-color: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Sắp Diễn Ra</span>
-                                        @elseif($tournament->status === 'ongoing')
-                                            <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Đang Diễn Ra</span>
-                                        @elseif($tournament->status === 'completed')
-                                            <span style="background-color: #dbeafe; color: #0c4a6e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Hoàn Thành</span>
+                                        @if($tournament->status == '1')
+                                            <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Hoạt động</span>
                                         @else
                                             <span style="background-color: #fee2e2; color: #991b1b; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;white-space:nowrap">Huỷ</span>
                                         @endif

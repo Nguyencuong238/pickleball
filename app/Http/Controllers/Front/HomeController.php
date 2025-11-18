@@ -87,10 +87,10 @@ class HomeController extends Controller
             $query->where(function($q) use ($request) {
                 foreach($request->statuses as $status) {
                     if ($status === 'open') {
-                        // Đang mở đăng ký: start_date > now
-                        $q->orWhere(function($subQ) {
-                            $subQ->whereDate('start_date', '>', now());
-                        });
+                         // Đang mở đăng ký: registration_deadline > now
+                         $q->orWhere(function($subQ) {
+                             $subQ->where('registration_deadline', '>', now());
+                         });
                     } elseif ($status === 'coming_soon') {
                         // Sắp mở: start_date > now + 30 days
                         $q->orWhere(function($subQ) {
@@ -163,7 +163,7 @@ class HomeController extends Controller
         $totalLocations = $activeTournaments->distinct('location')->count('location');
         
         // Status counts (based on dates, only active tournaments)
-        $statusOpen = Tournament::where('status', 1)->whereDate('start_date', '>', $now)->count();
+         $statusOpen = Tournament::where('status', 1)->where('registration_deadline', '>', $now)->count();
         $statusEnded = Tournament::where('status', 1)->whereDate('end_date', '<', $now)->count();
         $statusOngoing = Tournament::where('status', 1)->whereDate('start_date', '<=', $now)
             ->whereDate('end_date', '>=', $now)

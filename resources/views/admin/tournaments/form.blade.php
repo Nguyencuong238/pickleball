@@ -41,26 +41,32 @@
                 style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; font-family: inherit;">{{ $tournament->description ?? old('description') }}</textarea>
         </div>
 
-        <!-- Ngày Bắt Đầu, Kết Thúc, Địa Điểm -->
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Ngày Bắt Đầu *</label>
-                <input type="date" name="start_date" class="form-control" value="{{ isset($tournament) ? $tournament->start_date->format('Y-m-d') : old('start_date') }}" required
-                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
-            </div>
+        <!-- Ngày Bắt Đầu, Kết Thúc, Hạn Đăng Ký, Địa Điểm -->
+         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+             <div>
+                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Ngày Bắt Đầu *</label>
+                 <input type="date" name="start_date" class="form-control" value="{{ isset($tournament) ? $tournament->start_date->format('Y-m-d') : old('start_date') }}" required
+                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+             </div>
 
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Ngày Kết Thúc</label>
-                <input type="date" name="end_date" class="form-control" value="{{ isset($tournament) && $tournament->end_date ? $tournament->end_date->format('Y-m-d') : old('end_date') }}"
-                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
-            </div>
+             <div>
+                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Ngày Kết Thúc</label>
+                 <input type="date" name="end_date" class="form-control" value="{{ isset($tournament) && $tournament->end_date ? $tournament->end_date->format('Y-m-d') : old('end_date') }}"
+                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+             </div>
 
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Địa Điểm</label>
-                <input type="text" name="location" class="form-control" value="{{ $tournament->location ?? old('location') }}"
-                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
-            </div>
-        </div>
+             <div>
+                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Hạn Đăng Ký</label>
+                 <input type="datetime-local" name="registration_deadline" class="form-control" value="{{ isset($tournament) && $tournament->registration_deadline ? $tournament->registration_deadline->format('Y-m-d\TH:i') : old('registration_deadline') }}"
+                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+             </div>
+
+             <div>
+                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Địa Điểm</label>
+                 <input type="text" name="location" class="form-control" value="{{ $tournament->location ?? old('location') }}"
+                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+             </div>
+         </div>
 
         <!-- Số Vận Động Viên Tối Đa, Giá -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
