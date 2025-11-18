@@ -20,6 +20,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        if($this->app->environment('production')) {
+    \URL::forceScheme('https');
+}
         // Blade directives for media
         Blade::directive('mediaUrl', function ($media) {
             return "<?php echo ($media)->getUrl() ?? null; ?>";
