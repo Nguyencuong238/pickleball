@@ -155,4 +155,46 @@ class AuthController extends Controller
 
         return redirect('/dashboard');
     }
+
+    // ---------- FACEBOOK OAUTH ----------
+    public function redirectToFacebook()
+    {
+        return Socialite::driver('facebook')->redirect();
+    }
+
+    public function handleFacebookCallback()
+    {
+        try {
+            $facebookUser = Socialite::driver('facebook')->user();
+        } catch (\Exception $e) {
+            return redirect('/login')->withErrors(['email' => 'Không thể kết nối với Facebook. Vui lòng thử lại.']);
+        }
+
+        // Find or create user
+        $user = User::where('email', $facebookUser->getEmail())->first();
+
+        if (!$user) {
+            $user = User::create([
+                'name' => $facebookUser->getName(),
+                'email' => $facebookUser->getEmail(),
+                'facebook_id' => $facebookUser->getId(),
+                'password' => Hash::make(str()->random(24)), // Generate random password for OAuth users
+            ]);
+        } else {
+            // Update facebook_id if user exists but doesn't have it
+            if (!$user->facebook_id) {
+                $user->update(['facebook_id' => $facebookUser->getId()]);
+            }
+        }
+
+        // Log the user in
+        Auth::login($user);
+
+        // Redirect based on user role
+        if ($user->hasRole('admin')) {
+            return redirect('/admin/dashboard');
+        }
+
+        return redirect('/dashboard');
+    }
 }
