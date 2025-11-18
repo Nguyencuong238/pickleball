@@ -22,36 +22,39 @@
             <p class="page-description">Tìm kiếm và đặt sân Pickleball chất lượng cao với cơ sở vật chất hiện đại</p>
             
             <!-- Search Bar -->
-            <div class="main-search-bar">
+            <form method="GET" action="{{ route('courts') }}" class="main-search-bar">
                 <div class="search-input-group">
                     <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
-                    <input type="text" class="main-search-input" placeholder="Tìm kiếm sân theo tên, địa chỉ...">
+                    <input type="text" name="search" class="main-search-input" 
+                           placeholder="Tìm kiếm sân theo tên, địa chỉ..." 
+                           value="{{ $filters['search'] ?? '' }}">
                 </div>
                 <div class="search-location-group">
                     <svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                         <circle cx="12" cy="10" r="3"/>
                     </svg>
-                    <select class="location-select">
+                    <select name="location" class="location-select">
                         <option value="">Tất cả khu vực</option>
-                        <option value="hcm">TP. Hồ Chí Minh</option>
-                        <option value="hn">Hà Nội</option>
-                        <option value="dn">Đà Nẵng</option>
-                        <option value="ct">Cần Thơ</option>
-                        <option value="vt">Vũng Tàu</option>
+                        @forelse($locations as $loc)
+                        <option value="{{ $loc }}" {{ ($filters['location'] ?? '') === $loc ? 'selected' : '' }}>
+                            {{ $loc }}
+                        </option>
+                        @empty
+                        @endforelse
                     </select>
                 </div>
-                <button class="btn btn-primary btn-lg search-btn">
+                <button type="submit" class="btn btn-primary btn-lg search-btn">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <circle cx="11" cy="11" r="8"/>
                         <path d="m21 21-4.35-4.35"/>
                     </svg>
                     Tìm kiếm
                 </button>
-            </div>
+            </form>
 
             <!-- Quick Stats -->
             <div class="quick-stats">
@@ -122,8 +125,13 @@
                     </button>
                 </div>
                 <div class="toggle-right">
-                    <span class="result-text">Tìm thấy <strong>{{ $totalStadiums }} sân</strong></span>
-                    <button class="filter-mobile-btn btn btn-outline">
+                    <span class="result-text">
+                        Tìm thấy <strong>{{ $totalStadiums }} sân</strong>
+                        @if($filters['search'] || $filters['price_min'] || $filters['price_max'] || $filters['location'] || $filters['courts_range'] || $filters['rating'])
+                            <span style="color: #999;">(với bộ lọc)</span>
+                        @endif
+                    </span>
+                    <button type="button" class="filter-mobile-btn btn btn-outline">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <line x1="4" y1="21" x2="4" y2="14"/>
                             <line x1="4" y1="10" x2="4" y2="3"/>
@@ -140,7 +148,7 @@
             <div class="courts-layout">
                 <!-- Sidebar Filters -->
                 <aside class="courts-sidebar">
-                    <div class="filter-card">
+                    <form id="filterForm" method="GET" action="{{ route('courts') }}" class="filter-card">
                         <div class="filter-header">
                             <h3 class="filter-title">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -153,40 +161,43 @@
                                 </svg>
                                 Bộ lọc
                             </h3>
-                            <button class="filter-reset">Xóa bộ lọc</button>
+                            <button type="button" class="filter-reset">Xóa bộ lọc</button>
                         </div>
 
                         <!-- Price Range Filter -->
                         <div class="filter-group">
-                            <label class="filter-label">Giá thuê (VNĐ/giờ)</label>
+                            <label class="filter-label">Giá thuê (nghìn VNĐ/giờ)</label>
                             <div class="price-range-inputs">
-                                <input type="number" class="price-input" placeholder="Từ" min="0">
+                                <input type="number" name="price_min" class="price-input" placeholder="Từ" min="0" 
+                                       value="{{ $filters['price_min'] ?? '' }}">
                                 <span>-</span>
-                                <input type="number" class="price-input" placeholder="Đến" min="0">
+                                <input type="number" name="price_max" class="price-input" placeholder="Đến" min="0"
+                                       value="{{ $filters['price_max'] ?? '' }}">
                             </div>
-                            {{-- <div class="price-slider">
-                                <input type="range" min="0" max="500000" step="10000" value="0" class="range-min">
-                                <input type="range" min="0" max="500000" step="10000" value="500000" class="range-max">
-                            </div> --}}
                         </div>
 
                         <!-- Rating Filter -->
                         <div class="filter-group">
                             <label class="filter-label">Đánh giá</label>
                             <div class="filter-options">
-                                <label class="filter-checkbox">
-                                    <input type="checkbox">
-                                    <span class="checkbox-custom"></span>
+                                <label class="filter-radio">
+                                    <input type="radio" name="rating" value="" {{ !($filters['rating'] ?? null) ? 'checked' : '' }}>
+                                    <span class="radio-custom"></span>
+                                    <span>Tất cả</span>
+                                </label>
+                                <label class="filter-radio">
+                                    <input type="radio" name="rating" value="5" {{ ($filters['rating'] ?? null) === '5' ? 'checked' : '' }}>
+                                    <span class="radio-custom"></span>
                                     <span class="rating-stars">⭐⭐⭐⭐⭐ 5.0</span>
                                 </label>
-                                <label class="filter-checkbox">
-                                    <input type="checkbox">
-                                    <span class="checkbox-custom"></span>
+                                <label class="filter-radio">
+                                    <input type="radio" name="rating" value="4" {{ ($filters['rating'] ?? null) === '4' ? 'checked' : '' }}>
+                                    <span class="radio-custom"></span>
                                     <span class="rating-stars">⭐⭐⭐⭐ 4.0+</span>
                                 </label>
-                                <label class="filter-checkbox">
-                                    <input type="checkbox">
-                                    <span class="checkbox-custom"></span>
+                                <label class="filter-radio">
+                                    <input type="radio" name="rating" value="3" {{ ($filters['rating'] ?? null) === '3' ? 'checked' : '' }}>
+                                    <span class="radio-custom"></span>
                                     <span class="rating-stars">⭐⭐⭐ 3.0+</span>
                                 </label>
                             </div>
@@ -234,22 +245,22 @@
                             <label class="filter-label">Số lượng sân</label>
                             <div class="filter-options">
                                 <label class="filter-radio">
-                                    <input type="radio" name="courts" value="" checked>
+                                    <input type="radio" name="courts_range" value="" {{ !($filters['courts_range'] ?? null) ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>Tất cả</span>
                                 </label>
                                 <label class="filter-radio">
-                                    <input type="radio" name="courts" value="1-3">
+                                    <input type="radio" name="courts_range" value="1-3" {{ ($filters['courts_range'] ?? null) === '1-3' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>1-3 sân</span>
                                 </label>
                                 <label class="filter-radio">
-                                    <input type="radio" name="courts" value="4-6">
+                                    <input type="radio" name="courts_range" value="4-6" {{ ($filters['courts_range'] ?? null) === '4-6' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>4-6 sân</span>
                                 </label>
                                 <label class="filter-radio">
-                                    <input type="radio" name="courts" value="7+">
+                                    <input type="radio" name="courts_range" value="7+" {{ ($filters['courts_range'] ?? null) === '7+' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>7+ sân</span>
                                 </label>
@@ -281,7 +292,7 @@
                         <button class="btn btn-primary btn-block filter-apply">
                             Áp dụng bộ lọc
                         </button>
-                    </div>
+                    </form>
                 </aside>
 
                 <!-- Main Content Area -->
@@ -334,11 +345,10 @@
 
                                     <div class="court-features">
                                         <span class="feature-tag">🏟️ {{ $stadium->courts_count }} sân</span>
-                                        @if($stadium->amenities)
-                                            @foreach(is_array($stadium->amenities) ? array_slice($stadium->amenities, 0, 3) : [] as $amenity)
-                                            <span class="feature-tag">{{ $amenity }}</span>
-                                            @endforeach
-                                        @endif
+                                        
+                                        <span class="feature-tag">🚿 Phòng tắm</span>
+                                        <span class="feature-tag">🅿️ Bãi đỗ xe</span>
+                                        <span class="feature-tag">☕ Canteen</span>
                                     </div>
 
                                     <div class="court-info">

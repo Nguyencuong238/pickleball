@@ -27,15 +27,31 @@
                     </div>
 
                     <!-- Slug -->
-                    <div class="mb-3">
+                    {{-- <div class="mb-3">
                         <label for="slug" class="form-label">Slug</label>
                         <input type="text" name="slug" id="slug" class="form-control" readonly>
-                    </div>
+                    </div> --}}
 
                     <!-- Content -->
                     <div class="mb-3">
                         <label for="content" class="form-label">Nội dung</label>
                         <textarea name="content" id="content" class="form-control" style="min-height:400px;"></textarea>
+                    </div>
+
+                    <!-- Category -->
+                    <div class="mb-3">
+                        <label for="category_id" class="form-label">Danh mục</label>
+                        <select name="category_id" id="category_id" class="form-control @error('category_id') is-invalid @enderror">
+                            <option value="">-- Chọn danh mục --</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('category_id')
+                            <span class="invalid-feedback">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <!-- Image -->
@@ -46,6 +62,16 @@
                             <img id="preview-image" src="#" alt="Preview Image"
                                 style="display:none; max-width: 200px;">
                         </div>
+                    </div>
+
+                    <div class="d-flex mb-4">
+                        <label class="d-flex align-items-center gap-2 font-bold"
+                            style="color: #1e293b; cursor: pointer;">
+                            <input type="checkbox" name="is_featured" value="1"
+                                {{ old('is_featured') ? 'checked' : '' }}
+                                style="width: 18px; height: 18px; cursor: pointer;">
+                            Nổi bật
+                        </label>
                     </div>
 
                     <!-- Buttons -->

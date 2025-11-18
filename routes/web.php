@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\StadiumController;
 use App\Http\Controllers\Admin\TournamentController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\CategoryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,6 +86,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/users/{user}', [UserPermissionController::class, 'update'])->name('users.update');
     Route::resource('news', NewsController::class);
     Route::resource('pages', PageController::class);
+    Route::resource('categories', CategoryController::class);
 });
 
 // Admin Stadium and Tournament CRUD
