@@ -74,31 +74,36 @@ class HomeController extends Controller
 
     public function tournaments(Request $request)
     {
-        $query = Tournament::where('status', 'active');
+        // Only show active tournaments (status = 1)
+        $query = Tournament::where('status', 1);
         
         // Search filter
         if ($request->has('search') && $request->search) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
         
-        // Status filter
+        // Status filter (based on dates, not status field)
         if ($request->has('statuses') && is_array($request->statuses) && count($request->statuses) > 0) {
             $query->where(function($q) use ($request) {
                 foreach($request->statuses as $status) {
                     if ($status === 'open') {
+                        // Đang mở đăng ký: start_date > now
                         $q->orWhere(function($subQ) {
                             $subQ->whereDate('start_date', '>', now());
                         });
                     } elseif ($status === 'coming_soon') {
+                        // Sắp mở: start_date > now + 30 days
                         $q->orWhere(function($subQ) {
                             $subQ->whereDate('start_date', '>', now()->addDays(30));
                         });
                     } elseif ($status === 'ongoing') {
+                        // Đang diễn ra: start_date <= now AND end_date >= now
                         $q->orWhere(function($subQ) {
                             $subQ->whereDate('start_date', '<=', now())
                                 ->whereDate('end_date', '>=', now());
                         });
                     } elseif ($status === 'ended') {
+                        // Đã kết thúc: end_date < now
                         $q->orWhere(function($subQ) {
                             $subQ->whereDate('end_date', '<', now());
                         });
@@ -140,32 +145,33 @@ class HomeController extends Controller
         // Default ordering
         $query->orderBy('start_date', 'asc');
         
-        $tournaments = $query->paginate(12);
+        $tournaments = $query->paginate(6);
         
-        // Calculate statistics
-        $totalTournaments = Tournament::where('status', 'active')->count();
+        // Calculate statistics (based on dates, only active tournaments)
+        $now = now();
+        $activeTournaments = Tournament::where('status', 1);
+        $totalTournaments = $activeTournaments->count();
         
         // Calculate total athletes from all tournaments
-        $allTournaments = Tournament::where('status', 'active')->get();
+        $allTournaments = $activeTournaments->get();
         $totalAthletes = 0;
         foreach($allTournaments as $tournament) {
             $totalAthletes += $tournament->athleteCount();
         }
         
-        $totalPrizes = Tournament::where('status', 'active')->whereNotNull('prizes')->sum('prizes') ?? 0;
-        $totalLocations = Tournament::where('status', 'active')->distinct('location')->count('location');
+        $totalPrizes = $activeTournaments->whereNotNull('prizes')->sum('prizes') ?? 0;
+        $totalLocations = $activeTournaments->distinct('location')->count('location');
         
-        // Status counts
-        $statusOpen = Tournament::where('status', 'active')->whereDate('start_date', '>', now())->count();
-        $statusEnded = Tournament::where('status', 'active')->whereDate('end_date', '<', now())->count();
-        $statusOngoing = Tournament::where('status', 'active')
-            ->whereDate('start_date', '<=', now())
-            ->whereDate('end_date', '>=', now())
+        // Status counts (based on dates, only active tournaments)
+        $statusOpen = Tournament::where('status', 1)->whereDate('start_date', '>', $now)->count();
+        $statusEnded = Tournament::where('status', 1)->whereDate('end_date', '<', $now)->count();
+        $statusOngoing = Tournament::where('status', 1)->whereDate('start_date', '<=', $now)
+            ->whereDate('end_date', '>=', $now)
             ->count();
-        $statusComingSoon = Tournament::where('status', 'active')->whereDate('start_date', '>', now()->addDays(30))->count();
+        $statusComingSoon = Tournament::where('status', 1)->whereDate('start_date', '>', $now->addDays(30))->count();
         
         // Get unique locations for filter dropdown
-        $locations = Tournament::where('status', 'active')->distinct('location')->whereNotNull('location')->pluck('location');
+        $locations = Tournament::where('status', 1)->distinct('location')->whereNotNull('location')->pluck('location');
         
         return view('front.tournaments', [
             'tournaments' => $tournaments,

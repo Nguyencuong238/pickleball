@@ -20,13 +20,13 @@ class TournamentSeeder extends Seeder
         $tournaments = [
             [
                 'name' => 'HCM Pickleball Open 2025',
-                'description' => 'Giải đấu mở rộng quy mô lớn nhất năm với tổng giá trị giải thưởng 500 triệu đồng',
+                'description' => 'Giải đấu mở rộng quy mô lớn nhất năm với tổng giá trị giải thưởng 5 triệu đồng',
                 'start_date' => Carbon::now()->addDays(10),
                 'end_date' => Carbon::now()->addDays(12),
                 'location' => 'Sân Rạch Chiếc, Q2',
                 'max_participants' => 128,
-                'price' => 500000000,
-                'prizes' => 500000000,
+                'price' => 500000.00,
+                'prizes' => '5 triệu đồng',
             ],
             [
                 'name' => 'Hà Nội Pickleball Masters',
@@ -35,8 +35,8 @@ class TournamentSeeder extends Seeder
                 'end_date' => Carbon::now()->addDays(22),
                 'location' => 'Cung TDTT Quốc Gia',
                 'max_participants' => 64,
-                'price' => 300000000,
-                'prizes' => 300000000,
+                'price' => 300000.00,
+                'prizes' => '3 triệu đồng',
             ],
             [
                 'name' => 'Đà Nẵng Beach Pickleball',
@@ -45,8 +45,8 @@ class TournamentSeeder extends Seeder
                 'end_date' => Carbon::now()->addDays(37),
                 'location' => 'Bãi Biển Mỹ Khê',
                 'max_participants' => 96,
-                'price' => 200000000,
-                'prizes' => 200000000,
+                'price' => 250000.00,
+                'prizes' => '2.5 triệu đồng',
             ],
             [
                 'name' => 'Cần Thơ Mekong Cup',
@@ -55,8 +55,8 @@ class TournamentSeeder extends Seeder
                 'end_date' => Carbon::now()->addDays(44),
                 'location' => 'Sân TDTT Cần Thơ',
                 'max_participants' => 80,
-                'price' => 150000000,
-                'prizes' => 150000000,
+                'price' => 150000.00,
+                'prizes' => '1.5 triệu đồng',
             ],
             [
                 'name' => 'Vũng Tàu Seaside Open',
@@ -65,8 +65,8 @@ class TournamentSeeder extends Seeder
                 'end_date' => Carbon::now()->addDays(51),
                 'location' => 'Resort Paradise',
                 'max_participants' => 72,
-                'price' => 180000000,
-                'prizes' => 180000000,
+                'price' => 180000.00,
+                'prizes' => '1.8 triệu đồng',
             ],
             [
                 'name' => 'Vietnam National Championship',
@@ -75,14 +75,14 @@ class TournamentSeeder extends Seeder
                 'end_date' => Carbon::now()->addDays(80),
                 'location' => 'Hà Nội (TBD)',
                 'max_participants' => 256,
-                'price' => 1000000000,
-                'prizes' => 1000000000,
+                'price' => 1000000.00,
+                'prizes' => '10 triệu đồng',
             ],
         ];
 
         foreach ($tournaments as $tournament) {
             Tournament::create(array_merge($tournament, [
-                'status' => 'active',
+                'status' => 1,
                 'user_id' => 1, // Assumes user ID 1 exists
             ]));
         }

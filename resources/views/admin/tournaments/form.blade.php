@@ -28,10 +28,8 @@
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Trạng Thái *</label>
                 <select name="status" class="form-control" required
                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
-                    <option value="upcoming" {{ (isset($tournament) && $tournament->status === 'upcoming') || old('status') === 'upcoming' ? 'selected' : '' }}>Sắp Diễn Ra</option>
-                    <option value="ongoing" {{ (isset($tournament) && $tournament->status === 'ongoing') || old('status') === 'ongoing' ? 'selected' : '' }}>Đang Diễn Ra</option>
-                    <option value="completed" {{ (isset($tournament) && $tournament->status === 'completed') || old('status') === 'completed' ? 'selected' : '' }}>Hoàn Thành</option>
-                    <option value="cancelled" {{ (isset($tournament) && $tournament->status === 'cancelled') || old('status') === 'cancelled' ? 'selected' : '' }}>Huỷ</option>
+                    <option value="1" {{ (isset($tournament) && $tournament->status == 1) || old('status') == 1 ? 'selected' : '' }}>Hoạt Động</option>
+                    <option value="0" {{ (isset($tournament) && $tournament->status == 0) || old('status') == 0 ? 'selected' : '' }}>Không Hoạt Động</option>
                 </select>
             </div>
         </div>
