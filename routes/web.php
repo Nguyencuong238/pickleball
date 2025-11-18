@@ -8,6 +8,7 @@ use App\Http\Controllers\Front\HomeYardStadiumController;
 use App\Http\Controllers\Front\HomeYardTournamentController;
 use App\Http\Controllers\Front\TournamentRegistrationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\UserPermissionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\NewsController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\Admin\StadiumController;
 use App\Http\Controllers\Admin\TournamentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\FavoriteController;
 
 /*
 |--------------------------------------------------------------------------
@@ -66,6 +68,19 @@ Route::get('/tournaments-detail/{tournament_id}', [HomeController::class, 'tourn
 
 // Tournament Registration
 Route::post('/tournament/{tournament}/register', [TournamentRegistrationController::class, 'register'])->name('tournament.register');
+
+// Review Routes (Web - Using AJAX)
+Route::middleware('auth')->group(function () {
+    Route::post('/reviews/store', [ReviewController::class, 'store'])->name('reviews.store');
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::post('/reviews/{review}/helpful', [ReviewController::class, 'markHelpful'])->name('reviews.helpful');
+    
+    // Favorite routes
+    Route::post('/stadiums/{stadium}/toggle-favorite', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+});
+Route::get('/reviews/stadium/{stadium}', [ReviewController::class, 'getStadiumReviews'])->name('reviews.list');
+Route::get('/reviews/summary/{stadium}', [ReviewController::class, 'getRatingSummary'])->name('reviews.summary');
 
 // User Dashboard Route
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('user.dashboard');

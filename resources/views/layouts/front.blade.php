@@ -345,7 +345,6 @@
         </div>
     </footer>
     <script src="{{ asset('assets/js/script.js') }}"></script>
-    <script src="{{ asset('assets/js/courts.js') }}"></script>
     @yield('js')
 </body>
 </html>

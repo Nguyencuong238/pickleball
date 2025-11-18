@@ -46,4 +46,36 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Get the user's favorite stadiums
+     */
+    public function favoriteStadiums()
+    {
+        return $this->belongsToMany(Stadium::class, 'favorites', 'user_id', 'stadium_id');
+    }
+
+    /**
+     * Check if user has favorited a stadium
+     */
+    public function hasFavorited(Stadium $stadium)
+    {
+        return $this->favoriteStadiums()->where('stadium_id', $stadium->id)->exists();
+    }
+
+    /**
+     * Get reviews written by this user
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Check if user already reviewed a stadium
+     */
+    public function hasReviewed(Stadium $stadium)
+    {
+        return $this->reviews()->where('stadium_id', $stadium->id)->exists();
+    }
 }

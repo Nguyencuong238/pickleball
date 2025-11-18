@@ -14,14 +14,14 @@
                     <span class="gradient-text">onePickleball</span>
                 </h1>
                 <p class="hero-description">
-                    Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam. 
+                    Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam.
                     Tìm sân, đăng ký giải đấu, kết nối đối thủ và cập nhật tin tức mới nhất.
                 </p>
                 <div class="hero-actions">
                     <button class="btn btn-primary btn-lg">Tham gia ngay</button>
                     <button class="btn btn-secondary btn-lg">Tìm hiểu thêm</button>
                 </div>
-                
+
                 <!-- Stats -->
                 <div class="hero-stats">
                     <div class="stat-item">
@@ -52,84 +52,85 @@
                 <h2 class="section-title">Các giải đấu sắp diễn ra</h2>
                 <p class="section-description">Đăng ký tham gia các giải đấu Pickleball chuyên nghiệp và phong trào</p>
             </div>
-            
+
             <div class="tournaments-grid">
                 @forelse($upcomingTournaments as $tournament)
-                <div class="tournament-card">
-                    <div class="tournament-image">
-                        <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}">
-                        @php
-                            $now = now();
-                            $startDate = $tournament->start_date;
-                            if ($now < $startDate) {
-                                $status = 'status-soon';
-                                $statusText = 'Sắp mở';
-                            } else {
-                                $status = 'status-open';
-                                $statusText = 'Đang mở';
-                            }
-                        @endphp
-                        <span class="tournament-status {{ $status }}">{{ $statusText }}</span>
-                    </div>
-                    <div class="tournament-content">
-                        <div class="tournament-date">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-                                <line x1="16" y1="2" x2="16" y2="6"/>
-                                <line x1="8" y1="2" x2="8" y2="6"/>
-                                <line x1="3" y1="10" x2="21" y2="10"/>
-                            </svg>
-                            <span>{{ $tournament->start_date->format('d-m-Y') }} 
-                                @if($tournament->end_date != $tournament->start_date)
-                                đến {{ $tournament->end_date->format('d-m-Y') }}
-                                @endif
-                            </span>
+                    <div class="tournament-card">
+                        <div class="tournament-image">
+                            <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}">
+                            @php
+                                $now = now();
+                                $startDate = $tournament->start_date;
+                                if ($now < $startDate) {
+                                    $status = 'status-soon';
+                                    $statusText = 'Sắp mở';
+                                } else {
+                                    $status = 'status-open';
+                                    $statusText = 'Đang mở';
+                                }
+                            @endphp
+                            <span class="tournament-status {{ $status }}">{{ $statusText }}</span>
                         </div>
-                        <h3 class="tournament-title">{{ $tournament->name }}</h3>
-                        <p class="tournament-description">{{ Str::limit($tournament->description, 100) }}</p>
-                        <div class="tournament-meta">
-                            <div class="meta-item">
+                        <div class="tournament-content">
+                            <div class="tournament-date">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                    <circle cx="12" cy="10" r="3"/>
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                    <line x1="16" y1="2" x2="16" y2="6" />
+                                    <line x1="8" y1="2" x2="8" y2="6" />
+                                    <line x1="3" y1="10" x2="21" y2="10" />
                                 </svg>
-                                <span>{{ $tournament->location ?? 'Địa điểm TBD' }}</span>
+                                <span>{{ $tournament->start_date->format('d-m-Y') }}
+                                    @if ($tournament->end_date != $tournament->start_date)
+                                        đến {{ $tournament->end_date->format('d-m-Y') }}
+                                    @endif
+                                </span>
                             </div>
-                            <div class="meta-item">
-                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                    <circle cx="9" cy="7" r="4"/>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                </svg>
-                                <span>{{ $tournament->athleteCount() }} vận động viên</span>
+                            <h3 class="tournament-title">{{ $tournament->name }}</h3>
+                            <p class="tournament-description">{{ Str::limit($tournament->description, 100) }}</p>
+                            <div class="tournament-meta">
+                                <div class="meta-item">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                    <span>{{ $tournament->location ?? 'Địa điểm TBD' }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                        <circle cx="9" cy="7" r="4" />
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                    </svg>
+                                    <span>{{ $tournament->athleteCount() }} vận động viên</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="tournament-footer">
-                            <span class="tournament-prize">
-                                @if($tournament->prizes)
-                                    🏆 {{ number_format($tournament->prizes, 0, ',', '.') }} VNĐ
-                                @else
-                                    🏆 Giải thưởng hấp dẫn
-                                @endif
-                            </span>
-                            <a href="{{ route('tournaments-detail', $tournament->id) }}" class="btn btn-primary btn-sm">
-                                @if($tournament->start_date->isPast())
-                                    Xem chi tiết
-                                @else
-                                    Đăng ký ngay
-                                @endif
-                            </a>
+                            <div class="tournament-footer">
+                                <span class="tournament-prize">
+                                    @if ($tournament->prizes)
+                                        🏆 {{ number_format($tournament->prizes, 0, ',', '.') }} VNĐ
+                                    @else
+                                        🏆 Giải thưởng hấp dẫn
+                                    @endif
+                                </span>
+                                <a href="{{ route('tournaments-detail', $tournament->id) }}"
+                                    class="btn btn-primary btn-sm">
+                                    @if ($tournament->start_date->isPast())
+                                        Xem chi tiết
+                                    @else
+                                        Đăng ký ngay
+                                    @endif
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
                 @empty
-                <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
-                    <p style="font-size: 18px; color: #666;">Hiện chưa có giải đấu nào sắp diễn ra</p>
-                </div>
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                        <p style="font-size: 18px; color: #666;">Hiện chưa có giải đấu nào sắp diễn ra</p>
+                    </div>
                 @endforelse
             </div>
-            
+
             <div class="section-cta">
                 <button class="btn btn-secondary">Xem tất cả giải đấu</button>
             </div>
@@ -143,63 +144,67 @@
                 <h2 class="section-title">Tìm sân gần bạn</h2>
                 <p class="section-description">Hệ thống sân pickleball chất lượng cao trên toàn quốc</p>
             </div>
-            
+
             <div class="courts-grid">
                 <!-- Court 1 -->
-                @foreach($featuredStadiums as $stadium)
-                <div class="court-card">
-                    <div class="court-image">
-                        @php
-                            $bannerUrl = $stadium->getFirstMediaUrl('banner') ?: asset('assets/images/court_default.svg');
-                        @endphp
-                        <img src="{{ $bannerUrl }}" alt="{{ $stadium->name }}">
-                        <div class="court-overlay">
-                            <a href="{{ route('courts-detail', $stadium->id) }}" class="btn btn-white btn-sm">Xem chi tiết</a>
+                @foreach ($featuredStadiums as $stadium)
+                    <div class="court-card">
+                        <div class="court-image">
+                            @php
+                                $bannerUrl =
+                                    $stadium->getFirstMediaUrl('banner') ?: asset('assets/images/court_default.svg');
+                            @endphp
+                            <img src="{{ $bannerUrl }}" alt="{{ $stadium->name }}">
+                            <div class="court-overlay">
+                                <a href="{{ route('courts-detail', $stadium->id) }}" class="btn btn-white btn-sm">Xem chi
+                                    tiết</a>
+                            </div>
+                        </div>
+                        <div class="court-content">
+                            <div class="court-header">
+                                <h3 class="court-name">{{ $stadium->name }}</h3>
+                                <div class="court-rating">
+                                    <span class="rating-star">⭐</span>
+                                    <span class="rating-value">4.8</span>
+                                </div>
+                            </div>
+                            <div class="court-location">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg>
+                                <span>{{ $stadium->address }}</span>
+                            </div>
+                            <div class="court-features">
+                                <span class="feature-tag">🏟️ {{ $stadium->courts_count }} sân</span>
+                                
+                                @foreach ($stadium->amenities as $amenity)
+                                    <span class="feature-tag">{{ $amenity }}</span>
+                                @endforeach
+                            </div>
+                            <div class="court-info">
+                                <div class="info-item">
+                                    <span class="info-label">Giờ mở cửa:</span>
+                                    <span class="info-value">{{ $stadium->opening_hours ?? '06:00 - 22:00' }}</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Giá thuê:</span>
+                                    <span class="info-value highlight">150.000đ - 300.000đ/giờ</span>
+                                </div>
+                            </div>
+                            <a href="{{ route('courts-detail', $stadium->id) }}" class="btn btn-primary btn-block">Xem
+                                chi tiết</a>
                         </div>
                     </div>
-                    <div class="court-content">
-                        <div class="court-header">
-                            <h3 class="court-name">{{ $stadium->name }}</h3>
-                            <div class="court-rating">
-                                <span class="rating-star">⭐</span>
-                                <span class="rating-value">4.8</span>
-                            </div>
-                        </div>
-                        <div class="court-location">
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
-                            </svg>
-                            <span>{{ $stadium->address }}</span>
-                        </div>
-                        <div class="court-features">
-                            <span class="feature-tag">🏟️ {{ $stadium->courts_count }} sân</span>
-                            <span class="feature-tag">🚿 Phòng tắm</span>
-                            <span class="feature-tag">🅿️ Bãi đỗ xe</span>
-                            <span class="feature-tag">☕ Canteen</span>
-                        </div>
-                        <div class="court-info">
-                            <div class="info-item">
-                                <span class="info-label">Giờ mở cửa:</span>
-                                <span class="info-value">{{ $stadium->opening_hours ?? '06:00 - 22:00' }}</span>
-                            </div>
-                            <div class="info-item">
-                                <span class="info-label">Giá thuê:</span>
-                                <span class="info-value highlight">150.000đ - 300.000đ/giờ</span>
-                            </div>
-                        </div>
-                        <a href="{{ route('courts-detail', $stadium->id) }}" class="btn btn-primary btn-block">Xem chi tiết</a>
-                    </div>
-                </div>
                 @endforeach
             </div>
-            
+
             <div class="section-cta">
                 <a href="{{ route('courts') }}" class="btn btn-primary">Xem tất cả sân thi đấu</a>
             </div>
         </div>
     </section>
-                    
+
     <!-- Social Play Section -->
     <section class="social section" id="social">
         <div class="container">
@@ -208,7 +213,7 @@
                 <h2 class="section-title">Tham gia cộng đồng</h2>
                 <p class="section-description">Kết nối với các tay vợt cùng trình độ, giao lưu và phát triển kỹ năng</p>
             </div>
-            
+
             <div class="social-grid">
                 <!-- Social Event 1 -->
                 <div class="social-card">
@@ -220,28 +225,29 @@
                         <span class="social-level level-beginner">Beginner</span>
                     </div>
                     <h3 class="social-title">Monday Social Play</h3>
-                    <p class="social-description">Buổi chơi dành cho người mới bắt đầu, môi trường thân thiện và hỗ trợ tối đa</p>
+                    <p class="social-description">Buổi chơi dành cho người mới bắt đầu, môi trường thân thiện và hỗ trợ tối
+                        đa</p>
                     <div class="social-info">
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span>Sân Rạch Chiếc, Q2, HCM</span>
                         </div>
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                             </svg>
                             <span>12/20 người đã đăng ký</span>
                         </div>
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <line x1="12" y1="1" x2="12" y2="23"/>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                             </svg>
                             <span class="price">50.000đ/người</span>
                         </div>
@@ -258,28 +264,29 @@
                         <span class="social-level level-intermediate">Intermediate</span>
                     </div>
                     <h3 class="social-title">Wednesday Mix & Match</h3>
-                    <p class="social-description">Đấu xoay vòng với nhiều đối thủ khác nhau, phù hợp trình độ trung bình</p>
+                    <p class="social-description">Đấu xoay vòng với nhiều đối thủ khác nhau, phù hợp trình độ trung bình
+                    </p>
                     <div class="social-info">
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span>Thảo Điền Sports Club, Thủ Đức</span>
                         </div>
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                             </svg>
                             <span>18/24 người đã đăng ký</span>
                         </div>
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <line x1="12" y1="1" x2="12" y2="23"/>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                             </svg>
                             <span class="price">80.000đ/người</span>
                         </div>
@@ -296,37 +303,38 @@
                         <span class="social-level level-advanced">Advanced</span>
                     </div>
                     <h3 class="social-title">Friday Night Showdown</h3>
-                    <p class="social-description">Buổi chơi mức độ cao cho các tay vợt giỏi, thi đấu căng thẳng và chuyên nghiệp</p>
+                    <p class="social-description">Buổi chơi mức độ cao cho các tay vợt giỏi, thi đấu căng thẳng và chuyên
+                        nghiệp</p>
                     <div class="social-info">
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                <circle cx="12" cy="10" r="3"/>
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
                             </svg>
                             <span>Cầu Giấy Arena, Hà Nội</span>
                         </div>
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                <circle cx="9" cy="7" r="4"/>
-                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                             </svg>
                             <span>14/16 người đã đăng ký</span>
                         </div>
                         <div class="info-row">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <line x1="12" y1="1" x2="12" y2="23"/>
-                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                                <line x1="12" y1="1" x2="12" y2="23" />
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                             </svg>
                             <span class="price">100.000đ/người</span>
                         </div>
                     </div>
                     <button class="btn btn-primary btn-block">Tham gia ngay</button>
                 </div>
-            
+
             </div>
-            
+
             <div class="section-cta">
                 <button class="btn btn-secondary">Xem lịch đầy đủ</button>
             </div>
@@ -340,36 +348,36 @@
                 <h2 class="section-title">Tin tức mới nhất</h2>
                 <p class="section-description">Cập nhật tin tức, kiến thức và xu hướng Pickleball</p>
             </div>
-            
+
             <div class="news-grid">
                 <!-- News Articles -->
-                @foreach($latestNews as $news)
-                <article class="news-card">
-                    <div class="news-image">
-                        <img src="{{ asset('storage/'.$news->image) }}" alt="{{ $news->title }}">
-                        <span class="news-category">{{ $news->category ?? 'Tin tức' }}</span>
-                    </div>
-                    <div class="news-content">
-                        <div class="news-meta">
-                            <span class="news-date">{{ $news->created_at->format('d \\T\\h\\á\\n\\g m, Y') }}</span>
-                            <span class="news-read-time">1 phút đọc</span>
+                @foreach ($latestNews as $news)
+                    <article class="news-card">
+                        <div class="news-image">
+                            <img src="{{ asset('storage/' . $news->image) }}" alt="{{ $news->title }}">
+                            <span class="news-category">{{ $news->category->name ?? 'Tin tức' }}</span>
                         </div>
-                        <h3 class="news-title">{{ $news->title }}</h3>
-                        <p class="news-excerpt">
-                            {!! Str::words(strip_tags($news->content), 20) !!}
-                        </p>
-                        <a href="{{ route('news.show', $news->id) }}" class="news-link">
-                            Đọc tiếp
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <line x1="5" y1="12" x2="19" y2="12"/>
-                                <polyline points="12 5 19 12 12 19"/>
-                            </svg>
-                        </a>
-                    </div>
-                </article>
+                        <div class="news-content">
+                            <div class="news-meta">
+                                <span class="news-date">{{ $news->created_at->format('d \\T\\h\\á\\n\\g m, Y') }}</span>
+                                <span class="news-read-time">1 phút đọc</span>
+                            </div>
+                            <h3 class="news-title">{{ $news->title }}</h3>
+                            <p class="news-excerpt">
+                                {!! Str::words(strip_tags($news->content), 20) !!}
+                            </p>
+                            <a href="{{ route('news.show', $news->id) }}" class="news-link">
+                                Đọc tiếp
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <line x1="5" y1="12" x2="19" y2="12" />
+                                    <polyline points="12 5 19 12 12 19" />
+                                </svg>
+                            </a>
+                        </div>
+                    </article>
                 @endforeach
             </div>
-            
+
             <div class="section-cta">
                 <a href="{{ route('news') }}" class="btn btn-primary">Xem tất cả tin tức</a>
             </div>
