@@ -65,7 +65,7 @@
                 </div>
                 
                 <div class="hero-actions">
-                    <button class="btn btn-primary btn-lg">
+                    <button class="btn btn-primary btn-lg" onclick="openRegisterModal()">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                             <circle cx="8.5" cy="7" r="4"/>

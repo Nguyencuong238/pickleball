@@ -519,7 +519,7 @@
                     <div class="icon-box icon-box-amber">🏢</div>
                     <h5>Quản Lý Sân</h5>
                     <p>Quản lý thông tin sân và tính khả dụng của bạn.</p>
-                    <a href="#" class="menu-btn">Quản Lý →</a>
+                    <a href="{{ route('homeyard.stadiums.index') }}" class="menu-btn">Quản Lý →</a>
                 </div>
 
                 <!-- Manage Bookings -->
@@ -582,6 +582,54 @@
                     <div class="activity-empty">
                         <i class="fas fa-check-circle"></i>
                         <p>Tất cả vận động viên đã được duyệt. Không có yêu cầu chờ xử lý!</p>
+                    </div>
+                @endif
+            </div>
+
+            <!-- Stadium List -->
+            <div class="activity-card">
+                <h5>🏟️ Các Sân Của Tôi</h5>
+                @php
+                    $stadiums = \App\Models\Stadium::where('user_id', auth()->id())->latest()->get();
+                @endphp
+
+                @if($stadiums->count() > 0)
+                    <div class="athlete-list">
+                        @foreach($stadiums as $stadium)
+                            <div class="athlete-item">
+                                <div class="athlete-info">
+                                    <div class="athlete-name">{{ $stadium->name }}</div>
+                                    <div class="athlete-tournament">
+                                        <strong>Địa chỉ:</strong> {{ $stadium->address }}
+                                    </div>
+                                    <div class="athlete-tournament">
+                                        <strong>Số sân:</strong> {{ $stadium->courts_count }}
+                                    </div>
+                                    <div class="athlete-tournament">
+                                        <strong>Điện thoại:</strong> {{ $stadium->phone ?? 'N/A' }}
+                                    </div>
+                                    <div class="athlete-tournament">
+                                        <strong>Email:</strong> {{ $stadium->email ?? 'N/A' }}
+                                    </div>
+                                    @if($stadium->status)
+                                        <span class="status-badge" style="background: #d1fae5; color: #065f46;">✓ {{ ucfirst($stadium->status) }}</span>
+                                    @endif
+                                </div>
+                                <div class="athlete-actions">
+                                    <a href="{{ route('homeyard.stadiums.edit', $stadium->id) }}" class="btn-approve" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); text-decoration: none;">✏️ Sửa</a>
+                                    <form action="{{ route('homeyard.stadiums.destroy', $stadium->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Bạn có chắc muốn xóa sân này?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn-reject">🗑️ Xóa</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="activity-empty">
+                        <i class="fas fa-building"></i>
+                        <p>Bạn chưa tạo sân nào. <a href="{{ route('homeyard.stadiums.create') }}" style="color: #f59e0b; font-weight: 600; text-decoration: none;">Tạo sân mới</a></p>
                     </div>
                 @endif
             </div>
