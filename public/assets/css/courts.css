@@ -328,6 +328,24 @@
     stroke: var(--accent-red);
 }
 
+.favorite-btn.loading {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.favorite-btn.loading svg {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 .court-content {
     padding: 1.5rem;
 }

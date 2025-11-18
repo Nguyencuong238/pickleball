@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Courts Page JavaScript
 
 // View Mode Toggle (Grid / List / Map)
@@ -489,3 +490,5 @@ loadFavorites();
 updateResultCount(document.querySelectorAll('.court-card').length);
 
 console.log('Courts page loaded successfully! 🏟️');
+=======
+>>>>>>> 0911c1a8edf7d23a92f251dcd398a3d5463842db
