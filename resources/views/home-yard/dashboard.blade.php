@@ -302,6 +302,110 @@
         margin-bottom: 15px;
     }
 
+    .athlete-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .athlete-item {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .athlete-item:hover {
+        background: #f3f4f6;
+        border-color: #f59e0b;
+    }
+
+    .athlete-info {
+        flex: 1;
+    }
+
+    .athlete-name {
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 5px;
+    }
+
+    .athlete-tournament {
+        font-size: 0.9rem;
+        color: #9ca3af;
+    }
+
+    .athlete-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .btn-approve {
+        padding: 8px 14px;
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-approve:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-reject {
+        padding: 8px 14px;
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-reject:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin-top: 5px;
+    }
+
+    .status-pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-approved {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-rejected {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
     @media (max-width: 1024px) {
         .sidebar {
             grid-template-columns: 1fr;
@@ -406,8 +510,8 @@
                 <div class="menu-card">
                     <div class="icon-box icon-box-green">👥</div>
                     <h5>Quản Lý Vận Động Viên</h5>
-                    <p>Thêm, chỉnh sửa và quản lý vận động viên trong các giải đấu của bạn.</p>
-                    <a href="{{ route('homeyard.tournaments.index') }}" class="menu-btn">Quản Lý →</a>
+                    <p>Duyệt và quản lý vận động viên trong các giải đấu của bạn.</p>
+                    <a href="{{ route('homeyard.athletes.index') }}" class="menu-btn">Quản Lý →</a>
                 </div>
 
                 <!-- Manage Stadium -->
@@ -433,6 +537,53 @@
                     <p>Cập nhật chi tiết sân, ảnh và cơ sở vật chất của bạn.</p>
                     <a href="{{ route('homeyard.stadiums.index') }}" class="menu-btn">Cập Nhật →</a>
                 </div>
+            </div>
+
+            <!-- Pending Athletes Management -->
+            <div class="activity-card">
+                <h5>👥 Quản Lý Vận Động Viên</h5>
+                @php
+                    $pendingAthletes = \App\Models\TournamentAthlete::whereHas('tournament', function($q) {
+                        $q->where('user_id', auth()->id());
+                    })->where('status', 'pending')->with('tournament')->get();
+                @endphp
+
+                @if($pendingAthletes->count() > 0)
+                    <div class="athlete-list">
+                        @foreach($pendingAthletes as $athlete)
+                            <div class="athlete-item">
+                                <div class="athlete-info">
+                                    <div class="athlete-name">{{ $athlete->athlete_name }}</div>
+                                    <div class="athlete-tournament">
+                                        <strong>Giải đấu:</strong> {{ $athlete->tournament->name }}
+                                    </div>
+                                    <div class="athlete-tournament">
+                                        <strong>Email:</strong> {{ $athlete->email ?? 'N/A' }}
+                                    </div>
+                                    <div class="athlete-tournament">
+                                        <strong>Điện thoại:</strong> {{ $athlete->phone ?? 'N/A' }}
+                                    </div>
+                                    <span class="status-badge status-pending">⏳ Đang Chờ Duyệt</span>
+                                </div>
+                                <div class="athlete-actions">
+                                    <form action="{{ route('homeyard.athletes.approve', ['tournament' => $athlete->tournament_id, 'athlete' => $athlete->id]) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        <button type="submit" class="btn-approve">✓ Duyệt</button>
+                                    </form>
+                                    <form action="{{ route('homeyard.athletes.reject', ['tournament' => $athlete->tournament_id, 'athlete' => $athlete->id]) }}" method="POST" style="display: inline;">
+                                        @csrf
+                                        <button type="submit" class="btn-reject">✕ Từ Chối</button>
+                                    </form>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="activity-empty">
+                        <i class="fas fa-check-circle"></i>
+                        <p>Tất cả vận động viên đã được duyệt. Không có yêu cầu chờ xử lý!</p>
+                    </div>
+                @endif
             </div>
 
             <!-- Recent Bookings -->

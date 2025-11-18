@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>OnePickleball - Cộng Đồng Pickleball Việt Nam</title>
     <meta name="description" content="Nền tảng hàng đầu về Pickleball tại Việt Nam - Tin tức, giải đấu, sân thi đấu và cộng đồng">
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
@@ -15,6 +16,11 @@
      @yield('css')
 </head>
 <style>
+    :root {
+        --primary-color: #00D9B5;
+        --secondary-color: #0099CC;
+    }
+
     * {
         margin: 0;
         padding: 0;
@@ -207,8 +213,11 @@
                         </svg>
                     </div>
                     <div class="dropdown-info">
-                        {{-- <a href="{{ $auth->type == 'brand' ? route('brand.dashboard') : route('creator.dashboard') }}"
-                            class="nav-link" style="white-space: nowrap;">Bảng điều khiển</a> --}}
+                        @if(auth()->check() && auth()->user()->hasRole('home_yard'))
+                            <a href="{{ route('homeyard.dashboard') }}" class="nav-link">
+                                <i class="icon-home"></i> Bảng điều khiển
+                            </a>
+                        @endif
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <a href="{{ route('logout') }}" class="nav-link"

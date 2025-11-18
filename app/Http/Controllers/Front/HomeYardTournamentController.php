@@ -51,6 +51,7 @@ class HomeYardTournamentController extends Controller
             'organizer_hotline' => 'nullable|string|max:20',
             'competition_schedule' => 'nullable|string',
             'results' => 'nullable|string',
+            'gallery_json' => 'nullable|string',
             'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
@@ -82,8 +83,16 @@ class HomeYardTournamentController extends Controller
             $data['image'] = $request->file('image')->store('tournament_images', 'public');
         }
 
-        // Handle gallery images
-        if ($request->hasFile('gallery')) {
+        // Handle gallery JSON (from form)
+        if ($request->has('gallery_json') && !empty($request->gallery_json)) {
+            try {
+                $data['gallery'] = json_decode($request->gallery_json, true) ?? [];
+            } catch (\Exception $e) {
+                $data['gallery'] = [];
+            }
+        }
+        // Handle gallery file uploads (legacy support)
+        elseif ($request->hasFile('gallery')) {
             $gallery = [];
             foreach ($request->file('gallery') as $file) {
                 $gallery[] = $file->store('tournament_gallery', 'public');
@@ -138,6 +147,7 @@ class HomeYardTournamentController extends Controller
             'organizer_hotline' => 'nullable|string|max:20',
             'competition_schedule' => 'nullable|string',
             'results' => 'nullable|string',
+            'gallery_json' => 'nullable|string',
             'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
@@ -172,9 +182,17 @@ class HomeYardTournamentController extends Controller
             $data['image'] = $request->file('image')->store('tournament_images', 'public');
         }
 
-        // Handle gallery images
-        if ($request->hasFile('gallery')) {
-            $gallery = $tournament->gallery ?? [];
+        // Handle gallery JSON (from form)
+        if ($request->has('gallery_json') && !empty($request->gallery_json)) {
+            try {
+                $data['gallery'] = json_decode($request->gallery_json, true) ?? [];
+            } catch (\Exception $e) {
+                $data['gallery'] = $tournament->gallery ?? [];
+            }
+        }
+        // Handle gallery file uploads (legacy support)
+        elseif ($request->hasFile('gallery')) {
+            $gallery = is_array($tournament->gallery) ? $tournament->gallery : (is_string($tournament->gallery) ? json_decode($tournament->gallery, true) ?? [] : []);
             foreach ($request->file('gallery') as $file) {
                 $gallery[] = $file->store('tournament_gallery', 'public');
             }
@@ -225,5 +243,63 @@ class HomeYardTournamentController extends Controller
         $this->authorize('update', $tournament);
         $athlete->delete();
         return redirect()->back()->with('success', 'Athlete removed successfully.');
+    }
+
+    public function updateAthleteStatus(Request $request, Tournament $tournament, TournamentAthlete $athlete)
+    {
+        $this->authorize('update', $tournament);
+
+        $request->validate([
+            'status' => 'required|string|in:pending,approved,rejected',
+        ]);
+
+        $athlete->update(['status' => $request->status]);
+
+        return redirect()->back()->with('success', 'Athlete status updated successfully.');
+    }
+
+    public function approveAthlete(Tournament $tournament, TournamentAthlete $athlete)
+    {
+        $this->authorize('update', $tournament);
+
+        $athlete->update(['status' => 'approved']);
+
+        return redirect()->back()->with('success', "Vận động viên {$athlete->athlete_name} đã được duyệt.");
+    }
+
+    public function rejectAthlete(Tournament $tournament, TournamentAthlete $athlete)
+    {
+        $this->authorize('update', $tournament);
+
+        $athlete->update(['status' => 'rejected']);
+
+        return redirect()->back()->with('success', "Vận động viên {$athlete->athlete_name} đã bị từ chối.");
+    }
+
+    public function listAthletes(Request $request)
+    {
+        $status = $request->query('status', 'pending');
+        
+        $athletes = TournamentAthlete::whereHas('tournament', function($q) {
+            $q->where('user_id', auth()->id());
+        })
+        ->where('status', $status)
+        ->with('tournament')
+        ->latest()
+        ->paginate(15);
+
+        $stats = [
+            'pending' => TournamentAthlete::whereHas('tournament', function($q) {
+                $q->where('user_id', auth()->id());
+            })->where('status', 'pending')->count(),
+            'approved' => TournamentAthlete::whereHas('tournament', function($q) {
+                $q->where('user_id', auth()->id());
+            })->where('status', 'approved')->count(),
+            'rejected' => TournamentAthlete::whereHas('tournament', function($q) {
+                $q->where('user_id', auth()->id());
+            })->where('status', 'rejected')->count(),
+        ];
+
+        return view('home-yard.athletes.index', compact('athletes', 'status', 'stats'));
     }
 }

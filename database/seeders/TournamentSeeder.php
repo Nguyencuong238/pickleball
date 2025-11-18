@@ -27,6 +27,11 @@ class TournamentSeeder extends Seeder
                 'max_participants' => 128,
                 'price' => 500000.00,
                 'prizes' => '5 triệu đồng',
+                'gallery' => json_encode([
+                    ['url' => 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&h=400&fit=crop', 'title' => 'Thi đấu vòng 1'],
+                    ['url' => 'https://images.unsplash.com/photo-1552674605-5defe6aa44bb?w=500&h=400&fit=crop', 'title' => 'Cảnh quang chung'],
+                    ['url' => 'https://images.unsplash.com/photo-1565895917775-c271d75b63ce?w=500&h=400&fit=crop', 'title' => 'Vợt Pickleball'],
+                ]),
             ],
             [
                 'name' => 'Hà Nội Pickleball Masters',
@@ -37,6 +42,10 @@ class TournamentSeeder extends Seeder
                 'max_participants' => 64,
                 'price' => 300000.00,
                 'prizes' => '3 triệu đồng',
+                'gallery' => json_encode([
+                    ['url' => 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&h=400&fit=crop', 'title' => 'Bán kết'],
+                    ['url' => 'https://images.unsplash.com/photo-1552674605-5defe6aa44bb?w=500&h=400&fit=crop', 'title' => 'Chung kết'],
+                ]),
             ],
             [
                 'name' => 'Đà Nẵng Beach Pickleball',
@@ -47,6 +56,11 @@ class TournamentSeeder extends Seeder
                 'max_participants' => 96,
                 'price' => 250000.00,
                 'prizes' => '2.5 triệu đồng',
+                'gallery' => json_encode([
+                    ['url' => 'https://images.unsplash.com/photo-1565895917775-c271d75b63ce?w=500&h=400&fit=crop', 'title' => 'Bãi biển đẹp'],
+                    ['url' => 'https://images.unsplash.com/photo-1542438859-0f67e3a2e6f4?w=500&h=400&fit=crop', 'title' => 'Cảnh sân thi đấu'],
+                    ['url' => 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&h=400&fit=crop', 'title' => 'VĐV thi đấu'],
+                ]),
             ],
             [
                 'name' => 'Cần Thơ Mekong Cup',
@@ -67,6 +81,9 @@ class TournamentSeeder extends Seeder
                 'max_participants' => 72,
                 'price' => 180000.00,
                 'prizes' => '1.8 triệu đồng',
+                'gallery' => json_encode([
+                    ['url' => 'https://images.unsplash.com/photo-1552674605-5defe6aa44bb?w=500&h=400&fit=crop', 'title' => 'Resort sang trọng'],
+                ]),
             ],
             [
                 'name' => 'Vietnam National Championship',
@@ -77,6 +94,11 @@ class TournamentSeeder extends Seeder
                 'max_participants' => 256,
                 'price' => 1000000.00,
                 'prizes' => '10 triệu đồng',
+                'gallery' => json_encode([
+                    ['url' => 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=500&h=400&fit=crop', 'title' => 'Sân chính'],
+                    ['url' => 'https://images.unsplash.com/photo-1565895917775-c271d75b63ce?w=500&h=400&fit=crop', 'title' => 'Vòng loại'],
+                    ['url' => 'https://images.unsplash.com/photo-1552674605-5defe6aa44bb?w=500&h=400&fit=crop', 'title' => 'Bán kết quốc gia'],
+                ]),
             ],
         ];
 

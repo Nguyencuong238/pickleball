@@ -251,7 +251,7 @@
                     <div class="tournaments-grid" id="tournamentsGrid">
                         @forelse($tournaments as $tournament)
                             <div class="tournament-item">
-                                <a href="{{ route('tournaments-detail') }}" class="tournament-link">
+                                <a href="{{ route('tournaments-detail', $tournament->id) }}" class="tournament-link">
                                     <div class="tournament-image">
                                         @if($tournament->image)
                                             <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}">

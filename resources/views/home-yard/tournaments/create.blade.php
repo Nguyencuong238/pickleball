@@ -8,7 +8,7 @@
         }
     }
 </style>
-<div class="page-header" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+<div class="page-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
     <div class="container" style="max-width: 900px; margin: 0 auto;">
         <a href="{{ route('homeyard.tournaments.index') }}" style="color: rgba(255, 255, 255, 0.9); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px;">
             <i class="fas fa-arrow-left"></i> Quay Lại

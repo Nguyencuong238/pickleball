@@ -8,7 +8,7 @@
         }
     }
 </style>
-    <div class="page-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <div class="page-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
         <div class="container" style="max-width: 1200px; margin: 0 auto;">
             <h1 style="color: white; font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 700; margin: 0; line-height: 1.2;">Quản Lý Sân Của Tôi</h1>
             <p style="color: rgba(255, 255, 255, 0.95); margin-top: 12px; margin-bottom: 0; font-size: clamp(0.95rem, 2vw, 1.1rem); font-weight: 500;">Cập nhật và quản lý tất cả các sân của bạn</p>
@@ -29,7 +29,7 @@
             <a href="{{ route('homeyard.dashboard') }}" style="color: #f59e0b; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-arrow-left"></i> Quay Lại
             </a>
-            <a href="{{ route('homeyard.stadiums.create') }}" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+            <a href="{{ route('homeyard.stadiums.create') }}" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-plus"></i> Thêm Sân Mới
             </a>
         </div>

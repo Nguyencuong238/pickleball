@@ -239,6 +239,9 @@
     color: var(--text-secondary);
     transition: all var(--transition-base);
     white-space: nowrap;
+    border: none;
+    background: transparent;
+    cursor: pointer;
 }
 
 .tab-btn .icon {

@@ -8,7 +8,7 @@
         }
     }
 </style>
-    <div class="page-header" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+    <div class="page-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
         <div class="container" style="max-width: 1200px; margin: 0 auto;">
             <h1 style="color: white; font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 700; margin: 0; line-height: 1.2;">Quản Lý Giải Đấu Của Tôi</h1>
             <p style="color: rgba(255, 255, 255, 0.95); margin-top: 12px; margin-bottom: 0; font-size: clamp(0.95rem, 2vw, 1.1rem); font-weight: 500;">Tạo và quản lý các giải đấu của bạn</p>
@@ -29,7 +29,7 @@
             <a href="{{ route('homeyard.dashboard') }}" style="color: #ec4899; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-arrow-left"></i> Quay Lại
             </a>
-            <a href="{{ route('homeyard.tournaments.create') }}" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+            <a href="{{ route('homeyard.tournaments.create') }}" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-plus"></i> Tạo Giải Đấu
             </a>
         </div>
@@ -71,12 +71,8 @@
                                         </span>
                                     </td>
                                     <td style="padding: 15px 20px;">
-                                        @if($tournament->status === 'upcoming')
-                                            <span style="background-color: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Sắp Diễn Ra</span>
-                                        @elseif($tournament->status === 'ongoing')
-                                            <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Đang Diễn Ra</span>
-                                        @elseif($tournament->status === 'completed')
-                                            <span style="background-color: #dbeafe; color: #0c4a6e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Hoàn Thành</span>
+                                        @if($tournament->status == '1')
+                                            <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Đang Hoạt Động</span>
                                         @else
                                             <span style="background-color: #fee2e2; color: #991b1b; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Huỷ</span>
                                         @endif

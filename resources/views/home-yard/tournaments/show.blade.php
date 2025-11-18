@@ -8,7 +8,7 @@
         }
     }
 </style>
-<div class="page-header" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+<div class="page-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
     <div class="container" style="max-width: 1200px; margin: 0 auto;">
         <a href="{{ route('homeyard.tournaments.index') }}" style="color: rgba(255, 255, 255, 0.9); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px;">
             <i class="fas fa-arrow-left"></i> Quay Lại
@@ -106,7 +106,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="color: #1e293b; margin: 0;">Danh Sách Vận Động Viên</h3>
                 @if($tournament->athleteCount() < $tournament->max_participants)
-                    <button onclick="openAthleteModal()" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+                    <button onclick="openAthleteModal()" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
                         <i class="fas fa-plus"></i> Thêm Vận Động Viên
                     </button>
                 @endif
@@ -133,21 +133,47 @@
                                     <td style="padding: 15px 20px; color: #6b7280;">{{ $athlete->email ?? '-' }}</td>
                                     <td style="padding: 15px 20px; color: #6b7280;">{{ $athlete->phone ?? '-' }}</td>
                                     <td style="padding: 15px 20px;">
-                                        @if($athlete->status === 'registered')
-                                            <span style="background-color: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Đã Đăng Ký</span>
-                                        @else
-                                            <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">{{ ucfirst($athlete->status) }}</span>
-                                        @endif
-                                    </td>
+                                         @if($athlete->status === 'pending')
+                                             <span style="background-color: #fef3c7; color: #92400e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Chờ Xác Nhận</span>
+                                         @elseif($athlete->status === 'approved')
+                                             <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Đã Xác Nhận</span>
+                                         @elseif($athlete->status === 'rejected')
+                                             <span style="background-color: #fee2e2; color: #991b1b; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Từ Chối</span>
+                                         @elseif($athlete->status === 'registered')
+                                             <span style="background-color: #dbeafe; color: #0c4a6e; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Đã Đăng Ký</span>
+                                         @else
+                                             <span style="background-color: #f3f4f6; color: #4b5563; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">{{ ucfirst($athlete->status) }}</span>
+                                         @endif
+                                     </td>
                                     <td style="padding: 15px 20px; text-align: center;">
-                                        <form method="POST" action="{{ route('homeyard.tournaments.athletes.remove', [$tournament, $athlete]) }}" style="display: inline;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer;" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
-                                                <i class="fas fa-trash">Xóa</i>
-                                            </button>
-                                        </form>
-                                    </td>
+                                         <div style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
+                                             @if($athlete->status === 'pending')
+                                                 <form method="POST" action="{{ route('homeyard.tournaments.athletes.updateStatus', [$tournament, $athlete]) }}" style="display: inline;">
+                                                     @csrf
+                                                     @method('PATCH')
+                                                     <input type="hidden" name="status" value="approved">
+                                                     <button type="submit" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">
+                                                         <i class="fas fa-check"></i> Xác Nhận
+                                                     </button>
+                                                 </form>
+                                                 <form method="POST" action="{{ route('homeyard.tournaments.athletes.updateStatus', [$tournament, $athlete]) }}" style="display: inline;">
+                                                     @csrf
+                                                     @method('PATCH')
+                                                     <input type="hidden" name="status" value="rejected">
+                                                     <button type="submit" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; white-space: nowrap;">
+                                                         <i class="fas fa-times"></i> Từ Chối
+                                                     </button>
+                                                 </form>
+                                             @endif
+                                             <form method="POST" action="{{ route('homeyard.tournaments.athletes.remove', [$tournament, $athlete]) }}" style="display: inline;">
+                                                 @csrf
+                                                 @method('DELETE')
+                                                 <button type="submit" style="background: #6b7280; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; white-space: nowrap;" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
+                                                     <i class="fas fa-trash"></i> Xóa
+                                                 </button>
+                                             </form>
+                                         </div>
+                                     </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -202,7 +228,7 @@
 
             <div style="display: flex; gap: 10px; justify-content: flex-end;">
                 <button type="button" onclick="closeAthleteModal()" style="background-color: #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Hủy</button>
-                <button type="submit" style="background: linear-gradient(135deg, #ec4899 0%, #db2777 100%); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Thêm</button>
+                <button type="submit" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Thêm</button>
             </div>
         </form>
     </div>

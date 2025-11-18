@@ -196,9 +196,13 @@ class HomeController extends Controller
         ]);
     }
     
-    public function tournamentsDetail()
+    public function tournamentsDetail($tournament_id)
     {
-        return view('front.tournaments.tournaments_detail');
+        $tournament = Tournament::findOrFail($tournament_id);
+        
+        return view('front.tournaments.tournaments_detail', [
+            'tournament' => $tournament,
+        ]);
     }
     
     public function social()

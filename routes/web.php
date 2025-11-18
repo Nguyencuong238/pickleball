@@ -6,6 +6,7 @@ use App\Http\Controllers\Front\NewsController as FrontNewsController;
 use App\Http\Controllers\Front\DashboardController;
 use App\Http\Controllers\Front\HomeYardStadiumController;
 use App\Http\Controllers\Front\HomeYardTournamentController;
+use App\Http\Controllers\Front\TournamentRegistrationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\UserPermissionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -60,7 +61,10 @@ Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{slug}', [FrontNewsController::class, 'show'])->name('news.show');
 Route::get('/page/{page}', [PageController::class, 'show'])->name('page.show');
 Route::get('/courts-detail/{court_id}', [HomeController::class, 'courtsDetail'])->name('courts-detail');
-Route::get('/tournaments-detail', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
+Route::get('/tournaments-detail/{tournament_id}', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
+
+// Tournament Registration
+Route::post('/tournament/{tournament}/register', [TournamentRegistrationController::class, 'register'])->name('tournament.register');
 
 // User Dashboard Route
 Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('user.dashboard');
@@ -75,6 +79,10 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::resource('tournaments', HomeYardTournamentController::class);
     Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
+    Route::patch('tournaments/{tournament}/athletes/{athlete}/status', [HomeYardTournamentController::class, 'updateAthleteStatus'])->name('tournaments.athletes.updateStatus');
+    Route::post('tournaments/{tournament}/athletes/{athlete}/approve', [HomeYardTournamentController::class, 'approveAthlete'])->name('athletes.approve');
+    Route::post('tournaments/{tournament}/athletes/{athlete}/reject', [HomeYardTournamentController::class, 'rejectAthlete'])->name('athletes.reject');
+    Route::get('athletes', [HomeYardTournamentController::class, 'listAthletes'])->name('athletes.index');
 });
 
 // Admin routes for managing user permissions
