@@ -168,7 +168,7 @@ class HomeController extends Controller
         $statusOngoing = Tournament::where('status', 1)->whereDate('start_date', '<=', $now)
             ->whereDate('end_date', '>=', $now)
             ->count();
-        $statusComingSoon = Tournament::where('status', 1)->whereDate('start_date', '>', $now())->count();
+        $statusComingSoon = Tournament::where('status', 1)->whereDate('start_date', '>', $now)->count();
         
         // Get unique locations for filter dropdown
         $locations = Tournament::where('status', 1)->distinct('location')->whereNotNull('location')->pluck('location');
