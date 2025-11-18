@@ -94,7 +94,7 @@ class HomeController extends Controller
                     } elseif ($status === 'coming_soon') {
                         // Sắp mở: start_date > now + 30 days
                         $q->orWhere(function($subQ) {
-                            $subQ->whereDate('start_date', '>', now()->addDays(30));
+                            $subQ->whereDate('start_date', '>', now());
                         });
                     } elseif ($status === 'ongoing') {
                         // Đang diễn ra: start_date <= now AND end_date >= now
@@ -168,7 +168,7 @@ class HomeController extends Controller
         $statusOngoing = Tournament::where('status', 1)->whereDate('start_date', '<=', $now)
             ->whereDate('end_date', '>=', $now)
             ->count();
-        $statusComingSoon = Tournament::where('status', 1)->whereDate('start_date', '>', $now->addDays(30))->count();
+        $statusComingSoon = Tournament::where('status', 1)->whereDate('start_date', '>', $now())->count();
         
         // Get unique locations for filter dropdown
         $locations = Tournament::where('status', 1)->distinct('location')->whereNotNull('location')->pluck('location');
