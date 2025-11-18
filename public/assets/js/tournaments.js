@@ -171,36 +171,29 @@ function filterTournaments() {
 
 // Sort Functionality
 const sortSelect = document.querySelector('.sort-select');
-if (sortSelect) {
-    sortSelect.addEventListener('change', (e) => {
-        const sortValue = e.target.value;
-        console.log('Sorting by:', sortValue);
+
+function applySortFilter() {
+    const form = document.getElementById('filterForm');
+    if (form && sortSelect) {
+        const sortValue = sortSelect.value;
         
-        // Get all tournament items
-        const tournaments = Array.from(document.querySelectorAll('.tournament-item'));
-        const grid = document.querySelector('.tournaments-grid');
-        
-        // Sort tournaments (simplified example)
-        // In real implementation, you would sort based on actual data
-        if (sortValue === 'name-asc') {
-            tournaments.sort((a, b) => {
-                const nameA = a.querySelector('.tournament-title').textContent;
-                const nameB = b.querySelector('.tournament-title').textContent;
-                return nameA.localeCompare(nameB);
-            });
-        } else if (sortValue === 'name-desc') {
-            tournaments.sort((a, b) => {
-                const nameA = a.querySelector('.tournament-title').textContent;
-                const nameB = b.querySelector('.tournament-title').textContent;
-                return nameB.localeCompare(nameA);
-            });
+        // Create hidden input for sort if it doesn't exist
+        let sortInput = form.querySelector('input[name="sort"]');
+        if (!sortInput) {
+            sortInput = document.createElement('input');
+            sortInput.type = 'hidden';
+            sortInput.name = 'sort';
+            form.appendChild(sortInput);
         }
+        sortInput.value = sortValue;
         
-        // Re-append sorted tournaments
-        tournaments.forEach(tournament => {
-            grid.appendChild(tournament);
-        });
-    });
+        // Submit the form
+        form.submit();
+    }
+}
+
+if (sortSelect) {
+    sortSelect.addEventListener('change', applySortFilter);
 }
 
 // Pagination

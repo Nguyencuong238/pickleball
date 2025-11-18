@@ -20,28 +20,28 @@
                 <div class="stat-box">
                     <div class="stat-icon">🏆</div>
                     <div class="stat-content">
-                        <div class="stat-number">48</div>
+                        <div class="stat-number">{{ $totalTournaments }}</div>
                         <div class="stat-label">Giải đấu năm nay</div>
                     </div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-icon">👥</div>
                     <div class="stat-content">
-                        <div class="stat-number">2,847</div>
+                        <div class="stat-number">{{ number_format($totalAthletes, 0) }}</div>
                         <div class="stat-label">Vận động viên</div>
                     </div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-icon">💰</div>
                     <div class="stat-content">
-                        <div class="stat-number">5.2 tỷ</div>
+                        <div class="stat-number">{{ number_format($totalPrizes / 1000000000, 1) }} tỷ</div>
                         <div class="stat-label">Tổng giải thưởng</div>
                     </div>
                 </div>
                 <div class="stat-box">
                     <div class="stat-icon">📍</div>
                     <div class="stat-content">
-                        <div class="stat-number">15</div>
+                        <div class="stat-number">{{ $totalLocations }}</div>
                         <div class="stat-label">Tỉnh/Thành phố</div>
                     </div>
                 </div>
@@ -55,7 +55,7 @@
             <div class="tournaments-layout">
                 <!-- Sidebar Filters -->
                 <aside class="tournaments-sidebar">
-                    <div class="filter-card">
+                    <form id="filterForm" method="GET" action="{{ route('tournaments') }}" class="filter-card">
                         <div class="filter-header">
                             <h3 class="filter-title">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -71,7 +71,7 @@
                                 </svg>
                                 Bộ lọc
                             </h3>
-                            <button class="filter-reset">Xóa bộ lọc</button>
+                            <a href="{{ route('tournaments') }}" class="filter-reset">Xóa bộ lọc</a>
                         </div>
 
                         <!-- Search -->
@@ -82,7 +82,7 @@
                                     <circle cx="11" cy="11" r="8"/>
                                     <path d="m21 21-4.35-4.35"/>
                                 </svg>
-                                <input type="text" class="filter-search" placeholder="Tên giải đấu...">
+                                <input type="text" name="search" class="filter-search" placeholder="Tên giải đấu..." value="{{ $filters['search'] ?? '' }}">
                             </div>
                         </div>
 
@@ -91,28 +91,28 @@
                             <label class="filter-label">Trạng thái</label>
                             <div class="filter-options">
                                 <label class="filter-checkbox">
-                                    <input type="checkbox" checked>
+                                    <input type="checkbox" name="statuses[]" value="open" @if(in_array('open', $filters['statuses'] ?? [])) checked @endif>
                                     <span class="checkbox-custom"></span>
                                     <span>Đang mở đăng ký</span>
-                                    <span class="filter-count">(12)</span>
+                                    <span class="filter-count">({{ $statusOpen }})</span>
                                 </label>
                                 <label class="filter-checkbox">
-                                    <input type="checkbox" checked>
+                                    <input type="checkbox" name="statuses[]" value="coming_soon" @if(in_array('coming_soon', $filters['statuses'] ?? [])) checked @endif>
                                     <span class="checkbox-custom"></span>
                                     <span>Sắp mở</span>
-                                    <span class="filter-count">(8)</span>
+                                    <span class="filter-count">({{ $statusComingSoon }})</span>
                                 </label>
                                 <label class="filter-checkbox">
-                                    <input type="checkbox">
+                                    <input type="checkbox" name="statuses[]" value="ongoing" @if(in_array('ongoing', $filters['statuses'] ?? [])) checked @endif>
                                     <span class="checkbox-custom"></span>
                                     <span>Đang diễn ra</span>
-                                    <span class="filter-count">(3)</span>
+                                    <span class="filter-count">({{ $statusOngoing }})</span>
                                 </label>
                                 <label class="filter-checkbox">
-                                    <input type="checkbox">
+                                    <input type="checkbox" name="statuses[]" value="ended" @if(in_array('ended', $filters['statuses'] ?? [])) checked @endif>
                                     <span class="checkbox-custom"></span>
                                     <span>Đã kết thúc</span>
-                                    <span class="filter-count">(25)</span>
+                                    <span class="filter-count">({{ $statusEnded }})</span>
                                 </label>
                             </div>
                         </div>
@@ -120,15 +120,11 @@
                         <!-- Location Filter -->
                         <div class="filter-group">
                             <label class="filter-label">Địa điểm</label>
-                            <select class="filter-select">
+                            <select name="location" class="filter-select">
                                 <option value="">Tất cả khu vực</option>
-                                <option value="hcm">TP. Hồ Chí Minh</option>
-                                <option value="hn">Hà Nội</option>
-                                <option value="dn">Đà Nẵng</option>
-                                <option value="ct">Cần Thơ</option>
-                                <option value="vt">Vũng Tàu</option>
-                                <option value="nt">Nha Trang</option>
-                                <option value="hp">Hải Phòng</option>
+                                @foreach($locations as $location)
+                                    <option value="{{ $location }}" @if($filters['location'] === $location) selected @endif>{{ $location }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -137,29 +133,24 @@
                             <label class="filter-label">Trình độ</label>
                             <div class="filter-options">
                                 <label class="filter-checkbox">
-                                    <input type="checkbox">
+                                    <input type="checkbox" name="ranks[]" value="beginner" @if(in_array('beginner', $filters['ranks'] ?? [])) checked @endif>
                                     <span class="checkbox-custom"></span>
                                     <span>Beginner</span>
                                 </label>
                                 <label class="filter-checkbox">
-                                    <input type="checkbox">
+                                    <input type="checkbox" name="ranks[]" value="intermediate" @if(in_array('intermediate', $filters['ranks'] ?? [])) checked @endif>
                                     <span class="checkbox-custom"></span>
                                     <span>Intermediate</span>
                                 </label>
                                 <label class="filter-checkbox">
-                                    <input type="checkbox">
+                                    <input type="checkbox" name="ranks[]" value="advanced" @if(in_array('advanced', $filters['ranks'] ?? [])) checked @endif>
                                     <span class="checkbox-custom"></span>
                                     <span>Advanced</span>
                                 </label>
                                 <label class="filter-checkbox">
-                                    <input type="checkbox">
+                                    <input type="checkbox" name="ranks[]" value="professional" @if(in_array('professional', $filters['ranks'] ?? [])) checked @endif>
                                     <span class="checkbox-custom"></span>
                                     <span>Professional</span>
-                                </label>
-                                <label class="filter-checkbox">
-                                    <input type="checkbox">
-                                    <span class="checkbox-custom"></span>
-                                    <span>Open (Tất cả)</span>
                                 </label>
                             </div>
                         </div>
@@ -167,10 +158,9 @@
                         <!-- Date Range -->
                         <div class="filter-group">
                             <label class="filter-label">Thời gian</label>
-                            <div class="date-range">
-                                <input type="date" class="filter-date" placeholder="Từ ngày">
-                                <span class="date-separator">-</span>
-                                <input type="date" class="filter-date" placeholder="Đến ngày">
+                            <div class="date-range" style="display: block">
+                                <input type="date" name="start_date" class="filter-date" value="{{ $filters['start_date'] ?? '' }}">
+                                <input type="date" name="end_date" class="filter-date" value="{{ $filters['end_date'] ?? '' }}">
                             </div>
                         </div>
 
@@ -179,22 +169,22 @@
                             <label class="filter-label">Giải thưởng</label>
                             <div class="filter-options">
                                 <label class="filter-radio">
-                                    <input type="radio" name="prize" value="" checked>
+                                    <input type="radio" name="prize_range" value="" @if(!($filters['prize_range'] ?? '')) checked @endif>
                                     <span class="radio-custom"></span>
                                     <span>Tất cả</span>
                                 </label>
                                 <label class="filter-radio">
-                                    <input type="radio" name="prize" value="low">
+                                    <input type="radio" name="prize_range" value="low" @if(($filters['prize_range'] ?? '') === 'low') checked @endif>
                                     <span class="radio-custom"></span>
                                     <span>Dưới 100 triệu</span>
                                 </label>
                                 <label class="filter-radio">
-                                    <input type="radio" name="prize" value="mid">
+                                    <input type="radio" name="prize_range" value="mid" @if(($filters['prize_range'] ?? '') === 'mid') checked @endif>
                                     <span class="radio-custom"></span>
                                     <span>100 - 300 triệu</span>
                                 </label>
                                 <label class="filter-radio">
-                                    <input type="radio" name="prize" value="high">
+                                    <input type="radio" name="prize_range" value="high" @if(($filters['prize_range'] ?? '') === 'high') checked @endif>
                                     <span class="radio-custom"></span>
                                     <span>Trên 300 triệu</span>
                                 </label>
@@ -202,10 +192,10 @@
                         </div>
 
                         <!-- Apply Filters Button -->
-                        <button class="btn btn-primary btn-block filter-apply">
+                        <button type="submit" class="btn btn-primary btn-block filter-apply">
                             Áp dụng bộ lọc
                         </button>
-                    </div>
+                    </form>
 
                     <!-- Featured Banner -->
                     <div class="sidebar-banner">
@@ -223,10 +213,10 @@
                     <!-- Toolbar -->
                     <div class="tournaments-toolbar">
                         <div class="toolbar-left">
-                            <h2 class="toolbar-title">Tìm thấy <span class="result-count">48</span> giải đấu</h2>
+                            <h2 class="toolbar-title">Tìm thấy <span class="result-count">{{ $tournaments->total() }}</span> giải đấu</h2>
                         </div>
                         <div class="toolbar-right">
-                            <div class="view-toggle">
+                            {{-- <div class="view-toggle">
                                 <button class="view-btn active" data-view="grid" title="Grid view">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <rect x="3" y="3" width="7" height="7"/>
@@ -245,243 +235,130 @@
                                         <line x1="3" y1="18" x2="3.01" y2="18"/>
                                     </svg>
                                 </button>
-                            </div>
-                            <select class="sort-select">
+                            </div> --}}
+                            {{-- <select class="sort-select">
                                 <option value="date-asc">Ngày diễn ra (gần nhất)</option>
                                 <option value="date-desc">Ngày diễn ra (xa nhất)</option>
                                 <option value="prize-desc">Giải thưởng (cao nhất)</option>
                                 <option value="prize-asc">Giải thưởng (thấp nhất)</option>
                                 <option value="name-asc">Tên A-Z</option>
                                 <option value="name-desc">Tên Z-A</option>
-                            </select>
+                            </select> --}}
                         </div>
-                    </div>
-
-                    <!-- Active Filters Tags -->
-                    <div class="active-filters">
-                        <span class="filter-tag">
-                            Đang mở đăng ký
-                            <button class="tag-remove">&times;</button>
-                        </span>
-                        <span class="filter-tag">
-                            Sắp mở
-                            <button class="tag-remove">&times;</button>
-                        </span>
                     </div>
 
                     <!-- Tournaments Grid -->
                     <div class="tournaments-grid" id="tournamentsGrid">
-                        <!-- Tournament Card 1 -->
-                        <div class="tournament-item">
-                            <a href="tournament-detail.html" class="tournament-link">
-                                <div class="tournament-image">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 250'%3E%3Cdefs%3E%3ClinearGradient id='t1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2300D9B5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230099CC;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23t1)' width='400' height='250'/%3E%3Ctext x='200' y='125' font-family='Arial' font-size='28' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3EHCM OPEN 2025%3C/text%3E%3C/svg%3E" alt="HCM Open 2025">
-                                    <div class="tournament-badges">
-                                        <span class="badge badge-featured">Featured</span>
-                                        <span class="badge badge-status status-open">Đang mở</span>
-                                    </div>
-                                    <div class="tournament-overlay">
-                                        <span class="overlay-text">Xem chi tiết →</span>
-                                    </div>
-                                </div>
-                                <div class="tournament-content">
-                                    <div class="tournament-date-badge">
-                                        <div class="date-icon">📅</div>
-                                        <div class="date-text">
-                                            <span class="date-day">15-17</span>
-                                            <span class="date-month">Tháng 12, 2025</span>
+                        @forelse($tournaments as $tournament)
+                            <div class="tournament-item">
+                                <a href="{{ route('tournaments-detail') }}" class="tournament-link">
+                                    <div class="tournament-image">
+                                        @if($tournament->image)
+                                            <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}">
+                                        @else
+                                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 250'%3E%3Cdefs%3E%3ClinearGradient id='t{{ $tournament->id }}' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2300D9B5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230099CC;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23t{{ $tournament->id }})' width='400' height='250'/%3E%3Ctext x='200' y='125' font-family='Arial' font-size='24' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3E{{ strtoupper(substr($tournament->name, 0, 20)) }}%3C/text%3E%3C/svg%3E" alt="{{ $tournament->name }}">
+                                        @endif
+                                        <div class="tournament-badges">
+                                            <span class="badge badge-status status-open">Đang mở</span>
+                                        </div>
+                                        <div class="tournament-overlay">
+                                            <span class="overlay-text">Xem chi tiết →</span>
                                         </div>
                                     </div>
-                                    <h3 class="tournament-title">HCM Pickleball Open 2025</h3>
-                                    <p class="tournament-excerpt">Giải đấu mở rộng quy mô lớn nhất năm với tổng giá trị giải thưởng 500 triệu đồng</p>
-                                    
-                                    <div class="tournament-meta">
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                                <circle cx="12" cy="10" r="3"/>
-                                            </svg>
-                                            <span>Sân Rạch Chiếc, Q2</span>
+                                    <div class="tournament-content">
+                                        <div class="tournament-date-badge">
+                                            <div class="date-icon">📅</div>
+                                            <div class="date-text">
+                                                <span class="date-day">{{ $tournament->start_date->format('d-m') }}</span>
+                                                <span class="date-month">{{ $tournament->start_date->format('M Y') }}</span>
+                                            </div>
                                         </div>
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                                <circle cx="9" cy="7" r="4"/>
-                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                            </svg>
-                                            <span>128 VĐV</span>
+                                        <h3 class="tournament-title">{{ $tournament->name }}</h3>
+                                        <p class="tournament-excerpt">{{ substr($tournament->description, 0, 80) }}...</p>
+                                        
+                                        <div class="tournament-meta">
+                                            <div class="meta-item">
+                                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                                                    <circle cx="12" cy="10" r="3"/>
+                                                </svg>
+                                                <span>{{ $tournament->location ?? 'N/A' }}</span>
+                                            </div>
+                                            <div class="meta-item">
+                                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                                    <circle cx="9" cy="7" r="4"/>
+                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                                </svg>
+                                                <span>{{ $tournament->athleteCount() }} VĐV</span>
+                                            </div>
                                         </div>
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                            </svg>
-                                            <span>Open</span>
-                                        </div>
-                                    </div>
 
-                                    <div class="tournament-footer">
-                                        <div class="tournament-prize">
-                                            <span class="prize-label">Giải thưởng</span>
-                                            <span class="prize-amount">500.000.000 VNĐ</span>
-                                        </div>
-                                        <button class="btn btn-primary btn-sm" onclick="event.preventDefault(); alert('Đăng ký giải đấu!');">
-                                            Đăng ký ngay
-                                        </button>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Tournament Card 2 -->
-                        <div class="tournament-item">
-                            <a href="tournament-detail.html" class="tournament-link">
-                                <div class="tournament-image">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 250'%3E%3Cdefs%3E%3ClinearGradient id='t2' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF6B6B;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FF8E53;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23t2)' width='400' height='250'/%3E%3Ctext x='200' y='125' font-family='Arial' font-size='24' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3EHN MASTERS%3C/text%3E%3C/svg%3E" alt="Hà Nội Masters">
-                                    <div class="tournament-badges">
-                                        <span class="badge badge-status status-open">Đang mở</span>
-                                    </div>
-                                    <div class="tournament-overlay">
-                                        <span class="overlay-text">Xem chi tiết →</span>
-                                    </div>
-                                </div>
-                                <div class="tournament-content">
-                                    <div class="tournament-date-badge">
-                                        <div class="date-icon">📅</div>
-                                        <div class="date-text">
-                                            <span class="date-day">22-24</span>
-                                            <span class="date-month">Tháng 12, 2025</span>
+                                        <div class="tournament-footer">
+                                            <div class="tournament-prize">
+                                                <span class="prize-label">Giải thưởng</span>
+                                                <span class="prize-amount">{{ $tournament->prizes ? number_format($tournament->prizes, 0, '.', ',') . ' VNĐ' : 'N/A' }}</span>
+                                            </div>
+                                            <button class="btn btn-primary btn-sm" onclick="event.preventDefault(); alert('Đăng ký giải đấu!');">
+                                                Đăng ký ngay
+                                            </button>
                                         </div>
                                     </div>
-                                    <h3 class="tournament-title">Hà Nội Pickleball Masters</h3>
-                                    <p class="tournament-excerpt">Giải đấu dành cho các tay vợt chuyên nghiệp hạng Masters trở lên</p>
-                                    
-                                    <div class="tournament-meta">
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                                <circle cx="12" cy="10" r="3"/>
-                                            </svg>
-                                            <span>Cung TDTT Quốc Gia</span>
-                                        </div>
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                                <circle cx="9" cy="7" r="4"/>
-                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                            </svg>
-                                            <span>64 VĐV</span>
-                                        </div>
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                            </svg>
-                                            <span>Professional</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="tournament-footer">
-                                        <div class="tournament-prize">
-                                            <span class="prize-label">Giải thưởng</span>
-                                            <span class="prize-amount">300.000.000 VNĐ</span>
-                                        </div>
-                                        <button class="btn btn-primary btn-sm" onclick="event.preventDefault(); alert('Đăng ký giải đấu!');">
-                                            Đăng ký ngay
-                                        </button>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Tournament Card 3 -->
-                        <div class="tournament-item">
-                            <a href="tournament-detail.html" class="tournament-link">
-                                <div class="tournament-image">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 250'%3E%3Cdefs%3E%3ClinearGradient id='t3' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%234ECDC4;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%2344A08D;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23t3)' width='400' height='250'/%3E%3Ctext x='200' y='125' font-family='Arial' font-size='24' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3EDA NANG BEACH%3C/text%3E%3C/svg%3E" alt="Đà Nẵng Beach">
-                                    <div class="tournament-badges">
-                                        <span class="badge badge-status status-soon">Sắp mở</span>
-                                    </div>
-                                    <div class="tournament-overlay">
-                                        <span class="overlay-text">Xem chi tiết →</span>
-                                    </div>
-                                </div>
-                                <div class="tournament-content">
-                                    <div class="tournament-date-badge">
-                                        <div class="date-icon">📅</div>
-                                        <div class="date-text">
-                                            <span class="date-day">05-07</span>
-                                            <span class="date-month">Tháng 1, 2026</span>
-                                        </div>
-                                    </div>
-                                    <h3 class="tournament-title">Đà Nẵng Beach Pickleball</h3>
-                                    <p class="tournament-excerpt">Giải đấu bãi biển độc đáo với không khí sôi động và giải thưởng hấp dẫn</p>
-                                    
-                                    <div class="tournament-meta">
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
-                                                <circle cx="12" cy="10" r="3"/>
-                                            </svg>
-                                            <span>Bãi Biển Mỹ Khê</span>
-                                        </div>
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                                                <circle cx="9" cy="7" r="4"/>
-                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                                            </svg>
-                                            <span>96 VĐV</span>
-                                        </div>
-                                        <div class="meta-item">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                                            </svg>
-                                            <span>Advanced</span>
-                                        </div>
-                                    </div>
-
-                                    <div class="tournament-footer">
-                                        <div class="tournament-prize">
-                                            <span class="prize-label">Giải thưởng</span>
-                                            <span class="prize-amount">200.000.000 VNĐ</span>
-                                        </div>
-                                        <button class="btn btn-outline btn-sm" onclick="event.preventDefault(); alert('Đăng ký sớm!');">
-                                            Đăng ký sớm
-                                        </button>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Add more tournament cards (4-12) with similar structure but different data -->
-                        <!-- Tournament Card 4-12 would follow same pattern -->
-                        
+                                </a>
+                            </div>
+                        @empty
+                            <div style="grid-column: 1/-1; padding: 3rem; text-align: center; color: var(--text-secondary);">
+                                <p>Không có giải đấu nào</p>
+                            </div>
+                        @endforelse
                     </div>
 
                     <!-- Pagination -->
                     <div class="pagination">
-                        <button class="pagination-btn pagination-prev" disabled>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polyline points="15 18 9 12 15 6"/>
-                            </svg>
-                            Trước
-                        </button>
+                        @if($tournaments->onFirstPage())
+                            <button class="pagination-btn pagination-prev" disabled>
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                                Trước
+                            </button>
+                        @else
+                            <a href="{{ $tournaments->previousPageUrl() . '&' . http_build_query(array_filter($filters)) }}" class="pagination-btn pagination-prev">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polyline points="15 18 9 12 15 6"/>
+                                </svg>
+                                Trước
+                            </a>
+                        @endif
+                        
                         <div class="pagination-numbers">
-                            <button class="pagination-number active">1</button>
-                            <button class="pagination-number">2</button>
-                            <button class="pagination-number">3</button>
-                            <button class="pagination-number">4</button>
-                            <span class="pagination-dots">...</span>
-                            <button class="pagination-number">10</button>
+                            @for($i = 1; $i <= $tournaments->lastPage(); $i++)
+                                @if($i == $tournaments->currentPage())
+                                    <button class="pagination-number active">{{ $i }}</button>
+                                @elseif($i <= 3 || $i > $tournaments->lastPage() - 2)
+                                    <a href="{{ $tournaments->url($i) . '&' . http_build_query(array_filter($filters)) }}" class="pagination-number">{{ $i }}</a>
+                                @elseif($i == 4 && $tournaments->lastPage() > 6)
+                                    <span class="pagination-dots">...</span>
+                                @endif
+                            @endfor
                         </div>
-                        <button class="pagination-btn pagination-next">
-                            Sau
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <polyline points="9 18 15 12 9 6"/>
-                            </svg>
-                        </button>
+                        
+                        @if($tournaments->hasMorePages())
+                            <a href="{{ $tournaments->nextPageUrl() . '&' . http_build_query(array_filter($filters)) }}" class="pagination-btn pagination-next">
+                                Sau
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </a>
+                        @else
+                            <button class="pagination-btn pagination-next" disabled>
+                                Sau
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <polyline points="9 18 15 12 9 6"/>
+                                </svg>
+                            </button>
+                        @endif
                     </div>
                 </div>
             </div>
