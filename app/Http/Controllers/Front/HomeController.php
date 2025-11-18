@@ -7,6 +7,7 @@ use App\Models\News;
 use App\Models\Stadium;
 use App\Models\Tournament;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class HomeController extends Controller
 {
@@ -218,6 +219,22 @@ class HomeController extends Controller
         
         $tournaments = $query->paginate(6);
         
+        // Add registration status for each tournament
+        if (auth()->check()) {
+            $tournaments->getCollection()->transform(function($tournament) {
+                $tournament->user_registered = DB::table('tournament_athletes')
+                    ->where('tournament_id', $tournament->id)
+                    ->where('user_id', auth()->id())
+                    ->exists();
+                return $tournament;
+            });
+        } else {
+            $tournaments->getCollection()->transform(function($tournament) {
+                $tournament->user_registered = false;
+                return $tournament;
+            });
+        }
+        
         // Calculate statistics (based on dates, only active tournaments)
         $now = now();
         $activeTournaments = Tournament::where('status', 1);
@@ -270,9 +287,15 @@ class HomeController extends Controller
     public function tournamentsDetail($tournament_id)
     {
         $tournament = Tournament::findOrFail($tournament_id);
+
+        $registered = DB::table('tournament_athletes')
+        ->where('tournament_id', $tournament->id)
+        ->where('user_id', auth()->id())
+        ->exists();
         
         return view('front.tournaments.tournaments_detail', [
             'tournament' => $tournament,
+            'registered' => $registered,
         ]);
     }
     

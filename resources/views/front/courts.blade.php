@@ -446,9 +446,9 @@
                 <button class="btn btn-white btn-lg">Đăng ký làm đối tác</button>
             </div>
         </div>
-    </section>
-@endsection
-@section('js')
-    <script src="{{ asset('assets/js/courts.js') }}"></script>
-@endsection
+        </section>
+
+        @section('js')
+        <script src="{{ asset('assets/js/courts.js') }}"></script>
+        @endsection
 

@@ -296,14 +296,20 @@
                                         </div>
 
                                         <div class="tournament-footer">
-                                            <div class="tournament-prize">
-                                                <span class="prize-label">Giải thưởng</span>
-                                                <span class="prize-amount">{{ $tournament->prizes ? number_format($tournament->prizes, 0, '.', ',') . ' VNĐ' : 'N/A' }}</span>
-                                            </div>
-                                            <button class="btn btn-primary btn-sm" onclick="event.preventDefault(); alert('Đăng ký giải đấu!');">
-                                                Đăng ký ngay
-                                            </button>
-                                        </div>
+                                             <div class="tournament-prize">
+                                                 <span class="prize-label">Giải thưởng</span>
+                                                 <span class="prize-amount">{{ $tournament->prizes ? number_format($tournament->prizes, 0, '.', ',') . ' VNĐ' : 'N/A' }}</span>
+                                             </div>
+                                             @if(!$tournament->user_registered)
+                                                 <button class="btn btn-primary btn-sm" onclick="event.preventDefault(); openRegisterModal({{ $tournament->id }}, '{{ $tournament->name }}');">
+                                                     Đăng ký ngay
+                                                 </button>
+                                             @else
+                                                 <button class="btn btn-secondary btn-sm" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                                     Chờ xét duyệt
+                                                 </button>
+                                             @endif
+                                         </div>
                                     </div>
                                 </a>
                             </div>
@@ -375,8 +381,246 @@
             </div>
         </div>
     </section>
+
+    <!-- Registration Modal -->
+    <div id="registerModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+        <div style="background: white; border-radius: 20px; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: hidden; animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);">
+            <!-- Modal Header with Gradient -->
+            <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 30px 30px 40px; color: white; position: relative;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">Đăng ký tham gia</h2>
+                <p id="modalTournamentName" style="margin: 8px 0 0 0; opacity: 0.9; font-size: 0.95rem;"></p>
+                <button onclick="closeRegisterModal()" style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.5rem; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div style="padding: 40px 30px;">
+                <form id="registerForm">
+                    @csrf
+                    <input type="hidden" id="tournament_id" name="tournament_id">
+                    
+                    <!-- Athlete Name Field -->
+                    <div style="margin-bottom: 25px;">
+                        <label for="athlete_name" style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 10px; font-size: 0.95rem;">
+                            Tên vận động viên <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="text" id="athlete_name" name="athlete_name" required 
+                            value="{{ auth()->check() ? auth()->user()->name : '' }}"
+                            placeholder="Nhập tên của bạn"
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
+                            onmouseover="this.style.borderColor='#d1d5db'"
+                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                        <div id="athlete_name_error" style="color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: none;"></div>
+                    </div>
+
+                    <!-- Email Field -->
+                    <div style="margin-bottom: 25px;">
+                        <label for="email" style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 10px; font-size: 0.95rem;">
+                            Email <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="email" id="email" name="email" required 
+                            value="{{ auth()->check() ? auth()->user()->email : '' }}"
+                            placeholder="Nhập email của bạn"
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
+                            onmouseover="this.style.borderColor='#d1d5db'"
+                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                        <div id="email_error" style="color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: none;"></div>
+                    </div>
+
+                    <!-- Phone Field -->
+                    <div style="margin-bottom: 30px;">
+                        <label for="phone" style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 10px; font-size: 0.95rem;">
+                            Số điện thoại <span style="color: #ef4444;">*</span>
+                        </label>
+                        <input type="tel" id="phone" name="phone" required 
+                            value="{{ auth()->check() ? auth()->user()->phone : '' }}"
+                            placeholder="Nhập số điện thoại của bạn"
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
+                            onmouseover="this.style.borderColor='#d1d5db'"
+                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                        <div id="phone_error" style="color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: none;"></div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div style="padding: 0 30px 30px; display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" onclick="closeRegisterModal()" 
+                    style="padding: 12px 28px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem;"
+                    onmouseover="this.style.borderColor='#d1d5db'; this.style.background='#f9fafb'"
+                    onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white'">
+                    Hủy
+                </button>
+                <button type="button" id="submitRegisterBtn" onclick="submitRegisterForm()"
+                    style="padding: 12px 32px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);"
+                    onmouseover="this.style.boxShadow='0 6px 25px rgba(236, 72, 153, 0.4)'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.boxShadow='0 4px 15px rgba(236, 72, 153, 0.3)'; this.style.transform='translateY(0)'">
+                    Đăng ký
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+    </style>
 @endsection
 
 @section('js')
     <script src="{{ asset('assets/js/tournaments.js') }}"></script>
+    <script>
+        function openRegisterModal(tournamentId, tournamentName) {
+            document.getElementById('tournament_id').value = tournamentId;
+            document.getElementById('modalTournamentName').textContent = tournamentName;
+            const modal = document.getElementById('registerModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeRegisterModal() {
+            const modal = document.getElementById('registerModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('registerForm').reset();
+            document.getElementById('athlete_name_error').style.display = 'none';
+            document.getElementById('email_error').style.display = 'none';
+            document.getElementById('phone_error').style.display = 'none';
+        }
+
+        function submitRegisterForm() {
+            const form = document.getElementById('registerForm');
+            
+            // Clear previous errors
+            document.getElementById('athlete_name_error').style.display = 'none';
+            document.getElementById('email_error').style.display = 'none';
+            document.getElementById('phone_error').style.display = 'none';
+            
+            const athleteNameEl = document.getElementById('athlete_name');
+            const emailEl = document.getElementById('email');
+            const phoneEl = document.getElementById('phone');
+            const tournamentIdEl = document.getElementById('tournament_id');
+            
+            const athleteName = athleteNameEl.value.trim();
+            const email = emailEl.value.trim();
+            const phone = phoneEl.value.trim();
+            const tournamentId = tournamentIdEl.value;
+            
+            let hasError = false;
+            
+            if (!athleteName) {
+                document.getElementById('athlete_name_error').textContent = 'Vui lòng nhập tên vận động viên';
+                document.getElementById('athlete_name_error').style.display = 'block';
+                hasError = true;
+            }
+            if (!email) {
+                document.getElementById('email_error').textContent = 'Vui lòng nhập email';
+                document.getElementById('email_error').style.display = 'block';
+                hasError = true;
+            }
+            if (!phone) {
+                document.getElementById('phone_error').textContent = 'Vui lòng nhập số điện thoại';
+                document.getElementById('phone_error').style.display = 'block';
+                hasError = true;
+            }
+            
+            if (hasError) {
+                return;
+            }
+            
+            const btn = document.getElementById('submitRegisterBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<div class="spinner"></div>Đang xử lý...';
+            
+            const payload = {
+                athlete_name: athleteName,
+                email: email,
+                phone: phone,
+                tournament_id: tournamentId
+            };
+            
+            fetch('/tournament/' + tournamentId + '/register', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json().then(data => ({status: response.status, data})))
+            .then(({status, data}) => {
+                if (data && data.success) {
+                    alert('Đăng ký thành công! Vui lòng chờ xác nhận từ ban tổ chức.');
+                    form.reset();
+                    closeRegisterModal();
+                } else {
+                    const errorMsg = data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.';
+                    alert(errorMsg);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Đã xảy ra lỗi. Vui lòng thử lại.');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = 'Đăng ký';
+            });
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('registerModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeRegisterModal();
+            }
+        });
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeRegisterModal();
+            }
+        });
+    </script>
 @endsection

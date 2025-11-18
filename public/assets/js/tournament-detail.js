@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Animate stats on scroll
-    const statsObserver = new IntersectionObserver((entries) => {
+    const tournamentStatsObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
                 const statCards = entry.target.querySelectorAll('.stat-card');
@@ -266,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.style.transform = 'translateY(0)';
                     }, index * 100);
                 });
-                statsObserver.unobserve(entry.target);
+                tournamentStatsObserver.unobserve(entry.target);
             }
         });
     }, { threshold: 0.1 });
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', function() {
             card.style.transition = 'all 0.5s ease';
         });
         
-        statsObserver.observe(statsBar);
+        tournamentStatsObserver.observe(statsBar);
     }
 
     // Animate content cards

@@ -5,7 +5,10 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class TournamentRegistrationController extends Controller
 {
@@ -48,14 +51,28 @@ class TournamentRegistrationController extends Controller
                 ], 400);
             }
 
+            // Update or create user record with registration data
+            $user = User::updateOrCreate(
+                ['email' => $validated['email']],
+                [
+                    'name' => $validated['athlete_name'],
+                    'phone' => $validated['phone'],
+                ]
+            );
+            
+            // If user is newly created, set a password
+            if (!$user->password || $user->password === null) {
+                $user->update(['password' => Hash::make(Str::random(16))]);
+            }
+
             // Create athlete registration with pending status
             TournamentAthlete::create([
                 'tournament_id' => $tournament->id,
-                'user_id' => auth()->check() ? auth()->id() : null,
+                'user_id' => $user->id,
                 'athlete_name' => $validated['athlete_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
-                'status' => 'pending', // pending status
+                'status' => 'pending',
             ]);
 
             return response()->json([
@@ -64,9 +81,10 @@ class TournamentRegistrationController extends Controller
             ]);
 
         } catch (\Exception $e) {
+            \Log::error('Tournament registration error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Đã xảy ra lỗi: ' . $e->getMessage()
+                'message' => 'Đã xảy ra lỗi. Vui lòng thử lại.'
             ], 500);
         }
     }

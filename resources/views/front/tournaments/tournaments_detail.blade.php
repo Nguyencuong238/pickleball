@@ -65,15 +65,21 @@
                 </div>
                 
                 <div class="hero-actions">
-                    <button class="btn btn-primary btn-lg" onclick="openRegisterModal()">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                            <circle cx="8.5" cy="7" r="4"/>
-                            <line x1="20" y1="8" x2="20" y2="14"/>
-                            <line x1="23" y1="11" x2="17" y2="11"/>
-                        </svg>
-                        Đăng ký tham gia
-                    </button>
+                    @if(!$registered)
+                        <button class="btn btn-primary btn-lg" onclick="openRegisterModal()">
+                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                <circle cx="8.5" cy="7" r="4"/>
+                                <line x1="20" y1="8" x2="20" y2="14"/>
+                                <line x1="23" y1="11" x2="17" y2="11"/>
+                            </svg>
+                            Đăng ký tham gia
+                        </button>
+                    @else
+                        <button class="btn btn-secondary btn-lg" disabled style="opacity: 0.6; cursor: not-allowed;">
+                            Chờ xét duyệt
+                        </button>
+                    @endif
                     <button class="btn btn-secondary btn-lg">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/>
@@ -634,10 +640,15 @@
                                 <span>{{ $percentage }}%</span>
                             </div>
                         </div>
-
-                        <button class="btn btn-primary btn-block btn-lg" onclick="openRegisterModal()">
-                             Đăng ký ngay
-                         </button>
+                        @if(!$registered)
+                            <button class="btn btn-primary btn-block btn-lg" onclick="openRegisterModal()">
+                                Đăng ký ngay
+                            </button>
+                        @else
+                            <button class="btn btn-secondary btn-lg btn-block" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                Chờ xét duyệt
+                            </button>
+                        @endif
                         
                         @if($tournament->registration_benefits)
                             <div class="registration-benefits">
@@ -772,6 +783,8 @@
                             Tên vận động viên <span style="color: #ef4444;">*</span>
                         </label>
                         <input type="text" id="athlete_name" name="athlete_name" required 
+                            value="{{ auth()->check() ? auth()->user()->name : '' }}"
+                            placeholder="Nhập tên của bạn"
                             style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
                             onmouseover="this.style.borderColor='#d1d5db'"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
@@ -785,6 +798,8 @@
                             Email <span style="color: #ef4444;">*</span>
                         </label>
                         <input type="email" id="email" name="email" required 
+                            value="{{ auth()->check() ? auth()->user()->email : '' }}"
+                            placeholder="Nhập email của bạn"
                             style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
                             onmouseover="this.style.borderColor='#d1d5db'"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
@@ -798,6 +813,8 @@
                             Số điện thoại <span style="color: #ef4444;">*</span>
                         </label>
                         <input type="tel" id="phone" name="phone" required 
+                            value="{{ auth()->check() ? auth()->user()->phone : '' }}"
+                            placeholder="Nhập số điện thoại của bạn"
                             style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
                             onmouseover="this.style.borderColor='#d1d5db'"
                             onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
@@ -888,6 +905,7 @@
         }
 
         function submitRegisterForm() {
+            console.log('submitRegisterForm called!');
             const form = document.getElementById('registerForm');
             
             // Clear previous errors
@@ -895,9 +913,17 @@
             document.getElementById('email_error').style.display = 'none';
             document.getElementById('phone_error').style.display = 'none';
             
-            const athleteName = document.getElementById('athlete_name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const phone = document.getElementById('phone').value.trim();
+            const athleteNameEl = document.getElementById('athlete_name');
+            const emailEl = document.getElementById('email');
+            const phoneEl = document.getElementById('phone');
+            
+            console.log('Form elements found:', {athleteNameEl, emailEl, phoneEl});
+            
+            const athleteName = athleteNameEl.value.trim();
+            const email = emailEl.value.trim();
+            const phone = phoneEl.value.trim();
+            
+            console.log('Form values:', {athleteName, email, phone});
             
             let hasError = false;
             
@@ -917,11 +943,24 @@
                 hasError = true;
             }
             
-            if (hasError) return;
+            console.log('Validation errors:', hasError);
+            if (hasError) {
+                console.log('Form has errors, returning');
+                return;
+            }
             
             const btn = document.getElementById('submitRegisterBtn');
             btn.disabled = true;
             btn.innerHTML = '<div class="spinner"></div>Đang xử lý...';
+            
+            const payload = {
+                athlete_name: athleteName,
+                email: email,
+                phone: phone,
+                tournament_id: {{ $tournament->id }}
+            };
+            
+            console.log('Submitting registration:', payload);
             
             fetch('{{ route("tournament.register", $tournament->id) }}', {
                 method: 'POST',
@@ -929,22 +968,51 @@
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
                 },
-                body: JSON.stringify({
-                    athlete_name: athleteName,
-                    email: email,
-                    phone: phone,
-                    tournament_id: {{ $tournament->id }}
-                })
+                body: JSON.stringify(payload)
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+            .then(response => {
+                console.log('Response status:', response.status);
+                return response.json().then(data => ({status: response.status, data}));
+            })
+            .then(({status, data}) => {
+                console.log('Response status:', status);
+                console.log('Response data:', data);
+                if (data && data.success) {
+                    console.log('Registration successful!');
                     alert('Đăng ký thành công! Vui lòng chờ xác nhận từ ban tổ chức.');
                     form.reset();
                     closeRegisterModal();
-                    setTimeout(() => location.reload(), 1000);
+                    
+                    // Update all registration buttons
+                    console.log('Looking for registration buttons...');
+                    
+                    // Find all buttons that open the register modal
+                    const allButtons = document.querySelectorAll('[onclick="openRegisterModal()"]');
+                    console.log('Buttons with openRegisterModal found:', allButtons.length);
+                    
+                    allButtons.forEach((btn, index) => {
+                        console.log(`Updating button ${index + 1}...`);
+                        
+                        // Clear the onclick handler
+                        btn.removeAttribute('onclick');
+                        btn.onclick = null;
+                        
+                        // Replace button content completely
+                        btn.innerHTML = 'Chờ xét duyệt';
+                        btn.className = 'btn btn-secondary btn-block btn-lg';
+                        
+                        // Disable the button
+                        btn.disabled = true;
+                        btn.style.opacity = '0.6';
+                        btn.style.cursor = 'not-allowed';
+                        btn.style.pointerEvents = 'none';
+                        
+                        console.log(`Button ${index + 1} updated:`, btn);
+                    })
                 } else {
-                    alert(data.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+                    const errorMsg = data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.';
+                    console.error('Registration failed:', errorMsg);
+                    alert(errorMsg);
                 }
             })
             .catch(error => {
