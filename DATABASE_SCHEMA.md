@@ -349,7 +349,7 @@ public function rounds() {
     return $this->hasMany(Round::class);
 }
 public function matches() {
-    return $this->hasMany(Match::class);
+    return $this->hasMany(MatchModel::class);
 }
 ```
 

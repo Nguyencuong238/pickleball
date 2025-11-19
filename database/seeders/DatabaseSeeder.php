@@ -12,7 +12,7 @@ use App\Models\TournamentCategory;
 use App\Models\Round;
 use App\Models\Group;
 use App\Models\TournamentAthlete;
-use App\Models\Match;
+use App\Models\MatchModel;
 use App\Models\GroupStanding;
 use App\Models\Payment;
 use Spatie\Permission\Models\Role;
@@ -109,8 +109,8 @@ class DatabaseSeeder extends Seeder
             'email' => 'contact@thaodien-pickleball.vn',
             'courts_count' => 8,
             'court_surface' => 'Acrylic chuyên dụng',
-            'latitude' => 10.803570,
-            'longitude' => 106.738640,
+            // 'latitude' => 10.803570,
+            // 'longitude' => 106.738640,
             'opening_hours' => '06:00 - 22:00',
             'amenities' => json_encode([
                 'Phòng thay đồ',
@@ -122,7 +122,7 @@ class DatabaseSeeder extends Seeder
             'status' => 'active',
             'rating' => 4.8,
             'rating_count' => 156,
-            'verified' => true,
+            'is_verified' => true,
             'is_featured' => true,
         ]);
 
@@ -474,7 +474,7 @@ class DatabaseSeeder extends Seeder
                     $athlete2_sets = 2 - $athlete1_sets;
                     $winner = $athlete1_sets > $athlete2_sets ? $athlete1 : $athlete2;
 
-                    Match::create([
+                    MatchModel::create([
                         'tournament_id' => $tournament->id,
                         'category_id' => $categoryMenSingle->id,
                         'round_id' => $roundMenGroup->id,
@@ -536,7 +536,7 @@ class DatabaseSeeder extends Seeder
                 $winner = null;
             }
 
-            Match::create([
+            MatchModel::create([
                 'tournament_id' => $tournament->id,
                 'category_id' => $categoryMenSingle->id,
                 'round_id' => $roundMenQuarter->id,
@@ -578,7 +578,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('   - Rounds: ' . Round::count());
         $this->command->info('   - Groups: ' . Group::count());
         $this->command->info('   - Athletes: ' . TournamentAthlete::count());
-        $this->command->info('   - Matches: ' . Match::count());
+        $this->command->info('   - Matches: ' . MatchModel::count());
         $this->command->info('   - Standings: ' . GroupStanding::count());
         $this->command->info('   - Payments: ' . Payment::count());
         $this->command->newLine();

@@ -67,7 +67,7 @@ class Group extends Model
      */
     public function matches(): HasMany
     {
-        return $this->hasMany(Match::class, 'group_id');
+        return $this->hasMany(MatchModel::class, 'group_id');
     }
 
     /**

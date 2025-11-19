@@ -56,7 +56,7 @@ class Round extends Model
      */
     public function matches(): HasMany
     {
-        return $this->hasMany(Match::class, 'round_id');
+        return $this->hasMany(MatchModel::class, 'round_id');
     }
 
     /**

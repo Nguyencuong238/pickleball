@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Match extends Model
+class MatchModel extends Model
 {
     use HasFactory;
+
+    protected $table = 'matches';
 
     protected $fillable = [
         'tournament_id',
@@ -119,7 +121,7 @@ class Match extends Model
      */
     public function nextMatch(): BelongsTo
     {
-        return $this->belongsTo(Match::class, 'next_match_id');
+        return $this->belongsTo(MatchModel::class, 'next_match_id');
     }
 
     /**

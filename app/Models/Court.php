@@ -52,7 +52,7 @@ class Court extends Model
      */
     public function matches(): HasMany
     {
-        return $this->hasMany(Match::class, 'court_id');
+        return $this->hasMany(MatchModel::class, 'court_id');
     }
 
     /**
