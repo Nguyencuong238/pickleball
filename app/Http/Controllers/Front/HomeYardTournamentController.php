@@ -302,4 +302,39 @@ class HomeYardTournamentController extends Controller
 
         return view('home-yard.athletes.index', compact('athletes', 'status', 'stats'));
     }
+
+    public function overview()
+    {
+        return view('home-yard.tournaments.overview');
+    }
+
+    public function tournaments()
+    {
+        return view('home-yard.tournaments.tournaments');
+    }
+
+    public function matches()
+    {
+        return view('home-yard.tournaments.matches');
+    }
+
+    public function athletes()
+    {
+        return view('home-yard.tournaments.athletes');
+    }
+
+    public function rankings()
+    {
+        return view('home-yard.tournaments.rankings');
+    }
+
+    public function courts()
+    {
+        return view('home-yard.tournaments.courts');
+    }
+
+    public function bookings()
+    {
+        return view('home-yard.tournaments.bookings');
+    }
 }

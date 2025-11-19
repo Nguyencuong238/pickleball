@@ -99,6 +99,13 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::post('tournaments/{tournament}/athletes/{athlete}/approve', [HomeYardTournamentController::class, 'approveAthlete'])->name('athletes.approve');
     Route::post('tournaments/{tournament}/athletes/{athlete}/reject', [HomeYardTournamentController::class, 'rejectAthlete'])->name('athletes.reject');
     Route::get('athletes', [HomeYardTournamentController::class, 'listAthletes'])->name('athletes.index');
+    Route::get('overview', [HomeYardTournamentController::class, 'overview'])->name('overview');
+    Route::get('tournaments', [HomeYardTournamentController::class, 'tournaments'])->name('tournaments');
+    Route::get('matches', [HomeYardTournamentController::class, 'matches'])->name('matches');
+    Route::get('athletes', [HomeYardTournamentController::class, 'athletes'])->name('athletes');
+    Route::get('rankings', [HomeYardTournamentController::class, 'rankings'])->name('rankings');
+    Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
+    Route::get('bookings', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
 });
 
 // Admin routes for managing user permissions
