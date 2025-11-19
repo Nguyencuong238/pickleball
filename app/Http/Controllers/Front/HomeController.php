@@ -235,7 +235,6 @@ class HomeController extends Controller
         $query->orderBy('start_date', 'asc');
 
         $tournaments = $query->paginate(6);
-<<<<<<< HEAD
         
         // Add registration status for each tournament
         if (auth()->check()) {
@@ -253,9 +252,6 @@ class HomeController extends Controller
             });
         }
         
-=======
-
->>>>>>> 0911c1a8edf7d23a92f251dcd398a3d5463842db
         // Calculate statistics (based on dates, only active tournaments)
         $now = now();
         $activeTournaments = Tournament::where('status', 1);
