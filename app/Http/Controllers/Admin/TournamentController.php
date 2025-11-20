@@ -62,7 +62,8 @@ class TournamentController extends Controller
              'results' => 'nullable|string',
              'gallery_json' => 'nullable|string',
              'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-         ]);
+             'banner' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+             ]);
 
          $data = $request->only([
              'name',
@@ -109,11 +110,19 @@ class TournamentController extends Controller
              $data['gallery'] = $gallery;
          }
 
+         // Handle banner file upload
+         if ($request->hasFile('banner')) {
+             $data['banner'] = $request->file('banner')->store('tournament_banner', 'public');
+         }
+
         $data['user_id'] = auth()->id();
 
         Tournament::create($data);
 
-        return redirect()->route('admin.tournaments.index')->with('success', 'Tournament created successfully.');
+        // Redirect to homeyard tournaments if user is home_yard, else admin
+        $redirectRoute = auth()->user()->hasRole('home_yard') ? 'homeyard.tournaments' : 'admin.tournaments.index';
+        
+        return redirect()->route($redirectRoute)->with('success', 'Tournament created successfully.');
     }
 
     public function show(Tournament $tournament)
@@ -157,6 +166,7 @@ class TournamentController extends Controller
             'results' => 'nullable|string',
             'gallery_json' => 'nullable|string',
             'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'banner.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
         ]);
 
         $data = $request->only([
@@ -205,6 +215,15 @@ class TournamentController extends Controller
                 $gallery[] = $file->store('tournament_gallery', 'public');
             }
             $data['gallery'] = $gallery;
+        }
+
+        // Handle banner file uploads
+        if ($request->hasFile('banner')) {
+            $banner = [];
+            foreach ($request->file('banner') as $file) {
+                $banner[] = $file->store('tournament_banner', 'public');
+            }
+            $data['banner'] = $banner;
         }
 
         $tournament->update($data);

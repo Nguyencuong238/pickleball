@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->string('location')->nullable();
             $table->integer('max_participants')->default(32);
-            $table->decimal('price', 10, 2)->default(0);
+            $table->decimal('price', 15, 2)->default(0);
             $table->text('rules')->nullable();
             $table->text('prizes')->nullable();
             $table->string('status')->default('upcoming'); // upcoming, ongoing, completed, cancelled

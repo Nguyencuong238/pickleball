@@ -36,6 +36,7 @@ class Tournament extends Model implements HasMedia
         'competition_schedule',
         'results',
         'gallery',
+        'banner',
     ];
 
     protected $casts = [
@@ -45,6 +46,7 @@ class Tournament extends Model implements HasMedia
         'price' => 'float',
         'prizes' => 'float',
         'max_participants' => 'integer',
+        'status' => 'boolean',
         'gallery' => 'json',
     ];
 
@@ -56,6 +58,21 @@ class Tournament extends Model implements HasMedia
     public function athletes()
     {
         return $this->hasMany(TournamentAthlete::class);
+    }
+
+    public function categories()
+    {
+        return $this->hasMany(TournamentCategory::class);
+    }
+
+    public function rounds()
+    {
+        return $this->hasMany(Round::class);
+    }
+
+    public function groups()
+    {
+        return $this->hasMany(Group::class);
     }
 
     public function athleteCount()

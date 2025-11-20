@@ -7,6 +7,9 @@ use App\Http\Controllers\Front\DashboardController;
 use App\Http\Controllers\Front\HomeYardStadiumController;
 use App\Http\Controllers\Front\HomeYardTournamentController;
 use App\Http\Controllers\Front\TournamentRegistrationController;
+use App\Http\Controllers\Front\CategoryController;
+use App\Http\Controllers\Front\RoundController;
+use App\Http\Controllers\Front\GroupController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\UserPermissionController;
@@ -15,7 +18,7 @@ use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\StadiumController;
 use App\Http\Controllers\Admin\TournamentController;
 use App\Http\Controllers\Admin\PageController;
-use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\FavoriteController;
 
 /*
@@ -87,10 +90,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('aut
 
 // HomeYard Dashboard and Stadium CRUD Routes
 Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyard.')->group(function () {
-    Route::get('/dashboard', function () {
-        $user = auth()->user();
-        return view('home-yard.dashboard', compact('user'));
-    })->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'homeYardDashboard'])->name('dashboard');
     Route::resource('stadiums', HomeYardStadiumController::class);
     Route::resource('tournaments', HomeYardTournamentController::class);
     Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
@@ -107,6 +107,25 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
     Route::post('courts', [HomeYardTournamentController::class, 'storeCourt'])->name('courts.store');
     Route::get('bookings', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
+    
+    // Tournament Basic Info
+    Route::put('tournaments/{tournament}', [HomeYardTournamentController::class, 'updateTournament'])->name('tournaments.update');
+    
+    // Tournament Categories, Rounds, and Groups
+    Route::post('tournaments/{tournament}/categories', [CategoryController::class, 'store'])->name('tournaments.categories.store');
+    Route::put('tournaments/{tournament}/categories/{category}', [CategoryController::class, 'update'])->name('tournaments.categories.update');
+    Route::delete('tournaments/{tournament}/categories/{category}', [CategoryController::class, 'destroy'])->name('tournaments.categories.destroy');
+    
+    Route::post('tournaments/{tournament}/rounds', [RoundController::class, 'store'])->name('tournaments.rounds.store');
+    Route::put('tournaments/{tournament}/rounds/{round}', [RoundController::class, 'update'])->name('tournaments.rounds.update');
+    Route::delete('tournaments/{tournament}/rounds/{round}', [RoundController::class, 'destroy'])->name('tournaments.rounds.destroy');
+    
+    Route::post('tournaments/{tournament}/groups', [GroupController::class, 'store'])->name('tournaments.groups.store');
+    Route::put('tournaments/{tournament}/groups/{group}', [GroupController::class, 'update'])->name('tournaments.groups.update');
+    Route::delete('tournaments/{tournament}/groups/{group}', [GroupController::class, 'destroy'])->name('tournaments.groups.destroy');
+    
+    // Tournament Courts
+    Route::post('tournaments/{tournament}/courts/save', [HomeYardTournamentController::class, 'saveCourts'])->name('tournaments.courts.save');
 });
 
 // Admin routes for managing user permissions
@@ -117,7 +136,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::put('/users/{user}', [UserPermissionController::class, 'update'])->name('users.update');
     Route::resource('news', NewsController::class);
     Route::resource('pages', PageController::class);
-    Route::resource('categories', CategoryController::class);
+    Route::resource('categories', AdminCategoryController::class);
 });
 
 // Admin Stadium and Tournament CRUD

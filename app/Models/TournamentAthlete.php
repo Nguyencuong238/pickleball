@@ -11,12 +11,14 @@ class TournamentAthlete extends Model
 
     protected $fillable = [
         'tournament_id',
+        'category_id',
         'user_id',
         'athlete_name',
         'email',
         'phone',
         'status',
         'position',
+        'payment_status',
     ];
 
     protected $casts = [
@@ -31,5 +33,10 @@ class TournamentAthlete extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(TournamentCategory::class);
     }
 }

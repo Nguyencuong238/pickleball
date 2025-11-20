@@ -67,6 +67,10 @@ class AuthController extends Controller
                 return redirect('/admin/dashboard');
             }
 
+            if ($user->hasRole('home_yard')) {
+                return redirect(route('homeyard.overview'));
+            }
+
             // Redirect to user dashboard
             return redirect('/dashboard');
         }
@@ -153,6 +157,10 @@ class AuthController extends Controller
             return redirect('/admin/dashboard');
         }
 
+        if ($user->hasRole('home_yard')) {
+            return redirect(route('homeyard.overview'));
+        }
+
         return redirect('/dashboard');
     }
 
@@ -193,6 +201,10 @@ class AuthController extends Controller
         // Redirect based on user role
         if ($user->hasRole('admin')) {
             return redirect('/admin/dashboard');
+        }
+
+        if ($user->hasRole('home_yard')) {
+            return redirect(route('homeyard.overview'));
         }
 
         return redirect('/dashboard');

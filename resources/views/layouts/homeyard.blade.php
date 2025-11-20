@@ -685,10 +685,10 @@
                         <span class="nav-badge">12</span>
                     </a>
 
-                    <a href="{{ route('homeyard.dashboard') }}" class="nav-item">
+                    {{-- <a href="{{ route('homeyard.dashboard') }}" class="nav-item">
                         <span class="nav-icon">⚙️</span>
                         <span class="nav-text">Cấu hình giải</span>
-                    </a>
+                    </a> --}}
 
                     <a href="{{ route('homeyard.matches') }}" class="nav-item">
                         <span class="nav-icon">🎾</span>
@@ -777,9 +777,11 @@
             });
         }
 
-        // Step navigation
+        // Step navigation - Next Step
         function nextStep(stepNumber) {
             const steps = document.querySelectorAll('.step');
+            const cards = document.querySelectorAll('#config .card');
+            
             steps.forEach((step, index) => {
                 step.classList.remove('active', 'completed');
                 if (index + 1 < stepNumber) {
@@ -789,11 +791,75 @@
                 }
             });
 
+            // Hide all cards and show only the active step cards
+            cards.forEach((card, index) => {
+                card.style.display = 'none';
+            });
+
+            // Show cards for the current step
+            if (stepNumber === 1) {
+                if (cards[0]) cards[0].style.display = 'block'; // Step 1 card
+            } else if (stepNumber === 2) {
+                if (cards[1]) cards[1].style.display = 'block'; // Step 2 card
+            } else if (stepNumber === 3) {
+                if (cards[2]) cards[2].style.display = 'block'; // Step 3 - Round card
+                if (cards[3]) cards[3].style.display = 'block'; // Step 3 - Court card
+            } else if (stepNumber === 4) {
+                if (cards[4]) cards[4].style.display = 'block'; // Step 4 card
+            }
+
             window.scrollTo({
                 top: 300,
                 behavior: 'smooth'
             });
         }
+
+        // Step navigation - Previous Step
+        function prevStep(stepNumber) {
+            const steps = document.querySelectorAll('.step');
+            const cards = document.querySelectorAll('#config .card');
+            
+            steps.forEach((step, index) => {
+                step.classList.remove('active', 'completed');
+                if (index + 1 < stepNumber) {
+                    step.classList.add('completed');
+                } else if (index + 1 === stepNumber) {
+                    step.classList.add('active');
+                }
+            });
+
+            // Hide all cards and show only the active step cards
+            cards.forEach((card, index) => {
+                card.style.display = 'none';
+            });
+
+            // Show cards for the current step
+            if (stepNumber === 1) {
+                if (cards[0]) cards[0].style.display = 'block'; // Step 1 card
+            } else if (stepNumber === 2) {
+                if (cards[1]) cards[1].style.display = 'block'; // Step 2 card
+            } else if (stepNumber === 3) {
+                if (cards[2]) cards[2].style.display = 'block'; // Step 3 - Round card
+                if (cards[3]) cards[3].style.display = 'block'; // Step 3 - Court card
+            } else if (stepNumber === 4) {
+                if (cards[4]) cards[4].style.display = 'block'; // Step 4 card
+            }
+
+            window.scrollTo({
+                top: 300,
+                behavior: 'smooth'
+            });
+        }
+
+
+        @if(session('step')) 
+            setTimeout(function() {
+                nextStep({{ session('step') }});
+            }, 500);
+        @endif
+
+        // Store added content
+        let addedContents = JSON.parse(localStorage.getItem('addedContents') || '[]');
 
         // Add content
         function addContent() {
@@ -808,22 +874,92 @@
                 return;
             }
 
+            // Create unique ID for the content
+            const contentId = Date.now();
+            
+            // Add to storage
+            const newContentObj = {
+                id: contentId,
+                name: name,
+                type: type,
+                age: age,
+                maxPlayers: maxPlayers,
+                prize: prize
+            };
+            addedContents.push(newContentObj);
+            localStorage.setItem('addedContents', JSON.stringify(addedContents));
+
             const contentList = document.getElementById('contentList');
             const newContent = document.createElement('div');
             newContent.className = 'content-item';
+            newContent.setAttribute('data-content-id', contentId);
             newContent.innerHTML = `
                 <h4>${name}</h4>
                 <p><strong>Loại:</strong> ${type} | <strong>Độ tuổi:</strong> ${age} | <strong>Số VĐV:</strong> ${maxPlayers} | <strong>Giải thưởng:</strong> ${parseInt(prize).toLocaleString('vi-VN')} VNĐ</p>
                 <button class="btn btn-secondary btn-sm">✏️ Chỉnh sửa</button>
-                <button class="btn btn-danger btn-sm" onclick="this.parentElement.remove()">🗑️ Xóa</button>
+                <button class="btn btn-danger btn-sm" onclick="removeContent(${contentId})">🗑️ Xóa</button>
             `;
             contentList.appendChild(newContent);
+
+            // Update Step 4 dropdown
+            updateStep4Dropdown();
 
             // Clear
             document.getElementById('contentName').value = '';
             document.getElementById('contentMaxPlayers').value = '';
             document.getElementById('contentPrize').value = '';
         }
+
+        // Remove content
+        function removeContent(contentId) {
+            // Remove from storage
+            addedContents = addedContents.filter(c => c.id !== contentId);
+            localStorage.setItem('addedContents', JSON.stringify(addedContents));
+
+            // Remove from DOM
+            const contentItem = document.querySelector(`[data-content-id="${contentId}"]`);
+            if (contentItem) {
+                contentItem.remove();
+            }
+
+            // Update Step 4 dropdown
+            updateStep4Dropdown();
+        }
+
+        // Update Step 4 dropdown with added content
+        function updateStep4Dropdown() {
+            const select = document.getElementById('tournamentCategorySelect');
+            if (!select) return;
+
+            // Keep the first option
+            const firstOption = select.querySelector('option[value=""]');
+            
+            // Remove all options except the first one
+            const allOptions = select.querySelectorAll('option');
+            allOptions.forEach((option, index) => {
+                if (index > 0) {
+                    option.remove();
+                }
+            });
+
+            // Add content items as options
+            addedContents.forEach(content => {
+                const option = document.createElement('option');
+                option.value = content.id;
+                option.textContent = content.name;
+                select.appendChild(option);
+            });
+        }
+
+        // Initialize Step 4 dropdown on page load
+        function initializeStep4Dropdown() {
+            setTimeout(() => {
+                addedContents = JSON.parse(localStorage.getItem('addedContents') || '[]');
+                updateStep4Dropdown();
+            }, 100);
+        }
+
+        document.addEventListener('DOMContentLoaded', initializeStep4Dropdown);
 
         // Add round
         function addRound() {
@@ -859,10 +995,66 @@
             document.getElementById('courtName').value = '';
         }
 
-        // Item card selection
+        // Filter athletes by category
+        function filterAthletesByCategory() {
+            const categorySelect = document.getElementById('tournamentCategorySelect');
+            const selectedCategoryId = categorySelect.value;
+            const athleteRows = document.querySelectorAll('.athlete-row');
+
+            athleteRows.forEach(row => {
+                const rowCategoryId = row.getAttribute('data-category-id');
+                
+                // Show row if no category is selected or if the row matches the selected category
+                if (selectedCategoryId === '' || rowCategoryId === selectedCategoryId) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        // Court card selection with highlight
         document.addEventListener('click', (e) => {
-            if (e.target.closest('.item-card')) {
-                e.target.closest('.item-card').classList.toggle('selected');
+            const courtCard = e.target.closest('.court-card');
+            if (courtCard) {
+                courtCard.classList.toggle('selected');
+                // Store selected courts
+                storeSelectedCourts();
+            }
+        });
+
+        // Store selected courts
+        function storeSelectedCourts() {
+            const selectedCourts = [];
+            document.querySelectorAll('.court-card.selected').forEach(card => {
+                selectedCourts.push(card.getAttribute('data-court-id'));
+            });
+            localStorage.setItem('selectedCourts', JSON.stringify(selectedCourts));
+        }
+
+        // Restore selected courts on page load
+        function restoreSelectedCourts() {
+            const selectedCourts = JSON.parse(localStorage.getItem('selectedCourts') || '[]');
+            selectedCourts.forEach(courtId => {
+                const courtCard = document.querySelector(`.court-card[data-court-id="${courtId}"]`);
+                if (courtCard) {
+                    courtCard.classList.add('selected');
+                }
+            });
+        }
+
+        // Restore on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', restoreSelectedCourts);
+        } else {
+            restoreSelectedCourts();
+        }
+
+        // Other item card selection (non-court cards)
+        document.addEventListener('click', (e) => {
+            const itemCard = e.target.closest('.item-card:not(.court-card)');
+            if (itemCard) {
+                itemCard.classList.toggle('selected');
             }
         });
 
@@ -888,6 +1080,17 @@
         // Call on page load
         setActiveNavItem();
 
+        // Initialize step view
+        function initializeSteps() {
+            const cards = document.querySelectorAll('#config .card');
+            cards.forEach((card, index) => {
+                // Hide all cards except the first one
+                if (index > 0) {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
         // Initialize
         if (window.innerWidth <= 1024) {
             toggleSidebar();
@@ -899,6 +1102,9 @@
                 document.getElementById('mainContent').classList.add('sidebar-collapsed');
             }
         });
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', initializeSteps);
 
         console.log('Tournament Config Dashboard v2 Loaded');
     </script>
