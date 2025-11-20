@@ -82,15 +82,8 @@
             </div>
         </div>
 
-        <!-- Row 4: Courts Count, Court Surface, Hours -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 20px; margin-bottom: 20px;">
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Số Sân *</label>
-                <input type="number" name="courts_count" class="form-control"
-                    value="{{ $stadium->courts_count ?? old('courts_count', 1) }}" min="1" required
-                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
-            </div>
-
+        <!-- Row 4: Court Surface, Hours -->
+        <div style="display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Mặt Sân</label>
                 <input type="text" name="court_surface" class="form-control"

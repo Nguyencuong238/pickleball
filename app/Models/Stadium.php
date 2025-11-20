@@ -19,7 +19,6 @@ class Stadium extends Model implements HasMedia
         'phone',
         'email',
         'website',
-        'courts_count',
         'court_surface',
         'image',
         'latitude',
@@ -42,7 +41,6 @@ class Stadium extends Model implements HasMedia
         'utilities' => 'array',
         'latitude' => 'float',
         'longitude' => 'float',
-        'courts_count' => 'integer',
         'rating' => 'float',
         'rating_count' => 'integer',
         'verified' => 'boolean',
@@ -67,6 +65,22 @@ class Stadium extends Model implements HasMedia
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get courts for this stadium
+     */
+    public function courts()
+    {
+        return $this->hasMany(Court::class);
+    }
+
+    /**
+     * Get courts count dynamically
+     */
+    public function getCourtCountAttribute()
+    {
+        return $this->courts()->count();
     }
 
     /**

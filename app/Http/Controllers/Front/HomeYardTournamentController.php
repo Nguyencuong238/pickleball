@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
+use App\Models\Court;
+use App\Models\Stadium;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class HomeYardTournamentController extends Controller
 {
@@ -330,7 +333,56 @@ class HomeYardTournamentController extends Controller
 
     public function courts()
     {
-        return view('home-yard.tournaments.courts');
+        $stadiums = Stadium::where('user_id', auth()->id())->get();
+        $courts = Court::whereIn('stadium_id', $stadiums->pluck('id'))->paginate(9);
+        return view('home-yard.tournaments.courts', compact('stadiums', 'courts'));
+    }
+
+    public function storeCourt(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'court_name' => 'required|string|max:255',
+                'court_number' => 'nullable|string|max:100',
+                'court_type' => 'required|string|in:indoor,outdoor',
+                'surface_type' => 'required|string|in:acrylic,polyurethane,concrete,sport-court',
+                'stadium_id' => 'required|exists:stadiums,id',
+                'amenities' => 'nullable|string',
+                'description' => 'nullable|string',
+            ]);
+
+            // Parse amenities string into array
+            $amenitiesArray = [];
+            if (!empty($validated['amenities'])) {
+                $amenitiesArray = array_map('trim', explode(',', $validated['amenities']));
+            }
+
+            Court::create([
+                'stadium_id' => $validated['stadium_id'],
+                'court_name' => $validated['court_name'],
+                'court_number' => $validated['court_number'] ?? null,
+                'court_type' => $validated['court_type'],
+                'surface_type' => $validated['surface_type'],
+                'description' => $validated['description'] ?? null,
+                'amenities' => !empty($amenitiesArray) ? $amenitiesArray : null,
+                'status' => 'available',
+                'is_active' => true,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Sân được thêm thành công']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Court creation error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error creating court: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function bookings()

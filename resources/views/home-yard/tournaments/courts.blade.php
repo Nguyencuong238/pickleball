@@ -42,6 +42,10 @@
         background: linear-gradient(135deg, var(--accent-red), #f97316);
     }
 
+    .court-card.in_use::before {
+        background: linear-gradient(135deg, var(--accent-red), #f97316);
+    }
+
     .court-card.maintenance::before {
         background: linear-gradient(135deg, var(--accent-yellow), #f59e0b);
     }
@@ -77,6 +81,10 @@
     }
 
     .court-card.occupied .court-icon {
+        background: linear-gradient(135deg, var(--accent-red), #f97316);
+    }
+
+    .court-card.in_use .court-icon {
         background: linear-gradient(135deg, var(--accent-red), #f97316);
     }
 
@@ -390,6 +398,62 @@
         color: var(--text-secondary);
         font-size: 0.875rem;
     }
+
+    /* Custom Pagination Styling */
+    .custom-pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+        list-style: none;
+        padding: 0;
+        flex-wrap: wrap;
+    }
+
+    .custom-pagination li {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-pagination .page-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 44px;
+        padding: 0.5rem 0.75rem;
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        background: var(--bg-white);
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all var(--transition);
+    }
+
+    .custom-pagination a.page-link:hover {
+        border-color: var(--primary-color);
+        background: var(--primary-color);
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .custom-pagination li.active .page-link {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-color: transparent;
+        color: white;
+        font-weight: 700;
+    }
+
+    .custom-pagination li.disabled .page-link {
+        background: var(--bg-light);
+        color: var(--text-light);
+        border-color: var(--border-color);
+        cursor: not-allowed;
+    }
 </style>
 @section('content')
     <main class="main-content" id="mainContent">
@@ -409,7 +473,7 @@
                 <div class="header-right">
                     <div class="header-search">
                         <span class="search-icon">🔍</span>
-                        <input type="text" class="search-input" placeholder="Tìm kiếm sân...">
+                        <input type="text" class="search-input" id="courtSearch" placeholder="Tìm kiếm sân...">
                     </div>
                     <div class="header-notifications">
                         <button class="notification-btn">
@@ -428,32 +492,42 @@
             </div>
 
             <!-- Stats Overview -->
+            @php
+                $allCourts = collect();
+                foreach ($stadiums as $stadium) {
+                    $allCourts = $allCourts->concat($stadium->courts);
+                }
+                $totalCourts = $allCourts->count();
+                $availableCourts = $allCourts->where('status', 'available')->count();
+                $occupiedCourts = $allCourts->where('status', 'in_use')->count();
+                $maintenanceCourts = $allCourts->where('status', 'maintenance')->count();
+            @endphp
             <div class="court-stats-overview fade-in">
                 <div class="stat-overview-box">
                     <div class="stat-overview-icon info">🏟️</div>
                     <div class="stat-overview-content">
-                        <div class="stat-overview-value">12</div>
+                        <div class="stat-overview-value">{{ $totalCourts }}</div>
                         <div class="stat-overview-label">Tổng Số Sân</div>
                     </div>
                 </div>
                 <div class="stat-overview-box">
                     <div class="stat-overview-icon success">✅</div>
                     <div class="stat-overview-content">
-                        <div class="stat-overview-value">8</div>
+                        <div class="stat-overview-value">{{ $availableCourts }}</div>
                         <div class="stat-overview-label">Sân Sẵn Sàng</div>
                     </div>
                 </div>
                 <div class="stat-overview-box">
                     <div class="stat-overview-icon danger">🔴</div>
                     <div class="stat-overview-content">
-                        <div class="stat-overview-value">3</div>
+                        <div class="stat-overview-value">{{ $occupiedCourts }}</div>
                         <div class="stat-overview-label">Sân Đang Sử Dụng</div>
                     </div>
                 </div>
                 <div class="stat-overview-box">
                     <div class="stat-overview-icon warning">⚠️</div>
                     <div class="stat-overview-content">
-                        <div class="stat-overview-value">1</div>
+                        <div class="stat-overview-value">{{ $maintenanceCourts }}</div>
                         <div class="stat-overview-label">Đang Bảo Trì</div>
                     </div>
                 </div>
@@ -464,7 +538,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Danh Sách Sân</h3>
                     <div class="card-actions">
-                        <button class="btn btn-secondary btn-sm">📊 Báo Cáo</button>
+                        {{-- <button class="btn btn-secondary btn-sm">📊 Báo Cáo</button> --}}
                         <button class="btn btn-primary btn-sm" onclick="openAddCourtModal()">
                             ➕ Thêm Sân
                         </button>
@@ -473,376 +547,133 @@
                 <div class="card-body">
                     <div class="filter-tabs">
                         <button class="filter-tab active" onclick="filterCourts('all')">
-                            Tất Cả (12)
+                            Tất Cả ({{ $totalCourts }})
                         </button>
                         <button class="filter-tab" onclick="filterCourts('available')">
-                            ✅ Sẵn Sàng (8)
+                            ✅ Sẵn Sàng ({{ $availableCourts }})
                         </button>
-                        <button class="filter-tab" onclick="filterCourts('occupied')">
-                            🔴 Đang Sử Dụng (3)
+                        <button class="filter-tab" onclick="filterCourts('in_use')">
+                            🔴 Đang Sử Dụng ({{ $occupiedCourts }})
                         </button>
                         <button class="filter-tab" onclick="filterCourts('maintenance')">
-                            ⚠️ Bảo Trì (1)
+                            ⚠️ Bảo Trì ({{ $maintenanceCourts }})
                         </button>
                     </div>
 
                     <!-- Court Grid -->
-                    <div class="court-grid">
-                        <!-- Court 1 - Available -->
-                        <div class="court-card available">
-                            <div class="court-header">
-                                <div class="court-number">
-                                    <div class="court-icon">1</div>
-                                    <div>
-                                        <div class="court-title">Sân 1</div>
-                                        <div class="court-subtitle">Indoor • Standard</div>
+                    <div class="court-grid" id="courtGrid">
+                        @forelse($courts as $court)
+                            <!-- Court {{ $court->id }} - {{ ucfirst($court->status) }} -->
+                            <div class="court-card {{ $court->status }}">
+                                <div class="court-header">
+                                    <div class="court-number">
+                                        <div class="court-icon">{{ $court->court_number ?? $court->id }}</div>
+                                        <div>
+                                            <div class="court-title">{{ $court->court_name }}</div>
+                                            <div class="court-subtitle">
+                                                {{ ucfirst(str_replace('-', ' ', $court->court_type)) }} •
+                                                {{ ucfirst(str_replace('-', ' ', $court->surface_type)) }}</div>
+                                        </div>
+                                    </div>
+                                    @if ($court->status === 'available')
+                                        <span class="court-status available">✅ Sẵn Sàng</span>
+                                    @elseif($court->status === 'in_use')
+                                        <span class="court-status occupied">🔴 Đang Thi Đấu</span>
+                                    @elseif($court->status === 'maintenance')
+                                        <span class="court-status maintenance">⚠️ Bảo Trì</span>
+                                    @endif
+                                </div>
+
+                                <div class="court-info">
+                                    <div class="court-info-item">
+                                        <div class="court-info-label">Loại Sân</div>
+                                        <div class="court-info-value">{{ ucfirst($court->court_type) }}</div>
+                                    </div>
+                                    <div class="court-info-item">
+                                        <div class="court-info-label">Kích Thước</div>
+                                        <div class="court-info-value">13.4m x 6.1m</div>
+                                    </div>
+                                    <div class="court-info-item">
+                                        <div class="court-info-label">Mặt Sân</div>
+                                        <div class="court-info-value">
+                                            {{ ucfirst(str_replace('-', ' ', $court->surface_type)) }}</div>
+                                    </div>
+                                    <div class="court-info-item">
+                                        <div class="court-info-label">Sức Chứa</div>
+                                        <div class="court-info-value">80 người</div>
                                     </div>
                                 </div>
-                                <span class="court-status available">✅ Sẵn Sàng</span>
-                            </div>
 
-                            <div class="court-info">
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Loại Sân</div>
-                                    <div class="court-info-value">Indoor</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Kích Thước</div>
-                                    <div class="court-info-value">13.4m x 6.1m</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Mặt Sân</div>
-                                    <div class="court-info-value">Acrylic</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Sức Chứa</div>
-                                    <div class="court-info-value">50 người</div>
-                                </div>
-                            </div>
-
-                            <div class="court-schedule">
-                                <div class="schedule-title">Lịch Hôm Nay</div>
-                                <div class="schedule-item">
-                                    <span class="schedule-time">15:00 - 16:30</span>
-                                    <span class="schedule-event">Trận #A-005</span>
-                                </div>
-                                <div class="schedule-item">
-                                    <span class="schedule-time">17:00 - 18:30</span>
-                                    <span class="schedule-event">Trận #A-012</span>
-                                </div>
-                            </div>
-
-                            <div class="court-actions">
-                                <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="openCourtDetails(1)">
-                                    👁️ Chi Tiết
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="openEditCourt(1)">
-                                    ✏️
-                                </button>
-                                <button class="btn btn-ghost btn-sm">
-                                    ⚙️
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Court 2 - Occupied -->
-                        <div class="court-card occupied">
-                            <div class="court-header">
-                                <div class="court-number">
-                                    <div class="court-icon">2</div>
-                                    <div>
-                                        <div class="court-title">Sân 2</div>
-                                        <div class="court-subtitle">Indoor • Premium</div>
+                                <div class="court-schedule">
+                                    <div class="schedule-title">Mô Tả</div>
+                                    <div style="padding: 0.5rem 0; font-size: 0.75rem; color: var(--text-secondary);">
+                                        {{ $court->description ?: 'Không có mô tả' }}
                                     </div>
                                 </div>
-                                <span class="court-status occupied">🔴 Đang Thi Đấu</span>
-                            </div>
 
-                            <div class="court-info">
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Loại Sân</div>
-                                    <div class="court-info-value">Indoor</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Kích Thước</div>
-                                    <div class="court-info-value">13.4m x 6.1m</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Mặt Sân</div>
-                                    <div class="court-info-value">Polyurethane</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Sức Chứa</div>
-                                    <div class="court-info-value">80 người</div>
+                                <div class="court-actions">
+                                    <button class="btn btn-primary btn-sm" style="flex: 1;"
+                                        onclick="openCourtDetails({{ $court->id }})">
+                                        👁️ Chi Tiết
+                                    </button>
+                                    <button class="btn btn-secondary btn-sm" onclick="openEditCourt({{ $court->id }})">
+                                        ✏️
+                                    </button>
+                                    <button class="btn btn-ghost btn-sm">
+                                        ⚙️
+                                    </button>
                                 </div>
                             </div>
-
-                            <div class="court-schedule">
-                                <div class="schedule-title">Trận Đang Diễn Ra</div>
-                                <div class="schedule-item">
-                                    <span class="schedule-time">14:30 - 16:00</span>
-                                    <span class="schedule-event">Trận #A-001 • Set 2</span>
-                                </div>
-                                <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-light);">
-                                    ⏱️ Còn khoảng 45 phút
-                                </div>
+                        @empty
+                            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;">
+                                <div style="font-size: 3rem; margin-bottom: 1rem;">🏟️</div>
+                                <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Chưa có sân nào</h3>
+                                <p style="color: var(--text-light); margin-bottom: 1.5rem;">Bắt đầu bằng cách thêm sân đầu
+                                    tiên của bạn</p>
+                                <button class="btn btn-primary" onclick="openAddCourtModal()">➕ Thêm Sân Đầu Tiên</button>
                             </div>
-
-                            <div class="court-actions">
-                                <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="openCourtDetails(2)">
-                                    👁️ Chi Tiết
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="openEditCourt(2)">
-                                    ✏️
-                                </button>
-                                <button class="btn btn-ghost btn-sm">
-                                    ⚙️
-                                </button>
-                            </div>
+                        @endforelse
                         </div>
 
-                        <!-- Court 3 - Available -->
-                        <div class="court-card available">
-                            <div class="court-header">
-                                <div class="court-number">
-                                    <div class="court-icon">3</div>
-                                    <div>
-                                        <div class="court-title">Sân 3</div>
-                                        <div class="court-subtitle">Outdoor • Standard</div>
-                                    </div>
-                                </div>
-                                <span class="court-status available">✅ Sẵn Sàng</span>
+                        <!-- Pagination -->
+                        @if ($courts->hasPages())
+                            <div style="display: flex; justify-content: center; padding: 0 1rem;">
+                                {{ $courts->links('vendor.pagination.custom') }}
                             </div>
-
-                            <div class="court-info">
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Loại Sân</div>
-                                    <div class="court-info-value">Outdoor</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Kích Thước</div>
-                                    <div class="court-info-value">13.4m x 6.1m</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Mặt Sân</div>
-                                    <div class="court-info-value">Concrete</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Sức Chứa</div>
-                                    <div class="court-info-value">40 người</div>
-                                </div>
-                            </div>
-
-                            <div class="court-schedule">
-                                <div class="schedule-title">Lịch Hôm Nay</div>
-                                <div class="schedule-item">
-                                    <span class="schedule-time">16:00 - 17:30</span>
-                                    <span class="schedule-event">Trận #B-008</span>
-                                </div>
-                            </div>
-
-                            <div class="court-actions">
-                                <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="openCourtDetails(3)">
-                                    👁️ Chi Tiết
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="openEditCourt(3)">
-                                    ✏️
-                                </button>
-                                <button class="btn btn-ghost btn-sm">
-                                    ⚙️
-                                </button>
-                            </div>
+                        @endif
                         </div>
-
-                        <!-- Court 4 - Maintenance -->
-                        <div class="court-card maintenance">
-                            <div class="court-header">
-                                <div class="court-number">
-                                    <div class="court-icon">4</div>
-                                    <div>
-                                        <div class="court-title">Sân 4</div>
-                                        <div class="court-subtitle">Indoor • Standard</div>
-                                    </div>
-                                </div>
-                                <span class="court-status maintenance">⚠️ Bảo Trì</span>
-                            </div>
-
-                            <div class="court-info">
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Loại Sân</div>
-                                    <div class="court-info-value">Indoor</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Kích Thước</div>
-                                    <div class="court-info-value">13.4m x 6.1m</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Mặt Sân</div>
-                                    <div class="court-info-value">Acrylic</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Dự Kiến</div>
-                                    <div class="court-info-value">22/01/2025</div>
-                                </div>
-                            </div>
-
-                            <div class="court-schedule">
-                                <div class="schedule-title">Lý Do Bảo Trì</div>
-                                <div style="font-size: 0.875rem; color: var(--text-secondary); padding: 0.5rem 0;">
-                                    Thay thế mặt sân và sửa chữa lưới
-                                </div>
-                            </div>
-
-                            <div class="court-actions">
-                                <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="openCourtDetails(4)">
-                                    👁️ Chi Tiết
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="openEditCourt(4)">
-                                    ✏️
-                                </button>
-                                <button class="btn btn-ghost btn-sm">
-                                    ⚙️
-                                </button>
-                            </div>
                         </div>
-
-                        <!-- Court 5 - Occupied -->
-                        <div class="court-card occupied">
-                            <div class="court-header">
-                                <div class="court-number">
-                                    <div class="court-icon">5</div>
-                                    <div>
-                                        <div class="court-title">Sân 5</div>
-                                        <div class="court-subtitle">Indoor • Standard</div>
-                                    </div>
-                                </div>
-                                <span class="court-status occupied">🔴 Đang Thi Đấu</span>
-                            </div>
-
-                            <div class="court-info">
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Loại Sân</div>
-                                    <div class="court-info-value">Indoor</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Kích Thước</div>
-                                    <div class="court-info-value">13.4m x 6.1m</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Mặt Sân</div>
-                                    <div class="court-info-value">Acrylic</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Sức Chứa</div>
-                                    <div class="court-info-value">50 người</div>
-                                </div>
-                            </div>
-
-                            <div class="court-schedule">
-                                <div class="schedule-title">Trận Đang Diễn Ra</div>
-                                <div class="schedule-item">
-                                    <span class="schedule-time">14:45 - 16:15</span>
-                                    <span class="schedule-event">Trận #A-002 • Set 1</span>
-                                </div>
-                                <div style="margin-top: 0.5rem; font-size: 0.75rem; color: var(--text-light);">
-                                    ⏱️ Còn khoảng 1 giờ
-                                </div>
-                            </div>
-
-                            <div class="court-actions">
-                                <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="openCourtDetails(5)">
-                                    👁️ Chi Tiết
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="openEditCourt(5)">
-                                    ✏️
-                                </button>
-                                <button class="btn btn-ghost btn-sm">
-                                    ⚙️
-                                </button>
-                            </div>
                         </div>
+                        </main>
 
-                        <!-- Court 6 - Available -->
-                        <div class="court-card available">
-                            <div class="court-header">
-                                <div class="court-number">
-                                    <div class="court-icon">6</div>
-                                    <div>
-                                        <div class="court-title">Sân 6</div>
-                                        <div class="court-subtitle">Outdoor • Premium</div>
-                                    </div>
-                                </div>
-                                <span class="court-status available">✅ Sẵn Sàng</span>
-                            </div>
-
-                            <div class="court-info">
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Loại Sân</div>
-                                    <div class="court-info-value">Outdoor</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Kích Thước</div>
-                                    <div class="court-info-value">13.4m x 6.1m</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Mặt Sân</div>
-                                    <div class="court-info-value">Sport Court</div>
-                                </div>
-                                <div class="court-info-item">
-                                    <div class="court-info-label">Sức Chứa</div>
-                                    <div class="court-info-value">60 người</div>
-                                </div>
-                            </div>
-
-                            <div class="court-schedule">
-                                <div class="schedule-title">Lịch Hôm Nay</div>
-                                <div
-                                    style="text-align: center; padding: 1rem 0; color: var(--text-light); font-size: 0.875rem;">
-                                    Không có lịch thi đấu
-                                </div>
-                            </div>
-
-                            <div class="court-actions">
-                                <button class="btn btn-primary btn-sm" style="flex: 1;" onclick="openCourtDetails(6)">
-                                    👁️ Chi Tiết
-                                </button>
-                                <button class="btn btn-secondary btn-sm" onclick="openEditCourt(6)">
-                                    ✏️
-                                </button>
-                                <button class="btn btn-ghost btn-sm">
-                                    ⚙️
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
+    <!-- Add Court Modal -->
     <div class="modal" id="addCourtModal">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 class="modal-title">Thêm Sân Mới</h3>
                 <button class="modal-close" onclick="closeAddCourtModal()">×</button>
             </div>
-            <form>
+            <form id="addCourtForm">
+                @csrf
                 <div class="form-group">
                     <label class="form-label">Tên sân *</label>
-                    <input type="text" class="form-input" placeholder="Ví dụ: Sân 7" required>
+                    <input type="text" class="form-input" name="court_name" placeholder="Ví dụ: Sân 7" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số hiệu sân</label>
+                    <input type="text" class="form-input" name="court_number" placeholder="Ví dụ: A1, B2">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Loại sân *</label>
-                    <select class="form-select" required>
+                    <select class="form-select" name="court_type" required>
                         <option value="">Chọn loại sân</option>
-                        <option value="indoor-standard">Indoor - Standard</option>
-                        <option value="indoor-premium">Indoor - Premium</option>
-                        <option value="outdoor-standard">Outdoor - Standard</option>
-                        <option value="outdoor-premium">Outdoor - Premium</option>
+                        <option value="indoor">Indoor</option>
+                        <option value="outdoor">Outdoor</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Mặt sân *</label>
-                    <select class="form-select" required>
+                    <select class="form-select" name="surface_type" required>
                         <option value="">Chọn loại mặt sân</option>
                         <option value="acrylic">Acrylic</option>
                         <option value="polyurethane">Polyurethane</option>
@@ -851,21 +682,27 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Kích thước</label>
-                    <input type="text" class="form-input" placeholder="13.4m x 6.1m" value="13.4m x 6.1m">
+                    <label class="form-label">Chọn cụm sân *</label>
+                    <select class="form-select" name="stadium_id" required>
+                        <option value="">Chọn cụm sân</option>
+                        @foreach ($stadiums as $stadium)
+                            <option value="{{ $stadium->id }}">{{ $stadium->name }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Sức chứa (người)</label>
-                    <input type="number" class="form-input" placeholder="50">
+                    <label class="form-label">Tiện nghi</label>
+                    <input type="text" class="form-input" name="amenities"
+                        placeholder="Ví dụ: Đèn chiếu sáng, Quạt thông gió, Bàn bên sân">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Ghi chú</label>
-                    <textarea class="form-textarea" placeholder="Thông tin thêm về sân..."></textarea>
+                    <label class="form-label">Mô tả</label>
+                    <textarea class="form-textarea" name="description" placeholder="Thông tin chi tiết về sân..."></textarea>
                 </div>
             </form>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAddCourtModal()">Hủy</button>
-                <button class="btn btn-primary">💾 Lưu</button>
+                <button class="btn btn-primary" onclick="submitAddCourtForm()">💾 Lưu</button>
             </div>
         </div>
     </div>
@@ -974,13 +811,64 @@
             }
         });
 
-        // Filter courts
+        // Search courts by name
+        const courtSearchInput = document.getElementById('courtSearch');
+        if (courtSearchInput) {
+            courtSearchInput.addEventListener('input', function(e) {
+                const searchQuery = e.target.value.toLowerCase().trim();
+                const courtCards = document.querySelectorAll('.court-card');
+                let visibleCount = 0;
+
+                courtCards.forEach(card => {
+                    const courtName = card.querySelector('.court-title').textContent.toLowerCase();
+                    if (courtName.includes(searchQuery)) {
+                        card.style.display = 'block';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+
+                // Show/hide empty state
+                const grid = document.getElementById('courtGrid');
+                if (visibleCount === 0 && searchQuery !== '') {
+                    if (!document.getElementById('noSearchResults')) {
+                        const emptyDiv = document.createElement('div');
+                        emptyDiv.id = 'noSearchResults';
+                        emptyDiv.style.cssText = 'grid-column: 1 / -1; text-align: center; padding: 3rem 1rem;';
+                        emptyDiv.innerHTML = `
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                            <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">Không tìm thấy sân</h3>
+                            <p style="color: var(--text-light);">Không có sân nào phù hợp với từ khóa "${searchQuery}"</p>
+                        `;
+                        grid.appendChild(emptyDiv);
+                    }
+                } else {
+                    const noResults = document.getElementById('noSearchResults');
+                    if (noResults) noResults.remove();
+                }
+            });
+        }
+
+        // Filter courts by status
         function filterCourts(status) {
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.remove('active');
             });
             event.target.classList.add('active');
-            console.log('Filtering courts by:', status);
+
+            const courtCards = document.querySelectorAll('.court-card');
+            courtCards.forEach(card => {
+                if (status === 'all') {
+                    card.style.display = 'block';
+                } else {
+                    if (card.classList.contains(status)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                }
+            });
         }
 
         // Modal functions
@@ -1002,6 +890,44 @@
 
         function openEditCourt(courtId) {
             console.log('Edit court:', courtId);
+        }
+
+        // Submit Add Court Form
+        function submitAddCourtForm() {
+            const form = document.getElementById('addCourtForm');
+            const formData = new FormData(form);
+
+            fetch('{{ route('homeyard.courts.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Response Error:', response.status, text);
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        closeAddCourtModal();
+                        form.reset();
+                        location.reload();
+                    } else {
+                        alert('Có lỗi xảy ra: ' + (data.message || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Có lỗi xảy ra: ' + error.message);
+                });
         }
 
         // Close modal on outside click

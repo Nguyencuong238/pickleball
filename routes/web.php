@@ -105,6 +105,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('athletes', [HomeYardTournamentController::class, 'athletes'])->name('athletes');
     Route::get('rankings', [HomeYardTournamentController::class, 'rankings'])->name('rankings');
     Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
+    Route::post('courts', [HomeYardTournamentController::class, 'storeCourt'])->name('courts.store');
     Route::get('bookings', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
 });
 

@@ -30,7 +30,6 @@
                             <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #475569;">ID</th>
                             <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #475569;">Name</th>
                             <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #475569;">Address</th>
-                            <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #475569;">Courts</th>
                             <th style="padding: 15px 20px; text-align: left; font-weight: 600; color: #475569;">Status</th>
                             <th style="padding: 15px 20px; text-align: center; font-weight: 600; color: #475569;">Actions</th>
                         </tr>
@@ -41,11 +40,6 @@
                                 <td style="padding: 15px 20px;">{{ $stadium->id }}</td>
                                 <td style="padding: 15px 20px; font-weight: 500;">{{ $stadium->name }}</td>
                                 <td style="padding: 15px 20px; color: #6b7280;">{{ Str::limit($stadium->address, 30) }}</td>
-                                <td style="padding: 15px 20px;">
-                                    <span style="background-color: #f0f9ff; color: #0369a1; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">
-                                        {{ $stadium->courts_count }}
-                                    </span>
-                                </td>
                                 <td style="padding: 15px 20px;">
                                     @if($stadium->status === 'active')
                                         <span style="background-color: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px; font-size: 0.85rem;">Active</span>

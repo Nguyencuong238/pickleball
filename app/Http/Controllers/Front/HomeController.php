@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Court;
 use App\Models\News;
 use App\Models\Stadium;
 use App\Models\Tournament;
@@ -36,7 +37,9 @@ class HomeController extends Controller
 
         // Statistics
         $totalStadiums = Stadium::where('status', 'active')->count();
-        $totalCourts = Stadium::where('status', 'active')->sum('courts_count');
+        $totalCourts = Court::whereIn('stadium_id', 
+            Stadium::where('status', 'active')->pluck('id')
+        )->count();
 
         return view('front.home', [
             'featuredStadiums' => $featuredStadiums,

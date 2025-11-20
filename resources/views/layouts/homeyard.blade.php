@@ -699,7 +699,10 @@
 
                 <div class="nav-section">
                     <div class="nav-section-title">Quản lý Sân</div>
-
+                    <a href="{{ route('homeyard.stadiums.index') }}" class="nav-item">
+                        <span class="nav-icon">🏢</span>
+                        <span class="nav-text">Quản Lý Cụm Sân</span>
+                    </a>
                     <a href="{{ route('homeyard.courts') }}" class="nav-item">
                         <span class="nav-icon">🏟️</span>
                         <span class="nav-text">Quản Lý Sân</span>
@@ -867,21 +870,21 @@
         function setActiveNavItem() {
             const currentPath = window.location.pathname;
             const navItems = document.querySelectorAll('.nav-item');
-            
+
             navItems.forEach(item => {
                 // Remove active class from all items
                 item.classList.remove('active');
-                
+
                 // Get the href attribute
                 const href = item.getAttribute('href');
-                
+
                 // Check if current path matches the href
                 if (href && (currentPath === href || currentPath.includes(href.split('/').pop()))) {
                     item.classList.add('active');
                 }
             });
         }
-        
+
         // Call on page load
         setActiveNavItem();
 
