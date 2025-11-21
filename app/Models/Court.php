@@ -21,12 +21,15 @@ class Court extends Model
         'status',
         'description',
         'amenities',
+        'capacity',  
+        'size',
         'is_active',
         'daily_matches',
     ];
 
     protected $casts = [
         'amenities' => 'array',
+        'capacity' => 'integer',
         'is_active' => 'boolean',
         'daily_matches' => 'integer',
     ];

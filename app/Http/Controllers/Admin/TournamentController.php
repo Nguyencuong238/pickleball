@@ -243,31 +243,4 @@ class TournamentController extends Controller
 
         return redirect()->route('admin.tournaments.index')->with('success', 'Tournament deleted successfully.');
     }
-
-    public function addAthlete(Request $request, Tournament $tournament)
-    {
-        $this->authorize('update', $tournament);
-        $request->validate([
-            'athlete_name' => 'required|string|max:255',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string|max:20',
-        ]);
-
-        TournamentAthlete::create([
-            'tournament_id' => $tournament->id,
-            'user_id' => auth()->id(),
-            'athlete_name' => $request->athlete_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-        ]);
-
-        return redirect()->back()->with('success', 'Athlete added successfully.');
-    }
-
-    public function removeAthlete(Tournament $tournament, TournamentAthlete $athlete)
-    {
-        $this->authorize('update', $tournament);
-        $athlete->delete();
-        return redirect()->back()->with('success', 'Athlete removed successfully.');
-    }
 }

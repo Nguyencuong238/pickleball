@@ -9,10 +9,12 @@ use App\Models\Court;
 use App\Models\Stadium;
 use App\Models\Group;
 use App\Models\GroupStanding;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class HomeYardTournamentController extends Controller
 {
@@ -74,12 +76,12 @@ class HomeYardTournamentController extends Controller
     public function show(Tournament $tournament)
     {
         $this->authorize('view', $tournament);
-        
+
         // Return JSON for AJAX requests
         if (request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
             $imageUrl = $tournament->image ? Storage::disk('public')->url($tournament->image) : null;
             $bannerUrl = $tournament->banner ? Storage::disk('public')->url($tournament->banner) : null;
-            
+
             return response()->json([
                 'id' => $tournament->id,
                 'name' => $tournament->name,
@@ -98,7 +100,7 @@ class HomeYardTournamentController extends Controller
                 'banner' => $bannerUrl,
             ]);
         }
-        
+
         // Return view for regular requests
         $athletes = $tournament->athletes()->paginate(15);
         return view('home-yard.tournaments.show', compact('tournament', 'athletes'));
@@ -360,23 +362,23 @@ class HomeYardTournamentController extends Controller
     public function listAthletes(Request $request)
     {
         $status = $request->query('status', 'pending');
-        
-        $athletes = TournamentAthlete::whereHas('tournament', function($q) {
+
+        $athletes = TournamentAthlete::whereHas('tournament', function ($q) {
             $q->where('user_id', auth()->id());
         })
-        ->where('status', $status)
-        ->with('tournament')
-        ->latest()
-        ->paginate(15);
+            ->where('status', $status)
+            ->with('tournament')
+            ->latest()
+            ->paginate(15);
 
         $stats = [
-            'pending' => TournamentAthlete::whereHas('tournament', function($q) {
+            'pending' => TournamentAthlete::whereHas('tournament', function ($q) {
                 $q->where('user_id', auth()->id());
             })->where('status', 'pending')->count(),
-            'approved' => TournamentAthlete::whereHas('tournament', function($q) {
+            'approved' => TournamentAthlete::whereHas('tournament', function ($q) {
                 $q->where('user_id', auth()->id());
             })->where('status', 'approved')->count(),
-            'rejected' => TournamentAthlete::whereHas('tournament', function($q) {
+            'rejected' => TournamentAthlete::whereHas('tournament', function ($q) {
                 $q->where('user_id', auth()->id());
             })->where('status', 'rejected')->count(),
         ];
@@ -433,29 +435,29 @@ class HomeYardTournamentController extends Controller
             ->with(['athletes', 'categories'])
             ->latest()
             ->paginate(12);
-        
+
         // Calculate stats
         $now = now();
         $stats = [
             'total' => Tournament::where('user_id', auth()->id())->count(),
             'ongoing' => Tournament::where('user_id', auth()->id())
                 ->where('start_date', '<=', $now)
-                ->where(function($q) {
+                ->where(function ($q) {
                     $q->where('end_date', '>=', now())
-                      ->orWhereNull('end_date');
+                        ->orWhereNull('end_date');
                 })
                 ->count(),
             'upcoming' => Tournament::where('user_id', auth()->id())
                 ->where('start_date', '>', $now)
                 ->count(),
             'completed' => Tournament::where('user_id', auth()->id())
-                ->where(function($q) use ($now) {
+                ->where(function ($q) use ($now) {
                     $q->where('end_date', '<', $now)
-                      ->orWhere('status', 0);
+                        ->orWhere('status', 0);
                 })
                 ->count(),
         ];
-        
+
         return view('home-yard.tournaments.tournaments', compact('tournaments', 'stats'));
     }
 
@@ -490,24 +492,19 @@ class HomeYardTournamentController extends Controller
                 'court_type' => 'required|string|in:indoor,outdoor',
                 'surface_type' => 'required|string|in:acrylic,polyurethane,concrete,sport-court',
                 'stadium_id' => 'required|exists:stadiums,id',
-                'amenities' => 'nullable|string',
+                'capacity' => 'required|integer|min:1',
                 'description' => 'nullable|string',
             ]);
-
-            // Parse amenities string into array
-            $amenitiesArray = [];
-            if (!empty($validated['amenities'])) {
-                $amenitiesArray = array_map('trim', explode(',', $validated['amenities']));
-            }
 
             Court::create([
                 'stadium_id' => $validated['stadium_id'],
                 'court_name' => $validated['court_name'],
                 'court_number' => $validated['court_number'] ?? null,
                 'court_type' => $validated['court_type'],
+                'size' => $request->size,
                 'surface_type' => $validated['surface_type'],
+                'capacity' => $validated['capacity'] ?? null,
                 'description' => $validated['description'] ?? null,
-                'amenities' => !empty($amenitiesArray) ? $amenitiesArray : null,
                 'status' => 'available',
                 'is_active' => true,
             ]);
@@ -516,15 +513,14 @@ class HomeYardTournamentController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Validation error',
-                'errors' => $e->errors()
-            ], 422);
+                'message' => $e->validator->errors()->first()
+            ]);
         } catch (\Exception $e) {
             Log::error('Court creation error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Error creating court: ' . $e->getMessage()
-            ], 500);
+                'message' => 'Có lỗi xảy ra khi tạo sân. Vui lòng thử lại sau.'
+            ]);
         }
     }
 
@@ -545,9 +541,77 @@ class HomeYardTournamentController extends Controller
         return redirect()->back()->with('success', 'Sân thi đấu đã được lưu thành công.')->with('step', 3);
     }
 
-    public function bookings()
+    public function editCourt(Court $court)
     {
-        return view('home-yard.tournaments.bookings');
+        try {
+            return response()->json([
+                'success' => true,
+                'court' => [
+                    'id' => $court->id,
+                    'court_name' => $court->court_name,
+                    'court_number' => $court->court_number,
+                    'court_type' => $court->court_type,
+                    'surface_type' => $court->surface_type,
+                    'stadium_id' => $court->stadium_id,
+                    'capacity' => $court->capacity,
+                    'description' => $court->description,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Court fetch error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể tải dữ liệu sân'
+            ], 500);
+        }
+    }
+
+    public function updateCourt(Request $request, Court $court)
+    {
+        try {
+            $validated = $request->validate([
+                'court_name' => 'required|string|max:255',
+                'court_number' => 'nullable|string|max:100',
+                'court_type' => 'required|string|in:indoor,outdoor',
+                'surface_type' => 'required|string|in:acrylic,polyurethane,concrete,sport-court',
+                'stadium_id' => 'required|exists:stadiums,id',
+                'capacity' => 'required|integer|min:1',
+                'description' => 'nullable|string',
+            ]);
+
+            $court->update([
+                'stadium_id' => $validated['stadium_id'],
+                'court_name' => $validated['court_name'],
+                'court_number' => $validated['court_number'] ?? null,
+                'court_type' => $validated['court_type'],
+                'surface_type' => $validated['surface_type'],
+                'size' => $request->size,
+                'capacity' => $validated['capacity'] ?? null,
+                'description' => $validated['description'] ?? null,
+            ]);
+
+            return response()->json(['success' => true, 'message' => 'Sân được cập nhật thành công']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->validator->errors()->first()
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Court update error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi cập nhật sân. Vui lòng thử lại sau.'
+            ]);
+        }
+    }
+
+    public function bookings(Request $request)
+    {
+        $stadiums = Stadium::where('user_id', auth()->id())->get();
+        $courts = Court::whereIn('stadium_id', $stadiums->pluck('id'))->where('is_active', 1)->get();
+        $date = $request->date ?? now()->format('Y-m-d');
+
+        return view('home-yard.tournaments.bookings', compact('courts', 'date'));
     }
 
     /**
@@ -563,40 +627,40 @@ class HomeYardTournamentController extends Controller
             $drawMethod = $request->input('draw_method');
 
             // Validate manually
-             if (!$categoryId || !$numberOfGroups || !$drawMethod) {
-                 return response()->json([
-                     'success' => false,
-                     'message' => 'category_id, number_of_groups, draw_method are required'
-                 ], 422);
-             }
+            if (!$categoryId || !$numberOfGroups || !$drawMethod) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'category_id, number_of_groups, draw_method are required'
+                ], 422);
+            }
 
-             if (!in_array($drawMethod, ['auto', 'seeded'])) {
-                 return response()->json([
-                     'success' => false,
-                     'message' => 'draw_method must be auto or seeded'
-                 ], 422);
-             }
+            if (!in_array($drawMethod, ['auto', 'seeded'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'draw_method must be auto or seeded'
+                ], 422);
+            }
 
-             Log::info('Draw attempt', [
-                 'tournament_id' => $tournament->id,
-                 'category_id' => $categoryId,
-                 'number_of_groups' => $numberOfGroups,
-                 'draw_method' => $drawMethod,
-                 'is_numeric' => is_numeric($numberOfGroups),
-                 'type' => gettype($numberOfGroups)
-             ]);
+            Log::info('Draw attempt', [
+                'tournament_id' => $tournament->id,
+                'category_id' => $categoryId,
+                'number_of_groups' => $numberOfGroups,
+                'draw_method' => $drawMethod,
+                'is_numeric' => is_numeric($numberOfGroups),
+                'type' => gettype($numberOfGroups)
+            ]);
 
-             if (!is_numeric($numberOfGroups) || $numberOfGroups < 1 || $numberOfGroups > 16) {
-                 return response()->json([
-                     'success' => false,
-                     'message' => 'number_of_groups must be between 1 and 16',
-                     'debug' => [
-                         'is_numeric' => is_numeric($numberOfGroups),
-                         'value' => $numberOfGroups,
-                         'type' => gettype($numberOfGroups)
-                     ]
-                 ], 422);
-             }
+            if (!is_numeric($numberOfGroups) || $numberOfGroups < 1 || $numberOfGroups > 16) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'number_of_groups must be between 1 and 16',
+                    'debug' => [
+                        'is_numeric' => is_numeric($numberOfGroups),
+                        'value' => $numberOfGroups,
+                        'type' => gettype($numberOfGroups)
+                    ]
+                ], 422);
+            }
 
             // Lấy danh sách VĐV đã duyệt cho nội dung này
             $approvedAthletes = TournamentAthlete::where('tournament_id', $tournament->id)
@@ -634,7 +698,7 @@ class HomeYardTournamentController extends Controller
             $refreshedGroups = Group::where('tournament_id', $tournament->id)
                 ->where('category_id', $categoryId)
                 ->get();
-            
+
             $results = $this->getGroupedAthletes($refreshedGroups);
 
             return response()->json([
@@ -665,10 +729,10 @@ class HomeYardTournamentController extends Controller
         // Chia đều vào các bảng
         $groupIndex = 0;
         $drawCount = 0;
-        
+
         foreach ($shuffled as $athlete) {
             $group = $groupsCollection[$groupIndex % $groupsCollection->count()];
-            
+
             // Lưu group_id vào tournament_athletes
             $updated = $athlete->update([
                 'group_id' => $group->id,
@@ -728,23 +792,23 @@ class HomeYardTournamentController extends Controller
         // Cập nhật số lượng VĐV hiện tại trong từng bảng
         foreach ($groupsCollection as $group) {
             $count = TournamentAthlete::where('group_id', $group->id)->count();
-            
+
             Log::info('Before update group', [
                 'group_id' => $group->id,
                 'query_group_id' => $group->id,
                 'count_from_query' => $count,
                 'all_with_group_id_8' => TournamentAthlete::where('group_id', 8)->count()
             ]);
-            
+
             $group->update(['current_participants' => $count]);
-            
+
             Log::info('Group participants updated', [
                 'group_id' => $group->id,
                 'group_name' => $group->group_name,
                 'participants_count' => $count
             ]);
         }
-        }
+    }
 
     /**
      * Bốc thăm theo hạt giống (seeding)
@@ -764,7 +828,7 @@ class HomeYardTournamentController extends Controller
 
         foreach ($sorted as $index => $athlete) {
             $group = $groupsCollection[$groupIndex];
-            
+
             // Lưu group_id và seed_number vào tournament_athletes
             $updated = $athlete->update([
                 'group_id' => $group->id,
@@ -831,28 +895,28 @@ class HomeYardTournamentController extends Controller
         // Cập nhật số lượng VĐV hiện tại trong từng bảng
         foreach ($groupsCollection as $group) {
             $count = TournamentAthlete::where('group_id', $group->id)->count();
-            
+
             Log::info('Before update group', [
                 'group_id' => $group->id,
                 'query_group_id' => $group->id,
                 'count_from_query' => $count,
                 'all_with_group_id_8' => TournamentAthlete::where('group_id', 8)->count()
             ]);
-            
+
             $group->update(['current_participants' => $count]);
-            
+
             Log::info('Group participants updated', [
                 'group_id' => $group->id,
                 'group_name' => $group->group_name,
                 'participants_count' => $count
             ]);
         }
-        }
+    }
 
-        /**
-        * Lấy danh sách VĐV đã chia theo bảng
-        */
-        private function getGroupedAthletes($groups)
+    /**
+     * Lấy danh sách VĐV đã chia theo bảng
+     */
+    private function getGroupedAthletes($groups)
     {
         $result = [];
 
@@ -866,7 +930,7 @@ class HomeYardTournamentController extends Controller
                 'group_id' => $group->id,
                 'group_name' => $group->group_name,
                 'group_code' => $group->group_code,
-                'athletes' => $athletes->map(function($athlete) {
+                'athletes' => $athletes->map(function ($athlete) {
                     return [
                         'id' => $athlete->id,
                         'name' => $athlete->athlete_name,
@@ -1047,5 +1111,191 @@ class HomeYardTournamentController extends Controller
             'unpaid' => 'Chưa thanh toán'
         ];
         return $statusMap[$status] ?? $status;
+    }
+
+    public function bookingCourt(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'court_id' => 'required|exists:courts,id',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:20',
+            'customer_email' => 'nullable|email|max:255',
+            'booking_date' => 'required|date|after_or_equal:today',
+            'start_time' => 'required|date_format:H:i',
+            'duration_hours' => 'required|integer|min:1',
+            'hourly_rate' => 'required|integer|min:0',
+            'payment_method' => 'required|in:cash,card,transfer,wallet',
+            'notes' => 'nullable|string',
+        ]);
+
+        if($validation->fails())
+        {
+            return response()->json([
+                'success' => false,
+                'message' => $validation->errors()->first()
+            ]);
+        }
+
+        // Get court details
+        $court = Court::findOrFail($request->court_id);
+
+        // Calculate duration in hours
+        $startTime = \DateTime::createFromFormat('H:i', $request->start_time);
+        
+        $durationHours = $request->duration_hours;
+        $endTime = $startTime->modify('+' . $durationHours . ' hours');
+
+        // Calculate total price
+        $totalPrice = round($request->hourly_rate * $durationHours);
+
+        // Check if slot is already booked
+        $existingBooking = Booking::where('court_id', $request->court_id)
+            ->where('booking_date', $request->booking_date)
+            ->where('status', '!=', 'cancelled')
+            ->whereRaw("TIME(start_time) < ? AND TIME(end_time) > ?", [$endTime->format('H:i'), $request->start_time])
+            ->first();
+
+        if ($existingBooking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Khoảng thời gian này đã được đặt. Vui lòng chọn thời gian khác.'
+            ]);
+        }
+
+        // Create booking
+        $booking = Booking::create([
+            'court_id' => $request->court_id,
+            'user_id' => auth()->id(),
+            'customer_name' => $request->customer_name,
+            'customer_phone' => $request->customer_phone,
+            'customer_email' => $request->customer_email,
+            'booking_date' => $request->booking_date,
+            'start_time' => $request->start_time,
+            'end_time' => $endTime->format('H:i'),
+            'duration_hours' => $durationHours,
+            'hourly_rate' => $request->hourly_rate,
+            'total_price' => $totalPrice,
+            'status' => 'pending',
+            'payment_method' => $request->payment_method,
+            'notes' => $request->notes ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đặt sân thành công. Đơn đặt của bạn đang chờ xác nhận.',
+            'booking' => [
+                'id' => $booking->id,
+                'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                'status' => $booking->status,
+            ]
+        ]);
+        
+    }
+
+    public function getAvailableSlots(Court $court, Request $request)
+    {
+        try {
+            $date = $request->query('date');
+
+            // Default time slots (6:00 - 21:00)
+            $timeSlots = [];
+            for ($hour = 6; $hour < 21; $hour++) {
+                $time = sprintf('%02d:00', $hour);
+                $timeSlots[] = $time;
+            }
+
+            // Get booked slots for this date
+            $bookings = Booking::where('court_id', $court->id)
+                ->where('booking_date', $date)
+                ->where('status', '!=', 'cancelled')
+                ->get(['start_time', 'end_time']);
+
+            $bookedSlots = [];
+            foreach ($bookings as $booking) {
+                $bookedSlots[] = [
+                    'start_time' => $booking->start_time,
+                    'end_time' => $booking->end_time,
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'available_slots' => $timeSlots,
+                'booked_slots' => $bookedSlots,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get slots error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể lấy dữ liệu khoảng thời gian'
+            ]);
+        }
+    }
+
+    public function getBookingsByDate(Request $request)
+    {
+        $date = $request->query('date');
+
+        if (!$date) {
+            $date = now()->toDateString();
+        }
+
+        // Get all bookings for this date
+        $bookings = Booking::where('booking_date', $date)
+            ->where('status', '!=', 'cancelled')
+            ->get([
+                'id',
+                'court_id',
+                'customer_name',
+                'start_time',
+                'end_time',
+                'status',
+            ])
+            ->map(function ($booking) {
+                return [
+                    'id' => $booking->id,
+                    'court_id' => $booking->court_id,
+                    'customer_name' => $booking->customer_name,
+                    'start_time' => substr($booking->start_time, 0, 5),
+                    'end_time' => substr($booking->end_time, 0, 5),
+                    'status' => $booking->status,
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'bookings' => $bookings,
+            'date' => $date,
+        ]);
+        
+    }
+
+    public function getBookingStats(Request $request)
+    {
+        $stadiums = Stadium::where('user_id', auth()->id())->pluck('id');
+        $courtsOfUser = Court::whereIn('stadium_id', $stadiums)->pluck('id');
+
+        // Get current month's bookings
+        $startOfMonth = now()->startOfMonth()->toDateString();
+        $endOfMonth = now()->endOfMonth()->toDateString();
+
+        $bookings = Booking::whereIn('court_id', $courtsOfUser)
+            ->whereBetween('booking_date', [$startOfMonth, $endOfMonth]);
+
+        $total = $bookings->count();
+        $confirmed = $bookings->clone()->where('status', 'confirmed')->count();
+        $pending = $bookings->clone()->where('status', 'pending')->count();
+        $cancelled = Booking::whereIn('court_id', $courtsOfUser)
+            ->whereBetween('booking_date', [$startOfMonth, $endOfMonth])
+            ->where('status', 'cancelled')
+            ->count();
+
+        return response()->json([
+            'success' => true,
+            'total' => $total,
+            'confirmed' => $confirmed,
+            'pending' => $pending,
+            'cancelled' => $cancelled,
+        ]);
     }
 }

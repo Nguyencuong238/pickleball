@@ -115,7 +115,7 @@
 
     .courts-grid {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        grid-template-columns: repeat({{$courts->count()}}, 1fr);
         gap: 0.5rem;
     }
 
@@ -448,28 +448,28 @@
                 <div class="booking-stat-card">
                     <div class="booking-stat-icon info">📊</div>
                     <div class="booking-stat-content">
-                        <div class="booking-stat-value">248</div>
+                        <div class="booking-stat-value" id="totalBookingsCount">0</div>
                         <div class="booking-stat-label">Tổng Đơn Tháng Này</div>
                     </div>
                 </div>
                 <div class="booking-stat-card">
                     <div class="booking-stat-icon success">✅</div>
                     <div class="booking-stat-content">
-                        <div class="booking-stat-value">189</div>
+                        <div class="booking-stat-value" id="confirmedBookingsCount">0</div>
                         <div class="booking-stat-label">Đã Xác Nhận</div>
                     </div>
                 </div>
                 <div class="booking-stat-card">
                     <div class="booking-stat-icon warning">⏳</div>
                     <div class="booking-stat-content">
-                        <div class="booking-stat-value">45</div>
+                        <div class="booking-stat-value" id="pendingBookingsCount">0</div>
                         <div class="booking-stat-label">Chờ Xác Nhận</div>
                     </div>
                 </div>
                 <div class="booking-stat-card">
                     <div class="booking-stat-icon danger">❌</div>
                     <div class="booking-stat-content">
-                        <div class="booking-stat-value">14</div>
+                        <div class="booking-stat-value" id="cancelledBookingsCount">0</div>
                         <div class="booking-stat-label">Đã Hủy</div>
                     </div>
                 </div>
@@ -498,20 +498,14 @@
 
                     <!-- Calendar Tab -->
                     <div class="tab-content-booking active" id="calendar">
-                        <div class="quick-date-filters">
-                            <button class="quick-date-btn active">Hôm Nay</button>
-                            <button class="quick-date-btn">Ngày Mai</button>
-                            <button class="quick-date-btn">Tuần Này</button>
-                            <button class="quick-date-btn">Tuần Sau</button>
-                        </div>
 
                         <div class="booking-calendar">
                             <div class="calendar-header-booking">
-                                <h3 class="calendar-title-booking">Thứ Sáu, 20/01/2025</h3>
+                                <h3 class="calendar-title-booking" id="calendarTitle">Hôm nay</h3>
                                 <div class="calendar-nav-booking">
-                                    <button class="btn btn-secondary btn-sm">‹ Hôm qua</button>
-                                    <button class="btn btn-secondary btn-sm">Hôm nay</button>
-                                    <button class="btn btn-secondary btn-sm">Ngày mai ›</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="navigateDate(-1)">‹ Hôm qua</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="navigateDate(0)">Hôm nay</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="navigateDate(1)">Ngày mai ›</button>
                                 </div>
                             </div>
 
@@ -536,125 +530,7 @@
                                 </div>
 
                                 <div class="courts-grid">
-                                    <!-- Sân 1 -->
-                                    <div class="court-column">
-                                        <div class="court-header-slot">Sân 1</div>
-                                        <div class="time-slot available" onclick="bookSlot(1, '06:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(1, '07:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(1, '10:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(1, '11:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(1, '13:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(1, '16:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(1, '17:00')">✅</div>
-                                        <div class="time-slot pending">⏳</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(1, '20:00')">✅</div>
-                                    </div>
-
-                                    <!-- Sân 2 -->
-                                    <div class="court-column">
-                                        <div class="court-header-slot">Sân 2</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(2, '07:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(2, '08:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(2, '11:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(2, '12:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot pending">⏳</div>
-                                        <div class="time-slot available" onclick="bookSlot(2, '16:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(2, '17:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(2, '19:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(2, '20:00')">✅</div>
-                                    </div>
-
-                                    <!-- Sân 3 -->
-                                    <div class="court-column">
-                                        <div class="court-header-slot">Sân 3</div>
-                                        <div class="time-slot available" onclick="bookSlot(3, '06:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(3, '09:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(3, '10:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(3, '12:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(3, '13:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(3, '17:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(3, '18:00')">✅</div>
-                                        <div class="time-slot pending">⏳</div>
-                                        <div class="time-slot available" onclick="bookSlot(3, '20:00')">✅</div>
-                                    </div>
-
-                                    <!-- Sân 4 -->
-                                    <div class="court-column">
-                                        <div class="court-header-slot">Sân 4</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '06:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '07:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '08:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '09:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '12:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '14:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '15:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot pending">⏳</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '19:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(4, '20:00')">✅</div>
-                                    </div>
-
-                                    <!-- Sân 5 -->
-                                    <div class="court-column">
-                                        <div class="court-header-slot">Sân 5</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(5, '08:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(5, '09:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(5, '11:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(5, '12:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(5, '15:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(5, '16:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(5, '19:00')">✅</div>
-                                        <div class="time-slot pending">⏳</div>
-                                    </div>
-
-                                    <!-- Sân 6 -->
-                                    <div class="court-column">
-                                        <div class="court-header-slot">Sân 6</div>
-                                        <div class="time-slot available" onclick="bookSlot(6, '06:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(6, '07:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(6, '10:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(6, '13:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(6, '14:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(6, '17:00')">✅</div>
-                                        <div class="time-slot available" onclick="bookSlot(6, '18:00')">✅</div>
-                                        <div class="time-slot booked">🔴</div>
-                                        <div class="time-slot available" onclick="bookSlot(6, '20:00')">✅</div>
-                                    </div>
+                                    
                                 </div>
                             </div>
 
@@ -873,38 +749,37 @@
                 <h3 class="modal-title">Đặt Sân Mới</h3>
                 <button class="modal-close" onclick="closeNewBookingModal()">×</button>
             </div>
-            <form>
+            <form id="bookingForm" data-courts='@json($courts)'>
                 <div class="form-group">
                     <label class="form-label">Tên khách hàng *</label>
-                    <input type="text" class="form-input" placeholder="Nhập tên khách hàng" required>
+                    <input type="text" class="form-input" name="customer_name" placeholder="Nhập tên khách hàng" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Số điện thoại *</label>
-                    <input type="tel" class="form-input" placeholder="0901234567" required>
+                    <input type="tel" class="form-input" name="customer_phone" placeholder="0901234567" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-input" placeholder="example@email.com">
+                    <input type="email" class="form-input" name="customer_email" placeholder="example@email.com">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Chọn sân *</label>
-                    <select class="form-select" required>
+                    <select class="form-select" name="court_id" required onchange="updateCourtRate()">
                         <option value="">Chọn sân</option>
-                        <option value="1">Sân 1 - Indoor Standard</option>
-                        <option value="2">Sân 2 - Indoor Premium</option>
-                        <option value="3">Sân 3 - Outdoor Standard</option>
-                        <option value="4">Sân 4 - Indoor Standard</option>
-                        <option value="5">Sân 5 - Indoor Standard</option>
-                        <option value="6">Sân 6 - Outdoor Premium</option>
+                        @forelse($courts as $court)
+                            <option value="{{ $court->id }}">{{ $court->court_name }} - {{ ucfirst(str_replace('-', ' ', $court->court_type)) }} {{ ucfirst(str_replace('-', ' ', $court->surface_type)) }}</option>
+                        @empty
+                            <option value="" disabled>Không có sân nào</option>
+                        @endforelse
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ngày đặt *</label>
-                    <input type="date" class="form-input" required>
+                    <input type="date" class="form-input" name="booking_date" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Giờ bắt đầu *</label>
-                    <select class="form-select" required>
+                    <select class="form-select" name="start_time" required onchange="calculateTotal()">
                         <option value="">Chọn giờ</option>
                         <option value="06:00">06:00</option>
                         <option value="07:00">07:00</option>
@@ -925,37 +800,47 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Thời gian (giờ) *</label>
-                    <select class="form-select" required>
+                    <select class="form-select" name="duration_hours" required onchange="calculateTotal()">
                         <option value="">Chọn thời gian</option>
                         <option value="1">1 giờ</option>
-                        <option value="1.5">1.5 giờ</option>
                         <option value="2">2 giờ</option>
-                        <option value="2.5">2.5 giờ</option>
                         <option value="3">3 giờ</option>
+                        <option value="4">4 giờ</option>
+                        <option value="5">5 giờ</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Phương thức thanh toán *</label>
+                    <select class="form-select" name="payment_method" required>
+                        <option value="">Chọn phương thức</option>
+                        <option value="cash">Tiền mặt</option>
+                        <option value="card">Thẻ tín dụng</option>
+                        <option value="transfer">Chuyển khoản</option>
+                        <option value="wallet">Ví điện tử</option>
                     </select>
                 </div>
                 <div class="booking-summary">
                     <div class="summary-row">
                         <span class="summary-label">Giá sân</span>
-                        <span class="summary-value">₫150,000/giờ</span>
+                        <span class="summary-value" id="hourlyRateDisplay">₫150,000/giờ</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Thời gian</span>
-                        <span class="summary-value">2 giờ</span>
+                        <span class="summary-value" id="durationDisplay">2 giờ</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Tổng tiền</span>
-                        <span class="summary-value">₫300,000</span>
+                        <span class="summary-value" id="totalPriceDisplay">₫300,000</span>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ghi chú</label>
-                    <textarea class="form-textarea" placeholder="Yêu cầu đặc biệt..."></textarea>
+                    <textarea class="form-textarea" name="notes" placeholder="Yêu cầu đặc biệt..."></textarea>
                 </div>
             </form>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeNewBookingModal()">Hủy</button>
-                <button class="btn btn-primary">💾 Xác Nhận Đặt Sân</button>
+                <button class="btn btn-primary" onclick="submitBooking()">💾 Xác Nhận Đặt Sân</button>
             </div>
         </div>
     </div>
@@ -1104,14 +989,210 @@
             event.target.classList.add('active');
         }
 
+        // Load courts data from form
+        let courtsData = {};
+        let bookingsData = [];
+        let currentSelectedDate = '{{$date}}';
+
+        function initCourtsData() {
+            const form = document.getElementById('bookingForm');
+            const courstsJson = form.getAttribute('data-courts');
+            if (courstsJson) {
+                try {
+                    const courts = JSON.parse(courstsJson);
+                    courts.forEach(court => {
+                        // Default pricing: 150k per hour (can be customized based on court type)
+                        courtsData[court.id] = {
+                            id: court.id,
+                            name: court.court_name,
+                            hourly_rate: 150000  // Default rate
+                        };
+                    });
+                    // Load calendar for today
+                    loadCalendarData(currentSelectedDate);
+                } catch (e) {
+                    console.error('Error parsing courts data:', e);
+                }
+            }
+        }
+
+        // Format date with day name
+        function formatDateDisplay(dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const dayNames = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
+            const day = dayNames[date.getDay()];
+            const dateFormatted = date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            return `${day}, ${dateFormatted}`;
+        }
+
+        // Navigate to different dates
+        function navigateDate(days) {
+            const currentDate = new Date(currentSelectedDate);
+            currentDate.setDate(currentDate.getDate() + days);
+            const newDate = currentDate.toISOString().split('T')[0];
+            loadCalendarData(newDate);
+        }
+
+        // Load bookings data for selected date
+        function loadCalendarData(date) {
+            
+            // Update calendar title
+            document.getElementById('calendarTitle').textContent = formatDateDisplay(date);
+            
+            // Fetch bookings for this date
+            fetch(`/homeyard/bookings/by-date?date=${date}`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                bookingsData = data.bookings || [];
+                renderCourtGrid(date);
+            })
+            .catch(error => {
+                console.error('Error loading bookings:', error);
+                renderCourtGrid(date);  // Render without bookings
+            });
+        }
+
+        // Render the courts grid
+        function renderCourtGrid(date) {
+            const courts = Object.values(courtsData);
+            let html = '';
+
+            courts.forEach(court => {
+                html += `
+                    <div class="court-column">
+                        <div class="court-header-slot">${court.name}</div>
+                `;
+
+                // Generate time slots from 6:00 to 21:00
+                for (let hour = 6; hour < 21; hour++) {
+                    const timeStr = String(hour).padStart(2, '0') + ':00';
+                    const isBooked = isTimeSlotBooked(court.id, timeStr);
+                    const slotClass = isBooked ? 'booked' : 'available';
+                    const emoji = isBooked ? '🔴' : '✅';
+                    const onclick = isBooked ? '' : `onclick="bookSlot(${court.id}, '${timeStr}', '${currentSelectedDate}')"`;
+
+                    html += `<div class="time-slot ${slotClass}" ${onclick}>${emoji}</div>`;
+                }
+
+                html += '</div>';
+            });
+
+            document.querySelector('.courts-grid').innerHTML = html;
+        }
+
+        // Check if a time slot is booked
+        function isTimeSlotBooked(courtId, timeStr) {
+            return bookingsData.some(booking => {
+                if (booking.court_id != courtId) return false;
+                
+                const bookStart = booking.start_time;
+                const bookEnd = booking.end_time;
+                
+                // Check if the slot time is within the booking time range
+                return timeStr >= bookStart && timeStr < bookEnd;
+            });
+        }
+
         // Book slot
-        function bookSlot(court, time) {
-            console.log(`Booking Court ${court} at ${time}`);
-            openNewBookingModal();
+        function bookSlot(court, time, date) {
+            // Reset form first
+            const form = document.getElementById('bookingForm');
+            form.reset();
+            document.getElementById('bookingForm').dataset.hourlyRate = 150000;
+            
+            // Then pre-fill court and start time
+            form.querySelector('select[name="court_id"]').value = court;
+            form.querySelector('select[name="start_time"]').value = time;
+            form.querySelector('input[name="booking_date"]').value = date;
+            
+            updateCourtRate();
+            openNewBookingModalDirect();
+        }
+
+        // Update court hourly rate
+        function updateCourtRate() {
+            const courtId = document.querySelector('select[name="court_id"]').value;
+            if (!courtId) return;
+            
+            const courtInfo = courtsData[courtId];
+            const rate = (courtInfo && courtInfo.hourly_rate) ? courtInfo.hourly_rate : 150000;
+            document.getElementById('hourlyRateDisplay').textContent = '₫' + rate.toLocaleString('vi-VN') + '/giờ';
+            
+            // Store rate in form for submission
+            document.getElementById('bookingForm').dataset.hourlyRate = rate;
+            calculateTotal();
+        }
+
+        // Calculate total price
+        function calculateTotal() {
+            const duration = parseFloat(document.querySelector('select[name="duration_hours"]').value) || 2;
+            const rate = parseFloat(document.getElementById('bookingForm').dataset.hourlyRate) || 150000;
+            const total = Math.round(rate * duration);
+            
+            document.getElementById('durationDisplay').textContent = duration + ' giờ';
+            document.getElementById('totalPriceDisplay').textContent = '₫' + total.toLocaleString('vi-VN');
+        }
+
+        // Submit booking
+        function submitBooking() {
+            const form = document.getElementById('bookingForm');
+            const formData = new FormData(form);
+            
+            // Add hourly_rate
+            formData.append('hourly_rate', form.dataset.hourlyRate || 150000);
+
+            fetch('{{ route('homeyard.bookings.store') }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Response Error:', response.status, text);
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message);
+                        closeNewBookingModal();
+                        form.reset();
+                        document.getElementById('bookingForm').dataset.hourlyRate = 150000;
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        toastr.error(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Booking error:', error);
+                    toastr.error(error.message || 'Lỗi khi đặt sân');
+                });
         }
 
         // Modal functions
         function openNewBookingModal() {
+            // Reset form
+            const form = document.getElementById('bookingForm');
+            form.reset();
+            document.getElementById('bookingForm').dataset.hourlyRate = 150000;
+            calculateTotal();
+            
+            document.getElementById('newBookingModal').classList.add('active');
+        }
+
+        // Open modal without resetting form (used when pre-filling from calendar)
+        function openNewBookingModalDirect() {
             document.getElementById('newBookingModal').classList.add('active');
         }
 
@@ -1137,9 +1218,33 @@
             });
         });
 
+        // Load and update booking statistics
+        function loadBookingStats() {
+            fetch(`/homeyard/bookings/stats`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    document.getElementById('totalBookingsCount').textContent = data.total || 0;
+                    document.getElementById('confirmedBookingsCount').textContent = data.confirmed || 0;
+                    document.getElementById('pendingBookingsCount').textContent = data.pending || 0;
+                    document.getElementById('cancelledBookingsCount').textContent = data.cancelled || 0;
+                }
+            })
+            .catch(error => {
+                console.error('Error loading booking stats:', error);
+            });
+        }
+
         // Load page
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Booking Management Loaded');
+            initCourtsData();
+            loadBookingStats();
         });
     </script>
 @endsection

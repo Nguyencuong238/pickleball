@@ -12,16 +12,6 @@
             </div>
         @endif
 
-        <!-- Header with Add Button -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-            <a href="{{ route('admin.dashboard') }}" style="color: #8b5cf6; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fas fa-arrow-left"></i> Quay Lại
-            </a>
-            <a href="{{ route('admin.tournaments.create') }}" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
-                <i class="fas fa-plus"></i> Tạo Giải Đấu
-            </a>
-        </div>
-
         <!-- Table -->
         <div style="background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
             @if($tournaments->count() > 0)
@@ -66,12 +56,6 @@
                                         @endif
                                     </td>
                                     <td class="d-flex" style="padding: 15px 20px; text-align: center;">
-                                        {{-- <a href="{{ route('admin.tournaments.show', $tournament) }}" style="background: #10b981; color: white ; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-right: 5px; cursor: pointer;">
-                                           Chi tiết
-                                        </a> --}}
-                                        <a href="{{ route('admin.tournaments.edit', $tournament) }}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-right: 5px; cursor: pointer;">
-                                            Sửa
-                                        </a>
                                         <form method="POST" action="{{ route('admin.tournaments.destroy', $tournament) }}" style="display: inline;">
                                             @csrf
                                             @method('DELETE')

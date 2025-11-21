@@ -312,6 +312,11 @@
         overflow-y: auto;
         box-shadow: var(--shadow-xl);
         animation: fadeIn 0.3s ease;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .modal-content::-webkit-scrollbar {
+        display: none; /* Chrome, Safari, Opera */
     }
 
     .modal-header {
@@ -591,7 +596,7 @@
                                     </div>
                                     <div class="court-info-item">
                                         <div class="court-info-label">Kích Thước</div>
-                                        <div class="court-info-value">13.4m x 6.1m</div>
+                                        <div class="court-info-value">{{$court->size}}</div>
                                     </div>
                                     <div class="court-info-item">
                                         <div class="court-info-label">Mặt Sân</div>
@@ -600,7 +605,7 @@
                                     </div>
                                     <div class="court-info-item">
                                         <div class="court-info-label">Sức Chứa</div>
-                                        <div class="court-info-value">80 người</div>
+                                        <div class="court-info-value">{{$court->capacity}} người</div>
                                     </div>
                                 </div>
 
@@ -691,18 +696,85 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Tiện nghi</label>
-                    <input type="text" class="form-input" name="amenities"
-                        placeholder="Ví dụ: Đèn chiếu sáng, Quạt thông gió, Bàn bên sân">
+                    <label class="form-label">Kích thước</label>
+                    <input type="text" class="form-input" name="size" placeholder="13.4m x 6.1m">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Mô tả</label>
-                    <textarea class="form-textarea" name="description" placeholder="Thông tin chi tiết về sân..."></textarea>
+                    <label class="form-label">Sức chứa (người) *</label>
+                    <input type="number" class="form-input" name="capacity" placeholder="Ví dụ: 80" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea class="form-textarea" name="description" placeholder="Thông tin thêm về sân..."></textarea>
                 </div>
             </form>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAddCourtModal()">Hủy</button>
                 <button class="btn btn-primary" onclick="submitAddCourtForm()">💾 Lưu</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Court Modal -->
+    <div class="modal" id="editCourtModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Chỉnh Sửa Sân</h3>
+                <button class="modal-close" onclick="closeEditCourtModal()">×</button>
+            </div>
+            <form id="editCourtForm">
+                @csrf
+                <div class="form-group">
+                    <label class="form-label">Tên sân *</label>
+                    <input type="text" class="form-input" name="court_name" placeholder="Ví dụ: Sân 7" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số hiệu sân</label>
+                    <input type="text" class="form-input" name="court_number" placeholder="Ví dụ: A1, B2">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Loại sân *</label>
+                    <select class="form-select" name="court_type" required>
+                        <option value="">Chọn loại sân</option>
+                        <option value="indoor">Indoor</option>
+                        <option value="outdoor">Outdoor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mặt sân *</label>
+                    <select class="form-select" name="surface_type" required>
+                        <option value="">Chọn loại mặt sân</option>
+                        <option value="acrylic">Acrylic</option>
+                        <option value="polyurethane">Polyurethane</option>
+                        <option value="concrete">Concrete</option>
+                        <option value="sport-court">Sport Court</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Chọn cụm sân *</label>
+                    <select class="form-select" name="stadium_id" required>
+                        <option value="">Chọn cụm sân</option>
+                        @foreach ($stadiums as $stadium)
+                            <option value="{{ $stadium->id }}">{{ $stadium->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Kích thước</label>
+                    <input type="text" class="form-input" name="size" placeholder="13.4m x 6.1m">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Sức chứa (người) *</label>
+                    <input type="number" class="form-input" name="capacity" placeholder="Ví dụ: 80" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea class="form-textarea" name="description" placeholder="Thông tin chi tiết về sân..."></textarea>
+                </div>
+            </form>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditCourtModal()">Hủy</button>
+                <button class="btn btn-primary" onclick="submitEditCourtForm()">💾 Cập Nhật</button>
             </div>
         </div>
     </div>
@@ -877,7 +949,15 @@
         }
 
         function closeAddCourtModal() {
-            document.getElementById('addCourtModal').classList.remove('active');
+            const modal = document.getElementById('addCourtModal');
+            const form = document.getElementById('addCourtForm');
+            
+            modal.classList.remove('active');
+            
+            // Reset to add mode
+            modal.querySelector('.modal-title').textContent = 'Thêm Sân Mới';
+            delete form.dataset.courtId;
+            form.reset();
         }
 
         function openCourtDetails(courtId) {
@@ -889,7 +969,45 @@
         }
 
         function openEditCourt(courtId) {
-            console.log('Edit court:', courtId);
+            // Populate form with court data and open modal
+            const modal = document.getElementById('editCourtModal');
+            const form = document.getElementById('editCourtForm');
+            
+            // Set edit mode flag
+            form.dataset.courtId = courtId;
+            
+            // Fetch court data
+            fetch(`/homeyard/courts/${courtId}/edit`)
+                .then(response => response.json())
+                .then(data => {
+                    // Populate form fields
+                    form.querySelector('input[name="court_name"]').value = data.court.court_name || '';
+                    form.querySelector('input[name="court_number"]').value = data.court.court_number || '';
+                    form.querySelector('select[name="court_type"]').value = data.court.court_type || '';
+                    form.querySelector('select[name="surface_type"]').value = data.court.surface_type || '';
+                    form.querySelector('select[name="stadium_id"]').value = data.court.stadium_id || '';
+                    form.querySelector('input[name="capacity"]').value = data.court.capacity || '';
+                    form.querySelector('input[name="size"]').value = data.court.size || '';
+                    form.querySelector('textarea[name="description"]').value = data.court.description || '';
+                    
+                    // Open modal
+                    modal.classList.add('active');
+                })
+                .catch(error => {
+                    console.error('Error loading court:', error);
+                    toastr.error('Không thể tải dữ liệu sân');
+                });
+        }
+
+        function closeEditCourtModal() {
+            const modal = document.getElementById('editCourtModal');
+            const form = document.getElementById('editCourtForm');
+            
+            modal.classList.remove('active');
+            
+            // Reset form
+            delete form.dataset.courtId;
+            form.reset();
         }
 
         // Submit Add Court Form
@@ -916,17 +1034,58 @@
                 })
                 .then(data => {
                     if (data.success) {
-                        alert(data.message);
+                        toastr.success(data.message);
                         closeAddCourtModal();
                         form.reset();
                         location.reload();
                     } else {
-                        alert('Có lỗi xảy ra: ' + (data.message || 'Unknown error'));
+                        toastr.error(data.message);
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
-                    alert('Có lỗi xảy ra: ' + error.message);
+                    toastr.error(error.message);
+                });
+        }
+
+        // Submit Edit Court Form
+        function submitEditCourtForm() {
+            const form = document.getElementById('editCourtForm');
+            const formData = new FormData(form);
+            const courtId = form.dataset.courtId;
+
+            // Add method to formData for Laravel to recognize PUT request
+            formData.append('_method', 'PUT');
+
+            fetch(`/homeyard/courts/${courtId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error('Response Error:', response.status, text);
+                            throw new Error(`HTTP ${response.status}: ${text}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message);
+                        closeEditCourtModal();
+                        form.reset();
+                        delete form.dataset.courtId;
+                        location.reload();
+                    } else {
+                        toastr.error(data.message);
+                    }
+                })
+                .catch(error => {
+                    toastr.error(error.message);
                 });
         }
 

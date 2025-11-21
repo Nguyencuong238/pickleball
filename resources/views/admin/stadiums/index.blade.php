@@ -12,14 +12,6 @@
         </div>
     @endif
 
-    <!-- Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-        <h3 style="margin: 0;">Stadiums List</h3>
-        <a href="{{ route('admin.stadiums.create') }}" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Add Stadium
-        </a>
-    </div>
-
     <!-- Table -->
     <div style="background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow: hidden;">
         @if($stadiums->count() > 0)
@@ -48,9 +40,6 @@
                                     @endif
                                 </td>
                                 <td style="padding: 15px 20px; text-align: center;">
-                                    <a href="{{ route('admin.stadiums.edit', $stadium) }}" class="btn btn-sm" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-right: 5px;">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
                                     <form method="POST" action="{{ route('admin.stadiums.destroy', $stadium) }}" style="display: inline;">
                                         @csrf
                                         @method('DELETE')

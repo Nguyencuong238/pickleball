@@ -7,6 +7,10 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cấu Hình Giải Đấu - Hệ Thống Quản Lý Giải Đấu</title>
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}">
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- jQuery (Required for Toastr) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         /* Page-specific styles */
         .tournament-header-banner {
@@ -1126,6 +1130,56 @@
         document.addEventListener('DOMContentLoaded', initializeSteps);
 
         console.log('Tournament Config Dashboard v2 Loaded');
+    </script>
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        // Configure Toastr
+        toastr.options = {
+            "closeButton": true,
+            "debug": false,
+            "newestOnTop": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "preventDuplicates": false,
+            "onclick": null,
+            "showDuration": "300",
+            "hideDuration": "1000",
+            "timeOut": "3000",
+            "extendedTimeOut": "1000",
+            "showEasing": "swing",
+            "hideEasing": "linear",
+            "showMethod": "fadeIn",
+            "hideMethod": "fadeOut"
+        };
+
+        // Display session messages when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            @if(session('success'))
+                toastr.success('{{ session('success') }}');
+            @endif
+
+            @if(session('error'))
+                toastr.error('{{ session('error') }}');
+            @endif
+
+            @if(session('warning'))
+                toastr.warning('{{ session('warning') }}');
+            @endif
+
+            @if(session('info'))
+                toastr.info('{{ session('info') }}');
+            @endif
+
+            // Handle validation errors
+            @if($errors->any())
+                @foreach($errors->all() as $error)
+                    toastr.error('{{ $error }}');
+                @endforeach
+            @endif
+        });
     </script>
 </body>
 

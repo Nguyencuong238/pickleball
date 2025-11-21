@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\StadiumController;
 use App\Http\Controllers\Admin\TournamentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Api\MediaUploadController;
 use App\Http\Controllers\FavoriteController;
 
 /*
@@ -108,7 +109,13 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('rankings', [HomeYardTournamentController::class, 'rankings'])->name('rankings');
     Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
     Route::post('courts', [HomeYardTournamentController::class, 'storeCourt'])->name('courts.store');
+    Route::get('courts/{court}/edit', [HomeYardTournamentController::class, 'editCourt'])->name('courts.edit');
+    Route::put('courts/{court}', [HomeYardTournamentController::class, 'updateCourt'])->name('courts.update');
+    Route::get('courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('courts.available-slots');
     Route::get('bookings', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
+    Route::post('bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('bookings.store');
+    Route::get('bookings/by-date', [HomeYardTournamentController::class, 'getBookingsByDate'])->name('bookings.by-date');
+    Route::get('bookings/stats', [HomeYardTournamentController::class, 'getBookingStats'])->name('bookings.stats');
     
     // Tournament Basic Info
     Route::put('tournaments/{tournament}', [HomeYardTournamentController::class, 'updateTournament'])->name('tournaments.update');
@@ -161,8 +168,14 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 // Admin Stadium and Tournament CRUD
 Route::middleware(['auth', 'role:admin|home_yard'])->prefix('admin')->name('admin.')->group(function () {
-    Route::resource('stadiums', StadiumController::class);
-    Route::resource('tournaments', TournamentController::class);
+    Route::resource('stadiums', StadiumController::class)->only(['index', 'destroy']);
+    Route::resource('tournaments', TournamentController::class)->only(['index', 'destroy']);
     Route::post('tournaments/{tournament}/athletes', [TournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [TournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
+});
+
+// Media Upload API Routes
+Route::middleware('auth')->group(function () {
+    Route::post('/api/upload-media', [MediaUploadController::class, 'uploadMedia'])->name('api.upload-media');
+    Route::delete('/api/delete-media/{mediaId}', [MediaUploadController::class, 'deleteMedia'])->name('api.delete-media');
 });
