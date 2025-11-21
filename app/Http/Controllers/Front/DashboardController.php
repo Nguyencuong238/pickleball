@@ -38,7 +38,7 @@ class DashboardController extends Controller
     }
 
     // Home Yard User Dashboard
-    public function homeYardDashboard()
+    public function homeYardDashboard($tournament_id = null)
     {
         $user = auth()->user();
         
@@ -47,19 +47,40 @@ class DashboardController extends Controller
             $query->where('user_id', $user->id);
         })->get() ?? collect();
         
-        // Get current tournament (latest tournament) with relationships
-        $tournament = Tournament::where('user_id', $user->id)
-            ->with('categories', 'rounds', 'groups')
-            ->latest()
-            ->first();
+        // Get tournament - use provided tournament_id if available, otherwise get latest
+        $tournament = null;
+        if ($tournament_id) {
+            $tournament = Tournament::where('id', $tournament_id)
+                ->where('user_id', $user->id)
+                ->with(['categories', 'rounds', 'groups' => function ($query) {
+                    $query->with('category', 'round');
+                }])
+                ->first();
+        }
         
-        // Get athletes registered for the current tournament
+        // If no tournament found with the ID or no ID provided, get the latest
+        if (!$tournament) {
+            $tournament = Tournament::where('user_id', $user->id)
+                ->with(['categories', 'rounds', 'groups' => function ($query) {
+                    $query->with('category', 'round');
+                }])
+                ->latest()
+                ->first();
+        }
+        
+        // If still no tournament, redirect to tournaments page
+        if (!$tournament) {
+            return redirect()->route('homeyard.tournaments')->with('message', 'Vui lòng tạo giải đấu trước');
+        }
+        
+        // Get athletes registered for the current tournament (all statuses for approval)
         $athletes = collect();
         $categories = collect();
         if ($tournament) {
             $athletes = TournamentAthlete::where('tournament_id', $tournament->id)
-                ->where('status', 'approved')
                 ->with('user', 'category')
+                ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
+                ->orderBy('created_at', 'desc')
                 ->get();
             
             // Get tournament categories (already eager loaded)

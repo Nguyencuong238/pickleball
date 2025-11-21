@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cấu Hình Giải Đấu - Hệ Thống Quản Lý Giải Đấu</title>
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}">
     <style>
@@ -94,12 +95,12 @@
             box-shadow: var(--shadow-md);
         }
 
-        .tab-content {
+        .tab-pane {
             display: none;
             animation: fadeIn 0.4s ease;
         }
 
-        .tab-content.active {
+        .tab-pane.active {
             display: block;
         }
 
@@ -755,7 +756,7 @@
         // Show config tab
         function showConfigTab(tabName) {
             // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
+            document.querySelectorAll('.tab-pane').forEach(tab => {
                 tab.classList.remove('active');
             });
 
@@ -765,10 +766,18 @@
             });
 
             // Show selected tab
-            document.getElementById(tabName).classList.add('active');
+            const tabElement = document.getElementById(tabName);
+            if (tabElement) {
+                tabElement.classList.add('active');
+            }
 
-            // Add active to clicked button
-            event.target.classList.add('active');
+            // Add active to the corresponding button
+            const buttons = document.querySelectorAll('.config-tab');
+            buttons.forEach(btn => {
+                if (btn.getAttribute('onclick') === `showConfigTab('${tabName}')`) {
+                    btn.classList.add('active');
+                }
+            });
 
             // Scroll to top
             window.scrollTo({
@@ -776,6 +785,16 @@
                 behavior: 'smooth'
             });
         }
+
+        // Initialize active tab from session
+        function initializeActiveTab() {
+            @if(session('activeTab'))
+                showConfigTab('{{ session('activeTab') }}');
+            @endif
+        }
+
+        // Call on page load
+        document.addEventListener('DOMContentLoaded', initializeActiveTab);
 
         // Step navigation - Next Step
         function nextStep(stepNumber) {

@@ -66,8 +66,14 @@
             </div>
             <!-- Config Tabs -->
             <div class="config-tabs fade-in">
-                <button class="config-tab active" onclick="showConfigTab('config')">
-                    ⚙️ Cấu hình giải đấu
+                <button class="config-tab active" onclick="showConfigTab('categories')">
+                    🎯 Nội dung thi đấu
+                </button>
+                <button class="config-tab" onclick="showConfigTab('rounds')">
+                    🔄 Vòng đấu
+                </button>
+                <button class="config-tab" onclick="showConfigTab('brackets')">
+                    🏆 Tạo bảng đấu
                 </button>
                 <button class="config-tab" onclick="showConfigTab('athletes')">
                     👥 Quản lý VĐV
@@ -79,273 +85,189 @@
                     🏅 Bảng xếp hạng
                 </button>
             </div>
-            <!-- TAB 1: CẤU HÌNH GIẢI ĐẤU -->
-            <div id="config" class="tab-content active">
-                <!-- Step Indicator -->
-                <div class="step-indicator">
-                    <div class="step completed">
-                        <div class="step-circle">1</div>
-                        <div class="step-label">Cấu hình cơ bản</div>
-                    </div>
-                    <div class="step completed">
-                        <div class="step-circle">2</div>
-                        <div class="step-label">Nội dung thi đấu</div>
-                    </div>
-                    <div class="step active">
-                        <div class="step-circle">3</div>
-                        <div class="step-label">Vòng đấu & Sân</div>
-                    </div>
-                    <div class="step">
-                        <div class="step-circle">4</div>
-                        <div class="step-label">Bảng đấu</div>
-                    </div>
-                </div>
-                <!-- Step 1: Cấu hình cơ bản -->
-                <div class="card fade-in">
-                    <div class="card-header">
-                        <h3 class="card-title">📋 Thông tin giải đấu</h3>
-                    </div>
-                    <div class="card-body">
-                        <form method="POST" action="{{ $tournament ? route('homeyard.tournaments.update', $tournament->id) : route('homeyard.tournaments.store') }}">
-                            @csrf
-                            @if($tournament)
-                                @method('PUT')
-                            @endif
-                            
-                            <div class="grid grid-2">
-                                <div class="form-group">
-                                    <label class="form-label">Tên giải đấu *</label>
-                                    <input type="text" name="name" class="form-input" value="{{ $tournament->name ?? '' }}"
-                                        placeholder="VD: Giải Pickleball Mở Rộng TP.HCM 2025"
-                                        required>
-                                    @error('name')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Giá đăng ký (VNĐ)</label>
-                                    <input type="number" name="price" class="form-input" value="{{ $tournament->price ?? 0 }}"
-                                        placeholder="500000" min="0">
-                                    @error('price')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="grid grid-3">
-                                <div class="form-group">
-                                    <label class="form-label">Ngày bắt đầu *</label>
-                                    <input type="date" name="start_date" class="form-input" value="{{ $tournament->start_date ?? '' }}" required>
-                                    @error('start_date')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Ngày kết thúc *</label>
-                                    <input type="date" name="end_date" class="form-input" value="{{ $tournament->end_date ?? '' }}" required>
-                                    @error('end_date')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Địa điểm tổ chức *</label>
-                                    <input type="text" name="location" class="form-input" value="{{ $tournament->location ?? '' }}"
-                                        placeholder="VD: Sân Pickleball Thảo Điền" required>
-                                    @error('location')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Mô tả giải đấu</label>
-                                <textarea name="description" class="form-textarea" rows="4"
-                                    placeholder="Mô tả chi tiết về giải đấu">{{ $tournament->description ?? '' }}</textarea>
-                                @error('description')
-                                    <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                @enderror
-                            </div>
-                            <div class="grid grid-2">
-                                <div class="form-group">
-                                    <label class="form-label">Số lượng VĐV tối đa</label>
-                                    <input type="number" name="max_participants" class="form-input" value="{{ $tournament->max_participants ?? 32 }}"
-                                        min="4" max="1000">
-                                    @error('max_participants')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Trạng thái *</label>
-                                    <select name="status" class="form-select" required>
-                                        <option value="upcoming" {{ ($tournament && $tournament->status) ? 'selected' : '' }}>Sắp diễn ra</option>
-                                        <option value="ongoing" {{ ($tournament && $tournament->status) ? 'selected' : '' }}>Đang diễn ra</option>
-                                        <option value="completed" {{ ($tournament && !$tournament->status) ? 'selected' : '' }}>Đã hoàn thành</option>
-                                        <option value="cancelled" {{ ($tournament && !$tournament->status) ? 'selected' : '' }}>Bị hủy</option>
-                                    </select>
-                                    @error('status')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Quy tắc thi đấu</label>
-                                <textarea name="rules" class="form-textarea" rows="3"
-                                    placeholder="Nhập quy tắc thi đấu (tùy chọn)">{{ $tournament->rules ?? '' }}</textarea>
-                            </div>
-                            <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                                <button type="submit" class="btn btn-success">💾 Lưu thông tin</button>
-                                <button type="button" class="btn btn-primary" onclick="nextStep(2)">Tiếp tục ➜</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-                <!-- Step 2: Nội dung thi đấu -->
+            <!-- TAB 1: NỘI DUNG THI ĐẤU -->
+            <div id="categories" class="tab-pane active">
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">🎯 Nội dung thi đấu</h3>
                     </div>
                     <div class="card-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">
+                                <strong>⚠️ Lỗi:</strong>
+                                <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if (session('success'))
+                            <div class="alert alert-success" style="border-color: #10B981; background-color: #ECFDF5;">
+                                ✅ {{ session('success') }}
+                            </div>
+                        @endif
                         <div class="alert alert-info">
                             💡 Tạo các nội dung thi đấu khác nhau cho giải đấu
                         </div>
-                        @if(!$tournament)
+                        @if (!$tournament)
                             <div class="alert alert-warning" style="border-color: #FBBF24; background-color: #FFFBEB;">
-                                ⚠️ <strong>Vui lòng lưu thông tin giải đấu ở Step 1 trước khi thêm nội dung</strong>
-                                <p style="margin-top: 0.5rem; font-size: 0.9rem;">Bạn cần tạo giải đấu cơ bản trước, sau đó mới có thể thêm nội dung thi đấu.</p>
+                                ⚠️ <strong>Vui lòng tạo giải đấu trước khi thêm nội dung</strong>
+                                <p style="margin-top: 0.5rem; font-size: 0.9rem;">Bạn cần tạo giải đấu cơ bản trước, sau đó
+                                    mới có thể thêm nội dung thi đấu.</p>
                             </div>
                         @else
-                        <h4 style="margin: 1.5rem 0 1rem 0; font-weight: 700;">Thêm nội dung mới</h4>
-                        <form method="POST" action="{{ route('homeyard.tournaments.categories.store', $tournament->id) }}">
-                            @csrf
-                            
-                            <div class="grid grid-3">
-                                <div class="form-group">
-                                    <label class="form-label">Tên nội dung *</label>
-                                    <input 
-                                        type="text" 
-                                        name="category_name" 
-                                        class="form-input" 
-                                        placeholder="VD: Nam đơn 18+"
-                                        required
-                                    >
-                                    @error('category_name')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                            <h4 style="margin: 1.5rem 0 1rem 0; font-weight: 700;">Thêm nội dung mới</h4>
+                            <form method="POST"
+                                action="{{ route('homeyard.tournaments.categories.store', $tournament->id) }}">
+                                @csrf
+
+                                <div class="grid grid-3">
+                                    <div class="form-group">
+                                        <label class="form-label">Tên nội dung *</label>
+                                        <input type="text" name="category_name" class="form-input"
+                                            placeholder="VD: Nam đơn 18+" required>
+                                        @error('category_name')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Loại nội dung *</label>
+                                        <select name="category_type" class="form-select" required>
+                                            <option value="">-- Chọn loại --</option>
+                                            <option value="single_men">Đơn nam</option>
+                                            <option value="single_women">Đơn nữ</option>
+                                            <option value="double_men">Đôi nam</option>
+                                            <option value="double_women">Đôi nữ</option>
+                                            <option value="double_mixed">Đôi nam nữ</option>
+                                        </select>
+                                        @error('category_type')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Độ tuổi *</label>
+                                        <select name="age_group" class="form-select" required>
+                                            <option value="open">Mở rộng</option>
+                                            <option value="u18">U18</option>
+                                            <option value="18+" selected>18+</option>
+                                            <option value="35+">35+</option>
+                                            <option value="45+">45+</option>
+                                        </select>
+                                    </div>
                                 </div>
 
-                                <div class="form-group">
-                                    <label class="form-label">Loại nội dung *</label>
-                                    <select name="category_type" class="form-select" required>
-                                        <option value="">-- Chọn loại --</option>
-                                        <option value="single_men">Đơn nam</option>
-                                        <option value="single_women">Đơn nữ</option>
-                                        <option value="double_men">Đôi nam</option>
-                                        <option value="double_women">Đôi nữ</option>
-                                        <option value="double_mixed">Đôi nam nữ</option>
-                                    </select>
-                                    @error('category_type')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Số VĐV tối đa *</label>
+                                        <input type="number" name="max_participants" class="form-input"
+                                            placeholder="32" min="4" max="128" required>
+                                        @error('max_participants')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Giải thưởng (VNĐ)</label>
+                                        <input type="number" name="prize_money" class="form-input"
+                                            placeholder="5000000" min="0">
+                                    </div>
                                 </div>
 
-                                <div class="form-group">
-                                    <label class="form-label">Độ tuổi *</label>
-                                    <select name="age_group" class="form-select" required>
-                                        <option value="open">Mở rộng</option>
-                                        <option value="u18">U18</option>
-                                        <option value="18+" selected>18+</option>
-                                        <option value="35+">35+</option>
-                                        <option value="45+">45+</option>
-                                    </select>
-                                </div>
-                            </div>
+                                <button type="submit" class="btn btn-success">➕ Thêm nội dung</button>
+                            </form>
 
-                            <div class="grid grid-2">
-                                <div class="form-group">
-                                    <label class="form-label">Số VĐV tối đa *</label>
-                                    <input 
-                                        type="number" 
-                                        name="max_participants" 
-                                        class="form-input" 
-                                        placeholder="32"
-                                        min="4"
-                                        max="128"
-                                        required
-                                    >
-                                    @error('max_participants')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Giải thưởng (VNĐ)</label>
-                                    <input 
-                                        type="number" 
-                                        name="prize_money" 
-                                        class="form-input" 
-                                        placeholder="5000000"
-                                        min="0"
-                                    >
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-success">➕ Thêm nội dung</button>
-                        </form>
-
-                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách nội dung đã tạo</h4>
-                        @if($tournament && $tournament->categories && $tournament->categories->count() > 0)
-                            <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse;">
-                                    <thead style="background: #f5f5f5;">
-                                        <tr>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tên</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Loại</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Độ tuổi</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">VĐV tối đa</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Giải thưởng</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Hành động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($tournament->categories as $category)
-                                            <tr style="border-bottom: 1px solid #ddd;">
-                                                <td style="padding: 10px;">{{ $category->category_name }}</td>
-                                                <td style="padding: 10px;">
-                                                    @switch($category->category_type)
-                                                        @case('single_men') Đơn nam @break
-                                                        @case('single_women') Đơn nữ @break
-                                                        @case('double_men') Đôi nam @break
-                                                        @case('double_women') Đôi nữ @break
-                                                        @case('double_mixed') Đôi nam nữ @break
-                                                    @endswitch
-                                                </td>
-                                                <td style="padding: 10px;">{{ $category->age_group }}</td>
-                                                <td style="padding: 10px;">{{ $category->max_participants }}</td>
-                                                <td style="padding: 10px;">{{ number_format($category->prize_money ?? 0, 0, ',', '.') }} VNĐ</td>
-                                                <td style="padding: 10px;">
-                                                    <form method="POST" action="{{ route('homeyard.tournaments.categories.destroy', [$tournament->id, $category->id]) }}" style="display: inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Xác nhận xóa?')">🗑️</button>
-                                                    </form>
-                                                </td>
+                            <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách nội dung đã tạo</h4>
+                            @if ($tournament && $tournament->categories && $tournament->categories->count() > 0)
+                                <div style="overflow-x: auto;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead style="background: #f5f5f5;">
+                                            <tr>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Tên</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Loại</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Độ tuổi</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    VĐV tối đa</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Giải thưởng</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Hành động</th>
                                             </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <div style="text-align: center; padding: 2rem; color: #999;">
-                                <p>Chưa có nội dung nào. Hãy thêm nội dung mới ở trên.</p>
-                            </div>
-                        @endif
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($tournament->categories as $category)
+                                                <tr style="border-bottom: 1px solid #ddd;">
+                                                    <td style="padding: 10px;">{{ $category->category_name }}</td>
+                                                    <td style="padding: 10px;">
+                                                        @switch($category->category_type)
+                                                            @case('single_men')
+                                                                Đơn nam
+                                                            @break
 
-                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                            <button class="btn btn-secondary" onclick="prevStep(1)">⬅ Quay lại</button>
-                            <button class="btn btn-primary" onclick="nextStep(3)">Tiếp tục ➜</button>
-                        </div>
+                                                            @case('single_women')
+                                                                Đơn nữ
+                                                            @break
+
+                                                            @case('double_men')
+                                                                Đôi nam
+                                                            @break
+
+                                                            @case('double_women')
+                                                                Đôi nữ
+                                                            @break
+
+                                                            @case('double_mixed')
+                                                                Đôi nam nữ
+                                                            @break
+                                                        @endswitch
+                                                    </td>
+                                                    <td style="padding: 10px;">{{ $category->age_group }}</td>
+                                                    <td style="padding: 10px;">{{ $category->max_participants }}</td>
+                                                    <td style="padding: 10px;">
+                                                        {{ number_format($category->prize_money ?? 0, 0, ',', '.') }} VNĐ
+                                                    </td>
+                                                    <td style="padding: 10px;">
+                                                        <form method="POST"
+                                                            action="{{ route('homeyard.tournaments.categories.destroy', [$tournament->id, $category->id]) }}"
+                                                            style="display: inline;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                                onclick="return confirm('Xác nhận xóa?')">🗑️</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div style="text-align: center; padding: 2rem; color: #999;">
+                                    <p>Chưa có nội dung nào. Hãy thêm nội dung mới ở trên.</p>
+                                </div>
+                            @endif
+
                         @endif
                     </div>
                 </div>
-                <!-- Step 3: Vòng đấu & Sân -->
+            </div>
+
+            <!-- TAB 2: VÒNG ĐẤU -->
+            <div id="rounds" class="tab-pane">
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">🔄 Tạo vòng đấu</h3>
@@ -354,460 +276,301 @@
                         <div class="alert alert-info">
                             💡 Thiết lập các vòng đấu cho giải (Vòng bảng, Vòng 1/8, Tứ kết, Bán kết, Chung kết)
                         </div>
-                        @if(!$tournament)
+                        @if (!$tournament)
                             <div class="alert alert-warning">
-                                ⚠️ Vui lòng lưu thông tin giải đấu ở Step 1 trước
+                                ⚠️ Vui lòng tạo giải đấu trước
                             </div>
                         @else
-                        <h4 style="margin: 1.5rem 0 1rem 0; font-weight: 700;">Thêm vòng đấu mới</h4>
+                            <h4 style="margin: 1.5rem 0 1rem 0; font-weight: 700;">Thêm vòng đấu mới</h4>
 
-                        <form method="POST" action="{{ route('homeyard.tournaments.rounds.store', $tournament->id) }}">
-                            @csrf
-                            
-                            <div class="grid grid-3">
-                                <div class="form-group">
-                                    <label class="form-label">Tên vòng đấu *</label>
-                                    <input 
-                                        type="text" 
-                                        name="round_name" 
-                                        class="form-input" 
-                                        placeholder="VD: Vòng bảng"
-                                        required
-                                    >
-                                    @error('round_name')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
+                            <form method="POST"
+                                action="{{ route('homeyard.tournaments.rounds.store', $tournament->id) }}">
+                                @csrf
 
-                                <div class="form-group">
-                                    <label class="form-label">Ngày thi đấu *</label>
-                                    <input 
-                                        type="date" 
-                                        name="start_date" 
-                                        class="form-input"
-                                        required
-                                    >
-                                    @error('start_date')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Giờ bắt đầu *</label>
-                                    <input 
-                                        type="time" 
-                                        name="start_time" 
-                                        class="form-input"
-                                        required
-                                    >
-                                    @error('start_time')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="grid grid-2">
-                                <div class="form-group">
-                                    <label class="form-label">Số thứ tự vòng *</label>
-                                    <input 
-                                        type="number" 
-                                        name="round_number" 
-                                        class="form-input" 
-                                        placeholder="1"
-                                        min="1"
-                                        max="20"
-                                        required
-                                    >
-                                    @error('round_number')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-
-                                <div class="form-group">
-                                    <label class="form-label">Loại vòng *</label>
-                                    <select name="round_type" class="form-select" required>
-                                        <option value="">-- Chọn loại --</option>
-                                        <option value="group_stage">Vòng bảng</option>
-                                        <option value="knockout">Loại trực tiếp</option>
-                                        <option value="quarterfinal">Tứ kết</option>
-                                        <option value="semifinal">Bán kết</option>
-                                        <option value="final">Chung kết</option>
-                                        <option value="bronze">Tranh hạng 3</option>
-                                    </select>
-                                    @error('round_type')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-success">➕ Thêm vòng đấu</button>
-                        </form>
-
-                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách vòng đấu</h4>
-                        @if($tournament && $tournament->rounds && $tournament->rounds->count() > 0)
-                            <div class="item-grid">
-                                @foreach($tournament->rounds as $round)
-                                    <div class="item-card">
-                                        <strong>{{ $round->round_name }}</strong>
-                                        <p>{{ \Carbon\Carbon::parse($round->start_date)->format('d/m/Y') }} - {{ $round->start_time }}</p>
-                                        <form method="POST" action="{{ route('homeyard.tournaments.rounds.destroy', [$tournament->id, $round->id]) }}" style="display: inline; margin-top: 10px;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
-                                        </form>
+                                <div class="grid grid-3">
+                                    <div class="form-group">
+                                        <label class="form-label">Tên vòng đấu *</label>
+                                        <input type="text" name="round_name" class="form-input"
+                                            placeholder="VD: Vòng bảng" required>
+                                        @error('round_name')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
                                     </div>
-                                @endforeach
-                            </div>
-                        @else
-                            <div style="text-align: center; padding: 2rem; color: #999;">
-                                <p>Chưa có vòng nào. Hãy thêm vòng mới ở trên.</p>
-                            </div>
-                        @endif
-                        @endif
-                    </div>
-                </div>
-                <div class="card fade-in">
-                    <div class="card-header">
-                        <h3 class="card-title">🏟️ Chọn sân thi đấu</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="alert alert-info">
-                            💡 Chọn các sân sẽ được sử dụng cho giải đấu
-                        </div>
-                        {{-- <h4 style="margin: 1.5rem 0 1rem 0; font-weight: 700;">Thêm sân mới</h4>
 
-                        <div class="grid grid-3">
-                            <div class="form-group">
-                                <label class="form-label">Tên sân *</label>
-                                <input type="text" class="form-input" id="courtName" placeholder="VD: Sân số 1">
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Loại sân *</label>
-                                <select class="form-select" id="courtType">
-                                    <option value="indoor">Trong nhà</option>
-                                    <option value="outdoor">Ngoài trời</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label class="form-label">Trạng thái</label>
-                                <select class="form-select" id="courtStatus">
-                                    <option value="available">Có thể sử dụng</option>
-                                    <option value="maintenance">Bảo trì</option>
-                                    <option value="reserved">Đã đặt</option>
-                                </select>
-                            </div>
-                        </div>
-                        <button class="btn btn-success" onclick="addCourt()">➕ Thêm sân</button> --}}
-                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách sân đã chọn</h4>
-                        <form id="courtsForm" method="POST" action="{{ $tournament ? route('homeyard.tournaments.courts.save', $tournament->id) : '#' }}">
-                            @csrf
-                            <div class="item-grid" id="courtsGrid">
-                                @if($courts && $courts->count() > 0)
-                                    @php
-                                        $selectedCourtIds = $tournament && $tournament->tournament_courts 
-                                            ? json_decode($tournament->tournament_courts, true) 
-                                            : [];
-                                    @endphp
-                                    @foreach($courts as $court)
-                                        <label style="cursor: pointer;">
-                                            <input type="checkbox" name="court_ids[]" value="{{ $court->id }}" 
-                                                {{ in_array($court->id, $selectedCourtIds) ? 'checked' : '' }}
-                                                style="display: none;">
-                                            <div class="item-card court-card {{ in_array($court->id, $selectedCourtIds) ? 'selected' : '' }}" data-court-id="{{ $court->id }}" style="cursor: pointer;">
-                                                <strong>{{ $court->court_name ?? 'Sân ' . $court->court_number }}</strong>
-                                                <p>{{ $court->court_type === 'indoor' ? 'Trong nhà' : 'Ngoài trời' }}</p>
-                                                <small style="color: #666; font-size: 0.8rem;">
-                                                    @if($court->status === 'available')
-                                                        <span style="color: black;">✓ Có thể sử dụng</span>
-                                                    @elseif($court->status === 'maintenance')
-                                                        <span style="color: #F59E0B;">⚠ Bảo trì</span>
-                                                    @else
-                                                        <span style="color: #EF4444;">✗ Đã đặt</span>
-                                                    @endif
-                                                </small>
-                                            </div>
-                                        </label>
+                                    <div class="form-group">
+                                        <label class="form-label">Ngày thi đấu *</label>
+                                        <input type="date" name="start_date" class="form-input" required>
+                                        @error('start_date')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Giờ bắt đầu *</label>
+                                        <input type="time" name="start_time" class="form-input" required>
+                                        @error('start_time')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-2">
+                                    <div class="form-group">
+                                        <label class="form-label">Số thứ tự vòng *</label>
+                                        <input type="number" name="round_number" class="form-input" placeholder="1"
+                                            min="1" max="20" required>
+                                        @error('round_number')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Loại vòng *</label>
+                                        <select name="round_type" class="form-select" required>
+                                            <option value="">-- Chọn loại --</option>
+                                            <option value="group_stage">Vòng bảng</option>
+                                            <option value="knockout">Loại trực tiếp</option>
+                                            <option value="quarterfinal">Tứ kết</option>
+                                            <option value="semifinal">Bán kết</option>
+                                            <option value="final">Chung kết</option>
+                                            <option value="bronze">Tranh hạng 3</option>
+                                        </select>
+                                        @error('round_type')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-success">➕ Thêm vòng đấu</button>
+                            </form>
+
+                            <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách vòng đấu</h4>
+                            @if ($tournament && $tournament->rounds && $tournament->rounds->count() > 0)
+                                <div class="item-grid">
+                                    @foreach ($tournament->rounds as $round)
+                                        <div class="item-card">
+                                            <strong>{{ $round->round_name }}</strong>
+                                            <p>{{ \Carbon\Carbon::parse($round->start_date)->format('d/m/Y') }} -
+                                                {{ $round->start_time }}</p>
+                                            <form method="POST"
+                                                action="{{ route('homeyard.tournaments.rounds.destroy', [$tournament->id, $round->id]) }}"
+                                                style="display: inline; margin-top: 10px;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
+                                            </form>
+                                        </div>
                                     @endforeach
-                                @else
-                                    <div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: #999;">
-                                        <p>Chưa có sân nào. <a href="{{ route('homeyard.courts') }}" style="color: #00D9B5; text-decoration: underline;">Thêm sân ngay</a></p>
-                                    </div>
-                                @endif
-                            </div>
-                            @if($courts && $courts->count() > 0)
-                                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                                    <button type="submit" class="btn btn-success">💾 Lưu sân</button>
-                                    <button type="reset" class="btn btn-secondary">↻ Xóa lựa chọn</button>
+                                </div>
+                            @else
+                                <div style="text-align: center; padding: 2rem; color: #999;">
+                                    <p>Chưa có vòng nào. Hãy thêm vòng mới ở trên.</p>
                                 </div>
                             @endif
-                        </form>
-                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                            <button class="btn btn-secondary" onclick="prevStep(2)">⬅ Quay lại</button>
-                            <button class="btn btn-primary" onclick="nextStep(4)">Tiếp tục ➜</button>
-                        </div>
+                        @endif
                     </div>
                 </div>
-                <!-- Step 4: Tạo bảng đấu -->
+            </div>
+
+            <!-- TAB 3: TẠO BẢNG ĐẤU -->
+            <div id="brackets" class="tab-pane">
                 <div class="card fade-in">
                     <div class="card-header">
-                        <h3 class="card-title">📊 Tạo bảng đấu</h3>
+                        <h3 class="card-title">🏆 Tạo bảng đấu</h3>
                     </div>
                     <div class="card-body">
-                        <div class="alert alert-success">
-                            ✅ Tự động tạo bảng đấu dựa trên hình thức thi đấu và số lượng VĐV đã đăng ký
-                        </div>
-                        @if($tournament)
-                        <form method="POST" action="{{ route('homeyard.tournaments.groups.store', $tournament->id) }}">
-                            @csrf
-                            <div class="grid grid-3">
-                                <div class="form-group">
-                                    <label class="form-label">Chọn nội dung thi đấu *</label>
-                                    <select name="category_id" class="form-select" onchange="filterAthletesByCategory()" required>
-                                        <option value="">-- Chọn nội dung --</option>
-                                        @forelse($categories as $category)
-                                            <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                        @empty
-                                            <option value="">Không có nội dung nào</option>
-                                        @endforelse
-                                    </select>
-                                    @error('category_id')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Chọn vòng đấu</label>
-                                    <select name="round_id" class="form-select">
-                                        <option value="">-- Chọn vòng (tùy chọn) --</option>
-                                        @if($tournament && $tournament->rounds && $tournament->rounds->count() > 0)
-                                            @foreach($tournament->rounds as $round)
-                                                <option value="{{ $round->id }}">{{ $round->round_name }}</option>
-                                            @endforeach
-                                        @else
-                                            <option value="">Chưa có vòng nào</option>
-                                        @endif
-                                    </select>
-                                    @error('round_id')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Tên bảng *</label>
-                                    <input type="text" name="group_name" class="form-input" placeholder="VD: Bảng A" required>
-                                    @error('group_name')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="grid grid-1">
-                                <div class="form-group">
-                                    <label class="form-label">Mã bảng *</label>
-                                    <input type="text" name="group_code" class="form-input" placeholder="VD: A" maxlength="10" required>
-                                    @error('group_code')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <div class="grid grid-2">
-                                <div class="form-group">
-                                    <label class="form-label">Số VĐV tối đa *</label>
-                                    <input type="number" name="max_participants" class="form-input" placeholder="8" min="2" max="128" required>
-                                    @error('max_participants')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Số VĐV vượt qua *</label>
-                                    <input type="number" name="advancing_count" class="form-input" placeholder="2" min="1" required>
-                                    @error('advancing_count')
-                                        <span class="text-danger" style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-success">➕ Thêm bảng</button>
-                        </form>
-                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách bảng đã tạo</h4>
-                        @if($tournament && $tournament->groups && $tournament->groups->count() > 0)
-                            <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse;">
-                                    <thead style="background: #f5f5f5;">
-                                        <tr>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tên bảng</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Mã</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Nội dung</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">VĐV tối đa</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Vượt qua</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Hành động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @foreach($tournament->groups as $group)
-                                            <tr style="border-bottom: 1px solid #ddd;">
-                                                <td style="padding: 10px;">{{ $group->group_name }}</td>
-                                                <td style="padding: 10px;">{{ $group->group_code }}</td>
-                                                <td style="padding: 10px;">{{ $group->category->category_name ?? 'N/A' }}</td>
-                                                <td style="padding: 10px;">{{ $group->max_participants }}</td>
-                                                <td style="padding: 10px;">{{ $group->advancing_count }}</td>
-                                                <td style="padding: 10px;">
-                                                    <form method="POST" action="{{ route('homeyard.tournaments.groups.destroy', [$tournament->id, $group->id]) }}" style="display: inline;">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Xác nhận xóa?')">🗑️</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                        @else
-                            <div style="text-align: center; padding: 2rem; color: #999;">
-                                <p>Chưa có bảng nào. Hãy thêm bảng mới ở trên.</p>
+                        @if ($errors->any())
+                            <div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">
+                                <strong>⚠️ Lỗi:</strong>
+                                <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         @endif
-
-                         {{-- <div class="checkbox-group">
-                            <input type="checkbox" id="autoSeed" checked>
-                            <label for="autoSeed">Tự động xếp hạt giống dựa trên ranking</label>
-                        </div>
-                        <div class="checkbox-group">
-                            <input type="checkbox" id="balancedGroups">
-                            <label for="balancedGroups">Cân bằng độ mạnh các bảng</label>
-                        </div>
-                        <button class="btn btn-success">🎲 Tạo bảng đấu tự động</button>
-                        <button class="btn btn-primary">✏️ Tạo bảng đấu thủ công</button>
-                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Xem trước bảng đấu</h4>
-                        <div class="bracket-container">
-                            <div class="bracket-grid">
-                                <div class="bracket-column">
-                                    <h4>Vòng 1/8</h4>
-                                    <div class="bracket-match">
-                                        <div class="bracket-player winner">
-                                            <span>Nguyễn Văn A</span>
-                                            <span>11-7, 11-5</span>
-                                        </div>
-                                        <div class="bracket-player">
-                                            <span>Trần Văn B</span>
-                                            <span>7-11, 5-11</span>
-                                        </div>
-                                    </div>
-                                    <div class="bracket-match">
-                                        <div class="bracket-player">
-                                            <span>Lê Văn C</span>
-                                            <span>-</span>
-                                        </div>
-                                        <div class="bracket-player">
-                                            <span>Phạm Văn D</span>
-                                            <span>-</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bracket-column">
-                                    <h4>Tứ kết</h4>
-                                    <div class="bracket-match">
-                                        <div class="bracket-player">
-                                            <span>Nguyễn Văn A</span>
-                                            <span>-</span>
-                                        </div>
-                                        <div class="bracket-player">
-                                            <span>Đang chờ</span>
-                                            <span>-</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bracket-column">
-                                    <h4>Bán kết</h4>
-                                    <div class="bracket-match">
-                                        <div class="bracket-player">
-                                            <span>Đang chờ</span>
-                                            <span>-</span>
-                                        </div>
-                                        <div class="bracket-player">
-                                            <span>Đang chờ</span>
-                                            <span>-</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bracket-column">
-                                    <h4>Chung kết</h4>
-                                    <div class="bracket-match">
-                                        <div class="bracket-player">
-                                            <span>Đang chờ</span>
-                                            <span>-</span>
-                                        </div>
-                                        <div class="bracket-player">
-                                            <span>Đang chờ</span>
-                                            <span>-</span>
-                                        </div>
-                                    </div>
-                                </div>
+                        @if (session('success'))
+                            <div class="alert alert-success" style="border-color: #10B981; background-color: #ECFDF5;">
+                                ✅ {{ session('success') }}
                             </div>
-                        </div> --}}
-                        
-                        <!-- Athletes List Section -->
-                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">📋 Danh sách VĐV đã đăng ký</h4>
-                        <div id="athletesListContainer">
-                            @if($athletes && $athletes->count() > 0)
+                        @endif
+                        <div class="alert alert-info">
+                            💡 Tạo các bảng đấu cho nội dung thi đấu
+                        </div>
+                        @if ($tournament)
+                            <h4 style="margin: 1.5rem 0 1rem 0; font-weight: 700;">Thêm bảng mới</h4>
+                            <form method="POST"
+                                action="{{ route('homeyard.tournaments.groups.store', $tournament->id) }}">
+                                @csrf
+
+                                <div class="grid grid-3">
+                                    <div class="form-group">
+                                        <label class="form-label">Chọn nội dung thi đấu *</label>
+                                        <select name="category_id" class="form-select" required>
+                                            <option value="">-- Chọn nội dung --</option>
+                                            @if ($tournament && $tournament->categories)
+                                                @foreach ($tournament->categories as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->category_name }}
+                                                    </option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('category_id')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Chọn vòng đấu</label>
+                                        <select name="round_id" class="form-select">
+                                            <option value="">-- Không chọn vòng --</option>
+                                            @if ($tournament && $tournament->rounds)
+                                                @foreach ($tournament->rounds as $round)
+                                                    <option value="{{ $round->id }}">{{ $round->round_name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                        @error('round_id')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Tên bảng (VD: A, B, C) *</label>
+                                        <input type="text" name="group_name" class="form-input"
+                                            placeholder="VD: Bảng A" required>
+                                        @error('group_name')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-3">
+                                    <div class="form-group">
+                                        <label class="form-label">Mã bảng (VD: A, GRP1) *</label>
+                                        <input type="text" name="group_code" class="form-input" placeholder="VD: A"
+                                            required>
+                                        @error('group_code')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Số VĐV mỗi bảng *</label>
+                                        <input type="number" name="max_participants" class="form-input" placeholder="4"
+                                            min="2" max="128" required>
+                                        @error('max_participants')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label class="form-label">Số người lọt vào vòng sau *</label>
+                                        <input type="number" name="advancing_count" class="form-input" placeholder="2"
+                                            min="1" required
+                                            title="Ví dụ: Bảng 4 VĐV, nhập 2 = top 2 tiến lên vòng tứ kết">
+                                        <small style="color: #666; margin-top: 0.25rem; display: block;">VD: Bảng có 4 VĐV,
+                                            nhập 2 = top 2 tiến lên vòng tiếp theo</small>
+                                        @error('advancing_count')
+                                            <span class="text-danger"
+                                                style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Ghi chú</label>
+                                    <textarea name="description" class="form-input" placeholder="Ghi chú về bảng đấu (tuỳ chọn)" rows="3"></textarea>
+                                </div>
+
+                                <button type="submit" class="btn btn-success">➕ Thêm bảng</button>
+                            </form>
+
+                            <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách bảng đã tạo</h4>
+                            @if ($tournament && $tournament->groups && $tournament->groups->count() > 0)
                                 <div style="overflow-x: auto;">
-                                    <table class="rankings-table">
-                                        <thead>
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead style="background: #f5f5f5;">
                                             <tr>
-                                                <th>STT</th>
-                                                <th>Tên VĐV</th>
-                                                <th>Email</th>
-                                                <th>Điện thoại</th>
-                                                <th>Nội dung</th>
-                                                <th>Trạng thái</th>
-                                                <th>Thanh toán</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Tên bảng</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Mã</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Nội dung</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Vòng</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    VĐV / Tối đa</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Lọt vào vòng sau</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Hành động</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="athletesTableBody">
-                                            @forelse($athletes as $key => $athlete)
-                                                <tr class="athlete-row" data-category-id="{{ $athlete->category_id ?? 'all' }}">
-                                                    <td>{{ $key + 1 }}</td>
-                                                    <td><strong>{{ $athlete->user->name ?? $athlete->athlete_name ?? 'N/A' }}</strong></td>
-                                                    <td>{{ $athlete->user->email ?? $athlete->email ?? 'N/A' }}</td>
-                                                    <td>{{ $athlete->user->phone ?? $athlete->phone ?? 'N/A' }}</td>
-                                                    <td>{{ $athlete->category->category_name ?? 'N/A' }}</td>
-                                                    <td>
-                                                        <span class="badge badge-success">{{ ucfirst($athlete->status) }}</span>
+                                        <tbody>
+                                            @foreach ($tournament->groups as $group)
+                                                <tr style="border-bottom: 1px solid #ddd;">
+                                                    <td style="padding: 10px;"><strong>{{ $group->group_name }}</strong>
                                                     </td>
-                                                    <td>
-                                                        @if($athlete->payment_status === 'paid')
-                                                            <span class="badge badge-success">✓ Đã thanh toán</span>
-                                                        @else
-                                                            <span class="badge badge-warning">⏳ Chưa thanh toán</span>
-                                                        @endif
+                                                    <td style="padding: 10px;">{{ $group->group_code }}</td>
+                                                    <td style="padding: 10px;">
+                                                        {{ $group->category->category_name ?? 'N/A' }}</td>
+                                                    <td style="padding: 10px;">{{ $group->round->round_name ?? 'Không' }}
+                                                    </td>
+                                                    <td style="padding: 10px;">
+                                                        {{ $group->current_participants }}/{{ $group->max_participants }}
+                                                    </td>
+                                                    <td style="padding: 10px;">{{ $group->advancing_count }}</td>
+                                                    <td style="padding: 10px;">
+                                                        <form method="POST"
+                                                            action="{{ route('homeyard.tournaments.groups.destroy', [$tournament->id, $group->id]) }}"
+                                                            style="display: inline;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                                onclick="return confirm('Xác nhận xóa?')">🗑️</button>
+                                                        </form>
                                                     </td>
                                                 </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="7" style="text-align: center; color: #999;">Chưa có VĐV nào đăng ký</td>
-                                                </tr>
-                                            @endforelse
+                                            @endforeach
                                         </tbody>
                                     </table>
                                 </div>
                             @else
                                 <div style="text-align: center; padding: 2rem; color: #999;">
-                                    <p>Chưa có VĐV nào đăng ký cho giải đấu này</p>
+                                    <p>Chưa có bảng nào. Hãy thêm bảng mới ở trên.</p>
                                 </div>
                             @endif
-                        </div>
                         @else
-                            <div style="text-align: center; padding: 2rem; color: #999;">
-                                <p>Vui lòng tạo giải đấu trước</p>
+                            <div class="alert alert-warning">
+                                ⚠️ Vui lòng tạo giải đấu trước
                             </div>
                         @endif
-                        
-                        <div style="display: flex; gap: 1rem; margin-top: 1rem;">
-                            <button class="btn btn-secondary" onclick="prevStep(3)">⬅ Quay lại</button>
-                            <button type="button" class="btn btn-success" onclick="alert('Cấu hình giải đấu đã hoàn tất!')">✅ Hoàn thành</button>
-                        </div>
                     </div>
                 </div>
             </div>
-            <!-- TAB 2: QUẢN LÝ VĐV -->
-            <div id="athletes" class="tab-content">
+
+            <!-- TAB 4: QUẢN LÝ VĐV -->
+            <div id="athletes" class="tab-pane">
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">👥 Quản lý danh sách vận động viên</h3>
@@ -822,7 +585,7 @@
                                 <div class="stat-card-header">
                                     <div>
                                         <div class="stat-label">Tổng VĐV đăng ký</div>
-                                        <div class="stat-value">64</div>
+                                        <div class="stat-value">{{ $athletes->count() ?? 0 }}</div>
                                     </div>
                                     <div class="stat-icon primary">👥</div>
                                 </div>
@@ -830,8 +593,9 @@
                             <div class="stat-card">
                                 <div class="stat-card-header">
                                     <div>
-                                        <div class="stat-label">Đã xác nhận</div>
-                                        <div class="stat-value">58</div>
+                                        <div class="stat-label">Đã phê duyệt</div>
+                                        <div class="stat-value">{{ $athletes->where('status', 'approved')->count() ?? 0 }}
+                                        </div>
                                     </div>
                                     <div class="stat-icon success">✅</div>
                                 </div>
@@ -839,8 +603,9 @@
                             <div class="stat-card">
                                 <div class="stat-card-header">
                                     <div>
-                                        <div class="stat-label">Chờ xác nhận</div>
-                                        <div class="stat-value">6</div>
+                                        <div class="stat-label">Chờ phê duyệt</div>
+                                        <div class="stat-value">{{ $athletes->where('status', 'pending')->count() ?? 0 }}
+                                        </div>
                                     </div>
                                     <div class="stat-icon warning">⏳</div>
                                 </div>
@@ -849,61 +614,78 @@
                                 <div class="stat-card-header">
                                     <div>
                                         <div class="stat-label">Đã thanh toán</div>
-                                        <div class="stat-value">52</div>
+                                        <div class="stat-value">
+                                            {{ $athletes->where('payment_status', 'paid')->count() ?? 0 }}</div>
                                     </div>
                                     <div class="stat-icon success">💰</div>
                                 </div>
                             </div>
                         </div>
-                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách VĐV</h4>
+                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách VĐV đăng ký</h4>
 
-                        <div class="athlete-list">
-                            <div class="athlete-item">
-                                <div class="athlete-info">
-                                    <div class="athlete-name">Nguyễn Văn An</div>
-                                    <div class="athlete-details">
-                                        📧 nguyenvanan@email.com | 📞 0901234567 | 🎯 Nam đơn 18+<br>
-                                        <span class="badge badge-success">Đã xác nhận</span>
-                                        <span class="badge badge-success">Đã thanh toán</span>
+                        @if ($athletes && $athletes->count() > 0)
+                            <div class="athlete-list">
+                                @foreach ($athletes as $athlete)
+                                    <div class="athlete-item"
+                                        style="@if ($athlete->status === 'rejected') border-left-color: #EF4444; @elseif($athlete->status === 'pending') border-left-color: #F59E0B; @endif">
+                                        <div class="athlete-info">
+                                            <div class="athlete-name">{{ $athlete->athlete_name }}</div>
+                                            <div class="athlete-details">
+                                                📧 {{ $athlete->email }} | 📞 {{ $athlete->phone }} | 🎯
+                                                {{ $athlete->category->category_name ?? 'N/A' }}<br>
+                                                @if ($athlete->status === 'pending')
+                                                    <span class="badge badge-warning">⏳ Chờ phê duyệt</span>
+                                                @elseif ($athlete->status === 'approved')
+                                                    <span class="badge badge-success">✅ Đã phê duyệt</span>
+                                                @elseif ($athlete->status === 'rejected')
+                                                    <span class="badge badge-danger">❌ Từ chối</span>
+                                                @endif
+                                                @if ($athlete->payment_status === 'paid')
+                                                    <span class="badge badge-success">💰 Đã thanh toán</span>
+                                                @elseif ($athlete->payment_status === 'pending')
+                                                    <span class="badge badge-warning">⏳ Chờ thanh toán</span>
+                                                @else
+                                                    <span class="badge badge-danger">❌ Chưa thanh toán</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="athlete-actions">
+                                            <button class="btn btn-secondary btn-sm">👁️ Chi tiết</button>
+                                            @if ($athlete->status === 'pending')
+                                                <form method="POST"
+                                                    action="{{ route('homeyard.athletes.approve', [$tournament->id, $athlete->id]) }}"
+                                                    style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success btn-sm">✅ Phê
+                                                        duyệt</button>
+                                                </form>
+                                                <form method="POST"
+                                                    action="{{ route('homeyard.athletes.reject', [$tournament->id, $athlete->id]) }}"
+                                                    style="display: inline;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('Từ chối đơn đăng ký?')">❌ Từ chối</button>
+                                                </form>
+                                            @else
+                                                <button class="btn btn-warning btn-sm">✏️ Sửa</button>
+                                                <form method="POST"
+                                                    action="{{ route('homeyard.tournaments.athletes.remove', [$tournament->id, $athlete->id]) }}"
+                                                    style="display: inline;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('Xóa VĐV?')">🗑️</button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="athlete-actions">
-                                    <button class="btn btn-secondary btn-sm">👁️ Chi tiết</button>
-                                    <button class="btn btn-warning btn-sm">✏️</button>
-                                    <button class="btn btn-danger btn-sm">🗑️</button>
-                                </div>
+                                @endforeach
                             </div>
-                            <div class="athlete-item">
-                                <div class="athlete-info">
-                                    <div class="athlete-name">Trần Thị Bình</div>
-                                    <div class="athlete-details">
-                                        📧 tranthibinh@email.com | 📞 0912345678 | 🎯 Nam đơn 18+<br>
-                                        <span class="badge badge-success">Đã xác nhận</span>
-                                        <span class="badge badge-success">Đã thanh toán</span>
-                                    </div>
-                                </div>
-                                <div class="athlete-actions">
-                                    <button class="btn btn-secondary btn-sm">👁️ Chi tiết</button>
-                                    <button class="btn btn-warning btn-sm">✏️</button>
-                                    <button class="btn btn-danger btn-sm">🗑️</button>
-                                </div>
+                        @else
+                            <div style="text-align: center; padding: 2rem; color: #999;">
+                                <p>Chưa có VĐV nào đăng ký cho giải đấu này.</p>
                             </div>
-                            <div class="athlete-item">
-                                <div class="athlete-info">
-                                    <div class="athlete-name">Lê Văn Cường</div>
-                                    <div class="athlete-details">
-                                        📧 levanc@email.com | 📞 0923456789 | 🎯 Nam đơn 18+<br>
-                                        <span class="badge badge-warning">Chờ xác nhận</span>
-                                        <span class="badge badge-danger">Chưa thanh toán</span>
-                                    </div>
-                                </div>
-                                <div class="athlete-actions">
-                                    <button class="btn btn-success btn-sm">✅ Xác nhận</button>
-                                    <button class="btn btn-secondary btn-sm">👁️</button>
-                                    <button class="btn btn-danger btn-sm">🗑️</button>
-                                </div>
-                            </div>
-                        </div>
+                        @endif
                     </div>
                 </div>
                 <div class="card fade-in">
@@ -912,69 +694,66 @@
                     </div>
                     <div class="card-body">
                         <div class="alert alert-warning">
-                            ⚠️ Sau khi bốc thăm, bạn không thể thay đổi danh sách VĐV
+                            ⚠️ Sau khi bốc thăm, bạn có thể bốc lại bất cứ lúc nào
                         </div>
+                        <div id="drawAlert" style="display: none;"></div>
+
                         <div class="grid grid-3">
                             <div class="form-group">
                                 <label class="form-label">Chọn nội dung thi đấu *</label>
-                                <select class="form-select">
-                                    <option value="1" selected>Nam đơn 18+ (64 VĐV)</option>
-                                    <option value="2">Nữ đơn 18+ (32 VĐV)</option>
+                                <select id="categorySelect" class="form-select">
+                                    <option value="">-- Chọn nội dung --</option>
+                                    @if ($tournament && $tournament->categories)
+                                        @foreach ($tournament->categories as $category)
+                                            <option value="{{ $category->id }}"
+                                                data-athletes="{{ $tournament->athletes->where('category_id', $category->id)->where('status', 'approved')->count() }}">
+                                                {{ $category->category_name }}
+                                                ({{ $tournament->athletes->where('category_id', $category->id)->where('status', 'approved')->count() }}
+                                                VĐV)
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Số lượng bảng</label>
-                                <select class="form-select">
-                                    <option value="2">2 bảng</option>
-                                    <option value="4" selected>4 bảng</option>
-                                    <option value="8">8 bảng</option>
+                                <label class="form-label">Chọn bảng cần chia</label>
+                                <select id="groupSelect" class="form-select">
+                                    <option value="">-- Tự động chia vào bảng đã tạo --</option>
+                                    @if ($tournament && $tournament->groups)
+                                        @foreach ($tournament->groups as $group)
+                                            <option value="{{ $group->id }}"
+                                                data-category="{{ $group->category_id }}">
+                                                {{ $group->group_name }}
+                                            </option>
+                                        @endforeach
+                                    @endif
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Phương thức</label>
-                                <select class="form-select">
+                                <select id="drawMethod" class="form-select">
                                     <option value="auto">Tự động (Random)</option>
-                                    <option value="seeded" selected>Theo hạt giống</option>
-                                    <option value="manual">Thủ công</option>
+                                    <option value="seeded" selected>Theo hạt giống (Seeded)</option>
                                 </select>
                             </div>
                         </div>
-                        <button class="btn btn-success">🎲 Bốc thăm tự động</button>
-                        <button class="btn btn-primary">✏️ Chia bảng thủ công</button>
-                        <button class="btn btn-warning">🔄 Bốc lại</button>
+                        <button id="drawBtn" class="btn btn-success">🎲 Bốc thăm</button>
+                        <button id="resetBtn" class="btn btn-warning">🔄 Bốc lại</button>
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Kết quả chia bảng</h4>
-                        <div class="group-grid">
-                            <div class="group-card">
-                                <div class="group-header">BẢNG A</div>
-                                <ul class="group-players">
-                                    <li>
-                                        <span>1. Nguyễn Văn An</span>
-                                        <span class="badge badge-warning">⭐ #1</span>
-                                    </li>
-                                    <li><span>2. Trần Văn Bình</span></li>
-                                    <li><span>3. Lê Văn Cường</span></li>
-                                    <li><span>4. Phạm Văn Dũng</span></li>
-                                </ul>
+                        <div id="groupResultsContainer" style="display: none;">
+                            <div id="groupResults" class="group-grid">
+                                <!-- Kết quả sẽ được hiển thị ở đây -->
                             </div>
-                            <div class="group-card">
-                                <div class="group-header">BẢNG B</div>
-                                <ul class="group-players">
-                                    <li>
-                                        <span>1. Bùi Văn Khoa</span>
-                                        <span class="badge badge-warning">⭐ #2</span>
-                                    </li>
-                                    <li><span>2. Đinh Văn Long</span></li>
-                                    <li><span>3. Trương Văn Minh</span></li>
-                                    <li><span>4. Lý Văn Nam</span></li>
-                                </ul>
-                            </div>
+                            {{-- <button id="saveResultBtn" class="btn btn-primary mt-2">💾 Lưu kết quả</button> --}}
                         </div>
-                        <button class="btn btn-primary mt-2">💾 Lưu kết quả chia bảng</button>
+                        <div id="noResultsMsg" style="text-align: center; padding: 2rem; color: #999;">
+                            <p>Hãy chọn nội dung thi đấu và bốc thăm để xem kết quả</p>
+                        </div>
                     </div>
                 </div>
             </div>
-            <!-- TAB 3: QUẢN LÝ TRẬN ĐẤU -->
-            <div id="matches" class="tab-content">
+            <!-- TAB 5: QUẢN LÝ TRẬN ĐẤU -->
+            <div id="matches" class="tab-pane">
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">🎾 Quản lý trận đấu</h3>
@@ -1052,8 +831,8 @@
                     </div>
                 </div>
             </div>
-            <!-- TAB 4: BẢNG XẾP HẠNG -->
-            <div id="rankings" class="tab-content">
+            <!-- TAB 6: BẢNG XẾP HẠNG -->
+            <div id="rankings" class="tab-pane">
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">🏅 Bảng xếp hạng giải đấu</h3>
@@ -1138,47 +917,257 @@
         </div>
     </main>
 
-<script>
-// Court selection toggle
-document.querySelectorAll('#courtsGrid label').forEach(label => {
-    const checkbox = label.querySelector('input[type="checkbox"]');
-    const card = label.querySelector('.court-card');
-    
-    if (checkbox && card) {
-        // Set initial state
-        if (checkbox.checked) {
-            card.classList.add('selected');
-        }
-        
-        // Toggle on click
-        label.addEventListener('click', function(e) {
-            e.preventDefault();
-            checkbox.checked = !checkbox.checked;
-            if (checkbox.checked) {
-                card.classList.add('selected');
-            } else {
-                card.classList.remove('selected');
+    <script>
+        // Save and restore active tab
+        function showConfigTab(tabName) {
+            // Save tab TRƯỚC
+            localStorage.setItem('activeTab', tabName);
+
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-pane');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show selected tab
+            const selectedTab = document.getElementById(tabName);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
             }
-        });
-    }
-});
 
-// Handle form submission
-document.getElementById('courtsForm')?.addEventListener('submit', function(e) {
-    const checkedCount = document.querySelectorAll('#courtsGrid input[type="checkbox"]:checked').length;
-    if (checkedCount === 0) {
-        e.preventDefault();
-        alert('Vui lòng chọn ít nhất một sân để lưu');
-    }
-});
+            // Update active button
+            const buttons = document.querySelectorAll('.config-tab');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
 
-// Handle form reset
-document.getElementById('courtsForm')?.addEventListener('reset', function(e) {
-    setTimeout(() => {
-        document.querySelectorAll('#courtsGrid .court-card').forEach(card => {
-            card.classList.remove('selected');
+        // Lưu tab trước khi form submit (rất quan trọng!)
+        document.addEventListener('submit', function(e) {
+            const form = e.target;
+            const tabPane = form.closest('.tab-pane');
+            if (tabPane) {
+                localStorage.setItem('activeTab', tabPane.id);
+            }
+        }, true);
+
+        // Restore tab on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            const activeTab = localStorage.getItem('activeTab') || 'categories';
+
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-pane');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Show saved tab
+            const selectedTab = document.getElementById(activeTab);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
+
+            // Update buttons
+            const buttons = document.querySelectorAll('.config-tab');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            const activeButton = Array.from(buttons).find(btn =>
+                btn.getAttribute('onclick').includes(`'${activeTab}'`)
+            );
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
+
+            // Initialize draw functionality
+            initializeDraw();
         });
-    }, 0);
-});
-</script>
+
+        // Draw/Lottery Functionality
+        function initializeDraw() {
+            const drawBtn = document.getElementById('drawBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const categorySelect = document.getElementById('categorySelect');
+            const drawMethod = document.getElementById('drawMethod');
+            const groupSelect = document.getElementById('groupSelect');
+
+            if (drawBtn) {
+                drawBtn.addEventListener('click', function() {
+                    if (!categorySelect.value) {
+                        showAlert('Vui lòng chọn nội dung thi đấu', 'warning');
+                        return;
+                    }
+
+                    const categoryId = categorySelect.value;
+                    const method = drawMethod.value;
+                    const tournamentId = {{ $tournament->id ?? 0 }};
+
+                    // Lấy danh sách bảng cho nội dung này
+                    const selectedGroups = Array.from(groupSelect.options)
+                        .filter(opt => opt.dataset.category && opt.dataset.category == categoryId && opt.value)
+                        .map(opt => ({
+                            id: opt.value,
+                            name: opt.text
+                        }));
+
+                    console.log('Category ID:', categoryId);
+                    console.log('All options:', Array.from(groupSelect.options).map(opt => ({
+                        value: opt.value,
+                        category: opt.dataset.category,
+                        text: opt.text
+                    })));
+                    console.log('Selected Groups:', selectedGroups);
+
+                    if (selectedGroups.length === 0) {
+                        showAlert('Không có bảng nào cho nội dung này. Vui lòng tạo bảng trước.', 'warning');
+                        return;
+                    }
+
+                    drawBtn.disabled = true;
+                    drawBtn.innerHTML = '⏳ Đang bốc thăm...';
+
+                    fetch(`/homeyard/tournaments/${tournamentId}/draw`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                category_id: categoryId,
+                                number_of_groups: selectedGroups.length,
+                                draw_method: method
+                            })
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                return response.text().then(text => {
+                                    console.error('Response status:', response.status);
+                                    console.error('Response body:', text);
+                                    throw new Error(`HTTP ${response.status}`);
+                                });
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                showAlert('✅ ' + data.message, 'success');
+                                displayResults(data.athletes);
+                            } else {
+                                showAlert('❌ ' + data.message, 'danger');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Draw error details:', error);
+                            showAlert('❌ ' + (error.message || 'Lỗi không xác định'), 'danger');
+                        })
+                        .finally(() => {
+                            drawBtn.disabled = false;
+                            drawBtn.innerHTML = '🎲 Bốc thăm';
+                        });
+                });
+            }
+
+            if (resetBtn) {
+                resetBtn.addEventListener('click', function() {
+                    if (!categorySelect.value) {
+                        showAlert('Vui lòng chọn nội dung thi đấu', 'warning');
+                        return;
+                    }
+
+                    if (!confirm('Bạn có chắc chắn muốn xóa kết quả bốc thăm hiện tại?')) {
+                        return;
+                    }
+
+                    const categoryId = categorySelect.value;
+                    const tournamentId = {{ $tournament->id ?? 0 }};
+
+                    resetBtn.disabled = true;
+                    resetBtn.innerHTML = '⏳ Đang reset...';
+
+                    fetch(`/homeyard/tournaments/${tournamentId}/reset-draw`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({
+                                category_id: categoryId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                showAlert('✅ ' + data.message, 'success');
+                                document.getElementById('groupResultsContainer').style.display = 'none';
+                                document.getElementById('noResultsMsg').style.display = 'block';
+                            } else {
+                                showAlert('❌ ' + data.message, 'danger');
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            showAlert('❌ Lỗi khi reset: ' + error, 'danger');
+                        })
+                        .finally(() => {
+                            resetBtn.disabled = false;
+                            resetBtn.innerHTML = '🔄 Bốc lại';
+                        });
+                });
+            }
+        }
+
+        function displayResults(groupedAthletes) {
+            const container = document.getElementById('groupResults');
+            const resultsContainer = document.getElementById('groupResultsContainer');
+            const noResultsMsg = document.getElementById('noResultsMsg');
+
+            if (!groupedAthletes || groupedAthletes.length === 0) {
+                resultsContainer.style.display = 'none';
+                noResultsMsg.style.display = 'block';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            groupedAthletes.forEach((group, index) => {
+                const groupCard = document.createElement('div');
+                groupCard.className = 'group-card';
+
+                let athletesHtml = '';
+                group.athletes.forEach((athlete, position) => {
+                    const seedBadge = athlete.seed_number ?
+                        `<span class="badge badge-warning">⭐ #${athlete.seed_number}</span>` :
+                        '';
+                    athletesHtml += `
+                        <li>
+                            <span>${position + 1}. ${athlete.name}</span>
+                            ${seedBadge}
+                        </li>
+                    `;
+                });
+
+                groupCard.innerHTML = `
+                    <div class="group-header">${group.group_name} (${group.group_code})</div>
+                    <ul class="group-players">
+                        ${athletesHtml}
+                    </ul>
+                `;
+
+                container.appendChild(groupCard);
+            });
+
+            resultsContainer.style.display = 'block';
+            noResultsMsg.style.display = 'none';
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('drawAlert');
+            const alertClass =
+            `alert alert-${type === 'warning' ? 'warning' : (type === 'success' ? 'success' : 'danger')}`;
+
+            alertDiv.innerHTML = message;
+            alertDiv.className = alertClass;
+            alertDiv.style.display = 'block';
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 5000);
+            }
+        }
+    </script>
+
 @endsection

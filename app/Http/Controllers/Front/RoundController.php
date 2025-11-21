@@ -48,7 +48,7 @@ class RoundController extends Controller
 
         Round::create($validated);
 
-        return redirect()->back()->with('success', "Vòng '{$validated['round_name']}' đã được thêm thành công!")->with('step', 3);
+        return redirect()->back()->with('success', "Vòng '{$validated['round_name']}' đã được thêm thành công!")->with('activeTab', 'rounds')->with('step', 3);
     }
 
     /**
@@ -91,6 +91,6 @@ class RoundController extends Controller
         $roundName = $round->round_name;
         $round->delete();
 
-        return redirect()->back()->with('success', "Vòng '{$roundName}' đã được xóa!");
+        return redirect()->back()->with('success', "Vòng '{$roundName}' đã được xóa!")->with('activeTab', 'rounds');
     }
 }

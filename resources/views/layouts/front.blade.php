@@ -214,7 +214,7 @@
                     </div>
                     <div class="dropdown-info">
                         @if(auth()->check() && auth()->user()->hasRole('home_yard'))
-                            <a href="{{ route('homeyard.dashboard') }}" class="nav-link">
+                            <a href="{{ route('homeyard.overview') }}" class="nav-link">
                                 <i class="icon-home"></i> Bảng điều khiển
                             </a>
                         @endif

@@ -90,7 +90,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('aut
 
 // HomeYard Dashboard and Stadium CRUD Routes
 Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyard.')->group(function () {
-    Route::get('/dashboard', [DashboardController::class, 'homeYardDashboard'])->name('dashboard');
+    Route::get('/dashboard/{tournament_id?}', [DashboardController::class, 'homeYardDashboard'])->name('dashboard');
     Route::resource('stadiums', HomeYardStadiumController::class);
     Route::resource('tournaments', HomeYardTournamentController::class);
     Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
@@ -126,6 +126,11 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     
     // Tournament Courts
     Route::post('tournaments/{tournament}/courts/save', [HomeYardTournamentController::class, 'saveCourts'])->name('tournaments.courts.save');
+    
+    // Draw/Lottery for athletes
+    Route::post('tournaments/{tournament}/draw', [HomeYardTournamentController::class, 'drawAthletes'])->name('tournaments.draw');
+    Route::get('tournaments/{tournament}/draw-results', [HomeYardTournamentController::class, 'getDrawResults'])->name('tournaments.draw-results');
+    Route::post('tournaments/{tournament}/reset-draw', [HomeYardTournamentController::class, 'resetDraw'])->name('tournaments.reset-draw');
 });
 
 // Admin routes for managing user permissions

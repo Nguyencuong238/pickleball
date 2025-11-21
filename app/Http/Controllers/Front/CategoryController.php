@@ -19,6 +19,12 @@ class CategoryController extends Controller
      */
     public function store(Request $request, Tournament $tournament)
     {
+        \Log::info('CategoryController@store called', [
+            'tournament_id' => $tournament->id,
+            'user_id' => auth()->id(),
+            'request_data' => $request->all(),
+        ]);
+
         $this->authorize('update', $tournament);
 
         $validated = $request->validate([
@@ -34,9 +40,17 @@ class CategoryController extends Controller
         $validated['status'] = 'ongoing';
         $validated['current_participants'] = 0;
 
-        TournamentCategory::create($validated);
+        \Log::info('Validated data:', $validated);
 
-        return redirect()->back()->with('success', "Nội dung '{$validated['category_name']}' đã được thêm thành công!")->with('step', 2);
+        try {
+            $category = TournamentCategory::create($validated);
+            \Log::info('Category created successfully', ['category_id' => $category->id]);
+        } catch (\Exception $e) {
+            \Log::error('Error creating category', ['error' => $e->getMessage()]);
+            throw $e;
+        }
+
+        return redirect()->back()->with('success', "Nội dung '{$validated['category_name']}' đã được thêm thành công!")->with('activeTab', 'categories')->with('step', 2);
     }
 
     /**
@@ -78,6 +92,6 @@ class CategoryController extends Controller
         $categoryName = $category->category_name;
         $category->delete();
 
-        return redirect()->back()->with('success', "Nội dung '{$categoryName}' đã được xóa!");
+        return redirect()->back()->with('success', "Nội dung '{$categoryName}' đã được xóa!")->with('activeTab', 'categories');
     }
 }

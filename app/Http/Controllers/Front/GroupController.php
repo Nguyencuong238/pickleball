@@ -52,7 +52,7 @@ class GroupController extends Controller
 
         Group::create($validated);
 
-        return redirect()->back()->with('success', "Bảng '{$validated['group_name']}' đã được thêm thành công!")->with('step', 4);
+        return redirect()->back()->with('success', "Bảng '{$validated['group_name']}' đã được thêm thành công!")->with('activeTab', 'brackets')->with('step', 4);
     }
 
     /**
@@ -93,6 +93,6 @@ class GroupController extends Controller
         $groupName = $group->group_name;
         $group->delete();
 
-        return redirect()->back()->with('success', "Bảng '{$groupName}' đã được xóa!");
+        return redirect()->back()->with('success', "Bảng '{$groupName}' đã được xóa!")->with('activeTab', 'brackets');
     }
 }
