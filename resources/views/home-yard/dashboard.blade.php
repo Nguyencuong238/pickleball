@@ -575,8 +575,8 @@
                     <div class="card-header">
                         <h3 class="card-title">👥 Quản lý danh sách vận động viên</h3>
                         <div class="card-actions">
-                            <button class="btn btn-primary btn-sm">➕ Thêm VĐV</button>
-                            <button class="btn btn-success btn-sm">📊 Xuất Excel</button>
+                            <button class="btn btn-primary btn-sm" onclick="openAddAthleteModal()">➕ Thêm VĐV</button>
+                            <button class="btn btn-success btn-sm" onclick="exportAthletes()">📊 Xuất Excel</button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -650,7 +650,7 @@
                                             </div>
                                         </div>
                                         <div class="athlete-actions">
-                                            <button class="btn btn-secondary btn-sm">👁️ Chi tiết</button>
+                                             <button class="btn btn-primary btn-sm" onclick="openViewAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">👁️ Chi tiết</button>
                                             @if ($athlete->status === 'pending')
                                                 <form method="POST"
                                                     action="{{ route('homeyard.athletes.approve', [$tournament->id, $athlete->id]) }}"
@@ -667,7 +667,7 @@
                                                         onclick="return confirm('Từ chối đơn đăng ký?')">❌ Từ chối</button>
                                                 </form>
                                             @else
-                                                <button class="btn btn-warning btn-sm">✏️ Sửa</button>
+                                                <button class="btn btn-warning btn-sm" onclick="openEditAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">✏️ Sửa</button>
                                                 <form method="POST"
                                                     action="{{ route('homeyard.tournaments.athletes.remove', [$tournament->id, $athlete->id]) }}"
                                                     style="display: inline;">
@@ -914,12 +914,183 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
+
+            <!-- TAB 4: QUẢN LÝ VĐV -->
+            <div id="athletes" class="tab-pane">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <h3 class="card-title">👥 Quản lý Vận động viên</h3>
+                        <div class="card-actions">
+                            <button class="btn btn-success btn-sm" onclick="openAddAthleteModal()">➕ Thêm VĐV</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            💡 Quản lý danh sách vận động viên tham gia giải đấu
+                        </div>
+
+                        @if ($tournament && $tournament->athletes && $tournament->athletes->count() > 0)
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <thead style="background: #f5f5f5;">
+                                        <tr>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tên VĐV</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Email</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Điện thoại</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Nội dung</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Trạng thái</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Hành động</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($tournament->athletes as $athlete)
+                                            <tr style="border-bottom: 1px solid #ddd;">
+                                                <td style="padding: 10px;">{{ $athlete->athlete_name }}</td>
+                                                <td style="padding: 10px;">{{ $athlete->email }}</td>
+                                                <td style="padding: 10px;">{{ $athlete->phone }}</td>
+                                                <td style="padding: 10px;">
+                                                    @if ($athlete->category)
+                                                        {{ $athlete->category->category_name }}
+                                                    @else
+                                                        <span style="color: #999;">-</span>
+                                                    @endif
+                                                </td>
+                                                <td style="padding: 10px;">
+                                                    @if ($athlete->status === 'approved')
+                                                        <span class="badge badge-success">✅ Duyệt</span>
+                                                    @elseif ($athlete->status === 'pending')
+                                                        <span class="badge badge-warning">⏳ Chờ duyệt</span>
+                                                    @else
+                                                        <span class="badge badge-danger">❌ Từ chối</span>
+                                                    @endif
+                                                </td>
+                                                <td style="padding: 10px;">
+                                                    <button class="btn btn-primary btn-sm" onclick="openViewAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">👁️ Xem</button>
+                                                    <button class="btn btn-warning btn-sm" onclick="openEditAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">✏️ Sửa</button>
+                                                    <button class="btn btn-danger btn-sm" onclick="deleteAthlete({{ $athlete->id }})">🗑️ Xóa</button>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div style="text-align: center; padding: 2rem; color: #999;">
+                                <p>Chưa có vận động viên nào. Hãy thêm VĐV mới ở trên.</p>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+            </div>
+            </main>
+
+    <style>
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            max-width: 400px;
+        }
+
+        .toast {
+            background: white;
+            padding: 16px 20px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-left: 4px solid;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .toast.success {
+            border-left-color: #10B981;
+            background: linear-gradient(135deg, #ECFDF5 0%, #ffffff 100%);
+        }
+
+        .toast.error {
+            border-left-color: #EF4444;
+            background: linear-gradient(135deg, #FEE2E2 0%, #ffffff 100%);
+        }
+
+        .toast.info {
+            border-left-color: #3B82F6;
+            background: linear-gradient(135deg, #EFF6FF 0%, #ffffff 100%);
+        }
+
+        .toast-message {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #1F2937;
+            font-weight: 500;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
+
+        .toast.removing {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+    </style>
 
     <script>
-        // Save and restore active tab
-        function showConfigTab(tabName) {
+         // Toast notification function
+         function showToast(message, type = 'success', duration = 3000) {
+             // Create container if not exists
+             let container = document.getElementById('toast-container');
+             if (!container) {
+                 container = document.createElement('div');
+                 container.id = 'toast-container';
+                 container.className = 'toast-container';
+                 document.body.appendChild(container);
+             }
+
+             // Create toast element
+             const toast = document.createElement('div');
+             toast.className = `toast ${type}`;
+
+             const icons = {
+                 success: '✅',
+                 error: '❌',
+                 info: 'ℹ️'
+             };
+
+             toast.innerHTML = `<div class="toast-message">${icons[type] || '✓'} ${message}</div>`;
+             container.appendChild(toast);
+
+             // Auto remove
+             setTimeout(() => {
+                 toast.classList.add('removing');
+                 setTimeout(() => {
+                     toast.remove();
+                 }, 300);
+             }, duration);
+         }
+
+         // Save and restore active tab
+         function showConfigTab(tabName) {
             // Save tab TRƯỚC
             localStorage.setItem('activeTab', tabName);
 
@@ -949,32 +1120,36 @@
         }, true);
 
         // Restore tab on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            const activeTab = localStorage.getItem('activeTab') || 'categories';
+         window.addEventListener('DOMContentLoaded', function() {
+             console.log('=== DOMContentLoaded FIRED ===');
+             const activeTab = localStorage.getItem('activeTab') || 'categories';
 
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-pane');
-            tabs.forEach(tab => tab.classList.remove('active'));
+             // Hide all tabs
+             const tabs = document.querySelectorAll('.tab-pane');
+             tabs.forEach(tab => tab.classList.remove('active'));
 
-            // Show saved tab
-            const selectedTab = document.getElementById(activeTab);
-            if (selectedTab) {
-                selectedTab.classList.add('active');
-            }
+             // Show saved tab
+             const selectedTab = document.getElementById(activeTab);
+             if (selectedTab) {
+                 selectedTab.classList.add('active');
+             }
 
-            // Update buttons
-            const buttons = document.querySelectorAll('.config-tab');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            const activeButton = Array.from(buttons).find(btn =>
-                btn.getAttribute('onclick').includes(`'${activeTab}'`)
-            );
-            if (activeButton) {
-                activeButton.classList.add('active');
-            }
+             // Update buttons
+             const buttons = document.querySelectorAll('.config-tab');
+             buttons.forEach(btn => btn.classList.remove('active'));
+             const activeButton = Array.from(buttons).find(btn =>
+                 btn.getAttribute('onclick').includes(`'${activeTab}'`)
+             );
+             if (activeButton) {
+                 activeButton.classList.add('active');
+             }
 
-            // Initialize draw functionality
-            initializeDraw();
-        });
+             // Initialize draw functionality
+             initializeDraw();
+             
+             // Initialize athlete form handler
+             initializeAthleteForm();
+         });
 
         // Draw/Lottery Functionality
         function initializeDraw() {
@@ -1168,6 +1343,442 @@
                 }, 5000);
             }
         }
-    </script>
 
-@endsection
+        // Modal thêm vận động viên
+        function openAddAthleteModal() {
+            const modal = document.getElementById('addAthleteModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeAddAthleteModal() {
+            const modal = document.getElementById('addAthleteModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('addAthleteModal');
+            if (event.target === modal) {
+                closeAddAthleteModal();
+            }
+        });
+
+        // Initialize athlete form handler
+         function initializeAthleteForm() {
+             console.log('=== INITIALIZING ATHLETE FORM ===');
+             const addAthleteForm = document.getElementById('addAthleteForm');
+             const messageDiv = document.getElementById('athleteFormMessages');
+             
+             console.log('Form element:', addAthleteForm);
+             console.log('Message div:', messageDiv);
+             
+             if (!addAthleteForm) {
+                 console.error('❌ Form not found! ID: addAthleteForm');
+                 return;
+             }
+             
+             console.log('✅ Form found, adding submit listener');
+             addAthleteForm.addEventListener('submit', function(e) {
+                 console.log('=== FORM SUBMIT EVENT FIRED ===');
+                 e.preventDefault();
+                 
+                 const submitBtn = document.getElementById('submitAthleteBtn');
+                 const originalText = submitBtn.innerHTML;
+                 submitBtn.disabled = true;
+                 submitBtn.innerHTML = '⏳ Đang xử lý...';
+                 
+                 const formData = new FormData(this);
+                 const tournamentId = {!! $tournament->id ?? 0 !!};
+                 
+                 console.log('Tournament ID:', tournamentId);
+
+                 // Debug: log form data
+                 console.log('Submitting form with data:', {
+                     athlete_name: formData.get('athlete_name'),
+                     email: formData.get('email'),
+                     phone: formData.get('phone'),
+                     category_id: formData.get('category_id'),
+                     tournament_id: tournamentId
+                 });
+
+                 // Clear previous messages
+                 messageDiv.innerHTML = '';
+
+                 const url = `/homeyard/tournaments/${tournamentId}/athletes`;
+                 console.log('Sending POST to:', url);
+                 
+                 fetch(url, {
+                     method: 'POST',
+                     headers: {
+                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                     },
+                     body: formData
+                 })
+                 .then(response => {
+                     console.log('Response status:', response.status);
+                     if (!response.ok && response.status !== 422) {
+                         throw new Error(`HTTP ${response.status}`);
+                     }
+                     return response.json();
+                 })
+                 .then(data => {
+                     console.log('Response data:', data);
+                     if (data.success) {
+                         showToast('Thêm vận động viên thành công!', 'success', 3000);
+                         setTimeout(() => {
+                             closeAddAthleteModal();
+                             addAthleteForm.reset();
+                             location.reload();
+                         }, 1500);
+                     } else {
+                         let errorMsg = data.message || 'Không xác định';
+                         if (data.errors) {
+                             errorMsg += '<ul style="margin: 0.5rem 0 0 1rem;">';
+                             for (let field in data.errors) {
+                                 if (data.errors[field]) {
+                                     errorMsg += '<li>' + data.errors[field].join(', ') + '</li>';
+                                 }
+                             }
+                             errorMsg += '</ul>';
+                         }
+                         messageDiv.innerHTML = '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' + errorMsg + '</div>';
+                         showToast(data.message || 'Lỗi không xác định', 'error', 4000);
+                         console.error('Validation errors:', data);
+                     }
+                 })
+                 .catch(error => {
+                     console.error('Fetch error:', error);
+                     messageDiv.innerHTML = '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' + error.message + '</div>';
+                 })
+                 .finally(() => {
+                     submitBtn.disabled = false;
+                     submitBtn.innerHTML = originalText;
+                 });
+             });
+         }
+
+        // View Athlete Modal Functions
+        function openViewAthleteModal(id, name, email, phone, categoryId) {
+            document.getElementById('viewAthleteName').textContent = name;
+            document.getElementById('viewAthleteEmail').textContent = email;
+            document.getElementById('viewAthletePhone').textContent = phone;
+            
+            // Get category name
+            const categorySelect = document.querySelector('#editAthleteCategory');
+            let categoryName = '-';
+            if (categoryId && categorySelect) {
+                const option = categorySelect.querySelector(`option[value="${categoryId}"]`);
+                if (option) {
+                    categoryName = option.textContent;
+                }
+            }
+            document.getElementById('viewAthleteCategory').textContent = categoryName;
+            
+            const modal = document.getElementById('viewAthleteModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeViewAthleteModal() {
+            const modal = document.getElementById('viewAthleteModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Edit Athlete Modal Functions
+        function openEditAthleteModal(id, name, email, phone, categoryId) {
+            document.getElementById('editAthleteId').value = id;
+            document.getElementById('editAthleteName').value = name;
+            document.getElementById('editAthleteEmail').value = email;
+            document.getElementById('editAthletePhone').value = phone;
+            if (categoryId) {
+                document.getElementById('editAthleteCategory').value = categoryId;
+            }
+            
+            const modal = document.getElementById('editAthleteModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeEditAthleteModal() {
+            const modal = document.getElementById('editAthleteModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const viewModal = document.getElementById('viewAthleteModal');
+            const editModal = document.getElementById('editAthleteModal');
+            
+            if (event.target === viewModal) {
+                closeViewAthleteModal();
+            }
+            if (event.target === editModal) {
+                closeEditAthleteModal();
+            }
+        });
+
+        // Edit athlete form handler
+        function initializeEditAthleteForm() {
+            const editAthleteForm = document.getElementById('editAthleteForm');
+            const messageDiv = document.getElementById('editAthleteMessages');
+            
+            if (!editAthleteForm) {
+                console.error('Edit athlete form not found');
+                return;
+            }
+            
+            editAthleteForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const submitBtn = document.getElementById('submitEditAthleteBtn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Đang cập nhật...';
+                
+                const athleteId = document.getElementById('editAthleteId').value;
+                const tournamentId = {!! $tournament->id ?? 0 !!};
+                
+                const formData = new FormData(this);
+                messageDiv.innerHTML = '';
+                
+                fetch(`/homeyard/tournaments/${tournamentId}/athletes/${athleteId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        athlete_name: formData.get('athlete_name'),
+                        email: formData.get('email'),
+                        phone: formData.get('phone'),
+                        category_id: formData.get('category_id')
+                    })
+                })
+                .then(response => {
+                    if (!response.ok && response.status !== 422) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        showToast('Cập nhật vận động viên thành công!', 'success', 3000);
+                        setTimeout(() => {
+                            closeEditAthleteModal();
+                            editAthleteForm.reset();
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        let errorMsg = data.message || 'Không xác định';
+                        if (data.errors) {
+                            errorMsg += '<ul style="margin: 0.5rem 0 0 1rem;">';
+                            for (let field in data.errors) {
+                                if (data.errors[field]) {
+                                    errorMsg += '<li>' + data.errors[field].join(', ') + '</li>';
+                                }
+                            }
+                            errorMsg += '</ul>';
+                        }
+                        messageDiv.innerHTML = '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' + errorMsg + '</div>';
+                        showToast(data.message || 'Lỗi không xác định', 'error', 4000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    messageDiv.innerHTML = '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' + error.message + '</div>';
+                    showToast('Lỗi: ' + error.message, 'error', 4000);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            });
+        }
+
+        // Delete athlete function
+        function deleteAthlete(athleteId) {
+            if (!confirm('Bạn chắc chắn muốn xóa vận động viên này?')) {
+                return;
+            }
+            
+            const tournamentId = {!! $tournament->id ?? 0 !!};
+            
+            fetch(`/homeyard/tournaments/${tournamentId}/athletes/${athleteId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showToast('Xóa vận động viên thành công!', 'success', 3000);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showToast(data.message || 'Lỗi không xác định', 'error', 4000);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showToast('Lỗi: ' + error.message, 'error', 4000);
+            });
+        }
+
+        // Initialize edit form when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeEditAthleteForm();
+        });
+
+        // Xuất Excel
+        function exportAthletes() {
+            const tournamentId = {!! $tournament->id ?? 0 !!};
+            window.location.href = `/homeyard/tournaments/${tournamentId}/athletes/export`;
+        }
+        </script>
+
+        <!-- MODAL: THÊM VĐV -->
+        <div id="addAthleteModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+         <div style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                 <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">➕ Thêm Vận Động Viên</h2>
+                 <button style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeAddAthleteModal()">×</button>
+             </div>
+
+             <div id="athleteFormMessages"></div>
+
+             <form id="addAthleteForm">
+                 <div class="form-group">
+                     <label class="form-label">Tên VĐV *</label>
+                     <input type="text" name="athlete_name" class="form-input" placeholder="Nhập tên vận động viên" required>
+                 </div>
+
+                 <div class="grid grid-2">
+                     <div class="form-group">
+                         <label class="form-label">Email *</label>
+                         <input type="email" name="email" class="form-input" placeholder="VD: athlete@example.com" required>
+                     </div>
+
+                     <div class="form-group">
+                         <label class="form-label">Số điện thoại *</label>
+                         <input type="tel" name="phone" class="form-input" placeholder="VD: 0123456789" required>
+                     </div>
+                 </div>
+
+                 <div class="form-group">
+                     <label class="form-label">Nội dung thi đấu *</label>
+                     <select name="category_id" class="form-select" required>
+                         <option value="">-- Chọn nội dung --</option>
+                         @if ($tournament && $tournament->categories)
+                             @foreach ($tournament->categories as $category)
+                                 <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                             @endforeach
+                         @else
+                             <option value="">Chưa có nội dung. Vui lòng tạo nội dung thi đấu trước.</option>
+                         @endif
+                     </select>
+                 </div>
+
+                 <div style="display: flex; gap: 10px; margin-top: 20px;">
+                     <button type="submit" class="btn btn-success" id="submitAthleteBtn">✅ Thêm VĐV</button>
+                     <button type="button" class="btn btn-secondary" onclick="closeAddAthleteModal()">❌ Hủy</button>
+                 </div>
+             </form>
+         </div>
+        </div>
+
+        <!-- MODAL: XEM CHI TIẾT VĐV -->
+        <div id="viewAthleteModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+         <div style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                 <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">👁️ Chi tiết Vận Động Viên</h2>
+                 <button style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeViewAthleteModal()">×</button>
+             </div>
+
+             <div id="viewAthleteContent" style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                 <div style="margin-bottom: 15px;">
+                     <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Tên VĐV:</label>
+                     <p style="margin: 0; font-size: 16px;" id="viewAthleteName"></p>
+                 </div>
+                 <div style="margin-bottom: 15px;">
+                     <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Email:</label>
+                     <p style="margin: 0; font-size: 16px;" id="viewAthleteEmail"></p>
+                 </div>
+                 <div style="margin-bottom: 15px;">
+                     <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Điện thoại:</label>
+                     <p style="margin: 0; font-size: 16px;" id="viewAthletePhone"></p>
+                 </div>
+                 <div>
+                     <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Nội dung thi đấu:</label>
+                     <p style="margin: 0; font-size: 16px;" id="viewAthleteCategory"></p>
+                 </div>
+             </div>
+
+             <div style="display: flex; gap: 10px; margin-top: 20px;">
+                 <button type="button" class="btn btn-secondary" onclick="closeViewAthleteModal()">❌ Đóng</button>
+             </div>
+         </div>
+        </div>
+
+        <!-- MODAL: SỬA THÔNG TIN VĐV -->
+        <div id="editAthleteModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+         <div style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                 <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">✏️ Sửa Vận Động Viên</h2>
+                 <button style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeEditAthleteModal()">×</button>
+             </div>
+
+             <div id="editAthleteMessages"></div>
+
+             <form id="editAthleteForm">
+                 <input type="hidden" id="editAthleteId" name="athlete_id" value="">
+
+                 <div class="form-group">
+                     <label class="form-label">Tên VĐV *</label>
+                     <input type="text" id="editAthleteName" name="athlete_name" class="form-input" placeholder="Nhập tên vận động viên" required>
+                 </div>
+
+                 <div class="grid grid-2">
+                     <div class="form-group">
+                         <label class="form-label">Email *</label>
+                         <input type="email" id="editAthleteEmail" name="email" class="form-input" placeholder="VD: athlete@example.com" required>
+                     </div>
+
+                     <div class="form-group">
+                         <label class="form-label">Số điện thoại *</label>
+                         <input type="tel" id="editAthletePhone" name="phone" class="form-input" placeholder="VD: 0123456789" required>
+                     </div>
+                 </div>
+
+                 <div class="form-group">
+                     <label class="form-label">Nội dung thi đấu *</label>
+                     <select id="editAthleteCategory" name="category_id" class="form-select" required>
+                         <option value="">-- Chọn nội dung --</option>
+                         @if ($tournament && $tournament->categories)
+                             @foreach ($tournament->categories as $category)
+                                 <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                             @endforeach
+                         @endif
+                     </select>
+                 </div>
+
+                 <div style="display: flex; gap: 10px; margin-top: 20px;">
+                     <button type="submit" class="btn btn-success" id="submitEditAthleteBtn">✅ Cập nhật</button>
+                     <button type="button" class="btn btn-secondary" onclick="closeEditAthleteModal()">❌ Hủy</button>
+                 </div>
+             </form>
+         </div>
+        </div>
+
+        @endsection

@@ -209,20 +209,35 @@
         <form id="athleteForm" method="POST" action="{{ route('homeyard.tournaments.athletes.add', $tournament) }}">
             @csrf
             <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Nội Dung Thi Đấu *</label>
+                <select name="category_id" required
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
+                    <option value="">-- Chọn Nội Dung --</option>
+                    @if($tournament->categories && count($tournament->categories) > 0)
+                        @foreach($tournament->categories as $category)
+                            <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                        @endforeach
+                    @else
+                        <option value="" disabled>Chưa có nội dung nào</option>
+                    @endif
+                </select>
+            </div>
+
+            <div style="margin-bottom: 15px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Tên Vận Động Viên *</label>
                 <input type="text" name="athlete_name" required
                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
             </div>
 
             <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Email</label>
-                <input type="email" name="email"
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Email *</label>
+                <input type="email" name="email" required
                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
             </div>
 
             <div style="margin-bottom: 20px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Điện Thoại</label>
-                <input type="tel" name="phone"
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Điện Thoại *</label>
+                <input type="tel" name="phone" required
                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
             </div>
 

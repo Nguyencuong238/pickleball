@@ -605,42 +605,37 @@
                 <h3 class="modal-title">Thêm Vận Động Viên Mới</h3>
                 <button class="modal-close" onclick="closeAddPlayerModal()">×</button>
             </div>
-            <form>
+            <form id="addPlayerForm" method="POST">
+                @csrf
                 <div class="form-group">
-                    <label class="form-label">Họ và tên *</label>
-                    <input type="text" class="form-input" placeholder="Nhập họ và tên" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Email *</label>
-                    <input type="email" class="form-input" placeholder="example@email.com" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Số điện thoại *</label>
-                    <input type="tel" class="form-input" placeholder="0901234567" required>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Ngày sinh</label>
-                    <input type="date" class="form-input">
+                    <label class="form-label">Giải Đấu *</label>
+                    <select name="tournament_id" class="form-select" required>
+                        <option value="">-- Chọn Giải Đấu --</option>
+                    </select>
+                    <small style="color: #9ca3af;">Bạn cần chọn giải đấu để thêm VĐV</small>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Nội dung thi đấu *</label>
-                    <select class="form-select" required>
-                        <option value="">Chọn nội dung</option>
-                        <option value="singles">Đơn Nam</option>
-                        <option value="women">Đơn Nữ</option>
-                        <option value="doubles">Đôi Nam</option>
-                        <option value="women-doubles">Đôi Nữ</option>
-                        <option value="mixed">Đôi Nam Nữ</option>
+                    <select name="category_id" class="form-select" required>
+                        <option value="">-- Chọn Nội Dung --</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Ghi chú</label>
-                    <textarea class="form-textarea" placeholder="Thông tin thêm về vận động viên..."></textarea>
+                    <label class="form-label">Họ và tên *</label>
+                    <input type="text" name="athlete_name" class="form-input" placeholder="Nhập họ và tên" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email *</label>
+                    <input type="email" name="email" class="form-input" placeholder="example@email.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại *</label>
+                    <input type="tel" name="phone" class="form-input" placeholder="0901234567" required>
                 </div>
             </form>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeAddPlayerModal()">Hủy</button>
-                <button class="btn btn-primary">💾 Lưu</button>
+                <button class="btn btn-primary" onclick="submitAddPlayerForm()">💾 Lưu</button>
             </div>
         </div>
     </div>
@@ -669,24 +664,93 @@
         });
 
         // Modal functions
-        function openAddPlayerModal() {
-            document.getElementById('addPlayerModal').classList.add('active');
-        }
-
-        function closeAddPlayerModal() {
-            document.getElementById('addPlayerModal').classList.remove('active');
-        }
-
-        // Close modal on outside click
-        document.getElementById('addPlayerModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeAddPlayerModal();
-            }
-        });
-
-        // Load page
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('Player Management Loaded');
-        });
+         function openAddPlayerModal() {
+             document.getElementById('addPlayerModal').classList.add('active');
+             loadTournaments();
+         }
+        
+         function closeAddPlayerModal() {
+             document.getElementById('addPlayerModal').classList.remove('active');
+         }
+        
+         function submitAddPlayerForm() {
+             const form = document.getElementById('addPlayerForm');
+             const tournamentId = form.tournament_id.value;
+             
+             if (!tournamentId) {
+                 alert('Vui lòng chọn giải đấu');
+                 return;
+             }
+             
+             const actionUrl = `/homeyard/tournaments/${tournamentId}/athletes/add`;
+             form.action = actionUrl;
+             form.submit();
+         }
+         
+         function loadTournaments() {
+             // Fetch tournaments
+             fetch('/api/homeyard/tournaments')
+                 .then(res => res.json())
+                 .then(data => {
+                     const select = document.querySelector('select[name="tournament_id"]');
+                     select.innerHTML = '<option value="">-- Chọn Giải Đấu --</option>';
+                     
+                     if (data.tournaments && data.tournaments.length > 0) {
+                         data.tournaments.forEach(tournament => {
+                             const option = document.createElement('option');
+                             option.value = tournament.id;
+                             option.textContent = tournament.name;
+                             select.appendChild(option);
+                         });
+                     }
+                 })
+                 .catch(err => console.error('Error loading tournaments:', err));
+         }
+         
+         function loadCategories(tournamentId) {
+             if (!tournamentId) {
+                 document.querySelector('select[name="category_id"]').innerHTML = '<option value="">-- Chọn Nội Dung --</option>';
+                 return;
+             }
+             
+             fetch(`/api/homeyard/tournaments/${tournamentId}/categories`)
+                 .then(res => res.json())
+                 .then(data => {
+                     const select = document.querySelector('select[name="category_id"]');
+                     select.innerHTML = '<option value="">-- Chọn Nội Dung --</option>';
+                     
+                     if (data.categories && data.categories.length > 0) {
+                         data.categories.forEach(category => {
+                             const option = document.createElement('option');
+                             option.value = category.id;
+                             option.textContent = category.category_name;
+                             select.appendChild(option);
+                         });
+                     }
+                 })
+                 .catch(err => console.error('Error loading categories:', err));
+         }
+         
+         // Event listener for tournament selection
+         document.addEventListener('DOMContentLoaded', () => {
+             const tournamentSelect = document.querySelector('select[name="tournament_id"]');
+             if (tournamentSelect) {
+                 tournamentSelect.addEventListener('change', (e) => {
+                     loadCategories(e.target.value);
+                 });
+             }
+         });
+        
+         // Close modal on outside click
+         document.getElementById('addPlayerModal').addEventListener('click', function(e) {
+             if (e.target === this) {
+                 closeAddPlayerModal();
+             }
+         });
+        
+         // Load page
+         document.addEventListener('DOMContentLoaded', () => {
+             console.log('Player Management Loaded');
+         });
     </script>
 @endsection

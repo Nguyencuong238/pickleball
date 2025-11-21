@@ -212,29 +212,117 @@ class HomeYardTournamentController extends Controller
 
     public function addAthlete(Request $request, Tournament $tournament)
     {
+        \Log::info('addAthlete called', [
+            'tournament_id' => $tournament->id,
+            'all_inputs' => $request->all(),
+            'is_json' => $request->wantsJson(),
+            'header' => $request->header('X-Requested-With'),
+        ]);
+
+        try {
+            $this->authorize('update', $tournament);
+        } catch (\Exception $e) {
+            \Log::error('Authorization failed: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Không có quyền'
+            ], 403);
+        }
+
+        try {
+            $validated = $request->validate([
+                'athlete_name' => 'required|string|max:255',
+                'email' => 'required|email',
+                'phone' => 'required|string|max:20',
+                'category_id' => 'required|exists:tournament_categories,id',
+            ]);
+
+            \Log::info('Validation passed', $validated);
+
+            $athlete = TournamentAthlete::create([
+                'tournament_id' => $tournament->id,
+                'category_id' => $validated['category_id'],
+                'user_id' => auth()->id(),  // Set the current user as the creator
+                'athlete_name' => $validated['athlete_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'status' => 'approved',  // Home yard organizer adds athletes as approved
+                'payment_status' => 'pending',
+            ]);
+
+            \Log::info('Athlete created', ['id' => $athlete->id]);
+
+            // Always return JSON for this endpoint
+            return response()->json([
+                'success' => true,
+                'message' => 'Thêm vận động viên thành công',
+                'athlete' => $athlete
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error: ' . json_encode($e->errors()));
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi validate: ' . collect($e->errors())->flatten()->join(', '),
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Create error: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function updateAthlete(Request $request, Tournament $tournament, TournamentAthlete $athlete)
+    {
         $this->authorize('update', $tournament);
 
-        $request->validate([
-            'athlete_name' => 'required|string|max:255',
-            'email' => 'nullable|email',
-            'phone' => 'nullable|string|max:20',
-        ]);
+        try {
+            $validated = $request->validate([
+                'athlete_name' => 'required|string|max:255',
+                'email' => 'required|email',
+                'phone' => 'required|string|max:20',
+                'category_id' => 'required|exists:tournament_categories,id',
+            ]);
 
-        TournamentAthlete::create([
-            'tournament_id' => $tournament->id,
-            'user_id' => auth()->id(),
-            'athlete_name' => $request->athlete_name,
-            'email' => $request->email,
-            'phone' => $request->phone,
-        ]);
+            $athlete->update($validated);
 
-        return redirect()->back()->with('success', 'Athlete added successfully.');
+            \Log::info('Athlete updated', ['id' => $athlete->id]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật vận động viên thành công',
+                'athlete' => $athlete
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation error: ' . json_encode($e->errors()));
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi validate: ' . collect($e->errors())->flatten()->join(', '),
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Update error: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function removeAthlete(Tournament $tournament, TournamentAthlete $athlete)
     {
         $this->authorize('update', $tournament);
         $athlete->delete();
+        
+        if (request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
+            return response()->json([
+                'success' => true,
+                'message' => 'Vận động viên đã được xóa'
+            ]);
+        }
+        
         return redirect()->back()->with('success', 'Athlete removed successfully.');
     }
 
@@ -861,5 +949,103 @@ class HomeYardTournamentController extends Controller
                 'message' => 'Lỗi khi reset: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Xuất danh sách VĐV ra CSV
+     */
+    public function exportAthletes(Tournament $tournament)
+    {
+        try {
+            // Kiểm tra quyền
+            $this->authorize('view', $tournament);
+
+            // Lấy danh sách VĐV
+            $athletes = TournamentAthlete::where('tournament_id', $tournament->id)
+                ->with('category')
+                ->get();
+
+            if ($athletes->isEmpty()) {
+                return back()->with('error', 'Giải đấu không có vận động viên nào để xuất');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'Lỗi: ' . $e->getMessage());
+        }
+
+        // Tạo tên file
+        $fileName = 'VDV_' . str_replace(' ', '_', $tournament->name) . '_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+        // Tạo CSV content với proper formatting
+        $output = fopen('php://temp', 'r+');
+        
+        // BOM cho UTF-8
+        fwrite($output, "\xEF\xBB\xBF");
+        
+        // Header
+        $headers = ['STT', 'Tên Vận Động Viên', 'Email', 'Số Điện Thoại', 'Nội Dung Thi Đấu', 'Trạng Thái', 'Trạng Thái Thanh Toán', 'Ngày Đăng Ký'];
+        fputcsv($output, $headers);
+
+        // Dữ liệu
+        $stt = 1;
+        foreach ($athletes as $athlete) {
+            $status = $this->getStatusText($athlete->status);
+            $paymentStatus = $this->getPaymentStatusText($athlete->payment_status);
+            $categoryName = $athlete->category ? $athlete->category->category_name : '-';
+            $registeredDate = $athlete->created_at ? $athlete->created_at->format('d/m/Y H:i') : '-';
+
+            $email = $athlete->email ?? '-';
+            // Thêm apostrophe để Excel không convert số điện thoại thành scientific notation
+            $phone = "'" . ($athlete->phone ?? '-');
+
+            $row = [
+                $stt,
+                $athlete->athlete_name,
+                $email,
+                $phone,
+                $categoryName,
+                $status,
+                $paymentStatus,
+                $registeredDate
+            ];
+            fputcsv($output, $row);
+            $stt++;
+        }
+
+        // Lấy nội dung CSV
+        rewind($output);
+        $csv = stream_get_contents($output);
+        fclose($output);
+
+        // Return as download
+        return response($csv, 200, [
+            'Content-Type' => 'text/csv; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="' . $fileName . '"',
+        ]);
+    }
+
+    /**
+     * Lấy text trạng thái VĐV
+     */
+    private function getStatusText($status)
+    {
+        $statusMap = [
+            'pending' => 'Chờ phê duyệt',
+            'approved' => 'Đã phê duyệt',
+            'rejected' => 'Từ chối'
+        ];
+        return $statusMap[$status] ?? $status;
+    }
+
+    /**
+     * Lấy text trạng thái thanh toán
+     */
+    private function getPaymentStatusText($status)
+    {
+        $statusMap = [
+            'pending' => 'Chờ thanh toán',
+            'paid' => 'Đã thanh toán',
+            'unpaid' => 'Chưa thanh toán'
+        ];
+        return $statusMap[$status] ?? $status;
     }
 }

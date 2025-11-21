@@ -94,10 +94,12 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::resource('stadiums', HomeYardStadiumController::class);
     Route::resource('tournaments', HomeYardTournamentController::class);
     Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
+    Route::put('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'updateAthlete'])->name('tournaments.athletes.update');
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
     Route::patch('tournaments/{tournament}/athletes/{athlete}/status', [HomeYardTournamentController::class, 'updateAthleteStatus'])->name('tournaments.athletes.updateStatus');
     Route::post('tournaments/{tournament}/athletes/{athlete}/approve', [HomeYardTournamentController::class, 'approveAthlete'])->name('athletes.approve');
     Route::post('tournaments/{tournament}/athletes/{athlete}/reject', [HomeYardTournamentController::class, 'rejectAthlete'])->name('athletes.reject');
+    Route::get('tournaments/{tournament}/athletes/export', [HomeYardTournamentController::class, 'exportAthletes'])->name('tournaments.athletes.export');
     Route::get('athletes', [HomeYardTournamentController::class, 'listAthletes'])->name('athletes.index');
     Route::get('overview', [HomeYardTournamentController::class, 'overview'])->name('overview');
     Route::get('tournaments', [HomeYardTournamentController::class, 'tournaments'])->name('tournaments');
@@ -131,6 +133,19 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::post('tournaments/{tournament}/draw', [HomeYardTournamentController::class, 'drawAthletes'])->name('tournaments.draw');
     Route::get('tournaments/{tournament}/draw-results', [HomeYardTournamentController::class, 'getDrawResults'])->name('tournaments.draw-results');
     Route::post('tournaments/{tournament}/reset-draw', [HomeYardTournamentController::class, 'resetDraw'])->name('tournaments.reset-draw');
+});
+
+// API Routes for AJAX/Frontend
+Route::middleware(['auth', 'role:home_yard'])->prefix('api/homeyard')->name('api.homeyard.')->group(function () {
+    Route::get('tournaments', function () {
+        $tournaments = \App\Models\Tournament::where('user_id', auth()->id())->get();
+        return response()->json(['tournaments' => $tournaments]);
+    })->name('tournaments');
+    
+    Route::get('tournaments/{tournament}/categories', function (\App\Models\Tournament $tournament) {
+        $this->authorize('view', $tournament);
+        return response()->json(['categories' => $tournament->categories]);
+    })->name('tournaments.categories');
 });
 
 // Admin routes for managing user permissions
