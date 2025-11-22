@@ -2105,4 +2105,88 @@ class HomeYardTournamentController extends Controller
             return back()->with('error', 'Lỗi xuất file: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Cancel a booking (change status to cancelled)
+     */
+    public function cancelBooking($bookingId)
+    {
+        try {
+            $stadiums = Stadium::where('user_id', auth()->id())->pluck('id');
+            $courtsOfUser = Court::whereIn('stadium_id', $stadiums)->pluck('id');
+
+            $booking = Booking::whereIn('court_id', $courtsOfUser)
+                ->findOrFail($bookingId);
+
+            // Check if booking can be cancelled
+            if ($booking->status === 'cancelled') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đơn đặt đã bị hủy rồi'
+                ], 422);
+            }
+
+            if ($booking->status === 'completed') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể hủy đơn đặt đã hoàn thành'
+                ], 422);
+            }
+
+            // Update booking status to cancelled
+            $booking->update(['status' => 'cancelled']);
+
+            Log::info('Booking cancelled', ['booking_id' => $booking->id, 'user_id' => auth()->id()]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đơn đặt đã được hủy thành công',
+                'booking' => $booking
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Cancel booking error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a booking
+     */
+    public function deleteBooking($bookingId)
+    {
+        try {
+            $stadiums = Stadium::where('user_id', auth()->id())->pluck('id');
+            $courtsOfUser = Court::whereIn('stadium_id', $stadiums)->pluck('id');
+
+            $booking = Booking::whereIn('court_id', $courtsOfUser)
+                ->findOrFail($bookingId);
+
+            // Store booking info for logging
+            $bookingInfo = [
+                'id' => $booking->id,
+                'customer_name' => $booking->customer_name,
+                'booking_date' => $booking->booking_date,
+                'status' => $booking->status
+            ];
+
+            // Delete the booking
+            $booking->delete();
+
+            Log::info('Booking deleted', ['booking_info' => $bookingInfo, 'user_id' => auth()->id()]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Đơn đặt đã được xóa thành công'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Delete booking error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

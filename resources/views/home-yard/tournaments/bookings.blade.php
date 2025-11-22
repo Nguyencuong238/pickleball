@@ -916,10 +916,11 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-danger">❌ Hủy Đơn</button>
-                <button class="btn btn-secondary" onclick="closeBookingDetailsModal()">Đóng</button>
-                {{-- <button class="btn btn-primary">✏️ Chỉnh Sửa</button> --}}
-            </div>
+                 <button class="btn btn-danger" onclick="deleteBookingFromModal()">🗑️ Xóa Vĩnh Viễn</button>
+                 <button class="btn btn-warning" onclick="cancelBooking()">❌ Hủy Đơn</button>
+                 <button class="btn btn-secondary" onclick="closeBookingDetailsModal()">Đóng</button>
+                 {{-- <button class="btn btn-primary">✏️ Chỉnh Sửa</button> --}}
+             </div>
         </div>
     </div>
 @endsection
@@ -1374,7 +1375,7 @@
                             ${getStatusBadge(booking.status)}
                             <div class="booking-actions">
                                 <button class="btn btn-ghost btn-icon-sm" onclick="viewBookingDetails('${bookingId}')">👁️</button>
-                                <button class="btn btn-ghost btn-icon-sm">🗑️</button>
+                                <button class="btn btn-ghost btn-icon-sm" onclick="deleteBooking('${bookingId}')">🗑️</button>
                             </div>
                         </div>
                     `;
@@ -1564,11 +1565,119 @@
             // This will be populated by the search endpoint
         }
 
+        // Cancel booking
+        let currentBookingIdForAction = null;
+
+        function cancelBooking() {
+            const bookingId = document.getElementById('modalBookingId').textContent.replace('#BK-', '');
+            if (!bookingId) {
+                toastr.error('Không tìm thấy mã đơn đặt');
+                return;
+            }
+
+            if (!confirm('Bạn chắc chắn muốn hủy đơn đặt này?')) {
+                return;
+            }
+
+            fetch(`/homeyard/bookings/${bookingId}/cancel`, {
+                method: 'PUT',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message);
+                    closeBookingDetailsModal();
+                    loadBookingsList(); // Refresh list
+                    loadBookingStats(); // Refresh stats
+                } else {
+                    toastr.error(data.message || 'Lỗi hủy đơn đặt');
+                }
+            })
+            .catch(error => {
+                console.error('Error cancelling booking:', error);
+                toastr.error('Lỗi khi hủy đơn đặt');
+            });
+        }
+
+        // Delete booking from modal
+        function deleteBookingFromModal() {
+            const bookingId = document.getElementById('modalBookingId').textContent.replace('#BK-', '');
+            if (!bookingId) {
+                toastr.error('Không tìm thấy mã đơn đặt');
+                return;
+            }
+
+            if (!confirm('Bạn chắc chắn muốn xóa vĩnh viễn đơn đặt này? Hành động này không thể hoàn tác.')) {
+                return;
+            }
+
+            fetch(`/homeyard/bookings/${bookingId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message);
+                    closeBookingDetailsModal();
+                    applyFilters(currentPage); // Refresh list
+                    loadBookingStats(); // Refresh stats
+                } else {
+                    toastr.error(data.message || 'Lỗi xóa đơn đặt');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting booking:', error);
+                toastr.error('Lỗi khi xóa đơn đặt');
+            });
+        }
+
+        // Delete booking from list
+        function deleteBooking(bookingId) {
+            const numericId = bookingId.replace('BK-', '');
+            
+            if (!confirm('Bạn chắc chắn muốn xóa đơn đặt này? Hành động này không thể hoàn tác.')) {
+                return;
+            }
+
+            fetch(`/homeyard/bookings/${numericId}`, {
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message);
+                    applyFilters(currentPage); // Refresh list
+                    loadBookingStats(); // Refresh stats
+                } else {
+                    toastr.error(data.message || 'Lỗi xóa đơn đặt');
+                }
+            })
+            .catch(error => {
+                console.error('Error deleting booking:', error);
+                toastr.error('Lỗi khi xóa đơn đặt');
+            });
+        }
+
         // Load page
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Booking Management Loaded');
             initCourtsData();
             loadBookingStats();
         });
-    </script>
-@endsection
+        </script>
+        @endsection

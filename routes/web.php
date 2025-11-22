@@ -123,6 +123,8 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('bookings/all', [HomeYardTournamentController::class, 'getAllBookings'])->name('bookings.all');
     Route::get('bookings/search', [HomeYardTournamentController::class, 'searchBookings'])->name('bookings.search');
     Route::get('bookings/{bookingId}', [HomeYardTournamentController::class, 'getBookingDetails'])->name('bookings.show');
+    Route::put('bookings/{bookingId}/cancel', [HomeYardTournamentController::class, 'cancelBooking'])->name('bookings.cancel');
+    Route::delete('bookings/{bookingId}', [HomeYardTournamentController::class, 'deleteBooking'])->name('bookings.delete');
     
     // Tournament Basic Info
     Route::put('tournaments/{tournament}', [HomeYardTournamentController::class, 'updateTournament'])->name('tournaments.update');
