@@ -882,82 +882,96 @@
             <div id="rankings" class="tab-pane">
                 <div class="card fade-in">
                     <div class="card-header">
-                        <h3 class="card-title">🏅 Bảng xếp hạng giải đấu</h3>
+                        <h3 class="card-title">🏅 Bảng xếp hạng VĐV</h3>
                         <div class="card-actions">
-                            <button class="btn btn-primary btn-sm">📊 Xuất báo cáo</button>
-                            <button class="btn btn-success btn-sm">📄 In bảng</button>
+                            <button class="btn btn-primary btn-sm" onclick="printRankings()">📄 In bảng</button>
+                            <button class="btn btn-success btn-sm" onclick="exportRankingsCSV()">📊 Xuất CSV</button>
                         </div>
                     </div>
                     <div class="card-body">
-                        <h4 style="margin: 0 0 1.5rem 0; font-weight: 700;">Nam đơn 18+ - Bảng xếp hạng chung</h4>
-                        <div style="overflow-x: auto;">
-                            <table class="rankings-table">
-                                <thead>
-                                    <tr>
-                                        <th>Hạng</th>
-                                        <th>Vận động viên</th>
-                                        <th>Bảng</th>
-                                        <th>Trận</th>
-                                        <th>Thắng</th>
-                                        <th>Thua</th>
-                                        <th>Tỷ lệ</th>
-                                        <th>Điểm</th>
-                                        <th>Set</th>
-                                        <th>Hiệu số</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td><span class="rank-medal rank-1">1</span></td>
-                                        <td><strong>Nguyễn Văn An</strong></td>
-                                        <td>Bảng A</td>
-                                        <td>5</td>
-                                        <td>5</td>
-                                        <td>0</td>
-                                        <td>100%</td>
-                                        <td><strong>15</strong></td>
-                                        <td>10/0</td>
-                                        <td>+110</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="rank-medal rank-2">2</span></td>
-                                        <td><strong>Bùi Văn Khoa</strong></td>
-                                        <td>Bảng B</td>
-                                        <td>5</td>
-                                        <td>4</td>
-                                        <td>1</td>
-                                        <td>80%</td>
-                                        <td><strong>12</strong></td>
-                                        <td>9/2</td>
-                                        <td>+85</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span class="rank-medal rank-3">3</span></td>
-                                        <td><strong>Ngô Văn Sơn</strong></td>
-                                        <td>Bảng C</td>
-                                        <td>5</td>
-                                        <td>4</td>
-                                        <td>1</td>
-                                        <td>80%</td>
-                                        <td><strong>12</strong></td>
-                                        <td>8/3</td>
-                                        <td>+72</td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>Hà Văn Chiến</td>
-                                        <td>Bảng D</td>
-                                        <td>5</td>
-                                        <td>4</td>
-                                        <td>1</td>
-                                        <td>80%</td>
-                                        <td>12</td>
-                                        <td>8/3</td>
-                                        <td>+68</td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="alert alert-info">
+                            💡 Bảng xếp hạng sắp xếp theo: Điểm > Trận thắng > Hiệu số game
                         </div>
+
+                        @if (!$tournament)
+                            <div class="alert alert-warning">
+                                ⚠️ Vui lòng tạo giải đấu và nhập kết quả trận trước khi xem bảng xếp hạng
+                            </div>
+                        @else
+                            <!-- Filter Controls -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; max-width: 600px;">
+                                <div>
+                                    <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Nội dung thi đấu:</label>
+                                    <select id="filterCategory" class="form-select" onchange="updateGroupFilter(); loadRankings()">
+                                        <option value="">-- Tất cả nội dung --</option>
+                                        @if ($tournament && $tournament->categories)
+                                            @foreach ($tournament->categories as $category)
+                                                <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Bảng đấu:</label>
+                                    <select id="filterGroup" class="form-select" onchange="loadRankings()">
+                                        <option value="">-- Tất cả bảng --</option>
+                                        @if ($tournament && $tournament->groups)
+                                            @foreach ($tournament->groups as $group)
+                                                <option value="{{ $group->id }}" data-category-id="{{ $group->category_id }}">{{ $group->group_name }} ({{ $group->category->category_name ?? 'N/A' }})</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Rankings Table -->
+                            <div style="overflow-x: auto;">
+                                <table style="width: 100%; border-collapse: collapse; background: white;">
+                                    <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center;">
+                                        <tr>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 70px;">XH</th>
+                                            <th style="padding: 12px; text-align: left; border-bottom: 2px solid #667eea; font-weight: 700;">Tên VĐV</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 100px;">Nội Dung</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 80px;">Trận</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 80px;">🏆 Thắng</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 80px;">❌ Thua</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 100px;background: #FFD700;">⭐ Điểm</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 100px;">Set W/L</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 100px;background: #87CEEB;">Hiệu Số Game</th>
+                                            <th style="padding: 12px; text-align: center; border-bottom: 2px solid #667eea; font-weight: 700; width: 100px;">% Thắng</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="rankingsTableBody">
+                                        <tr>
+                                            <td colspan="10" style="padding: 40px; text-align: center; color: #999;">
+                                                ⏳ Đang tải dữ liệu...
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Pagination Controls -->
+                            <div id="paginationControls" style="margin-top: 1.5rem; display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap;">
+                                <!-- Generated by JavaScript -->
+                            </div>
+
+                            <!-- Statistics Cards -->
+                            <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                                <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem;">🥇 VĐV Hạng 1</div>
+                                    <div style="font-size: 1.5rem; font-weight: 700;" id="topAthlete">-</div>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem;">📊 Tổng Trận Đấu</div>
+                                    <div style="font-size: 1.5rem; font-weight: 700;" id="totalMatches">0</div>
+                                </div>
+                                <div style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                    <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem;">👥 Tổng VĐV</div>
+                                    <div style="font-size: 1.5rem; font-weight: 700;" id="totalAthletes">0</div>
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -2214,8 +2228,298 @@
         document.addEventListener('DOMContentLoaded', function() {
             initializeCreateMatchForm();
             initializeEditMatchForm();
+            updateGroupFilter();
+            loadRankings();
         });
-    </script>
+
+        // ===== RANKINGS/LEADERBOARD FUNCTIONS =====
+
+        function updateGroupFilter() {
+            const categorySelect = document.getElementById('filterCategory');
+            const groupSelect = document.getElementById('filterGroup');
+            const selectedCategoryId = categorySelect.value;
+            
+            if (!groupSelect) return;
+            
+            // Show/hide group options based on selected category
+            const allOptions = groupSelect.querySelectorAll('option');
+            let hasVisibleOptions = false;
+            
+            allOptions.forEach((option, index) => {
+                if (index === 0) {
+                    // Always show "-- Tất cả bảng --" option
+                    option.style.display = '';
+                    return;
+                }
+                
+                const optionCategoryId = option.getAttribute('data-category-id');
+                
+                // If no category selected, show all options
+                if (!selectedCategoryId) {
+                    option.style.display = '';
+                    hasVisibleOptions = true;
+                } else if (optionCategoryId === selectedCategoryId) {
+                    // Show only options matching the selected category
+                    option.style.display = '';
+                    hasVisibleOptions = true;
+                } else {
+                    // Hide non-matching options
+                    option.style.display = 'none';
+                }
+            });
+            
+            // Reset group filter when category changes
+            if (selectedCategoryId) {
+                groupSelect.value = '';
+            }
+        }
+
+        async function loadRankings(page = 1) {
+            const tournamentId = {!! $tournament->id ?? 0 !!};
+            const categoryId = document.getElementById('filterCategory')?.value || '';
+            const groupId = document.getElementById('filterGroup')?.value || '';
+
+            if (!tournamentId) {
+                return;
+            }
+
+            try {
+                const params = new URLSearchParams();
+                if (categoryId) params.append('category_id', categoryId);
+                if (groupId) params.append('group_id', groupId);
+                params.append('page', page);
+
+                const response = await fetch(
+                    `/homeyard/tournaments/${tournamentId}/rankings?${params.toString()}`,
+                    {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }
+                );
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+                console.log('Rankings API Response:', data);
+
+                if (data.success && data.rankings) {
+                    renderRankingsTable(data.rankings);
+                    // Only update stats on page 1 to show overall top athlete
+                    if (page === 1) {
+                        updateRankingsStats(data);
+                    }
+                    renderPagination(data.pagination);
+                } else {
+                    showRankingsError('Không có dữ liệu xếp hạng');
+                }
+            } catch (error) {
+                console.error('Error loading rankings:', error);
+                showRankingsError('Lỗi tải dữ liệu xếp hạng: ' + error.message);
+            }
+        }
+
+        function renderRankingsTable(rankings) {
+            const tableBody = document.getElementById('rankingsTableBody');
+            if (!tableBody) return;
+
+            if (!rankings || !Array.isArray(rankings) || rankings.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="padding: 40px; text-align: center; color: #999;">
+                            Chưa có dữ liệu xếp hạng
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            rankings.forEach((athlete) => {
+                const rank = athlete.rank || 0;
+                const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank;
+                const setsDiff = (athlete.sets_won || 0) - (athlete.sets_lost || 0);
+                const gamesDiff = (athlete.games_won || 0) - (athlete.games_lost || 0);
+                // win_rate từ API đã là phần trăm (0-100), không cần tính lại
+                const winRate = (athlete.win_rate || 0).toFixed(1);
+                
+                const rowBg = rank <= 3 ? 'background-color: rgba(255, 215, 0, 0.1);' : '';
+                
+                html += `
+                    <tr style="${rowBg} border-bottom: 1px solid #ddd; transition: background-color 0.3s;">
+                        <td style="padding: 12px; text-align: center; font-weight: 700; font-size: 1.1rem;">${medal}</td>
+                        <td style="padding: 12px; text-align: left; font-weight: 600;">${athlete.athlete_name || 'N/A'}</td>
+                        <td style="padding: 12px; text-align: center; font-size: 0.9rem;">${athlete.category_name || 'N/A'}</td>
+                        <td style="padding: 12px; text-align: center;">${athlete.matches_played || 0}</td>
+                        <td style="padding: 12px; text-align: center; color: #10B981; font-weight: 600;">${athlete.matches_won || 0}</td>
+                        <td style="padding: 12px; text-align: center; color: #EF4444; font-weight: 600;">${athlete.matches_lost || 0}</td>
+                        <td style="padding: 12px; text-align: center; background-color: #FFE5B4; font-weight: 700; font-size: 1.1rem;">${athlete.points || 0}</td>
+                        <td style="padding: 12px; text-align: center; font-size: 0.9rem;">${(athlete.sets_won || 0)}/${(athlete.sets_lost || 0)}</td>
+                        <td style="padding: 12px; text-align: center; font-weight: 600; background-color: #E0F2FE; color: ${gamesDiff >= 0 ? '#059669' : '#DC2626'};">${gamesDiff >= 0 ? '+' : ''}${gamesDiff}</td>
+                        <td style="padding: 12px; text-align: center;">${winRate}%</td>
+                    </tr>
+                `;
+            });
+
+            tableBody.innerHTML = html;
+        }
+
+        function updateRankingsStats(data) {
+            const topAthleteEl = document.getElementById('topAthlete');
+            const totalMatchesEl = document.getElementById('totalMatches');
+            const totalAthletesEl = document.getElementById('totalAthletes');
+
+            if (topAthleteEl && Array.isArray(data.rankings) && data.rankings.length > 0) {
+                topAthleteEl.textContent = data.rankings[0].athlete_name || '-';
+            } else if (topAthleteEl) {
+                topAthleteEl.textContent = '-';
+            }
+
+            if (totalMatchesEl) {
+                totalMatchesEl.textContent = data.total_matches || 0;
+            }
+
+            if (totalAthletesEl) {
+                totalAthletesEl.textContent = data.total_athletes || 0;
+            }
+        }
+
+        function showRankingsError(message) {
+            const tableBody = document.getElementById('rankingsTableBody');
+            if (tableBody) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="10" style="padding: 20px; text-align: center; color: #EF4444;">
+                            ⚠️ ${message}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+
+        function printRankings() {
+            const printContent = document.querySelector('.tab-pane:not([style*="display: none"]) table')?.outerHTML;
+            if (!printContent) {
+                alert('Không tìm thấy bảng xếp hạng');
+                return;
+            }
+
+            const printWindow = window.open('', '_blank');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Bảng Xếp Hạng VĐV</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; padding: 20px; }
+                        table { width: 100%; border-collapse: collapse; }
+                        th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+                        th { background-color: #f5f5f5; font-weight: bold; }
+                        tr:nth-child(even) { background-color: #f9f9f9; }
+                    </style>
+                </head>
+                <body>
+                    <h2>Bảng Xếp Hạng Vận Động Viên</h2>
+                    ${printContent}
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+            setTimeout(() => printWindow.print(), 250);
+        }
+
+        function renderPagination(pagination) {
+            const paginationContainer = document.getElementById('paginationControls');
+            if (!paginationContainer) return;
+
+            // If no pagination or only 1 page, hide pagination
+            if (!pagination || pagination.total_pages <= 1) {
+                paginationContainer.style.display = 'none';
+                return;
+            }
+
+            paginationContainer.style.display = 'flex';
+            
+            let html = '';
+            
+            // Previous button
+            if (pagination.current_page > 1) {
+                html += `<button style="padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; transition: 0.3s;" 
+                         onclick="loadRankings(${pagination.current_page - 1})" 
+                         onmouseover="this.style.background='#f0f0f0'" 
+                         onmouseout="this.style.background='white'">← Trang trước</button>`;
+            } else {
+                html += `<button style="padding: 8px 12px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 4px; cursor: not-allowed; color: #999;" disabled>← Trang trước</button>`;
+            }
+            
+            // Page numbers
+            for (let i = 1; i <= pagination.total_pages; i++) {
+                if (i === pagination.current_page) {
+                    html += `<button style="padding: 8px 12px; border: none; background: #667eea; color: white; border-radius: 4px; font-weight: 600; cursor: default; min-width: 40px;">${i}</button>`;
+                } else if (i <= 2 || i > pagination.total_pages - 2 || (i >= pagination.current_page - 1 && i <= pagination.current_page + 1)) {
+                    html += `<button style="padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; transition: 0.3s; min-width: 40px;" 
+                             onclick="loadRankings(${i})" 
+                             onmouseover="this.style.background='#f0f0f0'" 
+                             onmouseout="this.style.background='white'">${i}</button>`;
+                } else if (i === 3 || i === pagination.total_pages - 2) {
+                    html += `<span style="padding: 8px 6px; color: #999;">...</span>`;
+                }
+            }
+            
+            // Next button
+            if (pagination.current_page < pagination.total_pages) {
+                html += `<button style="padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; transition: 0.3s;" 
+                         onclick="loadRankings(${pagination.current_page + 1})" 
+                         onmouseover="this.style.background='#f0f0f0'" 
+                         onmouseout="this.style.background='white'">Trang sau →</button>`;
+            } else {
+                html += `<button style="padding: 8px 12px; border: 1px solid #ddd; background: #f5f5f5; border-radius: 4px; cursor: not-allowed; color: #999;" disabled>Trang sau →</button>`;
+            }
+            
+            // Info text
+            html += `<span style="margin-left: 10px; padding: 8px 12px; color: #666; font-weight: 500;">Trang ${pagination.current_page}/${pagination.total_pages}</span>`;
+            
+            paginationContainer.innerHTML = html;
+        }
+
+        function exportRankingsCSV() {
+            const tableBody = document.getElementById('rankingsTableBody');
+            if (!tableBody || tableBody.rows.length === 0) {
+                alert('Không có dữ liệu để xuất');
+                return;
+            }
+
+            let csv = 'Xếp Hạng,Tên VĐV,Nội Dung,Trận,Thắng,Thua,Điểm,Set,Hiệu Số Game,% Thắng\n';
+
+            const rows = tableBody.querySelectorAll('tr');
+            rows.forEach((row, index) => {
+                const cells = row.querySelectorAll('td');
+                const rowData = Array.from(cells)
+                    .map(cell => {
+                        let text = cell.textContent.trim();
+                        // Remove special characters for CSV
+                        text = text.replace(/🥇|🥈|🥉/g, '').trim();
+                        return `"${text}"`;
+                    })
+                    .join(',');
+                csv += rowData + '\n';
+            });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+
+            link.setAttribute('href', url);
+            link.setAttribute('download', `BangXepHang_${new Date().getTime()}.csv`);
+            link.style.visibility = 'hidden';
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        </script>
 
     <!-- MODAL: THÊM VĐV -->
     <div id="addAthleteModal"

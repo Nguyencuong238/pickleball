@@ -152,7 +152,10 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
      
      // Get category athletes for match creation
      Route::get('tournaments/{tournament}/categories/{categoryId}/athletes', [HomeYardTournamentController::class, 'getCategoryAthletes'])->name('tournaments.categories.athletes');
-    });
+     
+     // Rankings/Leaderboard API
+     Route::get('tournaments/{tournament}/rankings', [HomeYardTournamentController::class, 'getRankings'])->name('tournaments.rankings.api');
+     });
 
 // API Routes for AJAX/Frontend
 Route::middleware(['auth', 'role:home_yard'])->prefix('api/homeyard')->name('api.homeyard.')->group(function () {

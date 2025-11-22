@@ -1512,4 +1512,150 @@ class HomeYardTournamentController extends Controller
             ], 500);
         }
     }
+
+    /**
+     * Get rankings/leaderboard data
+     * Sorts by: Points (desc) > Wins (desc) > Games Differential (desc)
+     */
+    public function getRankings(Tournament $tournament, Request $request)
+    {
+        try {
+            $this->authorize('view', $tournament);
+
+            $categoryId = $request->query('category_id');
+            $groupId = $request->query('group_id');
+
+            // Base query for group standings
+             // Join with groups and tournament_athletes to filter by tournament
+             $query = GroupStanding::select([
+                  'id', 'athlete_id', 'group_id', 'points', 'matches_played', 'matches_won',
+                  'matches_lost', 'matches_drawn', 'win_rate', 'sets_won', 'sets_lost', 
+                  'sets_differential', 'games_won', 'games_lost', 'games_differential', 'is_advanced'
+              ])
+             ->with([
+                 'athlete' => function ($q) {
+                     $q->select('id', 'athlete_name', 'category_id');
+                 },
+                 'athlete.category' => function ($q) {
+                     $q->select('id', 'category_name');
+                 }
+             ])
+             ->whereHas('group', function ($q) use ($tournament) {
+                 $q->where('tournament_id', $tournament->id);
+             });
+
+            // Filter by category if provided
+            if ($categoryId) {
+                $query->whereHas('athlete', function ($q) use ($categoryId) {
+                    $q->where('category_id', $categoryId);
+                });
+            }
+
+            // Filter by group if provided
+            if ($groupId) {
+                $query->where('group_id', $groupId);
+            }
+
+            // Get standings and sort by: Points (desc) > Wins (desc) > Games Differential (desc)
+             $standings = $query->get()
+                 ->sortByDesc('points')
+                 ->sortByDesc('matches_won')
+                 ->sortByDesc(function ($standing) {
+                     return ($standing->games_won ?? 0) - ($standing->games_lost ?? 0);
+                 })
+                 ->values();
+
+            // Pagination
+            $perPage = 10;
+            $page = $request->query('page', 1);
+            $totalCount = $standings->count();
+            $totalPages = ceil($totalCount / $perPage);
+            
+            // Adjust page if out of range
+            if ($page > $totalPages && $totalPages > 0) {
+                $page = $totalPages;
+            }
+            $page = max(1, $page);
+            
+            // Get paginated results
+            $offset = ($page - 1) * $perPage;
+            $paginatedStandings = $standings->slice($offset, $perPage)->values();
+
+            // Format ranking data with adjusted ranks for pagination
+            $rankings = $paginatedStandings->map(function ($standing, $index) use ($offset) {
+                $athlete = $standing->athlete;
+                $category = $athlete ? $athlete->category : null;
+                
+                // Calculate win rate correctly (max 100%)
+                $matchesPlayed = $standing->matches_played ?? 0;
+                $matchesWon = $standing->matches_won ?? 0;
+                $winRate = $matchesPlayed > 0 
+                    ? round(($matchesWon / $matchesPlayed) * 100, 2)
+                    : 0;
+
+                return [
+                    'rank' => $offset + $index + 1,
+                    'athlete_id' => $standing->athlete_id,
+                    'athlete_name' => $athlete ? $athlete->athlete_name : 'N/A',
+                    'category_id' => $athlete ? $athlete->category_id : null,
+                    'category_name' => $category ? $category->category_name : 'N/A',
+                    'matches_played' => $matchesPlayed,
+                    'matches_won' => $matchesWon,
+                    'matches_lost' => $standing->matches_lost ?? 0,
+                    'matches_drawn' => $standing->matches_drawn ?? 0,
+                    'points' => $standing->points ?? 0,
+                    'win_rate' => $winRate,
+                    'sets_won' => $standing->sets_won ?? 0,
+                    'sets_lost' => $standing->sets_lost ?? 0,
+                    'sets_differential' => $standing->sets_differential ?? 0,
+                    'games_won' => $standing->games_won ?? 0,
+                    'games_lost' => $standing->games_lost ?? 0,
+                    'games_differential' => $standing->games_differential ?? 0,
+                    'is_advanced' => $standing->is_advanced ?? false,
+                ];
+            });
+
+            // Count total completed matches and athletes (with proper filtering)
+            $totalMatches = MatchModel::where('tournament_id', $tournament->id)
+                ->where('status', 'completed')
+                ->count();
+
+            // Count total athletes with standings (only those in rankings) with filters applied
+            $totalAthletesQuery = GroupStanding::whereHas('group', function ($q) use ($tournament) {
+                $q->where('tournament_id', $tournament->id);
+            });
+            if ($categoryId) {
+                $totalAthletesQuery = $totalAthletesQuery->whereHas('athlete', function ($q) use ($categoryId) {
+                    $q->where('category_id', $categoryId);
+                });
+            }
+            if ($groupId) {
+                $totalAthletesQuery = $totalAthletesQuery->where('group_id', $groupId);
+            }
+            $totalAthletes = $totalAthletesQuery->count();
+
+            return response()->json([
+                'success' => true,
+                'rankings' => $rankings->values()->all(),
+                'pagination' => [
+                    'current_page' => (int)$page,
+                    'per_page' => $perPage,
+                    'total' => $totalCount,
+                    'total_pages' => $totalPages
+                ],
+                'total_matches' => $totalMatches,
+                'total_athletes' => $totalAthletes,
+                'filter' => [
+                    'category_id' => $categoryId,
+                    'group_id' => $groupId
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get rankings error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
