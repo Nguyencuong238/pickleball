@@ -22,13 +22,6 @@
             </div>
         </header>
 
-        <!-- Success Message -->
-        @if(session('success'))
-            <div class="alert alert-success fade-in" style="margin-bottom: 20px;">
-                ✅ {{ session('success') }}
-            </div>
-        @endif
-
         <!-- Stadium List Card -->
         <div class="card fade-in">
             <div class="card-header">

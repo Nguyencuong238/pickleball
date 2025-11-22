@@ -1,4 +1,6 @@
 @extends('layouts/homeyard')
+
+@section('css')
 <style>
     /* Page-specific styles */
     .booking-overview {
@@ -88,9 +90,32 @@
     }
 
     .calendar-nav-booking {
-        display: flex;
-        gap: 0.5rem;
-    }
+         display: flex;
+         gap: 0.5rem;
+         align-items: center;
+         flex-wrap: wrap;
+     }
+
+     .calendar-nav-booking input[type="date"] {
+         min-width: 150px;
+         border: 2px solid var(--border-color);
+         border-radius: var(--radius-md);
+         background: var(--bg-white);
+         color: var(--text-primary);
+         cursor: pointer;
+         font-size: 0.875rem;
+         transition: all var(--transition);
+     }
+
+     .calendar-nav-booking input[type="date"]:hover {
+         border-color: var(--primary-color);
+     }
+
+     .calendar-nav-booking input[type="date"]:focus {
+         outline: none;
+         border-color: var(--primary-color);
+         box-shadow: 0 0 0 3px rgba(0, 217, 181, 0.1);
+     }
 
     .time-slots-container {
         display: grid;
@@ -406,7 +431,80 @@
     .tab-content-booking.active {
         display: block;
     }
+    .form-label {
+        font-size: 1rem;
+    }
+
+    .pagination-container {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .pagination-btn {
+        padding: 0.5rem 0.75rem;
+        min-width: 36px;
+        height: 36px;
+        border: 2px solid var(--border-color);
+        background: var(--bg-white);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition);
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .pagination-btn:hover:not(:disabled) {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+        background: rgba(0, 217, 181, 0.05);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .pagination-btn.active {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        color: white;
+        border-color: transparent;
+        box-shadow: var(--shadow-md);
+    }
+
+    .pagination-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background: var(--bg-light);
+    }
+
+    #paginationContainer {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem;
+        flex-wrap: wrap;
+        background: var(--bg-white);
+        border-radius: var(--radius-lg);
+        margin-top: 1.5rem;
+    }
+
+    .pagination {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+        align-items: center;
+        padding: 1.5rem;
+        flex-wrap: wrap;
+    }
 </style>
+@endsection
+
 @section('content')
     <main class="main-content" id="mainContent">
         <div class="container">
@@ -503,9 +601,10 @@
                             <div class="calendar-header-booking">
                                 <h3 class="calendar-title-booking" id="calendarTitle">Hôm nay</h3>
                                 <div class="calendar-nav-booking">
-                                    <button class="btn btn-secondary btn-sm" onclick="navigateDate(-1)">‹ Hôm qua</button>
+                                    {{-- <button class="btn btn-secondary btn-sm" onclick="navigateDate(-1)">‹ Hôm qua</button>
                                     <button class="btn btn-secondary btn-sm" onclick="navigateDate(0)">Hôm nay</button>
-                                    <button class="btn btn-secondary btn-sm" onclick="navigateDate(1)">Ngày mai ›</button>
+                                    <button class="btn btn-secondary btn-sm" onclick="navigateDate(1)">Ngày mai ›</button> --}}
+                                    <input type="date" id="calendarDatePicker" class="form-input" style="height: 36px; padding: 0.5rem;" onchange="selectDate(this.value)">
                                 </div>
                             </div>
 
@@ -566,11 +665,11 @@
                             <div class="filter-grid-booking">
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">Tìm kiếm</label>
-                                    <input type="text" class="form-input" placeholder="Mã đơn, tên khách...">
+                                    <input type="text" id="searchInput" class="form-input" placeholder="Mã đơn, tên khách..." oninput="debouncedSearch()">
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">Trạng thái</label>
-                                    <select class="form-select">
+                                    <select id="statusFilter" class="form-select" onchange="applyFilters()">
                                         <option value="">Tất cả</option>
                                         <option value="confirmed">Đã xác nhận</option>
                                         <option value="pending">Chờ xác nhận</option>
@@ -580,162 +679,34 @@
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">Sân</label>
-                                    <select class="form-select">
+                                    <select id="courtFilter" class="form-select" onchange="applyFilters()">
                                         <option value="">Tất cả</option>
-                                        <option value="1">Sân 1</option>
-                                        <option value="2">Sân 2</option>
-                                        <option value="3">Sân 3</option>
-                                        <option value="4">Sân 4</option>
-                                        <option value="5">Sân 5</option>
-                                        <option value="6">Sân 6</option>
                                     </select>
                                 </div>
                                 <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">Từ ngày</label>
+                                    <input type="date" id="dateFromFilter" class="form-input" onchange="applyFilters()">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">Đến ngày</label>
+                                    <input type="date" id="dateToFilter" class="form-input" onchange="applyFilters()">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
                                     <label class="form-label">&nbsp;</label>
-                                    <button class="btn btn-primary" style="width: 100%;">
-                                        🔍 Lọc
+                                    <button class="btn btn-primary" style="width: 100%;" onclick="resetFilters()">
+                                        🔄 Đặt lại
                                     </button>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="booking-list-table">
-                            <div class="booking-row">
-                                <div class="booking-id">#BK-001</div>
-                                <div class="booking-info">
-                                    <div class="booking-customer">Nguyễn Văn An</div>
-                                    <div class="booking-details">
-                                        <span>🏟️ Sân 1</span>
-                                        <span>📅 20/01/2025</span>
-                                        <span>🕐 14:00 - 16:00</span>
-                                        <span>📱 0901234567</span>
-                                    </div>
-                                </div>
-                                <div class="booking-price">₫300,000</div>
-                                <span class="badge badge-success">Đã xác nhận</span>
-                                <div class="booking-actions">
-                                    <button class="btn btn-ghost btn-icon-sm"
-                                        onclick="viewBookingDetails('BK-001')">👁️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">✏️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">🗑️</button>
-                                </div>
-                            </div>
-
-                            <div class="booking-row">
-                                <div class="booking-id">#BK-002</div>
-                                <div class="booking-info">
-                                    <div class="booking-customer">Trần Thu Linh</div>
-                                    <div class="booking-details">
-                                        <span>🏟️ Sân 2</span>
-                                        <span>📅 20/01/2025</span>
-                                        <span>🕐 08:00 - 10:00</span>
-                                        <span>📱 0912345678</span>
-                                    </div>
-                                </div>
-                                <div class="booking-price">₫250,000</div>
-                                <span class="badge badge-warning">Chờ xác nhận</span>
-                                <div class="booking-actions">
-                                    <button class="btn btn-ghost btn-icon-sm"
-                                        onclick="viewBookingDetails('BK-002')">👁️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">✏️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">🗑️</button>
-                                </div>
-                            </div>
-
-                            <div class="booking-row">
-                                <div class="booking-id">#BK-003</div>
-                                <div class="booking-info">
-                                    <div class="booking-customer">Lê Minh Hoàng</div>
-                                    <div class="booking-details">
-                                        <span>🏟️ Sân 3</span>
-                                        <span>📅 21/01/2025</span>
-                                        <span>🕐 16:00 - 18:00</span>
-                                        <span>📱 0923456789</span>
-                                    </div>
-                                </div>
-                                <div class="booking-price">₫300,000</div>
-                                <span class="badge badge-success">Đã xác nhận</span>
-                                <div class="booking-actions">
-                                    <button class="btn btn-ghost btn-icon-sm"
-                                        onclick="viewBookingDetails('BK-003')">👁️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">✏️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">🗑️</button>
-                                </div>
-                            </div>
-
-                            <div class="booking-row">
-                                <div class="booking-id">#BK-004</div>
-                                <div class="booking-info">
-                                    <div class="booking-customer">Phạm Thu Hà</div>
-                                    <div class="booking-details">
-                                        <span>🏟️ Sân 1</span>
-                                        <span>📅 19/01/2025</span>
-                                        <span>🕐 10:00 - 12:00</span>
-                                        <span>📱 0934567890</span>
-                                    </div>
-                                </div>
-                                <div class="booking-price">₫250,000</div>
-                                <span class="badge badge-gray">Đã hủy</span>
-                                <div class="booking-actions">
-                                    <button class="btn btn-ghost btn-icon-sm"
-                                        onclick="viewBookingDetails('BK-004')">👁️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">✏️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">🗑️</button>
-                                </div>
-                            </div>
-
-                            <div class="booking-row">
-                                <div class="booking-id">#BK-005</div>
-                                <div class="booking-info">
-                                    <div class="booking-customer">Đỗ Văn Toàn</div>
-                                    <div class="booking-details">
-                                        <span>🏟️ Sân 5</span>
-                                        <span>📅 21/01/2025</span>
-                                        <span>🕐 19:00 - 21:00</span>
-                                        <span>📱 0945678901</span>
-                                    </div>
-                                </div>
-                                <div class="booking-price">₫320,000</div>
-                                <span class="badge badge-warning">Chờ xác nhận</span>
-                                <div class="booking-actions">
-                                    <button class="btn btn-ghost btn-icon-sm"
-                                        onclick="viewBookingDetails('BK-005')">👁️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">✏️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">🗑️</button>
-                                </div>
-                            </div>
-
-                            <div class="booking-row">
-                                <div class="booking-id">#BK-006</div>
-                                <div class="booking-info">
-                                    <div class="booking-customer">Vũ Thu Lan</div>
-                                    <div class="booking-details">
-                                        <span>🏟️ Sân 6</span>
-                                        <span>📅 20/01/2025</span>
-                                        <span>🕐 17:00 - 19:00</span>
-                                        <span>📱 0956789012</span>
-                                    </div>
-                                </div>
-                                <div class="booking-price">₫280,000</div>
-                                <span class="badge badge-success">Đã xác nhận</span>
-                                <div class="booking-actions">
-                                    <button class="btn btn-ghost btn-icon-sm"
-                                        onclick="viewBookingDetails('BK-006')">👁️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">✏️</button>
-                                    <button class="btn btn-ghost btn-icon-sm">🗑️</button>
-                                </div>
-                            </div>
+                        <div class="booking-list-table" id="bookingListTable">
+                            <!-- Bookings will be loaded here -->
                         </div>
 
                         <div style="margin-top: 1.5rem;">
-                            <div class="pagination">
-                                <button class="pagination-btn" disabled>‹ Trước</button>
-                                <button class="pagination-btn active">1</button>
-                                <button class="pagination-btn">2</button>
-                                <button class="pagination-btn">3</button>
-                                <button class="pagination-btn">4</button>
-                                <button class="pagination-btn">5</button>
-                                <button class="pagination-btn">Sau ›</button>
+                            <div class="pagination" id="paginationContainer">
+                                <!-- Pagination will be loaded here -->
                             </div>
                         </div>
                     </div>
@@ -849,28 +820,28 @@
     <div class="modal" id="bookingDetailsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Chi Tiết Đơn Đặt #BK-001</h3>
+                <h3 class="modal-title" id="modalTitle">Chi Tiết Đơn Đặt #BK-001</h3>
                 <button class="modal-close" onclick="closeBookingDetailsModal()">×</button>
             </div>
             <div>
                 <div class="form-group">
                     <label class="form-label">Thông Tin Khách Hàng</label>
                     <div class="court-info">
-                        <div class="court-info-item">
-                            <div class="court-info-label">Tên khách hàng</div>
-                            <div class="court-info-value">Nguyễn Văn An</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Tên khách hàng:</div>
+                            <div class="court-info-value" id="modalCustomerName">Nguyễn Văn An</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Số điện thoại</div>
-                            <div class="court-info-value">0901234567</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Số điện thoại:</div>
+                            <div class="court-info-value" id="modalCustomerPhone">0901234567</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Email</div>
-                            <div class="court-info-value">nguyenvanan@email.com</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Email:</div>
+                            <div class="court-info-value" id="modalCustomerEmail">nguyenvanan@email.com</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Trạng thái</div>
-                            <div class="court-info-value">
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Trạng thái:</div>
+                            <div class="court-info-value" id="modalStatus">
                                 <span class="badge badge-success">Đã xác nhận</span>
                             </div>
                         </div>
@@ -880,21 +851,21 @@
                 <div class="form-group">
                     <label class="form-label">Thông Tin Đặt Sân</label>
                     <div class="court-info">
-                        <div class="court-info-item">
-                            <div class="court-info-label">Sân</div>
-                            <div class="court-info-value">Sân 1 - Indoor Standard</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Sân:</div>
+                            <div class="court-info-value" id="modalCourtName">Sân 1 - Indoor Standard</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Ngày đặt</div>
-                            <div class="court-info-value">20/01/2025</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Ngày đặt:</div>
+                            <div class="court-info-value" id="modalBookingDate">20/01/2025</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Giờ</div>
-                            <div class="court-info-value">14:00 - 16:00</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Giờ:</div>
+                            <div class="court-info-value" id="modalTimeRange">14:00 - 16:00</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Thời gian</div>
-                            <div class="court-info-value">2 giờ</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Thời gian:</div>
+                            <div class="court-info-value" id="modalDuration">2 giờ</div>
                         </div>
                     </div>
                 </div>
@@ -902,21 +873,21 @@
                 <div class="booking-summary">
                     <div class="summary-row">
                         <span class="summary-label">Giá sân</span>
-                        <span class="summary-value">₫150,000/giờ</span>
+                        <span class="summary-value" id="modalHourlyRate">₫150,000/giờ</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Thời gian</span>
-                        <span class="summary-value">2 giờ</span>
+                        <span class="summary-value" id="modalDurationDisplay">2 giờ</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Tổng tiền</span>
-                        <span class="summary-value">₫300,000</span>
+                        <span class="summary-value" id="modalTotalPrice">₫300,000</span>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Ghi Chú</label>
-                    <div
+                    <div id="modalNotes"
                         style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); color: var(--text-secondary);">
                         Yêu cầu chuẩn bị nước uống và khăn lạnh
                     </div>
@@ -925,21 +896,21 @@
                 <div class="form-group">
                     <label class="form-label">Thông Tin Đơn</label>
                     <div class="court-info">
-                        <div class="court-info-item">
-                            <div class="court-info-label">Ngày tạo</div>
-                            <div class="court-info-value">18/01/2025 10:30</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Ngày tạo:</div>
+                            <div class="court-info-value" id="modalCreatedAt">18/01/2025 10:30</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Người tạo</div>
-                            <div class="court-info-value">Admin User</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Người tạo:</div>
+                            <div class="court-info-value" id="modalCreatedBy">Admin User</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Thanh toán</div>
-                            <div class="court-info-value">Tiền mặt</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Thanh toán:</div>
+                            <div class="court-info-value" id="modalPaymentMethod">Tiền mặt</div>
                         </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Mã đơn</div>
-                            <div class="court-info-value">#BK-001</div>
+                        <div class="court-info-item grid grid-2 mb-1">
+                            <div class="court-info-label">Mã đơn:</div>
+                            <div class="court-info-value" id="modalBookingId">#BK-001</div>
                         </div>
                     </div>
                 </div>
@@ -947,7 +918,7 @@
             <div class="modal-footer">
                 <button class="btn btn-danger">❌ Hủy Đơn</button>
                 <button class="btn btn-secondary" onclick="closeBookingDetailsModal()">Đóng</button>
-                <button class="btn btn-primary">✏️ Chỉnh Sửa</button>
+                {{-- <button class="btn btn-primary">✏️ Chỉnh Sửa</button> --}}
             </div>
         </div>
     </div>
@@ -987,6 +958,11 @@
 
             document.getElementById(tabName).classList.add('active');
             event.target.classList.add('active');
+            
+            // Load bookings list when switching to list tab
+            if (tabName === 'list') {
+                loadBookingsList();
+            }
         }
 
         // Load courts data from form
@@ -995,26 +971,28 @@
         let currentSelectedDate = '{{$date}}';
 
         function initCourtsData() {
-            const form = document.getElementById('bookingForm');
-            const courstsJson = form.getAttribute('data-courts');
-            if (courstsJson) {
-                try {
-                    const courts = JSON.parse(courstsJson);
-                    courts.forEach(court => {
-                        // Default pricing: 150k per hour (can be customized based on court type)
-                        courtsData[court.id] = {
-                            id: court.id,
-                            name: court.court_name,
-                            hourly_rate: 150000  // Default rate
-                        };
-                    });
-                    // Load calendar for today
-                    loadCalendarData(currentSelectedDate);
-                } catch (e) {
-                    console.error('Error parsing courts data:', e);
-                }
-            }
-        }
+             const form = document.getElementById('bookingForm');
+             const courstsJson = form.getAttribute('data-courts');
+             if (courstsJson) {
+                 try {
+                     const courts = JSON.parse(courstsJson);
+                     courts.forEach(court => {
+                         // Default pricing: 150k per hour (can be customized based on court type)
+                         courtsData[court.id] = {
+                             id: court.id,
+                             name: court.court_name,
+                             hourly_rate: court.rental_price  // Default rate
+                         };
+                     });
+                     // Initialize date picker with current selected date
+                     updateCalendarDatePicker(currentSelectedDate);
+                     // Load calendar for today
+                     loadCalendarData(currentSelectedDate);
+                 } catch (e) {
+                     console.error('Error parsing courts data:', e);
+                 }
+             }
+         }
 
         // Format date with day name
         function formatDateDisplay(dateStr) {
@@ -1026,12 +1004,27 @@
         }
 
         // Navigate to different dates
-        function navigateDate(days) {
-            const currentDate = new Date(currentSelectedDate);
-            currentDate.setDate(currentDate.getDate() + days);
-            const newDate = currentDate.toISOString().split('T')[0];
-            loadCalendarData(newDate);
-        }
+         function navigateDate(days) {
+             const currentDate = new Date(currentSelectedDate);
+             currentDate.setDate(currentDate.getDate() + days);
+             const newDate = currentDate.toISOString().split('T')[0];
+             updateCalendarDatePicker(newDate);
+             loadCalendarData(newDate);
+         }
+
+         // Select date from date picker
+         function selectDate(dateStr) {
+             if (dateStr) {
+                 updateCalendarDatePicker(dateStr);
+                 loadCalendarData(dateStr);
+             }
+         }
+
+         // Update date picker value
+         function updateCalendarDatePicker(dateStr) {
+             document.getElementById('calendarDatePicker').value = dateStr;
+             currentSelectedDate = dateStr;
+         }
 
         // Load bookings data for selected date
         function loadCalendarData(date) {
@@ -1120,7 +1113,7 @@
             if (!courtId) return;
             
             const courtInfo = courtsData[courtId];
-            const rate = (courtInfo && courtInfo.hourly_rate) ? courtInfo.hourly_rate : 150000;
+            const rate = (courtInfo && courtInfo.hourly_rate) ? courtInfo.hourly_rate : 0;
             document.getElementById('hourlyRateDisplay').textContent = '₫' + rate.toLocaleString('vi-VN') + '/giờ';
             
             // Store rate in form for submission
@@ -1144,7 +1137,8 @@
             const formData = new FormData(form);
             
             // Add hourly_rate
-            formData.append('hourly_rate', form.dataset.hourlyRate || 150000);
+            formData.append('hourly_rate', form.dataset.hourlyRate || 0);
+            formData.append('status', 'completed');
 
             fetch('{{ route('homeyard.bookings.store') }}', {
                     method: 'POST',
@@ -1201,8 +1195,96 @@
         }
 
         function viewBookingDetails(bookingId) {
-            console.log('View booking:', bookingId);
-            document.getElementById('bookingDetailsModal').classList.add('active');
+            // Extract numeric ID from BK-XXXXXX format
+            const numericId = bookingId.replace('BK-', '');
+            
+            fetch(`/homeyard/bookings/${numericId}`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.booking) {
+                    populateBookingDetailsModal(data.booking);
+                    document.getElementById('bookingDetailsModal').classList.add('active');
+                } else {
+                    toastr.error('Không thể tải chi tiết đơn đặt');
+                }
+            })
+            .catch(error => {
+                console.error('Error loading booking details:', error);
+                toastr.error('Lỗi khi tải chi tiết đơn đặt');
+            });
+        }
+
+        function populateBookingDetailsModal(booking) {
+            // Format date
+            const bookingDate = new Date(booking.booking_date).toLocaleDateString('vi-VN', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                year: 'numeric' 
+            });
+            const createdAt = booking.created_at ? new Date(booking.created_at).toLocaleDateString('vi-VN', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }) : '-';
+            
+            // Calculate duration in hours
+            const startTime = new Date(`2000-01-01 ${booking.start_time}`);
+            const endTime = new Date(`2000-01-01 ${booking.end_time}`);
+            const durationHours = Math.round((endTime - startTime) / (1000 * 60 * 60));
+            
+            // Calculate hourly rate
+            const hourlyRate = booking.total_price ? Math.round(booking.total_price / durationHours) : 0;
+            
+            // Format times
+            const startTimeStr = booking.start_time.substring(0, 5);
+            const endTimeStr = booking.end_time.substring(0, 5);
+            
+            // Update modal title
+            const bookingId = 'BK-' + String(booking.id).padStart(6, '0');
+            document.getElementById('modalTitle').textContent = `Chi Tiết Đơn Đặt ${bookingId}`;
+            
+            // Update customer info
+            document.getElementById('modalCustomerName').textContent = booking.customer_name || '-';
+            document.getElementById('modalCustomerPhone').textContent = booking.customer_phone || '-';
+            document.getElementById('modalCustomerEmail').textContent = booking.customer_email || '-';
+            document.getElementById('modalStatus').innerHTML = getStatusBadge(booking.status);
+            
+            // Update booking info
+            document.getElementById('modalCourtName').textContent = booking.court_name || 'Sân';
+            document.getElementById('modalBookingDate').textContent = bookingDate;
+            document.getElementById('modalTimeRange').textContent = `${startTimeStr} - ${endTimeStr}`;
+            document.getElementById('modalDuration').textContent = `${durationHours} giờ`;
+            
+            // Update summary
+            document.getElementById('modalHourlyRate').textContent = '₫' + hourlyRate.toLocaleString('vi-VN') + '/giờ';
+            document.getElementById('modalDurationDisplay').textContent = `${durationHours} giờ`;
+            document.getElementById('modalTotalPrice').textContent = '₫' + parseInt(booking.total_price).toLocaleString('vi-VN');
+            
+            // Update notes
+            document.getElementById('modalNotes').textContent = booking.notes || 'Không có ghi chú';
+            
+            // Update booking info section
+            document.getElementById('modalCreatedAt').textContent = createdAt;
+            document.getElementById('modalCreatedBy').textContent = 'Admin User'; // This could be enhanced with actual creator info
+            document.getElementById('modalPaymentMethod').textContent = booking.payment_method ? getPaymentMethodText(booking.payment_method) : '-';
+            document.getElementById('modalBookingId').textContent = `#${bookingId}`;
+        }
+
+        function getPaymentMethodText(method) {
+            const methodMap = {
+                'cash': 'Tiền mặt',
+                'card': 'Thẻ tín dụng',
+                'transfer': 'Chuyển khoản',
+                'wallet': 'Ví điện tử'
+            };
+            return methodMap[method] || method;
         }
 
         function closeBookingDetailsModal() {
@@ -1238,6 +1320,248 @@
             .catch(error => {
                 console.error('Error loading booking stats:', error);
             });
+        }
+
+        // Get status badge HTML
+        function getStatusBadge(status) {
+            const statusMap = {
+                'confirmed': { class: 'badge-success', text: 'Đã xác nhận' },
+                'pending': { class: 'badge-warning', text: 'Chờ xác nhận' },
+                'cancelled': { class: 'badge-gray', text: 'Đã hủy' },
+                'completed': { class: 'badge-info', text: 'Hoàn thành' }
+            };
+            const statusData = statusMap[status] || { class: 'badge-gray', text: status };
+            return `<span class="badge ${statusData.class}">${statusData.text}</span>`;
+        }
+
+        // Load bookings list
+        function loadBookingsList() {
+            applyFilters(1); // Load first page with all bookings
+        }
+
+        // Render bookings list
+        function renderBookingsList(bookings) {
+            const container = document.getElementById('bookingListTable');
+            let html = '';
+
+            if (bookings.length === 0) {
+                html = '<div style="padding: 2rem; text-align: center; color: var(--text-secondary);">Chưa có đơn đặt sân nào</div>';
+            } else {
+                bookings.forEach(booking => {
+                    const bookingDate = new Date(booking.booking_date).toLocaleDateString('vi-VN', { 
+                        day: '2-digit', 
+                        month: '2-digit', 
+                        year: 'numeric' 
+                    });
+                    const startTime = booking.start_time.substring(0, 5);
+                    const endTime = booking.end_time.substring(0, 5);
+                    const bookingId = 'BK-' + String(booking.id).padStart(6, '0');
+                    const totalPrice = parseInt(booking.total_price).toLocaleString('vi-VN');
+
+                    html += `
+                        <div class="booking-row">
+                            <div class="booking-id">#${bookingId}</div>
+                            <div class="booking-info">
+                                <div class="booking-customer">${booking.customer_name}</div>
+                                <div class="booking-details">
+                                    <span>🏟️ ${booking.court_name || 'Sân'}</span>
+                                    <span>📅 ${bookingDate}</span>
+                                    <span>🕐 ${startTime} - ${endTime}</span>
+                                    <span>📱 ${booking.customer_phone}</span>
+                                </div>
+                            </div>
+                            <div class="booking-price">₫${totalPrice}</div>
+                            ${getStatusBadge(booking.status)}
+                            <div class="booking-actions">
+                                <button class="btn btn-ghost btn-icon-sm" onclick="viewBookingDetails('${bookingId}')">👁️</button>
+                                <button class="btn btn-ghost btn-icon-sm">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Render empty bookings list
+        function renderBookingsListEmpty() {
+            const container = document.getElementById('bookingListTable');
+            container.innerHTML = '<div style="padding: 2rem; text-align: center; color: var(--text-secondary);">Không thể tải danh sách đơn đặt sân</div>';
+        }
+
+        // Current page for pagination
+        let currentPage = 1;
+        let totalPages = 1;
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // Debounced search (wait 500ms after user stops typing)
+        const debouncedSearch = debounce(() => {
+            applyFilters(1); // Reset to page 1 when searching
+        }, 500);
+
+        // Apply filters with AJAX
+        function applyFilters(page = 1) {
+            const searchText = document.getElementById('searchInput').value.trim();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const courtFilter = document.getElementById('courtFilter').value;
+            const dateFromFilter = document.getElementById('dateFromFilter').value;
+            const dateToFilter = document.getElementById('dateToFilter').value;
+
+            const params = new URLSearchParams({
+                search: searchText,
+                status: statusFilter,
+                court_id: courtFilter,
+                date_from: dateFromFilter,
+                date_to: dateToFilter,
+                page: page
+            });
+
+            fetch(`/homeyard/bookings/search?${params}`, {
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.bookings) {
+                    currentPage = data.current_page;
+                    totalPages = data.last_page;
+                    renderBookingsList(data.bookings.data || data.bookings);
+                    renderPagination(data);
+                    // Update court filter options
+                    if (data.courts) {
+                        populateCourtFilterFromData(data.courts);
+                    }
+                } else {
+                    renderBookingsListEmpty();
+                    renderPaginationEmpty();
+                }
+            })
+            .catch(error => {
+                console.error('Error applying filters:', error);
+                renderBookingsListEmpty();
+                renderPaginationEmpty();
+            });
+        }
+
+        // Reset all filters
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('statusFilter').value = '';
+            document.getElementById('courtFilter').value = '';
+            document.getElementById('dateFromFilter').value = '';
+            document.getElementById('dateToFilter').value = '';
+            currentPage = 1;
+            applyFilters(1);
+        }
+
+        // Go to specific page
+        function goToPage(page) {
+            if (page >= 1 && page <= totalPages) {
+                applyFilters(page);
+            }
+        }
+
+        // Render pagination controls
+        function renderPagination(data) {
+            const container = document.getElementById('paginationContainer');
+            let html = '';
+
+            const currentPage = data.current_page;
+            const lastPage = data.last_page;
+
+            // Only show pagination if there are 2 or more pages
+            if (lastPage < 2) {
+                container.innerHTML = '';
+                return;
+            }
+
+            // Previous button
+            if (currentPage > 1) {
+                html += `<button class="pagination-btn" onclick="goToPage(${currentPage - 1})">‹ Trước</button>`;
+            } else {
+                html += `<button class="pagination-btn" disabled>‹ Trước</button>`;
+            }
+
+            // Page numbers
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(lastPage, currentPage + 2);
+
+            if (startPage > 1) {
+                html += `<button class="pagination-btn" onclick="goToPage(1)">1</button>`;
+                if (startPage > 2) {
+                    html += `<button class="pagination-btn" disabled>...</button>`;
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const activeClass = i === currentPage ? 'active' : '';
+                html += `<button class="pagination-btn ${activeClass}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            if (endPage < lastPage) {
+                if (endPage < lastPage - 1) {
+                    html += `<button class="pagination-btn" disabled>...</button>`;
+                }
+                html += `<button class="pagination-btn" onclick="goToPage(${lastPage})">${lastPage}</button>`;
+            }
+
+            // Next button
+            if (currentPage < lastPage) {
+                html += `<button class="pagination-btn" onclick="goToPage(${currentPage + 1})">Sau ›</button>`;
+            } else {
+                html += `<button class="pagination-btn" disabled>Sau ›</button>`;
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Render empty pagination
+        function renderPaginationEmpty() {
+            document.getElementById('paginationContainer').innerHTML = '';
+        }
+
+        // Populate court filter dropdown from data
+        function populateCourtFilterFromData(courts) {
+            const courtFilter = document.getElementById('courtFilter');
+            const currentValue = courtFilter.value;
+
+            // Remove all options except the first one
+            while (courtFilter.options.length > 1) {
+                courtFilter.remove(1);
+            }
+
+            // Add courts
+            courts.forEach(court => {
+                const option = document.createElement('option');
+                option.value = court.id;
+                option.textContent = court.name;
+                courtFilter.appendChild(option);
+            });
+
+            // Restore previous value if it exists
+            if (currentValue) {
+                courtFilter.value = currentValue;
+            }
+        }
+
+        // Populate court filter dropdown (for initial load)
+        function populateCourtFilter() {
+            // This will be populated by the search endpoint
         }
 
         // Load page

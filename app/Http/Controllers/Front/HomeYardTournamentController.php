@@ -495,6 +495,7 @@ class HomeYardTournamentController extends Controller
                 'surface_type' => 'required|string|in:acrylic,polyurethane,concrete,sport-court',
                 'stadium_id' => 'required|exists:stadiums,id',
                 'capacity' => 'required|integer|min:1',
+                'rental_price' => 'required|integer|min:1',
                 'description' => 'nullable|string',
             ]);
 
@@ -506,6 +507,7 @@ class HomeYardTournamentController extends Controller
                 'size' => $request->size,
                 'surface_type' => $validated['surface_type'],
                 'capacity' => $validated['capacity'] ?? null,
+                'rental_price' => $validated['rental_price'] ?? null,
                 'description' => $validated['description'] ?? null,
                 'status' => 'available',
                 'is_active' => true,
@@ -556,6 +558,7 @@ class HomeYardTournamentController extends Controller
                     'surface_type' => $court->surface_type,
                     'stadium_id' => $court->stadium_id,
                     'capacity' => $court->capacity,
+                    'rental_price' => $court->rental_price,
                     'description' => $court->description,
                 ]
             ]);
@@ -578,6 +581,7 @@ class HomeYardTournamentController extends Controller
                 'surface_type' => 'required|string|in:acrylic,polyurethane,concrete,sport-court',
                 'stadium_id' => 'required|exists:stadiums,id',
                 'capacity' => 'required|integer|min:1',
+                'rental_price' => 'required|integer|min:1',
                 'description' => 'nullable|string',
             ]);
 
@@ -589,6 +593,7 @@ class HomeYardTournamentController extends Controller
                 'surface_type' => $validated['surface_type'],
                 'size' => $request->size,
                 'capacity' => $validated['capacity'] ?? null,
+                'rental_price' => $validated['rental_price'] ?? null,
                 'description' => $validated['description'] ?? null,
             ]);
 
@@ -1188,7 +1193,7 @@ class HomeYardTournamentController extends Controller
             'duration_hours' => $durationHours,
             'hourly_rate' => $request->hourly_rate,
             'total_price' => $totalPrice,
-            'status' => 'pending',
+            'status' => $request->status ?? 'pending',
             'payment_method' => $request->payment_method,
             'notes' => $request->notes ?? null,
         ]);
@@ -1248,37 +1253,57 @@ class HomeYardTournamentController extends Controller
     public function getBookingsByDate(Request $request)
     {
         $date = $request->query('date');
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
 
-        if (!$date) {
+        // Default to today if no date provided
+        if (!$date && !$dateFrom && !$dateTo) {
             $date = now()->toDateString();
         }
 
-        // Get all bookings for this date
-        $bookings = Booking::where('booking_date', $date)
-            ->where('status', '!=', 'cancelled')
-            ->get([
-                'id',
-                'court_id',
-                'customer_name',
-                'start_time',
-                'end_time',
-                'status',
-            ])
-            ->map(function ($booking) {
-                return [
-                    'id' => $booking->id,
-                    'court_id' => $booking->court_id,
-                    'customer_name' => $booking->customer_name,
-                    'start_time' => substr($booking->start_time, 0, 5),
-                    'end_time' => substr($booking->end_time, 0, 5),
-                    'status' => $booking->status,
-                ];
-            });
+        // Build query
+        $query = Booking::where('status', '!=', 'cancelled');
+
+        // Filter by single date or date range
+        if ($date) {
+            $query->where('booking_date', $date);
+        } else {
+            if ($dateFrom) {
+                $query->whereDate('booking_date', '>=', $dateFrom);
+            }
+            if ($dateTo) {
+                $query->whereDate('booking_date', '<=', $dateTo);
+            }
+        }
+
+        // Get bookings
+        $bookings = $query->get([
+            'id',
+            'court_id',
+            'customer_name',
+            'booking_date',
+            'start_time',
+            'end_time',
+            'status',
+        ])
+        ->map(function ($booking) {
+            return [
+                'id' => $booking->id,
+                'court_id' => $booking->court_id,
+                'customer_name' => $booking->customer_name,
+                'booking_date' => $booking->booking_date,
+                'start_time' => substr($booking->start_time, 0, 5),
+                'end_time' => substr($booking->end_time, 0, 5),
+                'status' => $booking->status,
+            ];
+        });
 
         return response()->json([
             'success' => true,
             'bookings' => $bookings,
             'date' => $date,
+            'date_from' => $dateFrom,
+            'date_to' => $dateTo,
         ]);
         
     }
@@ -1310,6 +1335,195 @@ class HomeYardTournamentController extends Controller
             'pending' => $pending,
             'cancelled' => $cancelled,
         ]);
+    }
+
+    public function getAllBookings(Request $request)
+    {
+        try {
+            $stadiums = Stadium::where('user_id', auth()->id())->pluck('id');
+            $courtsOfUser = Court::whereIn('stadium_id', $stadiums)->pluck('id');
+
+            $bookings = Booking::whereIn('court_id', $courtsOfUser)
+                ->with('court')
+                ->latest('booking_date')
+                ->latest('start_time')
+                ->get([
+                    'id',
+                    'court_id',
+                    'customer_name',
+                    'customer_phone',
+                    'booking_date',
+                    'start_time',
+                    'end_time',
+                    'total_price',
+                    'status',
+                ])
+                ->map(function ($booking) {
+                    return [
+                        'id' => $booking->id,
+                        'court_id' => $booking->court_id,
+                        'court_name' => $booking->court?->court_name ?? 'Sân',
+                        'customer_name' => $booking->customer_name,
+                        'customer_phone' => $booking->customer_phone,
+                        'booking_date' => $booking->booking_date,
+                        'start_time' => $booking->start_time,
+                        'end_time' => $booking->end_time,
+                        'total_price' => $booking->total_price,
+                        'status' => $booking->status,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'bookings' => $bookings,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get all bookings error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể tải danh sách đơn đặt sân'
+            ]);
+        }
+    }
+
+    public function searchBookings(Request $request)
+    {
+        try {
+            $stadiums = Stadium::where('user_id', auth()->id())->pluck('id');
+            $courtsOfUser = Court::whereIn('stadium_id', $stadiums)->pluck('id');
+
+            $search = $request->query('search', '');
+            $status = $request->query('status', '');
+            $courtId = $request->query('court_id', '');
+            $dateFrom = $request->query('date_from', '');
+            $dateTo = $request->query('date_to', '');
+            $page = $request->query('page', 1);
+            $perPage = 10;
+
+            // Build query
+            $query = Booking::whereIn('court_id', $courtsOfUser)
+                ->with('court');
+
+            // Apply search filter
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('customer_name', 'like', "%{$search}%")
+                        ->orWhere('customer_phone', 'like', "%{$search}%")
+                        ->orWhere('customer_email', 'like', "%{$search}%");
+                });
+            }
+
+            // Apply status filter
+            if ($status) {
+                $query->where('status', $status);
+            }
+
+            // Apply court filter
+            if ($courtId) {
+                $query->where('court_id', $courtId);
+            }
+
+            // Apply date range filter
+            if ($dateFrom) {
+                $query->whereDate('booking_date', '>=', $dateFrom);
+            }
+
+            if ($dateTo) {
+                $query->whereDate('booking_date', '<=', $dateTo);
+            }
+
+            // Order and paginate
+            $bookings = $query->latest('booking_date')
+                ->latest('start_time')
+                ->paginate($perPage, ['*'], 'page', $page);
+
+            // Get unique courts for filter dropdown
+            $courts = Court::whereIn('stadium_id', $stadiums)
+                ->where('is_active', true)
+                ->select('id', 'court_name')
+                ->orderBy('court_name')
+                ->get()
+                ->map(function ($court) {
+                    return [
+                        'id' => $court->id,
+                        'name' => $court->court_name
+                    ];
+                });
+
+            // Format bookings data
+            $formattedBookings = $bookings->getCollection()->map(function ($booking) {
+                return [
+                    'id' => $booking->id,
+                    'court_id' => $booking->court_id,
+                    'court_name' => $booking->court?->court_name ?? 'Sân',
+                    'customer_name' => $booking->customer_name,
+                    'customer_phone' => $booking->customer_phone,
+                    'booking_date' => $booking->booking_date,
+                    'start_time' => $booking->start_time,
+                    'end_time' => $booking->end_time,
+                    'total_price' => $booking->total_price,
+                    'status' => $booking->status,
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'bookings' => [
+                    'data' => $formattedBookings
+                ],
+                'current_page' => $bookings->currentPage(),
+                'last_page' => $bookings->lastPage(),
+                'total' => $bookings->total(),
+                'per_page' => $bookings->perPage(),
+                'courts' => $courts,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Search bookings error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi tìm kiếm đơn đặt sân'
+            ]);
+        }
+    }
+
+    public function getBookingDetails($bookingId)
+    {
+        try {
+            $stadiums = Stadium::where('user_id', auth()->id())->pluck('id');
+            $courtsOfUser = Court::whereIn('stadium_id', $stadiums)->pluck('id');
+
+            $booking = Booking::whereIn('court_id', $courtsOfUser)
+                ->with('court')
+                ->findOrFail($bookingId);
+
+            return response()->json([
+                'success' => true,
+                'booking' => [
+                    'id' => $booking->id,
+                    'court_id' => $booking->court_id,
+                    'court_name' => $booking->court?->court_name ?? 'Sân',
+                    'customer_name' => $booking->customer_name,
+                    'customer_phone' => $booking->customer_phone,
+                    'customer_email' => $booking->customer_email,
+                    'booking_date' => $booking->booking_date,
+                    'start_time' => $booking->start_time,
+                    'end_time' => $booking->end_time,
+                    'duration_hours' => $booking->duration_hours,
+                    'hourly_rate' => $booking->hourly_rate,
+                    'total_price' => $booking->total_price,
+                    'status' => $booking->status,
+                    'payment_method' => $booking->payment_method,
+                    'notes' => $booking->notes,
+                    'created_at' => $booking->created_at,
+                ]
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get booking details error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể tải chi tiết đơn đặt'
+            ], 404);
+        }
     }
 
     public function storeMatch(Request $request, Tournament $tournament)

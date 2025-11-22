@@ -704,6 +704,10 @@
                     <input type="number" class="form-input" name="capacity" placeholder="Ví dụ: 80" min="1">
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Giá thuê (giờ) *</label>
+                    <input type="number" class="form-input" name="rental_price" placeholder="200000">
+                </div>
+                <div class="form-group">
                     <label class="form-label">Ghi chú</label>
                     <textarea class="form-textarea" name="description" placeholder="Thông tin thêm về sân..."></textarea>
                 </div>
@@ -766,6 +770,10 @@
                 <div class="form-group">
                     <label class="form-label">Sức chứa (người) *</label>
                     <input type="number" class="form-input" name="capacity" placeholder="Ví dụ: 80" min="1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Giá thuê (giờ) *</label>
+                    <input type="number" class="form-input" name="rental_price" placeholder="200000">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ghi chú</label>
@@ -987,6 +995,7 @@
                     form.querySelector('select[name="surface_type"]').value = data.court.surface_type || '';
                     form.querySelector('select[name="stadium_id"]').value = data.court.stadium_id || '';
                     form.querySelector('input[name="capacity"]').value = data.court.capacity || '';
+                    form.querySelector('input[name="rental_price"]').value = data.court.rental_price || '';
                     form.querySelector('input[name="size"]').value = data.court.size || '';
                     form.querySelector('textarea[name="description"]').value = data.court.description || '';
                     

@@ -25,6 +25,7 @@ class Court extends Model
         'size',
         'is_active',
         'daily_matches',
+        'rental_price',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class Court extends Model
         'capacity' => 'integer',
         'is_active' => 'boolean',
         'daily_matches' => 'integer',
+        'rental_price' => 'integer',
     ];
 
     /**

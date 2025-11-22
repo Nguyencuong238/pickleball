@@ -120,6 +120,9 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::post('bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('bookings.store');
     Route::get('bookings/by-date', [HomeYardTournamentController::class, 'getBookingsByDate'])->name('bookings.by-date');
     Route::get('bookings/stats', [HomeYardTournamentController::class, 'getBookingStats'])->name('bookings.stats');
+    Route::get('bookings/all', [HomeYardTournamentController::class, 'getAllBookings'])->name('bookings.all');
+    Route::get('bookings/search', [HomeYardTournamentController::class, 'searchBookings'])->name('bookings.search');
+    Route::get('bookings/{bookingId}', [HomeYardTournamentController::class, 'getBookingDetails'])->name('bookings.show');
     
     // Tournament Basic Info
     Route::put('tournaments/{tournament}', [HomeYardTournamentController::class, 'updateTournament'])->name('tournaments.update');

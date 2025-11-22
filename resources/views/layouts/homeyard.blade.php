@@ -600,6 +600,23 @@
             font-weight: 500;
         }
 
+        .btn-logout:hover {
+            background: var(--status-danger);
+            color: #fff;
+        }
+
+        .sidebar-brand {
+            text-decoration: none;
+        }
+
+        .modal-content {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .modal-content::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera */
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .tournament-header-title {
@@ -655,6 +672,7 @@
             animation: pulse 1.5s infinite;
         }
     </style>
+    @yield('css')
 </head>
 
 <body>
@@ -662,10 +680,10 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-brand">
+                <a href="{{ route('home') }}" class="sidebar-brand">
                     <div class="sidebar-logo">🏆</div>
-                    <span class="sidebar-brand-text">TMS</span>
-                </div>
+                    <span class="sidebar-brand-text">OnePickleball</span>
+                </a>
                 <button class="sidebar-toggle" onclick="toggleSidebar()">
                     <span>☰</span>
                 </button>
@@ -739,6 +757,14 @@
                         <span class="nav-icon">⚙️</span>
                         <span class="nav-text">Cài đặt</span>
                     </a>
+                    <form method="POST" action="{{route('logout')}}">
+                        @csrf                     
+                        <a href="#" class="nav-item btn-logout"
+                            onclick="event.preventDefault();this.closest('form').submit();">
+                            <span class="nav-icon">↪️</span>
+                            <span class="nav-text">Đăng xuất</span> 
+                        </a>
+                    </form>
                 </div>
             </nav>
         </aside>
