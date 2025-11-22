@@ -16,6 +16,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class HomeYardTournamentController extends Controller
 {
@@ -1655,6 +1657,126 @@ class HomeYardTournamentController extends Controller
                 'success' => false,
                 'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function exportRankingsExcel(Tournament $tournament, Request $request)
+    {
+        try {
+            $this->authorize('view', $tournament);
+
+            $categoryId = $request->query('category_id');
+            $groupId = $request->query('group_id');
+
+            // Get standings
+            $query = GroupStanding::select([
+                'id', 'athlete_id', 'group_id', 'points', 'matches_played', 'matches_won',
+                'matches_lost', 'matches_drawn', 'win_rate', 'sets_won', 'sets_lost',
+                'sets_differential', 'games_won', 'games_lost', 'games_differential', 'is_advanced'
+            ])
+            ->with([
+                'athlete' => function ($q) {
+                    $q->select('id', 'athlete_name', 'category_id');
+                },
+                'athlete.category' => function ($q) {
+                    $q->select('id', 'category_name');
+                }
+            ])
+            ->whereHas('group', function ($q) use ($tournament) {
+                $q->where('tournament_id', $tournament->id);
+            });
+
+            if ($categoryId) {
+                $query->whereHas('athlete', function ($q) use ($categoryId) {
+                    $q->where('category_id', $categoryId);
+                });
+            }
+
+            if ($groupId) {
+                $query->where('group_id', $groupId);
+            }
+
+            $standings = $query->get()
+                ->sortByDesc('points')
+                ->sortByDesc('matches_won')
+                ->sortByDesc(function ($standing) {
+                    return ($standing->games_won ?? 0) - ($standing->games_lost ?? 0);
+                })
+                ->values();
+
+            // Create spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Bảng Xếp Hạng');
+
+            // Set headers
+            $headers = ['Xếp Hạng', 'Tên VĐV', 'Nội Dung', 'Trận', 'Thắng', 'Thua', 'Điểm', 'Set', 'Hiệu Số Game', '% Thắng'];
+            $sheet->fromArray([$headers], null, 'A1');
+
+            // Style header
+            $headerStyle = [
+                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
+                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
+            ];
+            $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
+
+            // Add data
+            $rowNum = 2;
+            foreach ($standings as $index => $standing) {
+                $athlete = $standing->athlete;
+                $category = $athlete ? $athlete->category : null;
+                $matchesPlayed = $standing->matches_played ?? 0;
+                $matchesWon = $standing->matches_won ?? 0;
+                $winRate = $matchesPlayed > 0
+                    ? round(($matchesWon / $matchesPlayed) * 100, 2)
+                    : 0;
+
+                $row = [
+                    $index + 1,
+                    $athlete ? $athlete->athlete_name : 'N/A',
+                    $category ? $category->category_name : 'N/A',
+                    $matchesPlayed,
+                    $matchesWon,
+                    $standing->matches_lost ?? 0,
+                    $standing->points ?? 0,
+                    ($standing->sets_won ?? 0) . '/' . ($standing->sets_lost ?? 0),
+                    ($standing->games_won ?? 0) - ($standing->games_lost ?? 0),
+                    $winRate . '%'
+                ];
+
+                $sheet->fromArray([$row], null, 'A' . $rowNum);
+                $rowNum++;
+            }
+
+            // Set column widths
+            $sheet->getColumnDimension('A')->setWidth(12);
+            $sheet->getColumnDimension('B')->setWidth(20);
+            $sheet->getColumnDimension('C')->setWidth(18);
+            $sheet->getColumnDimension('D')->setWidth(10);
+            $sheet->getColumnDimension('E')->setWidth(10);
+            $sheet->getColumnDimension('F')->setWidth(10);
+            $sheet->getColumnDimension('G')->setWidth(10);
+            $sheet->getColumnDimension('H')->setWidth(12);
+            $sheet->getColumnDimension('I')->setWidth(15);
+            $sheet->getColumnDimension('J')->setWidth(12);
+
+            // Center align numeric columns
+            $sheet->getStyle('A2:J' . ($rowNum - 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            // Download
+            $writer = new Xlsx($spreadsheet);
+            $filename = 'BangXepHang_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            $writer->save('php://output');
+            exit;
+        } catch (\Exception $e) {
+            Log::error('Export rankings error: ' . $e->getMessage());
+            return back()->with('error', 'Lỗi xuất file: ' . $e->getMessage());
         }
     }
 }

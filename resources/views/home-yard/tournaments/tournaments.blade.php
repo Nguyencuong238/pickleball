@@ -688,7 +688,7 @@
                                     ✏️
                                 </button>
                                 <button class="btn btn-secondary btn-sm" onclick="window.location.href='{{ route('homeyard.dashboard', $tournament->id) }}'">
-                                    ⋮
+                                   ⚙️
                                 </button>
                             </div>
                         </div>

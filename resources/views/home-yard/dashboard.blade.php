@@ -885,7 +885,7 @@
                         <h3 class="card-title">🏅 Bảng xếp hạng VĐV</h3>
                         <div class="card-actions">
                             <button class="btn btn-primary btn-sm" onclick="printRankings()">📄 In bảng</button>
-                            <button class="btn btn-success btn-sm" onclick="exportRankingsCSV()">📊 Xuất CSV</button>
+                            <button class="btn btn-success btn-sm" onclick="exportRankingsExcel()">📊 Xuất Excel</button>
                         </div>
                     </div>
                     <div class="card-body">
@@ -2484,41 +2484,18 @@
             paginationContainer.innerHTML = html;
         }
 
-        function exportRankingsCSV() {
-            const tableBody = document.getElementById('rankingsTableBody');
-            if (!tableBody || tableBody.rows.length === 0) {
-                alert('Không có dữ liệu để xuất');
-                return;
-            }
-
-            let csv = 'Xếp Hạng,Tên VĐV,Nội Dung,Trận,Thắng,Thua,Điểm,Set,Hiệu Số Game,% Thắng\n';
-
-            const rows = tableBody.querySelectorAll('tr');
-            rows.forEach((row, index) => {
-                const cells = row.querySelectorAll('td');
-                const rowData = Array.from(cells)
-                    .map(cell => {
-                        let text = cell.textContent.trim();
-                        // Remove special characters for CSV
-                        text = text.replace(/🥇|🥈|🥉/g, '').trim();
-                        return `"${text}"`;
-                    })
-                    .join(',');
-                csv += rowData + '\n';
-            });
-
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-
-            link.setAttribute('href', url);
-            link.setAttribute('download', `BangXepHang_${new Date().getTime()}.csv`);
-            link.style.visibility = 'hidden';
-
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
+        function exportRankingsExcel() {
+             const tournamentId = {!! $tournament->id ?? 0 !!};
+             const categoryId = document.getElementById('filterCategory')?.value || '';
+             const groupId = document.getElementById('filterGroup')?.value || '';
+             
+             const params = new URLSearchParams();
+             if (categoryId) params.append('category_id', categoryId);
+             if (groupId) params.append('group_id', groupId);
+             
+             const url = `/homeyard/tournaments/${tournamentId}/rankings/export${params.toString() ? '?' + params.toString() : ''}`;
+             window.location.href = url;
+         }
         </script>
 
     <!-- MODAL: THÊM VĐV -->
