@@ -312,6 +312,9 @@ class HomeController extends Controller
         ->where('tournament_id', $tournament->id)
         ->where('user_id', auth()->id())
         ->exists();
+
+        // Load categories for this tournament
+        $tournament->load('categories');
         
         return view('front.tournaments.tournaments_detail', [
             'tournament' => $tournament,

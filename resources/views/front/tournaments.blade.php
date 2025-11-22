@@ -250,8 +250,8 @@
                     <!-- Tournaments Grid -->
                     <div class="tournaments-grid" id="tournamentsGrid">
                         @forelse($tournaments as $tournament)
-                            <div class="tournament-item">
-                                <a href="{{ route('tournaments-detail', $tournament->id) }}" class="tournament-link">
+                           <div class="tournament-item" data-tournament-id="{{ $tournament->id }}">
+                               <a href="{{ route('tournaments-detail', $tournament->id) }}" class="tournament-link">
                                     <div class="tournament-image">
                                         @if($tournament->image)
                                             <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}">
@@ -291,7 +291,7 @@
                                                     <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
                                                     <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
                                                 </svg>
-                                                <span>{{ $tournament->athleteCount() }} VĐV</span>
+                                                <span>{{ $tournament->athletes()->count() }} VĐV</span>
                                             </div>
                                         </div>
 
@@ -301,11 +301,11 @@
                                                  <span class="prize-amount">{{ $tournament->prizes ? number_format($tournament->prizes, 0, '.', ',') . ' VNĐ' : 'N/A' }}</span>
                                              </div>
                                              @if(!$tournament->user_registered)
-                                                 <button class="btn btn-primary btn-sm" onclick="event.preventDefault(); openRegisterModal({{ $tournament->id }}, '{{ $tournament->name }}');">
+                                                 <button class="btn btn-primary btn-sm tournament-register-btn" onclick="event.preventDefault(); openRegisterModal({{ $tournament->id }}, '{{ $tournament->name }}');">
                                                      Đăng ký ngay
                                                  </button>
                                              @else
-                                                 <button class="btn btn-secondary btn-sm" disabled style="opacity: 0.6; cursor: not-allowed;">
+                                                 <button class="btn btn-secondary btn-sm tournament-register-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
                                                      Chờ xét duyệt
                                                  </button>
                                              @endif
@@ -444,6 +444,21 @@
                             onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                         <div id="phone_error" style="color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: none;"></div>
                     </div>
+
+                    <!-- Category Selection Field -->
+                    <div style="margin-bottom: 30px;">
+                        <label for="category_id" style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 10px; font-size: 0.95rem;">
+                            Nội dung thi đấu <span style="color: #ef4444;">*</span>
+                        </label>
+                        <select id="category_id" name="category_id" required 
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22%3E%3cpolyline points=%226 9 12 15 18 9%22%3E%3c/polyline%3E%3c/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                            onmouseover="this.style.borderColor='#d1d5db'"
+                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                            <option value="">-- Chọn nội dung thi đấu --</option>
+                        </select>
+                        <div id="category_id_error" style="color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: none;"></div>
+                    </div>
                 </form>
             </div>
 
@@ -514,6 +529,50 @@
         function openRegisterModal(tournamentId, tournamentName) {
             document.getElementById('tournament_id').value = tournamentId;
             document.getElementById('modalTournamentName').textContent = tournamentName;
+            
+            // Load categories for this tournament
+            const categorySelect = document.getElementById('category_id');
+            categorySelect.innerHTML = '<option value="">-- Chọn nội dung thi đấu --</option>';
+            
+            fetch('/api/tournament/' + tournamentId + '/categories', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.categories && data.categories.length > 0) {
+                    data.categories.forEach(category => {
+                        const isAvailable = ['open', 'ongoing'].includes(category.status) && 
+                                          category.current_participants < category.max_participants;
+                        const statusText = category.status === 'closed' ? ' (Đóng)' : 
+                                          category.current_participants >= category.max_participants ? ' (Hết chỗ)' : '';
+                        const ageGroup = category.age_group && category.age_group !== 'open' ? ` (${category.age_group})` : '';
+                        
+                        const option = document.createElement('option');
+                        option.value = category.id;
+                        option.textContent = `${category.category_name}${ageGroup} - ${category.current_participants}/${category.max_participants}${statusText}`;
+                        option.disabled = !isAvailable;
+                        categorySelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.value = '';
+                    option.textContent = '-- Không có nội dung nào --';
+                    option.disabled = true;
+                    categorySelect.appendChild(option);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading categories:', error);
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = '-- Lỗi khi tải dữ liệu --';
+                option.disabled = true;
+                categorySelect.appendChild(option);
+            });
+            
             const modal = document.getElementById('registerModal');
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
@@ -527,6 +586,7 @@
             document.getElementById('athlete_name_error').style.display = 'none';
             document.getElementById('email_error').style.display = 'none';
             document.getElementById('phone_error').style.display = 'none';
+            document.getElementById('category_id_error').style.display = 'none';
         }
 
         function submitRegisterForm() {
@@ -536,15 +596,18 @@
             document.getElementById('athlete_name_error').style.display = 'none';
             document.getElementById('email_error').style.display = 'none';
             document.getElementById('phone_error').style.display = 'none';
+            document.getElementById('category_id_error').style.display = 'none';
             
             const athleteNameEl = document.getElementById('athlete_name');
             const emailEl = document.getElementById('email');
             const phoneEl = document.getElementById('phone');
+            const categoryEl = document.getElementById('category_id');
             const tournamentIdEl = document.getElementById('tournament_id');
             
             const athleteName = athleteNameEl.value.trim();
             const email = emailEl.value.trim();
             const phone = phoneEl.value.trim();
+            const categoryId = categoryEl.value.trim();
             const tournamentId = tournamentIdEl.value;
             
             let hasError = false;
@@ -564,6 +627,11 @@
                 document.getElementById('phone_error').style.display = 'block';
                 hasError = true;
             }
+            if (!categoryId) {
+                document.getElementById('category_id_error').textContent = 'Vui lòng chọn nội dung thi đấu';
+                document.getElementById('category_id_error').style.display = 'block';
+                hasError = true;
+            }
             
             if (hasError) {
                 return;
@@ -577,6 +645,7 @@
                 athlete_name: athleteName,
                 email: email,
                 phone: phone,
+                category_id: categoryId,
                 tournament_id: tournamentId
             };
             
@@ -593,6 +662,21 @@
                 if (data && data.success) {
                     alert('Đăng ký thành công! Vui lòng chờ xác nhận từ ban tổ chức.');
                     form.reset();
+                    
+                    // Find and update all register buttons for this tournament
+                    const tournamentCards = document.querySelectorAll('[data-tournament-id="' + tournamentId + '"]');
+                    tournamentCards.forEach(card => {
+                        const registerBtn = card.querySelector('.tournament-register-btn');
+                        if (registerBtn) {
+                            registerBtn.textContent = 'Chờ xét duyệt';
+                            registerBtn.className = 'btn btn-secondary btn-sm';
+                            registerBtn.disabled = true;
+                            registerBtn.style.opacity = '0.6';
+                            registerBtn.style.cursor = 'not-allowed';
+                            registerBtn.removeAttribute('onclick');
+                        }
+                    });
+                    
                     closeRegisterModal();
                 } else {
                     const errorMsg = data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.';

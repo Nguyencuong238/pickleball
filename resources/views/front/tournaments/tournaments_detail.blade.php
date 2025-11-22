@@ -66,7 +66,7 @@
                 
                 <div class="hero-actions">
                     @if(!$registered)
-                        <button class="btn btn-primary btn-lg" onclick="openRegisterModal()">
+                        <button class="btn btn-primary btn-lg tournament-detail-register-btn" onclick="openRegisterModal()">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                                 <circle cx="8.5" cy="7" r="4"/>
@@ -76,7 +76,7 @@
                             Đăng ký tham gia
                         </button>
                     @else
-                        <button class="btn btn-secondary btn-lg" disabled style="opacity: 0.6; cursor: not-allowed;">
+                        <button class="btn btn-secondary btn-lg tournament-detail-register-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
                             Chờ xét duyệt
                         </button>
                     @endif
@@ -641,11 +641,11 @@
                             </div>
                         </div>
                         @if(!$registered)
-                            <button class="btn btn-primary btn-block btn-lg" onclick="openRegisterModal()">
+                            <button class="btn btn-primary btn-block btn-lg tournament-detail-register-btn" onclick="openRegisterModal()">
                                 Đăng ký ngay
                             </button>
                         @else
-                            <button class="btn btn-secondary btn-lg btn-block" disabled style="opacity: 0.6; cursor: not-allowed;">
+                            <button class="btn btn-secondary btn-lg btn-block tournament-detail-register-btn" disabled style="opacity: 0.6; cursor: not-allowed;">
                                 Chờ xét duyệt
                             </button>
                         @endif
@@ -821,6 +821,42 @@
                             onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
                         <div id="phone_error" style="color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: none;"></div>
                     </div>
+
+                    <!-- Category Selection Field -->
+                    <div style="margin-bottom: 30px;">
+                        <label for="category_id" style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 10px; font-size: 0.95rem;">
+                            Nội dung thi đấu <span style="color: #ef4444;">*</span>
+                        </label>
+                        <select id="category_id" name="category_id" required 
+                            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22%3E%3cpolyline points=%226 9 12 15 18 9%22%3E%3c/polyline%3E%3c/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
+                            onmouseover="this.style.borderColor='#d1d5db'"
+                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
+                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                            <option value="">-- Chọn nội dung thi đấu --</option>
+                            @if($tournament->categories)
+                                @foreach($tournament->categories as $category)
+                                    @php
+                                        $athleteCount = $category->athletes()->count();
+                                        $isAvailable = in_array($category->status, ['open', 'ongoing']) && $athleteCount < $category->max_participants;
+                                        $statusText = '';
+                                        if ($category->status === 'closed') {
+                                            $statusText = ' (Đóng)';
+                                        } elseif ($athleteCount >= $category->max_participants) {
+                                            $statusText = ' (Hết chỗ)';
+                                        }
+                                    @endphp
+                                    <option value="{{ $category->id }}" @if(!$isAvailable) disabled @endif>
+                                        {{ $category->category_name }} 
+                                        @if($category->age_group && $category->age_group !== 'open')
+                                            ({{ $category->age_group }})
+                                        @endif
+                                        - {{ $athleteCount }}/{{ $category->max_participants }}{{ $statusText }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <div id="category_id_error" style="color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: none;"></div>
+                    </div>
                 </form>
             </div>
 
@@ -902,6 +938,7 @@
             document.getElementById('athlete_name_error').style.display = 'none';
             document.getElementById('email_error').style.display = 'none';
             document.getElementById('phone_error').style.display = 'none';
+            document.getElementById('category_id_error').style.display = 'none';
         }
 
         function submitRegisterForm() {
@@ -912,18 +949,21 @@
             document.getElementById('athlete_name_error').style.display = 'none';
             document.getElementById('email_error').style.display = 'none';
             document.getElementById('phone_error').style.display = 'none';
+            document.getElementById('category_id_error').style.display = 'none';
             
             const athleteNameEl = document.getElementById('athlete_name');
             const emailEl = document.getElementById('email');
             const phoneEl = document.getElementById('phone');
+            const categoryEl = document.getElementById('category_id');
             
-            console.log('Form elements found:', {athleteNameEl, emailEl, phoneEl});
+            console.log('Form elements found:', {athleteNameEl, emailEl, phoneEl, categoryEl});
             
             const athleteName = athleteNameEl.value.trim();
             const email = emailEl.value.trim();
             const phone = phoneEl.value.trim();
+            const categoryId = categoryEl.value.trim();
             
-            console.log('Form values:', {athleteName, email, phone});
+            console.log('Form values:', {athleteName, email, phone, categoryId});
             
             let hasError = false;
             
@@ -942,6 +982,11 @@
                 document.getElementById('phone_error').style.display = 'block';
                 hasError = true;
             }
+            if (!categoryId) {
+                document.getElementById('category_id_error').textContent = 'Vui lòng chọn nội dung thi đấu';
+                document.getElementById('category_id_error').style.display = 'block';
+                hasError = true;
+            }
             
             console.log('Validation errors:', hasError);
             if (hasError) {
@@ -957,6 +1002,7 @@
                 athlete_name: athleteName,
                 email: email,
                 phone: phone,
+                category_id: categoryId,
                 tournament_id: {{ $tournament->id }}
             };
             
@@ -981,14 +1027,13 @@
                     console.log('Registration successful!');
                     alert('Đăng ký thành công! Vui lòng chờ xác nhận từ ban tổ chức.');
                     form.reset();
-                    closeRegisterModal();
                     
                     // Update all registration buttons
                     console.log('Looking for registration buttons...');
                     
-                    // Find all buttons that open the register modal
-                    const allButtons = document.querySelectorAll('[onclick="openRegisterModal()"]');
-                    console.log('Buttons with openRegisterModal found:', allButtons.length);
+                    // Find all buttons with class tournament-detail-register-btn
+                    const allButtons = document.querySelectorAll('.tournament-detail-register-btn');
+                    console.log('Buttons found:', allButtons.length);
                     
                     allButtons.forEach((btn, index) => {
                         console.log(`Updating button ${index + 1}...`);
@@ -998,8 +1043,8 @@
                         btn.onclick = null;
                         
                         // Replace button content completely
-                        btn.innerHTML = 'Chờ xét duyệt';
-                        btn.className = 'btn btn-secondary btn-block btn-lg';
+                        btn.textContent = 'Chờ xét duyệt';
+                        btn.className = 'btn btn-secondary btn-block btn-lg tournament-detail-register-btn';
                         
                         // Disable the button
                         btn.disabled = true;
@@ -1008,7 +1053,9 @@
                         btn.style.pointerEvents = 'none';
                         
                         console.log(`Button ${index + 1} updated:`, btn);
-                    })
+                    });
+                    
+                    closeRegisterModal();
                 } else {
                     const errorMsg = data?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.';
                     console.error('Registration failed:', errorMsg);
