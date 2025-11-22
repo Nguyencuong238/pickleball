@@ -46,7 +46,6 @@ class HomeYardTournamentController extends Controller
             'max_participants' => 'nullable|integer|min:1',
             'price' => 'nullable|numeric|min:0',
             'rules' => 'nullable|string',
-            'status' => 'nullable|in:upcoming,ongoing,completed,cancelled',
         ]);
 
         $data = $request->only([
