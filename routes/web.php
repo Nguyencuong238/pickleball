@@ -137,10 +137,22 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::post('tournaments/{tournament}/courts/save', [HomeYardTournamentController::class, 'saveCourts'])->name('tournaments.courts.save');
     
     // Draw/Lottery for athletes
-    Route::post('tournaments/{tournament}/draw', [HomeYardTournamentController::class, 'drawAthletes'])->name('tournaments.draw');
-    Route::get('tournaments/{tournament}/draw-results', [HomeYardTournamentController::class, 'getDrawResults'])->name('tournaments.draw-results');
-    Route::post('tournaments/{tournament}/reset-draw', [HomeYardTournamentController::class, 'resetDraw'])->name('tournaments.reset-draw');
-});
+     Route::post('tournaments/{tournament}/draw', [HomeYardTournamentController::class, 'drawAthletes'])->name('tournaments.draw');
+     Route::get('tournaments/{tournament}/draw-results', [HomeYardTournamentController::class, 'getDrawResults'])->name('tournaments.draw-results');
+     Route::post('tournaments/{tournament}/reset-draw', [HomeYardTournamentController::class, 'resetDraw'])->name('tournaments.reset-draw');
+     
+     // Match Management
+     Route::post('tournaments/{tournament}/matches', [HomeYardTournamentController::class, 'storeMatch'])->name('tournaments.matches.store');
+     Route::put('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'updateMatch'])
+         ->where('match', '[0-9]+')
+         ->name('tournaments.matches.update');
+     Route::delete('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'destroyMatch'])
+         ->where('match', '[0-9]+')
+         ->name('tournaments.matches.destroy');
+     
+     // Get category athletes for match creation
+     Route::get('tournaments/{tournament}/categories/{categoryId}/athletes', [HomeYardTournamentController::class, 'getCategoryAthletes'])->name('tournaments.categories.athletes');
+    });
 
 // API Routes for AJAX/Frontend
 Route::middleware(['auth', 'role:home_yard'])->prefix('api/homeyard')->name('api.homeyard.')->group(function () {

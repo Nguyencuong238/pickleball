@@ -78,8 +78,8 @@
                 <button class="config-tab" onclick="showConfigTab('athletes')">
                     👥 Quản lý VĐV
                 </button>
-                <button class="config-tab" onclick="showConfigTab('matches')">
-                    🎾 Quản lý trận đấu
+                <button class="config-tab" onclick="showConfigTab('matchManagement')">
+                    ⚡ Tạo trận mới
                 </button>
                 <button class="config-tab" onclick="showConfigTab('rankings')">
                     🏅 Bảng xếp hạng
@@ -650,7 +650,9 @@
                                             </div>
                                         </div>
                                         <div class="athlete-actions">
-                                             <button class="btn btn-primary btn-sm" onclick="openViewAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">👁️ Chi tiết</button>
+                                            <button class="btn btn-primary btn-sm"
+                                                onclick="openViewAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">👁️
+                                                Chi tiết</button>
                                             @if ($athlete->status === 'pending')
                                                 <form method="POST"
                                                     action="{{ route('homeyard.athletes.approve', [$tournament->id, $athlete->id]) }}"
@@ -667,7 +669,9 @@
                                                         onclick="return confirm('Từ chối đơn đăng ký?')">❌ Từ chối</button>
                                                 </form>
                                             @else
-                                                <button class="btn btn-warning btn-sm" onclick="openEditAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">✏️ Sửa</button>
+                                                <button class="btn btn-warning btn-sm"
+                                                    onclick="openEditAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">✏️
+                                                    Sửa</button>
                                                 <form method="POST"
                                                     action="{{ route('homeyard.tournaments.athletes.remove', [$tournament->id, $athlete->id]) }}"
                                                     style="display: inline;">
@@ -752,85 +756,127 @@
                     </div>
                 </div>
             </div>
-            <!-- TAB 5: QUẢN LÝ TRẬN ĐẤU -->
-            <div id="matches" class="tab-pane">
+
+            <!-- TAB 5B: TẠO TRẬN MỚI -->
+            <div id="matchManagement" class="tab-pane">
                 <div class="card fade-in">
                     <div class="card-header">
-                        <h3 class="card-title">🎾 Quản lý trận đấu</h3>
-                        <div class="card-actions">
-                            <button class="btn btn-primary btn-sm">➕ Tạo trận mới</button>
-                            <button class="btn btn-success btn-sm">🔄 Tạo lịch tự động</button>
-                        </div>
+                        <h3 class="card-title">⚡ Tạo trận đấu mới</h3>
                     </div>
                     <div class="card-body">
-                        <div class="match-list">
-                            <!-- Match 1 - Completed -->
-                            <div class="match-item">
-                                <div class="match-header">
-                                    <div class="match-info">
-                                        <div class="match-title">Trận 1 - Vòng bảng A</div>
-                                        <div class="match-details">
-                                            📅 20/01/2025 - 08:00 | 🏟️ Sân số 1 | 🎯 Nam đơn 18+<br>
-                                            <span class="badge badge-success">Đã hoàn thành</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="match-players">
-                                    <div class="player-side"
-                                        style="background: linear-gradient(135deg, #4ADE80, #22C55E); color: white;">
-                                        <div class="player-name">🏆 Nguyễn Văn An</div>
-                                        <div style="font-size: 1.75rem; font-weight: 700; margin-top: 10px;">11 - 11</div>
-                                    </div>
-                                    <div class="vs-divider">VS</div>
-                                    <div class="player-side">
-                                        <div class="player-name">Trần Văn Bình</div>
-                                        <div style="font-size: 1.75rem; font-weight: 700; margin-top: 10px;">7 - 5</div>
-                                    </div>
-                                </div>
-                                <div style="margin-top: 1rem;">
-                                    <button class="btn btn-secondary btn-sm">👁️ Chi tiết</button>
-                                    <button class="btn btn-warning btn-sm">✏️ Sửa kết quả</button>
-                                </div>
-                            </div>
-                            <!-- Match 2 - Live -->
-                            <div class="match-item" style="border-left-color: #FF6B6B;">
-                                <div class="match-header">
-                                    <div class="match-info">
-                                        <div class="match-title">Trận 2 - Vòng bảng A</div>
-                                        <div class="match-details">
-                                            📅 20/01/2025 - 09:00 | 🏟️ Sân số 2 | 🎯 Nam đơn 18+<br>
-                                            <span class="badge badge-danger status-live">🔴 ĐANG DIỄN RA</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="match-players">
-                                    <div class="player-side">
-                                        <div class="player-name">Lê Văn Cường</div>
-                                        <div class="score-input">
-                                            <input type="number" value="9" min="0" max="30">
-                                            <input type="number" value="11" min="0" max="30">
-                                            <input type="number" value="8" min="0" max="30">
-                                        </div>
-                                    </div>
-                                    <div class="vs-divider">VS</div>
-                                    <div class="player-side">
-                                        <div class="player-name">Phạm Văn Dũng</div>
-                                        <div class="score-input">
-                                            <input type="number" value="11" min="0" max="30">
-                                            <input type="number" value="7" min="0" max="30">
-                                            <input type="number" value="10" min="0" max="30">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div style="margin-top: 1rem;">
-                                    <button class="btn btn-success">💾 Lưu tỷ số</button>
-                                    <button class="btn btn-primary">🏁 Kết thúc trận</button>
-                                </div>
-                            </div>
+                        <div class="alert alert-info">
+                            💡 Tạo trận đấu mới cho giải đấu này
                         </div>
+
+                        @if ($errors->any())
+                            <div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">
+                                <strong>⚠️ Lỗi:</strong>
+                                <ul style="margin: 0.5rem 0 0 1rem; padding: 0;">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if (session('success'))
+                            <div class="alert alert-success" style="border-color: #10B981; background-color: #ECFDF5;">
+                                ✅ {{ session('success') }}
+                            </div>
+                        @endif
+
+                        <h4 style="margin: 1.5rem 0 1rem 0; font-weight: 700;">Tạo trận mới</h4>
+
+                        @if (!$tournament)
+                            <div class="alert alert-warning" style="border-color: #FBBF24; background-color: #FFFBEB;">
+                                ⚠️ <strong>Vui lòng tạo giải đấu trước</strong>
+                            </div>
+                        @else
+                            <button type="button" class="btn btn-primary btn-sm" onclick="openCreateMatchModal()">➕ Tạo
+                                trận mới</button>
+
+                            <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách trận đấu</h4>
+                            @if ($tournament && $tournament->matches && $tournament->matches->count() > 0)
+                                <div style="overflow-x: auto;">
+                                    <table style="width: 100%; border-collapse: collapse;">
+                                        <thead style="background: #f5f5f5;">
+                                            <tr>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    VĐV 1</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    VĐV 2</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Nội dung</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Vòng</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Trạng thái</th>
+                                                <th
+                                                    style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                    Hành động</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($tournament->matches as $match)
+                                                <tr style="border-bottom: 1px solid #ddd;">
+                                                    <td style="padding: 10px;">
+                                                        {{ $match->athlete1->athlete_name ?? 'N/A' }}</td>
+                                                    <td style="padding: 10px;">
+                                                        {{ $match->athlete2->athlete_name ?? 'N/A' }}</td>
+                                                    <td style="padding: 10px;">
+                                                        {{ $match->category->category_name ?? 'N/A' }}</td>
+                                                    <td style="padding: 10px;">{{ $match->round->round_name ?? 'N/A' }}
+                                                    </td>
+                                                    <td style="padding: 10px;">
+                                                        @if ($match->status === 'scheduled')
+                                                            <span class="badge badge-warning">⏳ Chờ thi đấu</span>
+                                                        @elseif ($match->status === 'ready')
+                                                            <span class="badge badge-info">📋 Sẵn sàng</span>
+                                                        @elseif ($match->status === 'in_progress')
+                                                            <span class="badge badge-danger">🔴 Đang diễn ra</span>
+                                                        @elseif ($match->status === 'completed')
+                                                            <span class="badge badge-success">✅ Hoàn thành</span>
+                                                        @elseif ($match->status === 'cancelled')
+                                                            <span class="badge badge-secondary">❌ Hủy</span>
+                                                        @elseif ($match->status === 'postponed')
+                                                            <span class="badge badge-warning">⏸️ Hoãn lại</span>
+                                                        @elseif ($match->status === 'bye')
+                                                            <span class="badge badge-light">🎯 Bye</span>
+                                                        @else
+                                                            <span class="badge badge-secondary">{{ $match->status }}</span>
+                                                        @endif
+                                                    </td>
+                                                    <td style="padding: 10px;">
+                                                        <button class="btn btn-warning btn-sm"
+                                                            onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}')">✏️</button>
+                                                        <form method="POST"
+                                                            action="{{ route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id]) }}"
+                                                            style="display: inline;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                                onclick="return confirm('Xác nhận xóa?')">🗑️</button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            @else
+                                <div style="text-align: center; padding: 2rem; color: #999;">
+                                    <p>Chưa có trận đấu nào. Hãy tạo trận mới ở trên.</p>
+                                </div>
+                            @endif
+                        @endif
                     </div>
                 </div>
             </div>
+
             <!-- TAB 6: BẢNG XẾP HẠNG -->
             <div id="rankings" class="tab-pane">
                 <div class="card fade-in">
@@ -934,12 +980,18 @@
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead style="background: #f5f5f5;">
                                         <tr>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tên VĐV</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Email</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Điện thoại</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Nội dung</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Trạng thái</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Hành động</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Tên
+                                                VĐV</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                Email</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                Điện thoại</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Nội
+                                                dung</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                Trạng thái</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                Hành động</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -965,9 +1017,14 @@
                                                     @endif
                                                 </td>
                                                 <td style="padding: 10px;">
-                                                    <button class="btn btn-primary btn-sm" onclick="openViewAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">👁️ Xem</button>
-                                                    <button class="btn btn-warning btn-sm" onclick="openEditAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">✏️ Sửa</button>
-                                                    <button class="btn btn-danger btn-sm" onclick="deleteAthlete({{ $athlete->id }})">🗑️ Xóa</button>
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="openViewAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">👁️
+                                                        Xem</button>
+                                                    <button class="btn btn-warning btn-sm"
+                                                        onclick="openEditAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">✏️
+                                                        Sửa</button>
+                                                    <button class="btn btn-danger btn-sm"
+                                                        onclick="deleteAthlete({{ $athlete->id }})">🗑️ Xóa</button>
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -982,8 +1039,154 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- MODAL: TẠO TRẬN MỚI -->
+        <div id="createMatchModal"
+            style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+            <div
+                style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">➕ Tạo Trận Đấu Mới</h2>
+                    <button
+                        style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                        onclick="closeCreateMatchModal()">×</button>
+                </div>
+
+                <div id="createMatchMessages"></div>
+
+                <form id="createMatchForm">
+                    <!-- Bước 1: Chọn nội dung thi đấu -->
+                    <div class="form-group">
+                        <label class="form-label">🎯 Bước 1: Chọn nội dung thi đấu *</label>
+                        <select id="matchCategoryId" name="category_id" class="form-select" required>
+                            <option value="">-- Chọn nội dung --</option>
+                            @if ($tournament && $tournament->categories)
+                                @foreach ($tournament->categories as $category)
+                                    <option value="{{ $category->id }}">
+                                        {{ $category->category_name }}
+                                    </option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <!-- Bước 2: Chọn VĐV thuộc nội dung thi đấu đó -->
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label class="form-label">👤 Bước 2: Chọn VĐV 1 *</label>
+                            <select id="athlete1Select" name="athlete1_id" class="form-select" required disabled>
+                                <option value="">-- Hãy chọn nội dung thi đấu trước --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">👤 Chọn VĐV 2 *</label>
+                            <select id="athlete2Select" name="athlete2_id" class="form-select" required disabled>
+                                <option value="">-- Hãy chọn nội dung thi đấu trước --</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Chọn vòng đấu -->
+                    <div class="form-group">
+                        <label class="form-label">🔄 Vòng đấu (Round)</label>
+                        <select name="round_id" class="form-select" required>
+                            <option value="">-- Chọn vòng (tuỳ chọn) --</option>
+                            @if ($tournament && $tournament->rounds)
+                                @foreach ($tournament->rounds as $round)
+                                    <option value="{{ $round->id }}">{{ $round->round_name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn btn-success" id="submitMatchBtn">✅ Tạo trận</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeCreateMatchModal()">❌ Hủy</button>
+                    </div>
+                </form>
             </div>
-            </main>
+        </div>
+
+        <!-- MODAL: CHỈNH SỬA TRẬN ĐẤU -->
+        <div id="editMatchModal"
+            style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+            <div
+                style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">✏️ Chỉnh Sửa Trận Đấu</h2>
+                    <button
+                        style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                        onclick="closeEditMatchModal()">×</button>
+                </div>
+
+                <div id="editMatchMessages"></div>
+
+                <form id="editMatchForm">
+                    <input type="hidden" id="editMatchId" name="match_id" value="">
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label class="form-label">VĐV 1 *</label>
+                            <select id="editAthlete1" name="athlete1_id" class="form-select" required>
+                                <option value="">-- Chọn VĐV --</option>
+                                @if ($tournament && $tournament->athletes)
+                                    @foreach ($tournament->athletes as $athlete)
+                                        <option value="{{ $athlete->id }}">{{ $athlete->athlete_name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">VĐV 2 *</label>
+                            <select id="editAthlete2" name="athlete2_id" class="form-select" required>
+                                <option value="">-- Chọn VĐV --</option>
+                                @if ($tournament && $tournament->athletes)
+                                    @foreach ($tournament->athletes as $athlete)
+                                        <option value="{{ $athlete->id }}">{{ $athlete->athlete_name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Nội dung thi đấu (Category) *</label>
+                            <select id="editCategory" name="category_id" class="form-select" required>
+                                <option value="">-- Chọn nội dung --</option>
+                                @if ($tournament && $tournament->categories)
+                                    @foreach ($tournament->categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Vòng đấu (Round) *</label>
+                            <select id="editRound" name="round_id" class="form-select" required>
+                                <option value="">-- Chọn vòng --</option>
+                                @if ($tournament && $tournament->rounds)
+                                    @foreach ($tournament->rounds as $round)
+                                        <option value="{{ $round->id }}">{{ $round->round_name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn btn-success" id="submitEditMatchBtn">✅ Cập nhật</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeEditMatchModal()">❌ Hủy</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </main>
 
     <style>
         .toast-container {
@@ -999,7 +1202,7 @@
             padding: 16px 20px;
             margin-bottom: 10px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
             border-left: 4px solid;
             animation: slideIn 0.3s ease-out;
         }
@@ -1033,6 +1236,7 @@
                 transform: translateX(400px);
                 opacity: 0;
             }
+
             to {
                 transform: translateX(0);
                 opacity: 1;
@@ -1044,6 +1248,7 @@
                 transform: translateX(0);
                 opacity: 1;
             }
+
             to {
                 transform: translateX(400px);
                 opacity: 0;
@@ -1056,41 +1261,41 @@
     </style>
 
     <script>
-         // Toast notification function
-         function showToast(message, type = 'success', duration = 3000) {
-             // Create container if not exists
-             let container = document.getElementById('toast-container');
-             if (!container) {
-                 container = document.createElement('div');
-                 container.id = 'toast-container';
-                 container.className = 'toast-container';
-                 document.body.appendChild(container);
-             }
+        // Toast notification function
+        function showToast(message, type = 'success', duration = 3000) {
+            // Create container if not exists
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
 
-             // Create toast element
-             const toast = document.createElement('div');
-             toast.className = `toast ${type}`;
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
 
-             const icons = {
-                 success: '✅',
-                 error: '❌',
-                 info: 'ℹ️'
-             };
+            const icons = {
+                success: '✅',
+                error: '❌',
+                info: 'ℹ️'
+            };
 
-             toast.innerHTML = `<div class="toast-message">${icons[type] || '✓'} ${message}</div>`;
-             container.appendChild(toast);
+            toast.innerHTML = `<div class="toast-message">${icons[type] || '✓'} ${message}</div>`;
+            container.appendChild(toast);
 
-             // Auto remove
-             setTimeout(() => {
-                 toast.classList.add('removing');
-                 setTimeout(() => {
-                     toast.remove();
-                 }, 300);
-             }, duration);
-         }
+            // Auto remove
+            setTimeout(() => {
+                toast.classList.add('removing');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, duration);
+        }
 
-         // Save and restore active tab
-         function showConfigTab(tabName) {
+        // Save and restore active tab
+        function showConfigTab(tabName) {
             // Save tab TRƯỚC
             localStorage.setItem('activeTab', tabName);
 
@@ -1120,36 +1325,36 @@
         }, true);
 
         // Restore tab on page load
-         window.addEventListener('DOMContentLoaded', function() {
-             console.log('=== DOMContentLoaded FIRED ===');
-             const activeTab = localStorage.getItem('activeTab') || 'categories';
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('=== DOMContentLoaded FIRED ===');
+            const activeTab = localStorage.getItem('activeTab') || 'categories';
 
-             // Hide all tabs
-             const tabs = document.querySelectorAll('.tab-pane');
-             tabs.forEach(tab => tab.classList.remove('active'));
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-pane');
+            tabs.forEach(tab => tab.classList.remove('active'));
 
-             // Show saved tab
-             const selectedTab = document.getElementById(activeTab);
-             if (selectedTab) {
-                 selectedTab.classList.add('active');
-             }
+            // Show saved tab
+            const selectedTab = document.getElementById(activeTab);
+            if (selectedTab) {
+                selectedTab.classList.add('active');
+            }
 
-             // Update buttons
-             const buttons = document.querySelectorAll('.config-tab');
-             buttons.forEach(btn => btn.classList.remove('active'));
-             const activeButton = Array.from(buttons).find(btn =>
-                 btn.getAttribute('onclick').includes(`'${activeTab}'`)
-             );
-             if (activeButton) {
-                 activeButton.classList.add('active');
-             }
+            // Update buttons
+            const buttons = document.querySelectorAll('.config-tab');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            const activeButton = Array.from(buttons).find(btn =>
+                btn.getAttribute('onclick').includes(`'${activeTab}'`)
+            );
+            if (activeButton) {
+                activeButton.classList.add('active');
+            }
 
-             // Initialize draw functionality
-             initializeDraw();
-             
-             // Initialize athlete form handler
-             initializeAthleteForm();
-         });
+            // Initialize draw functionality
+            initializeDraw();
+
+            // Initialize athlete form handler
+            initializeAthleteForm();
+        });
 
         // Draw/Lottery Functionality
         function initializeDraw() {
@@ -1331,7 +1536,7 @@
         function showAlert(message, type) {
             const alertDiv = document.getElementById('drawAlert');
             const alertClass =
-            `alert alert-${type === 'warning' ? 'warning' : (type === 'success' ? 'success' : 'danger')}`;
+                `alert alert-${type === 'warning' ? 'warning' : (type === 'success' ? 'success' : 'danger')}`;
 
             alertDiv.innerHTML = message;
             alertDiv.className = alertClass;
@@ -1368,105 +1573,109 @@
         });
 
         // Initialize athlete form handler
-         function initializeAthleteForm() {
-             console.log('=== INITIALIZING ATHLETE FORM ===');
-             const addAthleteForm = document.getElementById('addAthleteForm');
-             const messageDiv = document.getElementById('athleteFormMessages');
-             
-             console.log('Form element:', addAthleteForm);
-             console.log('Message div:', messageDiv);
-             
-             if (!addAthleteForm) {
-                 console.error('❌ Form not found! ID: addAthleteForm');
-                 return;
-             }
-             
-             console.log('✅ Form found, adding submit listener');
-             addAthleteForm.addEventListener('submit', function(e) {
-                 console.log('=== FORM SUBMIT EVENT FIRED ===');
-                 e.preventDefault();
-                 
-                 const submitBtn = document.getElementById('submitAthleteBtn');
-                 const originalText = submitBtn.innerHTML;
-                 submitBtn.disabled = true;
-                 submitBtn.innerHTML = '⏳ Đang xử lý...';
-                 
-                 const formData = new FormData(this);
-                 const tournamentId = {!! $tournament->id ?? 0 !!};
-                 
-                 console.log('Tournament ID:', tournamentId);
+        function initializeAthleteForm() {
+            console.log('=== INITIALIZING ATHLETE FORM ===');
+            const addAthleteForm = document.getElementById('addAthleteForm');
+            const messageDiv = document.getElementById('athleteFormMessages');
 
-                 // Debug: log form data
-                 console.log('Submitting form with data:', {
-                     athlete_name: formData.get('athlete_name'),
-                     email: formData.get('email'),
-                     phone: formData.get('phone'),
-                     category_id: formData.get('category_id'),
-                     tournament_id: tournamentId
-                 });
+            console.log('Form element:', addAthleteForm);
+            console.log('Message div:', messageDiv);
 
-                 // Clear previous messages
-                 messageDiv.innerHTML = '';
+            if (!addAthleteForm) {
+                console.error('❌ Form not found! ID: addAthleteForm');
+                return;
+            }
 
-                 const url = `/homeyard/tournaments/${tournamentId}/athletes`;
-                 console.log('Sending POST to:', url);
-                 
-                 fetch(url, {
-                     method: 'POST',
-                     headers: {
-                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                     },
-                     body: formData
-                 })
-                 .then(response => {
-                     console.log('Response status:', response.status);
-                     if (!response.ok && response.status !== 422) {
-                         throw new Error(`HTTP ${response.status}`);
-                     }
-                     return response.json();
-                 })
-                 .then(data => {
-                     console.log('Response data:', data);
-                     if (data.success) {
-                         showToast('Thêm vận động viên thành công!', 'success', 3000);
-                         setTimeout(() => {
-                             closeAddAthleteModal();
-                             addAthleteForm.reset();
-                             location.reload();
-                         }, 1500);
-                     } else {
-                         let errorMsg = data.message || 'Không xác định';
-                         if (data.errors) {
-                             errorMsg += '<ul style="margin: 0.5rem 0 0 1rem;">';
-                             for (let field in data.errors) {
-                                 if (data.errors[field]) {
-                                     errorMsg += '<li>' + data.errors[field].join(', ') + '</li>';
-                                 }
-                             }
-                             errorMsg += '</ul>';
-                         }
-                         messageDiv.innerHTML = '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' + errorMsg + '</div>';
-                         showToast(data.message || 'Lỗi không xác định', 'error', 4000);
-                         console.error('Validation errors:', data);
-                     }
-                 })
-                 .catch(error => {
-                     console.error('Fetch error:', error);
-                     messageDiv.innerHTML = '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' + error.message + '</div>';
-                 })
-                 .finally(() => {
-                     submitBtn.disabled = false;
-                     submitBtn.innerHTML = originalText;
-                 });
-             });
-         }
+            console.log('✅ Form found, adding submit listener');
+            addAthleteForm.addEventListener('submit', function(e) {
+                console.log('=== FORM SUBMIT EVENT FIRED ===');
+                e.preventDefault();
+
+                const submitBtn = document.getElementById('submitAthleteBtn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Đang xử lý...';
+
+                const formData = new FormData(this);
+                const tournamentId = {!! $tournament->id ?? 0 !!};
+
+                console.log('Tournament ID:', tournamentId);
+
+                // Debug: log form data
+                console.log('Submitting form with data:', {
+                    athlete_name: formData.get('athlete_name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    category_id: formData.get('category_id'),
+                    tournament_id: tournamentId
+                });
+
+                // Clear previous messages
+                messageDiv.innerHTML = '';
+
+                const url = `/homeyard/tournaments/${tournamentId}/athletes`;
+                console.log('Sending POST to:', url);
+
+                fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok && response.status !== 422) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data);
+                        if (data.success) {
+                            showToast('Thêm vận động viên thành công!', 'success', 3000);
+                            setTimeout(() => {
+                                closeAddAthleteModal();
+                                addAthleteForm.reset();
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            let errorMsg = data.message || 'Không xác định';
+                            if (data.errors) {
+                                errorMsg += '<ul style="margin: 0.5rem 0 0 1rem;">';
+                                for (let field in data.errors) {
+                                    if (data.errors[field]) {
+                                        errorMsg += '<li>' + data.errors[field].join(', ') + '</li>';
+                                    }
+                                }
+                                errorMsg += '</ul>';
+                            }
+                            messageDiv.innerHTML =
+                                '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' +
+                                errorMsg + '</div>';
+                            showToast(data.message || 'Lỗi không xác định', 'error', 4000);
+                            console.error('Validation errors:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        messageDiv.innerHTML =
+                            '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' +
+                            error.message + '</div>';
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
+            });
+        }
 
         // View Athlete Modal Functions
         function openViewAthleteModal(id, name, email, phone, categoryId) {
             document.getElementById('viewAthleteName').textContent = name;
             document.getElementById('viewAthleteEmail').textContent = email;
             document.getElementById('viewAthletePhone').textContent = phone;
-            
+
             // Get category name
             const categorySelect = document.querySelector('#editAthleteCategory');
             let categoryName = '-';
@@ -1477,7 +1686,7 @@
                 }
             }
             document.getElementById('viewAthleteCategory').textContent = categoryName;
-            
+
             const modal = document.getElementById('viewAthleteModal');
             if (modal) {
                 modal.style.display = 'block';
@@ -1500,7 +1709,7 @@
             if (categoryId) {
                 document.getElementById('editAthleteCategory').value = categoryId;
             }
-            
+
             const modal = document.getElementById('editAthleteModal');
             if (modal) {
                 modal.style.display = 'block';
@@ -1518,7 +1727,7 @@
         window.addEventListener('click', function(event) {
             const viewModal = document.getElementById('viewAthleteModal');
             const editModal = document.getElementById('editAthleteModal');
-            
+
             if (event.target === viewModal) {
                 closeViewAthleteModal();
             }
@@ -1531,77 +1740,81 @@
         function initializeEditAthleteForm() {
             const editAthleteForm = document.getElementById('editAthleteForm');
             const messageDiv = document.getElementById('editAthleteMessages');
-            
+
             if (!editAthleteForm) {
                 console.error('Edit athlete form not found');
                 return;
             }
-            
+
             editAthleteForm.addEventListener('submit', function(e) {
                 e.preventDefault();
-                
+
                 const submitBtn = document.getElementById('submitEditAthleteBtn');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '⏳ Đang cập nhật...';
-                
+
                 const athleteId = document.getElementById('editAthleteId').value;
                 const tournamentId = {!! $tournament->id ?? 0 !!};
-                
+
                 const formData = new FormData(this);
                 messageDiv.innerHTML = '';
-                
+
                 fetch(`/homeyard/tournaments/${tournamentId}/athletes/${athleteId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        athlete_name: formData.get('athlete_name'),
-                        email: formData.get('email'),
-                        phone: formData.get('phone'),
-                        category_id: formData.get('category_id')
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            athlete_name: formData.get('athlete_name'),
+                            email: formData.get('email'),
+                            phone: formData.get('phone'),
+                            category_id: formData.get('category_id')
+                        })
                     })
-                })
-                .then(response => {
-                    if (!response.ok && response.status !== 422) {
-                        throw new Error(`HTTP ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        showToast('Cập nhật vận động viên thành công!', 'success', 3000);
-                        setTimeout(() => {
-                            closeEditAthleteModal();
-                            editAthleteForm.reset();
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        let errorMsg = data.message || 'Không xác định';
-                        if (data.errors) {
-                            errorMsg += '<ul style="margin: 0.5rem 0 0 1rem;">';
-                            for (let field in data.errors) {
-                                if (data.errors[field]) {
-                                    errorMsg += '<li>' + data.errors[field].join(', ') + '</li>';
-                                }
-                            }
-                            errorMsg += '</ul>';
+                    .then(response => {
+                        if (!response.ok && response.status !== 422) {
+                            throw new Error(`HTTP ${response.status}`);
                         }
-                        messageDiv.innerHTML = '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' + errorMsg + '</div>';
-                        showToast(data.message || 'Lỗi không xác định', 'error', 4000);
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    messageDiv.innerHTML = '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' + error.message + '</div>';
-                    showToast('Lỗi: ' + error.message, 'error', 4000);
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                });
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Cập nhật vận động viên thành công!', 'success', 3000);
+                            setTimeout(() => {
+                                closeEditAthleteModal();
+                                editAthleteForm.reset();
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            let errorMsg = data.message || 'Không xác định';
+                            if (data.errors) {
+                                errorMsg += '<ul style="margin: 0.5rem 0 0 1rem;">';
+                                for (let field in data.errors) {
+                                    if (data.errors[field]) {
+                                        errorMsg += '<li>' + data.errors[field].join(', ') + '</li>';
+                                    }
+                                }
+                                errorMsg += '</ul>';
+                            }
+                            messageDiv.innerHTML =
+                                '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' +
+                                errorMsg + '</div>';
+                            showToast(data.message || 'Lỗi không xác định', 'error', 4000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        messageDiv.innerHTML =
+                            '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' +
+                            error.message + '</div>';
+                        showToast('Lỗi: ' + error.message, 'error', 4000);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
             });
         }
 
@@ -1610,30 +1823,30 @@
             if (!confirm('Bạn chắc chắn muốn xóa vận động viên này?')) {
                 return;
             }
-            
+
             const tournamentId = {!! $tournament->id ?? 0 !!};
-            
+
             fetch(`/homeyard/tournaments/${tournamentId}/athletes/${athleteId}`, {
-                method: 'DELETE',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast('Xóa vận động viên thành công!', 'success', 3000);
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showToast(data.message || 'Lỗi không xác định', 'error', 4000);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showToast('Lỗi: ' + error.message, 'error', 4000);
-            });
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Xóa vận động viên thành công!', 'success', 3000);
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showToast(data.message || 'Lỗi không xác định', 'error', 4000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showToast('Lỗi: ' + error.message, 'error', 4000);
+                });
         }
 
         // Initialize edit form when page loads
@@ -1646,139 +1859,460 @@
             const tournamentId = {!! $tournament->id ?? 0 !!};
             window.location.href = `/homeyard/tournaments/${tournamentId}/athletes/export`;
         }
-        </script>
 
-        <!-- MODAL: THÊM VĐV -->
-        <div id="addAthleteModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
-         <div style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                 <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">➕ Thêm Vận Động Viên</h2>
-                 <button style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeAddAthleteModal()">×</button>
-             </div>
+        // ===== MATCH MANAGEMENT FUNCTIONS =====
 
-             <div id="athleteFormMessages"></div>
+        // Open Create Match Modal
+        function openCreateMatchModal() {
+            const modal = document.getElementById('createMatchModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
 
-             <form id="addAthleteForm">
-                 <div class="form-group">
-                     <label class="form-label">Tên VĐV *</label>
-                     <input type="text" name="athlete_name" class="form-input" placeholder="Nhập tên vận động viên" required>
-                 </div>
+        // Close Create Match Modal
+        function closeCreateMatchModal() {
+            const modal = document.getElementById('createMatchModal');
+            if (modal) {
+                modal.style.display = 'none';
+                // Reset form
+                document.getElementById('createMatchForm').reset();
+                document.getElementById('athlete1Select').disabled = true;
+                document.getElementById('athlete2Select').disabled = true;
+            }
+        }
 
-                 <div class="grid grid-2">
-                     <div class="form-group">
-                         <label class="form-label">Email *</label>
-                         <input type="email" name="email" class="form-input" placeholder="VD: athlete@example.com" required>
-                     </div>
+        // Handle category selection in match modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('matchCategoryId');
+            const athlete1Select = document.getElementById('athlete1Select');
+            const athlete2Select = document.getElementById('athlete2Select');
+            const tournamentId = {!! $tournament->id ?? 0 !!};
 
-                     <div class="form-group">
-                         <label class="form-label">Số điện thoại *</label>
-                         <input type="tel" name="phone" class="form-input" placeholder="VD: 0123456789" required>
-                     </div>
-                 </div>
+            if (categorySelect) {
+                categorySelect.addEventListener('change', function() {
+                    if (!this.value) {
+                        // Reset nếu không chọn category
+                        athlete1Select.innerHTML =
+                            '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                        athlete2Select.innerHTML =
+                            '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                        athlete1Select.disabled = true;
+                        athlete2Select.disabled = true;
+                        return;
+                    }
 
-                 <div class="form-group">
-                     <label class="form-label">Nội dung thi đấu *</label>
-                     <select name="category_id" class="form-select" required>
-                         <option value="">-- Chọn nội dung --</option>
-                         @if ($tournament && $tournament->categories)
-                             @foreach ($tournament->categories as $category)
-                                 <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                             @endforeach
-                         @else
-                             <option value="">Chưa có nội dung. Vui lòng tạo nội dung thi đấu trước.</option>
-                         @endif
-                     </select>
-                 </div>
+                    const categoryId = this.value;
+                    
+                    // Fetch danh sách VĐV của category từ server
+                    fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/athletes`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success && data.athletes) {
+                            const athletes = data.athletes;
+                            const athleteOptions = athletes.map(athlete =>
+                                `<option value="${athlete.id}">${athlete.athlete_name}</option>`
+                            ).join('');
 
-                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                     <button type="submit" class="btn btn-success" id="submitAthleteBtn">✅ Thêm VĐV</button>
-                     <button type="button" class="btn btn-secondary" onclick="closeAddAthleteModal()">❌ Hủy</button>
-                 </div>
-             </form>
-         </div>
+                            athlete1Select.innerHTML =
+                                `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
+                            athlete2Select.innerHTML =
+                                `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
+
+                            athlete1Select.disabled = false;
+                            athlete2Select.disabled = false;
+                        } else {
+                            athlete1Select.innerHTML =
+                                '<option value="">Không có VĐV nào</option>';
+                            athlete2Select.innerHTML =
+                                '<option value="">Không có VĐV nào</option>';
+                            athlete1Select.disabled = true;
+                            athlete2Select.disabled = true;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching athletes:', error);
+                        athlete1Select.innerHTML =
+                            '<option value="">Lỗi tải dữ liệu</option>';
+                        athlete2Select.innerHTML =
+                            '<option value="">Lỗi tải dữ liệu</option>';
+                        athlete1Select.disabled = true;
+                        athlete2Select.disabled = true;
+                    });
+                });
+            }
+        });
+
+        // Open Edit Match Modal
+        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId) {
+            document.getElementById('editMatchId').value = matchId;
+            document.getElementById('editAthlete1').value = athlete1Id;
+            document.getElementById('editAthlete2').value = athlete2Id;
+            document.getElementById('editCategory').value = categoryId;
+            document.getElementById('editRound').value = roundId;
+
+            const modal = document.getElementById('editMatchModal');
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        // Close Edit Match Modal
+        function closeEditMatchModal() {
+            const modal = document.getElementById('editMatchModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close modals when clicking outside
+        window.addEventListener('click', function(event) {
+            const createModal = document.getElementById('createMatchModal');
+            const editModal = document.getElementById('editMatchModal');
+
+            if (event.target === createModal) {
+                closeCreateMatchModal();
+            }
+            if (event.target === editModal) {
+                closeEditMatchModal();
+            }
+        });
+
+        // Initialize Create Match Form Handler
+        function initializeCreateMatchForm() {
+            const createMatchForm = document.getElementById('createMatchForm');
+            const messageDiv = document.getElementById('createMatchMessages');
+
+            if (!createMatchForm) {
+                console.error('Create match form not found');
+                return;
+            }
+
+            createMatchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const submitBtn = document.getElementById('submitMatchBtn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Đang xử lý...';
+
+                const formData = new FormData(this);
+                const tournamentId = {!! $tournament->id ?? 0 !!};
+
+                messageDiv.innerHTML = '';
+
+                const data = {
+                    athlete1_id: formData.get('athlete1_id'),
+                    athlete2_id: formData.get('athlete2_id'),
+                    category_id: formData.get('category_id'),
+                    round_id: formData.get('round_id'),
+                    tournament_id: tournamentId
+                };
+
+                console.log('Creating match with data:', data);
+
+                fetch(`/homeyard/tournaments/${tournamentId}/matches`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok && response.status !== 422) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Response data:', data);
+                        if (data.success) {
+                            showToast('Tạo trận đấu thành công!', 'success', 3000);
+                            setTimeout(() => {
+                                closeCreateMatchModal();
+                                createMatchForm.reset();
+                                
+                                // Switch to matchManagement tab and reload page
+                                localStorage.setItem('activeTab', 'matchManagement');
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            let errorMsg = data.message || 'Không xác định';
+                            if (data.errors) {
+                                errorMsg += '<ul style="margin: 0.5rem 0 0 1rem;">';
+                                for (let field in data.errors) {
+                                    if (data.errors[field]) {
+                                        errorMsg += '<li>' + data.errors[field].join(', ') + '</li>';
+                                    }
+                                }
+                                errorMsg += '</ul>';
+                            }
+                            messageDiv.innerHTML =
+                                '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' +
+                                errorMsg + '</div>';
+                            showToast(data.message || 'Lỗi không xác định', 'error', 4000);
+                            console.error('Validation errors:', data);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        messageDiv.innerHTML =
+                            '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' +
+                            error.message + '</div>';
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
+            });
+        }
+
+        // Initialize Edit Match Form Handler
+        function initializeEditMatchForm() {
+            const editMatchForm = document.getElementById('editMatchForm');
+            const messageDiv = document.getElementById('editMatchMessages');
+
+            if (!editMatchForm) {
+                console.error('Edit match form not found');
+                return;
+            }
+
+            editMatchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const submitBtn = document.getElementById('submitEditMatchBtn');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Đang cập nhật...';
+
+                const matchId = document.getElementById('editMatchId').value;
+                const tournamentId = {!! $tournament->id ?? 0 !!};
+
+                const formData = new FormData(this);
+                messageDiv.innerHTML = '';
+
+                const data = {
+                    athlete1_id: formData.get('athlete1_id'),
+                    athlete2_id: formData.get('athlete2_id'),
+                    category_id: formData.get('category_id'),
+                    round_id: formData.get('round_id')
+                };
+
+                fetch(`/homeyard/tournaments/${tournamentId}/matches/${matchId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(response => {
+                        if (!response.ok && response.status !== 422) {
+                            throw new Error(`HTTP ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            showToast('Cập nhật trận đấu thành công!', 'success', 3000);
+                            setTimeout(() => {
+                                closeEditMatchModal();
+                                editMatchForm.reset();
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            let errorMsg = data.message || 'Không xác định';
+                            if (data.errors) {
+                                errorMsg += '<ul style="margin: 0.5rem 0 0 1rem;">';
+                                for (let field in data.errors) {
+                                    if (data.errors[field]) {
+                                        errorMsg += '<li>' + data.errors[field].join(', ') + '</li>';
+                                    }
+                                }
+                                errorMsg += '</ul>';
+                            }
+                            messageDiv.innerHTML =
+                                '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' +
+                                errorMsg + '</div>';
+                            showToast(data.message || 'Lỗi không xác định', 'error', 4000);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        messageDiv.innerHTML =
+                            '<div class="alert alert-danger" style="border-color: #EF4444; background-color: #FEE2E2;">❌ Lỗi: ' +
+                            error.message + '</div>';
+                        showToast('Lỗi: ' + error.message, 'error', 4000);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
+            });
+        }
+
+        // Initialize match forms when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeCreateMatchForm();
+            initializeEditMatchForm();
+        });
+    </script>
+
+    <!-- MODAL: THÊM VĐV -->
+    <div id="addAthleteModal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+        <div
+            style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">➕ Thêm Vận Động Viên</h2>
+                <button
+                    style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeAddAthleteModal()">×</button>
+            </div>
+
+            <div id="athleteFormMessages"></div>
+
+            <form id="addAthleteForm">
+                <div class="form-group">
+                    <label class="form-label">Tên VĐV *</label>
+                    <input type="text" name="athlete_name" class="form-input" placeholder="Nhập tên vận động viên"
+                        required>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" name="email" class="form-input" placeholder="VD: athlete@example.com"
+                            required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Số điện thoại *</label>
+                        <input type="tel" name="phone" class="form-input" placeholder="VD: 0123456789" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nội dung thi đấu *</label>
+                    <select name="category_id" class="form-select" required>
+                        <option value="">-- Chọn nội dung --</option>
+                        @if ($tournament && $tournament->categories)
+                            @foreach ($tournament->categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                            @endforeach
+                        @else
+                            <option value="">Chưa có nội dung. Vui lòng tạo nội dung thi đấu trước.</option>
+                        @endif
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" id="submitAthleteBtn">✅ Thêm VĐV</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAddAthleteModal()">❌ Hủy</button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <!-- MODAL: XEM CHI TIẾT VĐV -->
-        <div id="viewAthleteModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
-         <div style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                 <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">👁️ Chi tiết Vận Động Viên</h2>
-                 <button style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeViewAthleteModal()">×</button>
-             </div>
+    <!-- MODAL: XEM CHI TIẾT VĐV -->
+    <div id="viewAthleteModal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+        <div
+            style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">👁️ Chi tiết Vận Động Viên</h2>
+                <button
+                    style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeViewAthleteModal()">×</button>
+            </div>
 
-             <div id="viewAthleteContent" style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
-                 <div style="margin-bottom: 15px;">
-                     <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Tên VĐV:</label>
-                     <p style="margin: 0; font-size: 16px;" id="viewAthleteName"></p>
-                 </div>
-                 <div style="margin-bottom: 15px;">
-                     <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Email:</label>
-                     <p style="margin: 0; font-size: 16px;" id="viewAthleteEmail"></p>
-                 </div>
-                 <div style="margin-bottom: 15px;">
-                     <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Điện thoại:</label>
-                     <p style="margin: 0; font-size: 16px;" id="viewAthletePhone"></p>
-                 </div>
-                 <div>
-                     <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Nội dung thi đấu:</label>
-                     <p style="margin: 0; font-size: 16px;" id="viewAthleteCategory"></p>
-                 </div>
-             </div>
+            <div id="viewAthleteContent" style="padding: 20px; background: #f9f9f9; border-radius: 8px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Tên VĐV:</label>
+                    <p style="margin: 0; font-size: 16px;" id="viewAthleteName"></p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Email:</label>
+                    <p style="margin: 0; font-size: 16px;" id="viewAthleteEmail"></p>
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Điện thoại:</label>
+                    <p style="margin: 0; font-size: 16px;" id="viewAthletePhone"></p>
+                </div>
+                <div>
+                    <label style="font-weight: 600; color: #666; display: block; margin-bottom: 5px;">Nội dung thi
+                        đấu:</label>
+                    <p style="margin: 0; font-size: 16px;" id="viewAthleteCategory"></p>
+                </div>
+            </div>
 
-             <div style="display: flex; gap: 10px; margin-top: 20px;">
-                 <button type="button" class="btn btn-secondary" onclick="closeViewAthleteModal()">❌ Đóng</button>
-             </div>
-         </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button type="button" class="btn btn-secondary" onclick="closeViewAthleteModal()">❌ Đóng</button>
+            </div>
         </div>
+    </div>
 
-        <!-- MODAL: SỬA THÔNG TIN VĐV -->
-        <div id="editAthleteModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
-         <div style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
-             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                 <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">✏️ Sửa Vận Động Viên</h2>
-                 <button style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeEditAthleteModal()">×</button>
-             </div>
+    <!-- MODAL: SỬA THÔNG TIN VĐV -->
+    <div id="editAthleteModal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+        <div
+            style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">✏️ Sửa Vận Động Viên</h2>
+                <button
+                    style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeEditAthleteModal()">×</button>
+            </div>
 
-             <div id="editAthleteMessages"></div>
+            <div id="editAthleteMessages"></div>
 
-             <form id="editAthleteForm">
-                 <input type="hidden" id="editAthleteId" name="athlete_id" value="">
+            <form id="editAthleteForm">
+                <input type="hidden" id="editAthleteId" name="athlete_id" value="">
 
-                 <div class="form-group">
-                     <label class="form-label">Tên VĐV *</label>
-                     <input type="text" id="editAthleteName" name="athlete_name" class="form-input" placeholder="Nhập tên vận động viên" required>
-                 </div>
+                <div class="form-group">
+                    <label class="form-label">Tên VĐV *</label>
+                    <input type="text" id="editAthleteName" name="athlete_name" class="form-input"
+                        placeholder="Nhập tên vận động viên" required>
+                </div>
 
-                 <div class="grid grid-2">
-                     <div class="form-group">
-                         <label class="form-label">Email *</label>
-                         <input type="email" id="editAthleteEmail" name="email" class="form-input" placeholder="VD: athlete@example.com" required>
-                     </div>
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Email *</label>
+                        <input type="email" id="editAthleteEmail" name="email" class="form-input"
+                            placeholder="VD: athlete@example.com" required>
+                    </div>
 
-                     <div class="form-group">
-                         <label class="form-label">Số điện thoại *</label>
-                         <input type="tel" id="editAthletePhone" name="phone" class="form-input" placeholder="VD: 0123456789" required>
-                     </div>
-                 </div>
+                    <div class="form-group">
+                        <label class="form-label">Số điện thoại *</label>
+                        <input type="tel" id="editAthletePhone" name="phone" class="form-input"
+                            placeholder="VD: 0123456789" required>
+                    </div>
+                </div>
 
-                 <div class="form-group">
-                     <label class="form-label">Nội dung thi đấu *</label>
-                     <select id="editAthleteCategory" name="category_id" class="form-select" required>
-                         <option value="">-- Chọn nội dung --</option>
-                         @if ($tournament && $tournament->categories)
-                             @foreach ($tournament->categories as $category)
-                                 <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                             @endforeach
-                         @endif
-                     </select>
-                 </div>
+                <div class="form-group">
+                    <label class="form-label">Nội dung thi đấu *</label>
+                    <select id="editAthleteCategory" name="category_id" class="form-select" required>
+                        <option value="">-- Chọn nội dung --</option>
+                        @if ($tournament && $tournament->categories)
+                            @foreach ($tournament->categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
 
-                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                     <button type="submit" class="btn btn-success" id="submitEditAthleteBtn">✅ Cập nhật</button>
-                     <button type="button" class="btn btn-secondary" onclick="closeEditAthleteModal()">❌ Hủy</button>
-                 </div>
-             </form>
-         </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" id="submitEditAthleteBtn">✅ Cập nhật</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditAthleteModal()">❌ Hủy</button>
+                </div>
+            </form>
         </div>
+    </div>
 
-        @endsection
+@endsection

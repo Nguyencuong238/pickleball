@@ -1042,7 +1042,7 @@
         });
 
         // Set form action - controller handles the redirect
-         document.getElementById('tournamentForm')?.setAttribute('action', '{{ route("admin.tournaments.store") }}')
+         document.getElementById('tournamentForm')?.setAttribute('action', '{{ route("homeyard.tournaments.store") }}')
 
         // Initialize
         if (window.innerWidth <= 1024) {

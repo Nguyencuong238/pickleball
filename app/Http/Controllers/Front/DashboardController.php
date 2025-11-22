@@ -7,6 +7,7 @@ use App\Models\Court;
 use App\Models\Stadium;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
+use App\Models\MatchModel;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -48,25 +49,29 @@ class DashboardController extends Controller
         })->get() ?? collect();
         
         // Get tournament - use provided tournament_id if available, otherwise get latest
-        $tournament = null;
-        if ($tournament_id) {
-            $tournament = Tournament::where('id', $tournament_id)
-                ->where('user_id', $user->id)
-                ->with(['categories', 'rounds', 'groups' => function ($query) {
-                    $query->with('category', 'round');
-                }])
-                ->first();
-        }
-        
-        // If no tournament found with the ID or no ID provided, get the latest
-        if (!$tournament) {
-            $tournament = Tournament::where('user_id', $user->id)
-                ->with(['categories', 'rounds', 'groups' => function ($query) {
-                    $query->with('category', 'round');
-                }])
-                ->latest()
-                ->first();
-        }
+         $tournament = null;
+         if ($tournament_id) {
+             $tournament = Tournament::where('id', $tournament_id)
+                 ->where('user_id', $user->id)
+                 ->with(['categories', 'rounds', 'groups' => function ($query) {
+                     $query->with('category', 'round');
+                 }, 'matches' => function ($query) {
+                     $query->with('athlete1', 'athlete2', 'category', 'round');
+                 }, 'athletes'])
+                 ->first();
+         }
+         
+         // If no tournament found with the ID or no ID provided, get the latest
+         if (!$tournament) {
+             $tournament = Tournament::where('user_id', $user->id)
+                 ->with(['categories', 'rounds', 'groups' => function ($query) {
+                     $query->with('category', 'round');
+                 }, 'matches' => function ($query) {
+                     $query->with('athlete1', 'athlete2', 'category', 'round');
+                 }, 'athletes'])
+                 ->latest()
+                 ->first();
+         }
         
         // If still no tournament, redirect to tournaments page
         if (!$tournament) {

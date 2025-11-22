@@ -10,6 +10,7 @@ use App\Models\Stadium;
 use App\Models\Group;
 use App\Models\GroupStanding;
 use App\Models\Booking;
+use App\Models\MatchModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
@@ -1297,5 +1298,207 @@ class HomeYardTournamentController extends Controller
             'pending' => $pending,
             'cancelled' => $cancelled,
         ]);
+    }
+
+    public function storeMatch(Request $request, Tournament $tournament)
+    {
+        try {
+            $this->authorize('update', $tournament);
+
+            $validated = $request->validate([
+                'athlete1_id' => 'required|exists:tournament_athletes,id',
+                'athlete2_id' => 'required|exists:tournament_athletes,id',
+                'category_id' => 'required|exists:tournament_categories,id',
+                'round_id' => 'nullable|exists:rounds,id',
+            ]);
+
+            // Ensure both athletes are from this tournament
+            $athlete1 = TournamentAthlete::where('id', $validated['athlete1_id'])
+                ->where('tournament_id', $tournament->id)
+                ->firstOrFail();
+
+            $athlete2 = TournamentAthlete::where('id', $validated['athlete2_id'])
+                ->where('tournament_id', $tournament->id)
+                ->firstOrFail();
+
+            // Verify both athletes belong to the selected category
+            if ($athlete1->category_id != $validated['category_id']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'VĐV 1 không thuộc nội dung thi đấu đã chọn'
+                ], 422);
+            }
+
+            if ($athlete2->category_id != $validated['category_id']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'VĐV 2 không thuộc nội dung thi đấu đã chọn'
+                ], 422);
+            }
+
+            // Verify athletes are different
+            if ($validated['athlete1_id'] == $validated['athlete2_id']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'VĐV 1 và VĐV 2 phải khác nhau'
+                ], 422);
+            }
+
+            // Create match
+            $match = MatchModel::create([
+                'tournament_id' => $tournament->id,
+                'athlete1_id' => $validated['athlete1_id'],
+                'athlete2_id' => $validated['athlete2_id'],
+                'category_id' => $validated['category_id'],
+                'round_id' => $validated['round_id'],
+                'status' => 'scheduled',
+                'match_date' => now()->toDateString()
+            ]);
+
+            Log::info('Match created', ['match_id' => $match->id]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Trận đấu đã được tạo thành công',
+                'match' => $match
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error: ' . json_encode($e->errors()));
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi validate: ' . collect($e->errors())->flatten()->join(', '),
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Create match error: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update a match
+     */
+    public function updateMatch(Request $request, Tournament $tournament, $match)
+    {
+        try {
+            $this->authorize('update', $tournament);
+            
+            // Resolve match by ID
+            $match = MatchModel::findOrFail($match);
+            
+            // Verify match belongs to tournament
+            if ($match->tournament_id != $tournament->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Trận đấu không thuộc giải đấu này'
+                ], 403);
+            }
+
+            $validated = $request->validate([
+                'athlete1_id' => 'required|exists:tournament_athletes,id',
+                'athlete2_id' => 'required|exists:tournament_athletes,id',
+                'category_id' => 'required|exists:tournament_categories,id',
+                'round_id' => 'required|exists:rounds,id',
+            ]);
+
+            $match->update($validated);
+
+            Log::info('Match updated', ['match_id' => $match->id]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Trận đấu đã được cập nhật thành công',
+                'match' => $match
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation error: ' . json_encode($e->errors()));
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi validate: ' . collect($e->errors())->flatten()->join(', '),
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Update match error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Delete a match
+     */
+    public function destroyMatch(Tournament $tournament, $match)
+    {
+        try {
+            $this->authorize('update', $tournament);
+            
+            // Resolve match by ID
+            $match = MatchModel::findOrFail($match);
+            
+            // Verify match belongs to tournament
+            if ($match->tournament_id != $tournament->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Trận đấu không thuộc giải đấu này'
+                ], 403);
+            }
+
+            $match->delete();
+
+            Log::info('Match deleted', ['match_id' => $match->id]);
+
+            if (request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Trận đấu đã được xóa'
+                ]);
+            }
+
+            return redirect()->back()->with('success', 'Trận đấu đã được xóa thành công');
+        } catch (\Exception $e) {
+            Log::error('Delete match error: ' . $e->getMessage());
+
+            if (request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Lỗi: ' . $e->getMessage()
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Lỗi: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get athletes of a specific category
+     */
+    public function getCategoryAthletes(Tournament $tournament, $categoryId)
+    {
+        try {
+            $this->authorize('update', $tournament);
+
+            // Get approved athletes for this category
+            $athletes = TournamentAthlete::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->where('status', 'approved')
+                ->orderBy('athlete_name')
+                ->get(['id', 'athlete_name']);
+
+            return response()->json([
+                'success' => true,
+                'athletes' => $athletes
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get category athletes error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

@@ -71,11 +71,16 @@ class Tournament extends Model implements HasMedia
     }
 
     public function groups()
-    {
-        return $this->hasMany(Group::class);
-    }
+     {
+         return $this->hasMany(Group::class);
+     }
 
-    public function athleteCount()
+     public function matches()
+     {
+         return $this->hasMany(MatchModel::class);
+     }
+
+     public function athleteCount()
     {
         return $this->athletes()->count();
     }
