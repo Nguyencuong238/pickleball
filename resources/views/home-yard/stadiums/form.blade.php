@@ -1,14 +1,3 @@
-@if ($errors->any())
-    <div class="alert alert-danger fade-in" style="margin-bottom: 20px;">
-        <strong>❌ Lỗi Xác Thực:</strong>
-        <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-            @foreach ($errors->all() as $error)
-                <li>{{ $error }}</li>
-            @endforeach
-        </ul>
-    </div>
-@endif
-
 <div class="card fade-in">
     <div class="card-header">
         <h3 class="card-title">{{ isset($stadium->id) ? '✏️ Chỉnh Sửa Sân' : '➕ Tạo Sân Mới' }}</h3>
@@ -61,7 +50,7 @@
 
                 <div class="form-group">
                     <label class="form-label">Website</label>
-                    <input type="url" name="website" class="form-input"
+                    <input type="text" name="website" class="form-input"
                         value="{{ old('website', $stadium->website) }}">
                 </div>
             </div>
