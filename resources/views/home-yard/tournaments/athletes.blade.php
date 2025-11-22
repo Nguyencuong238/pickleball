@@ -269,10 +269,10 @@
                         </button>
                     </div>
                     <div class="header-user">
-                        <div class="user-avatar">AD</div>
+                        <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
                         <div class="user-info">
-                            <div class="user-name">Admin User</div>
-                            <div class="user-role">Quản trị viên</div>
+                            <div class="user-name">{{auth()->user()->name}}</div>
+                            <div class="user-role">{{auth()->user()->getFirstRoleName()}}</div>
                         </div>
                     </div>
                 </div>

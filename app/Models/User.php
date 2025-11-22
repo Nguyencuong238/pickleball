@@ -78,4 +78,46 @@ class User extends Authenticatable
     {
         return $this->reviews()->where('stadium_id', $stadium->id)->exists();
     }
+
+    /**
+     * Get initials from user's name (first character of each word)
+     * Example: "John Doe" => "JD", "Nguyễn Văn A" => "NVA"
+     *
+     * @return string
+     */
+    public function getInitials()
+    {
+        $parts = explode(' ', trim($this->name));
+        $initials = '';
+        
+        foreach ($parts as $part) {
+            if (!empty($part)) {
+                $initials .= strtoupper(mb_substr($part, 0, 1));
+            }
+        }
+        
+        return $initials ?: 'U'; // Default to 'U' for 'User' if name is empty
+    }
+
+    /**
+     * Get the first/primary role of the user
+     * Returns the first assigned role or null if user has no roles
+     *
+     * @return \Spatie\Permission\Models\Role|null
+     */
+    public function getFirstRole()
+    {
+        return $this->roles()->first();
+    }
+
+    /**
+     * Get the name of the user's first role
+     * Example: "admin", "home_yard", "user"
+     *
+     * @return string|null
+     */
+    public function getFirstRoleName()
+    {
+        return $this->getFirstRole()?->role_name;
+    }
 }

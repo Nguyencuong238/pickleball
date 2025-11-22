@@ -368,7 +368,7 @@
                                         <div class="court-features">
                                             <span class="feature-tag">🏟️ {{ $stadium->courts_count }} sân</span>
 
-                                            @foreach ($stadium->amenities as $amenity)
+                                            @foreach (($stadium->amenities??[]) as $amenity)
                                                 <span class="feature-tag">{{ $amenity }}</span>
                                             @endforeach
                                         </div>

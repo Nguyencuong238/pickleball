@@ -105,7 +105,9 @@ class HomeController extends Controller
 
         // Get total stadiums and courts before pagination
         $totalStadiums = $query->count();
-        $totalCourts = $query->sum('courts_count');
+        $totalCourts = Court::whereHas('stadium', function ($q) {
+            $q->where('status', 'active');
+        })->count();
 
         // Get unique locations for filter dropdown
         $locations = Stadium::where('status', 'active')
