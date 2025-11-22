@@ -515,14 +515,13 @@
                 <div class="filter-grid">
                     <div class="form-group" style="margin: 0;">
                         <select class="form-select" id="statusFilter">
-                            <option value="">Tất cả trạng thái</option>
                             <option value="ongoing">Đang diễn ra</option>
                             <option value="upcoming">Sắp tới</option>
                             <option value="completed">Đã kết thúc</option>
                             <option value="cancelled">Đã hủy</option>
                         </select>
                     </div>
-                    <div class="form-group" style="margin: 0;">
+                    {{-- <div class="form-group" style="margin: 0;">
                         <select class="form-select" id="typeFilter">
                             <option value="">Tất cả loại giải</option>
                             <option value="single-men">Đơn nam</option>
@@ -534,13 +533,12 @@
                     </div>
                     <div class="form-group" style="margin: 0;">
                         <select class="form-select" id="locationFilter">
-                            <option value="">Tất cả địa điểm</option>
                             <option value="hcm">TP. Hồ Chí Minh</option>
                             <option value="hn">Hà Nội</option>
                             <option value="dn">Đà Nẵng</option>
                             <option value="other">Khác</option>
                         </select>
-                    </div>
+                    </div> --}}
                     <div class="form-group" style="margin: 0;">
                         <select class="form-select" id="sortFilter">
                             <option value="newest">Mới nhất</option>
@@ -559,9 +557,9 @@
                     <button class="btn btn-secondary" onclick="resetFilters()">
                         🔄 Đặt lại bộ lọc
                     </button>
-                    <button class="btn btn-secondary">
-                        📊 Xuất Excel
-                    </button>
+                    <button class="btn btn-secondary" onclick="exportToExcel()">
+                         📊 Xuất Excel
+                     </button>
                     <button class="btn btn-ghost" onclick="toggleView()">
                         <span id="viewIcon">📋</span> Chuyển chế độ xem
                     </button>
@@ -588,16 +586,16 @@
             <!-- View Tabs -->
             <div class="view-tabs fade-in">
                 <button class="view-tab active" onclick="filterByStatus('all')">
-                    Tất cả (24)
+                    Tất cả ({{ $stats['total'] ?? 0 }})
                 </button>
                 <button class="view-tab" onclick="filterByStatus('ongoing')">
-                    Đang diễn ra (12)
+                    Đang diễn ra ({{ $stats['ongoing'] ?? 0 }})
                 </button>
                 <button class="view-tab" onclick="filterByStatus('upcoming')">
-                    Sắp tới (8)
+                    Sắp tới ({{ $stats['upcoming'] ?? 0 }})
                 </button>
                 <button class="view-tab" onclick="filterByStatus('completed')">
-                    Đã kết thúc (4)
+                    Đã kết thúc ({{ $stats['completed'] ?? 0 }})
                 </button>
             </div>
 
@@ -644,14 +642,19 @@
                         }
                     @endphp
                     
-                    <div class="tournament-card fade-in">
-                        <div class="tournament-header">
-                            <span class="tournament-status">
-                                <span class="badge {{ $statusBadge }}">{{ $statusText }}</span>
-                            </span>
-                            <h3 class="tournament-title">{{ $tournament->name }}</h3>
-                            <div class="tournament-date">📅 {{ date('d/m/Y', strtotime($tournament->start_date)) }}@if($tournament->end_date) - {{ date('d/m/Y', strtotime($tournament->end_date)) }}@endif</div>
-                        </div>
+                    <div class="tournament-card fade-in" 
+                         data-status="{{ $statusText }}" 
+                         data-format="{{ $formatText }}"
+                         data-location="{{ $tournament->location ?? 'N/A' }}"
+                         data-name="{{ $tournament->name }}"
+                         data-date="{{ strtotime($tournament->start_date) }}">
+                         <div class="tournament-header">
+                             <span class="tournament-status">
+                                 <span class="badge {{ $statusBadge }}">{{ $statusText }}</span>
+                             </span>
+                             <h3 class="tournament-title">{{ $tournament->name }}</h3>
+                             <div class="tournament-date">📅 {{ date('d/m/Y', strtotime($tournament->start_date)) }}@if($tournament->end_date) - {{ date('d/m/Y', strtotime($tournament->end_date)) }}@endif</div>
+                         </div>
                         <div class="tournament-body">
                             <div class="tournament-meta">
                                 <div class="meta-item">
@@ -931,23 +934,204 @@
             }
         }
 
-        // Filter by status
-        function filterByStatus(status) {
-            const tabs = document.querySelectorAll('.view-tab');
-            tabs.forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
+        // Store all tournaments data
+         let allTournaments = [];
 
-            console.log('Filtering by:', status);
-        }
+         // Initialize filter system
+         function initializeFilters() {
+             // Get all tournament cards with data attributes
+             const cards = document.querySelectorAll('.tournament-card');
+             
+             cards.forEach(card => {
+                 const name = card.getAttribute('data-name') || '';
+                 const status = card.getAttribute('data-status') || '';
+                 const format = card.getAttribute('data-format') || '';
+                 const location = card.getAttribute('data-location') || '';
+                 const dateStr = card.getAttribute('data-date') || '';
+                 const element = card;
+                 
+                 allTournaments.push({ element, name, status, format, location, dateStr });
+             });
 
-        // Reset filters
-        function resetFilters() {
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('typeFilter').value = '';
-            document.getElementById('locationFilter').value = '';
-            document.getElementById('sortFilter').value = 'newest';
-            document.getElementById('searchInput').value = '';
-        }
+             // Add event listeners to filters
+             document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+             document.getElementById('typeFilter')?.addEventListener('change', applyFilters);
+             document.getElementById('locationFilter')?.addEventListener('change', applyFilters);
+             document.getElementById('sortFilter')?.addEventListener('change', applyFilters);
+             document.getElementById('searchInput')?.addEventListener('input', applyFilters);
+         }
+
+         // Apply all filters
+         function applyFilters() {
+             const statusFilter = document.getElementById('statusFilter')?.value || '';
+             const typeFilter = document.getElementById('typeFilter')?.value || '';
+             const locationFilter = document.getElementById('locationFilter')?.value || '';
+             const sortBy = document.getElementById('sortFilter')?.value || 'newest';
+             const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+
+             let filtered = allTournaments.filter(tournament => {
+                 // Status filter
+                 if (statusFilter) {
+                     const statusMap = {
+                         'ongoing': 'Đang diễn ra',
+                         'upcoming': 'Sắp tới',
+                         'completed': 'Đã kết thúc',
+                         'cancelled': 'Đã hủy'
+                     };
+                     const expectedStatus = statusMap[statusFilter] || statusFilter;
+                     if (tournament.status !== expectedStatus) {
+                         return false;
+                     }
+                 }
+
+                 // Type filter (competition format)
+                 if (typeFilter) {
+                     const formatMap = {
+                         'single-men': 'Đơn nam',
+                         'single-women': 'Đơn nữ',
+                         'double-men': 'Đôi nam',
+                         'double-women': 'Đôi nữ',
+                         'double-mixed': 'Đôi nam nữ',
+                         'single': 'Đơn',
+                         'double': 'Đôi',
+                         'mixed': 'Đôi nam nữ'
+                     };
+                     const expectedFormat = formatMap[typeFilter] || typeFilter;
+                     if (tournament.format !== expectedFormat) {
+                         return false;
+                     }
+                 }
+
+                 // Location filter
+                 if (locationFilter) {
+                     const locationMap = {
+                         'hcm': 'TP. Hồ Chí Minh',
+                         'hn': 'Hà Nội',
+                         'dn': 'Đà Nẵng'
+                     };
+                     const expectedLocation = locationMap[locationFilter];
+                     if (locationFilter === 'other') {
+                         // 'other' means any location that is not in the predefined list
+                         if (Object.values(locationMap).includes(tournament.location)) {
+                             return false;
+                         }
+                     } else if (tournament.location !== expectedLocation) {
+                         return false;
+                     }
+                 }
+
+                 // Search filter
+                 if (searchTerm && !tournament.name.toLowerCase().includes(searchTerm)) {
+                     return false;
+                 }
+
+                 return true;
+             });
+
+             // Apply sorting
+             filtered = sortTournaments(filtered, sortBy);
+
+             // Update display
+             updateTournamentDisplay(filtered);
+         }
+
+         // Sort tournaments
+         function sortTournaments(tournaments, sortBy) {
+             const sorted = [...tournaments];
+             
+             switch(sortBy) {
+                 case 'newest':
+                     // Mới nhất - sắp xếp theo date giảm dần
+                     sorted.sort((a, b) => parseInt(b.dateStr) - parseInt(a.dateStr));
+                     break;
+                 case 'oldest':
+                     // Cũ nhất - sắp xếp theo date tăng dần
+                     sorted.sort((a, b) => parseInt(a.dateStr) - parseInt(b.dateStr));
+                     break;
+                 case 'name-asc':
+                     sorted.sort((a, b) => a.name.localeCompare(b.name, 'vi'));
+                     break;
+                 case 'name-desc':
+                     sorted.sort((a, b) => b.name.localeCompare(a.name, 'vi'));
+                     break;
+                 case 'date-asc':
+                     // Sắp xếp theo ngày bắt đầu tăng dần
+                     sorted.sort((a, b) => parseInt(a.dateStr) - parseInt(b.dateStr));
+                     break;
+                 case 'date-desc':
+                     // Sắp xếp theo ngày bắt đầu giảm dần
+                     sorted.sort((a, b) => parseInt(b.dateStr) - parseInt(a.dateStr));
+                     break;
+             }
+             
+             return sorted;
+         }
+
+         // Update tournament display
+         function updateTournamentDisplay(filtered) {
+             const grid = document.getElementById('tournamentGrid');
+             
+             // Clear grid
+             grid.innerHTML = '';
+
+             if (filtered.length === 0) {
+                 grid.innerHTML = `
+                     <div style="grid-column: 1 / -1;">
+                         <div class="empty-state">
+                             <div class="empty-icon">📋</div>
+                             <div class="empty-title">Không tìm thấy giải đấu nào</div>
+                             <div class="empty-description">Hãy thử thay đổi các bộ lọc của bạn</div>
+                         </div>
+                     </div>
+                 `;
+                 return;
+             }
+
+             // Re-add filtered elements with animation
+             filtered.forEach(tournament => {
+                 tournament.element.style.opacity = '0';
+                 tournament.element.style.transform = 'translateY(20px)';
+                 grid.appendChild(tournament.element);
+                 
+                 // Trigger animation
+                 setTimeout(() => {
+                     tournament.element.style.transition = 'all 0.3s ease-out';
+                     tournament.element.style.opacity = '1';
+                     tournament.element.style.transform = 'translateY(0)';
+                 }, 10);
+             });
+         }
+
+         // Filter by status from tabs
+         function filterByStatus(status) {
+             const tabs = document.querySelectorAll('.view-tab');
+             tabs.forEach(tab => tab.classList.remove('active'));
+             event.target.classList.add('active');
+
+             document.getElementById('statusFilter').value = status === 'all' ? '' : status;
+             applyFilters();
+         }
+
+         // Reset filters
+         function resetFilters() {
+             document.getElementById('statusFilter').value = '';
+             document.getElementById('typeFilter').value = '';
+             document.getElementById('locationFilter').value = '';
+             document.getElementById('sortFilter').value = 'newest';
+             document.getElementById('searchInput').value = '';
+             
+             const tabs = document.querySelectorAll('.view-tab');
+             tabs.forEach(tab => tab.classList.remove('active'));
+             tabs[0].classList.add('active');
+             
+             applyFilters();
+         }
+
+         // Export to Excel
+         function exportToExcel() {
+             // Gửi request tới server để export Excel (.xlsx)
+             window.location.href = '{{ route("homeyard.tournaments.export") }}';
+         }
 
         // Bulk actions
         function updateBulkActions() {
@@ -1045,6 +1229,8 @@
          document.getElementById('tournamentForm')?.setAttribute('action', '{{ route("homeyard.tournaments.store") }}')
 
         // Initialize
+        initializeFilters();
+        
         if (window.innerWidth <= 1024) {
             toggleSidebar();
         }

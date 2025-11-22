@@ -253,7 +253,7 @@
 
             <!-- Quick Actions -->
             <div class="quick-actions fade-in">
-                <a href="tournaments.html?action=create" class="quick-action-btn">
+                <a href="{{ route('homeyard.tournaments') }}" class="quick-action-btn">
                     <div class="quick-action-icon">➕</div>
                     <div class="quick-action-title">Tạo Giải Mới</div>
                 </a>

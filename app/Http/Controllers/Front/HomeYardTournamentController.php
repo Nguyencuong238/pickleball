@@ -1779,4 +1779,116 @@ class HomeYardTournamentController extends Controller
             return back()->with('error', 'Lỗi xuất file: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Xuất danh sách giải đấu ra Excel
+     */
+    public function exportTournamentsList()
+    {
+        try {
+            // Lấy tất cả giải đấu của user hiện tại
+            $tournaments = Tournament::where('user_id', auth()->id())
+                ->latest()
+                ->get();
+
+            if ($tournaments->isEmpty()) {
+                return back()->with('error', 'Không có giải đấu nào để xuất');
+            }
+
+            // Tạo spreadsheet
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Danh Sách Giải Đấu');
+
+            // Set headers
+            $headers = ['STT', 'Tên Giải Đấu', 'Trạng Thái', 'Loại Giải', 'Địa Điểm', 'Ngày Bắt Đầu', 'Ngày Kết Thúc', 'Số VĐV', 'Lệ Phí', 'Giải Thưởng'];
+            $sheet->fromArray([$headers], null, 'A1');
+
+            // Style header
+            $headerStyle = [
+                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+                'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
+                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER, 'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER, 'wrapText' => true]
+            ];
+            $sheet->getStyle('A1:J1')->applyFromArray($headerStyle);
+            $sheet->getRowDimension(1)->setRowHeight(30);
+
+            // Thêm dữ liệu
+            $rowNum = 2;
+            foreach ($tournaments as $index => $tournament) {
+                // Xác định trạng thái
+                $now = now();
+                $startDate = \Carbon\Carbon::parse($tournament->start_date);
+                $endDate = $tournament->end_date ? \Carbon\Carbon::parse($tournament->end_date) : null;
+                
+                if ($startDate > $now) {
+                    $status = 'Sắp tới';
+                } elseif ($startDate <= $now && ($endDate === null || $endDate >= $now)) {
+                    $status = 'Đang diễn ra';
+                } else {
+                    $status = 'Đã kết thúc';
+                }
+
+                // Xác định loại giải
+                $formatMap = [
+                    'single' => 'Đơn',
+                    'double' => 'Đôi',
+                    'mixed' => 'Đôi nam nữ'
+                ];
+                $format = $formatMap[$tournament->competition_format] ?? 'Không xác định';
+
+                // Lấy số VĐV
+                $athleteCount = $tournament->athletes()->count();
+
+                $row = [
+                    $index + 1,
+                    $tournament->name,
+                    $status,
+                    $format,
+                    $tournament->location ?? 'N/A',
+                    $tournament->start_date ? \Carbon\Carbon::parse($tournament->start_date)->format('d/m/Y') : 'N/A',
+                    $tournament->end_date ? \Carbon\Carbon::parse($tournament->end_date)->format('d/m/Y') : 'N/A',
+                    $athleteCount . '/' . ($tournament->max_participants ?? 'Không giới hạn'),
+                    $tournament->price ? number_format($tournament->price, 0, ',', '.') . ' ₫' : 'Miễn phí',
+                    $tournament->prizes ? number_format($tournament->prizes, 0, ',', '.') . ' ₫' : 'N/A'
+                ];
+
+                $sheet->fromArray([$row], null, 'A' . $rowNum);
+                $rowNum++;
+            }
+
+            // Đặt độ rộng cột
+            $sheet->getColumnDimension('A')->setWidth(8);
+            $sheet->getColumnDimension('B')->setWidth(25);
+            $sheet->getColumnDimension('C')->setWidth(15);
+            $sheet->getColumnDimension('D')->setWidth(15);
+            $sheet->getColumnDimension('E')->setWidth(20);
+            $sheet->getColumnDimension('F')->setWidth(15);
+            $sheet->getColumnDimension('G')->setWidth(15);
+            $sheet->getColumnDimension('H')->setWidth(15);
+            $sheet->getColumnDimension('I')->setWidth(18);
+            $sheet->getColumnDimension('J')->setWidth(18);
+
+            // Center align các cột
+            $sheet->getStyle('A2:A' . ($rowNum - 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $sheet->getStyle('C2:H' . ($rowNum - 1))->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+            // Freeze header row
+            $sheet->freezePane('A2');
+
+            // Download
+            $writer = new Xlsx($spreadsheet);
+            $filename = 'DanhSachGiaiDau_' . date('Y-m-d_H-i-s') . '.xlsx';
+
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+
+            $writer->save('php://output');
+            exit;
+        } catch (\Exception $e) {
+            Log::error('Export tournaments list error: ' . $e->getMessage());
+            return back()->with('error', 'Lỗi xuất file: ' . $e->getMessage());
+        }
+    }
 }
