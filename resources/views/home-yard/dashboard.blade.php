@@ -725,10 +725,11 @@
                                     <option value="">-- Tự động chia vào bảng đã tạo --</option>
                                     @if ($tournament && $tournament->groups)
                                         @foreach ($tournament->groups as $group)
-                                            <option value="{{ $group->id }}"
-                                                data-category="{{ $group->category_id }}">
-                                                {{ $group->group_name }}
-                                            </option>
+                                             <option value="{{ $group->id }}"
+                                                 data-category="{{ $group->category_id }}"
+                                                 data-max-participants="{{ $group->max_participants }}">
+                                                 {{ $group->group_name }} ({{ $group->current_participants }}/{{ $group->max_participants }})
+                                             </option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -1357,44 +1358,78 @@
         });
 
         // Draw/Lottery Functionality
-        function initializeDraw() {
-            const drawBtn = document.getElementById('drawBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const categorySelect = document.getElementById('categorySelect');
-            const drawMethod = document.getElementById('drawMethod');
-            const groupSelect = document.getElementById('groupSelect');
+         function initializeDraw() {
+             const drawBtn = document.getElementById('drawBtn');
+             const resetBtn = document.getElementById('resetBtn');
+             const categorySelect = document.getElementById('categorySelect');
+             const drawMethod = document.getElementById('drawMethod');
+             const groupSelect = document.getElementById('groupSelect');
+             const tournamentId = {{ $tournament->id ?? 0 }};
+
+             // ✅ Load kết quả bốc thăm khi page load hoặc chọn category khác
+             categorySelect.addEventListener('change', function() {
+                 if (this.value) {
+                     loadDrawResults(this.value, tournamentId);
+                 }
+             });
 
             if (drawBtn) {
-                drawBtn.addEventListener('click', function() {
-                    if (!categorySelect.value) {
-                        showAlert('Vui lòng chọn nội dung thi đấu', 'warning');
-                        return;
-                    }
+                 drawBtn.addEventListener('click', function() {
+                     if (!categorySelect.value) {
+                         showAlert('Vui lòng chọn nội dung thi đấu', 'warning');
+                         return;
+                     }
 
-                    const categoryId = categorySelect.value;
-                    const method = drawMethod.value;
-                    const tournamentId = {{ $tournament->id ?? 0 }};
+                     const categoryId = categorySelect.value;
+                     const method = drawMethod.value;
+                     const tournamentId = {{ $tournament->id ?? 0 }};
 
-                    // Lấy danh sách bảng cho nội dung này
-                    const selectedGroups = Array.from(groupSelect.options)
-                        .filter(opt => opt.dataset.category && opt.dataset.category == categoryId && opt.value)
-                        .map(opt => ({
-                            id: opt.value,
-                            name: opt.text
-                        }));
+                     // Lấy danh sách bảng cho nội dung này
+                     const selectedGroups = Array.from(groupSelect.options)
+                         .filter(opt => opt.dataset.category && opt.dataset.category == categoryId && opt.value)
+                         .map(opt => ({
+                             id: opt.value,
+                             name: opt.text
+                         }));
 
-                    console.log('Category ID:', categoryId);
-                    console.log('All options:', Array.from(groupSelect.options).map(opt => ({
-                        value: opt.value,
-                        category: opt.dataset.category,
-                        text: opt.text
-                    })));
-                    console.log('Selected Groups:', selectedGroups);
+                     console.log('Category ID:', categoryId);
+                     console.log('All options:', Array.from(groupSelect.options).map(opt => ({
+                         value: opt.value,
+                         category: opt.dataset.category,
+                         text: opt.text
+                     })));
+                     console.log('Selected Groups:', selectedGroups);
 
-                    if (selectedGroups.length === 0) {
-                        showAlert('Không có bảng nào cho nội dung này. Vui lòng tạo bảng trước.', 'warning');
-                        return;
-                    }
+                     if (selectedGroups.length === 0) {
+                         showAlert('Không có bảng nào cho nội dung này. Vui lòng tạo bảng trước.', 'warning');
+                         return;
+                     }
+
+                     // ✅ Lấy số VĐV đã duyệt
+                     const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                     const approvedAthletes = parseInt(selectedOption.dataset.athletes) || 0;
+
+                     // ✅ Tính tổng sức chứa của bảng
+                     const totalCapacity = selectedGroups.reduce((sum, group) => {
+                         // Tìm phần tử select tương ứng để lấy max_participants từ data attribute
+                         const groupOption = Array.from(groupSelect.options).find(opt => opt.value === group.id);
+                         const maxParticipants = groupOption ? parseInt(groupOption.dataset.maxParticipants) || 0 : 0;
+                         console.log(`Group ${group.id}: max = ${maxParticipants}`);
+                         return sum + maxParticipants;
+                     }, 0);
+
+                     // ✅ VALIDATE trước khi gửi
+                     if (approvedAthletes === 0) {
+                         showAlert('Không có VĐV nào được duyệt cho nội dung này', 'warning');
+                         return;
+                     }
+
+                     if (approvedAthletes > totalCapacity) {
+                         showAlert(`❌ Không đủ chỗ trống. Bạn có ${approvedAthletes} VĐV nhưng các bảng chỉ có sức chứa ${totalCapacity}. Vui lòng tạo thêm bảng hoặc tăng số VĐV tối đa của bảng.`, 'danger');
+                         return;
+                     }
+
+                     console.log('Validation passed:', { approvedAthletes, totalCapacity, selectedGroups });
 
                     drawBtn.disabled = true;
                     drawBtn.innerHTML = '⏳ Đang bốc thăm...';
@@ -1489,10 +1524,28 @@
             }
         }
 
-        function displayResults(groupedAthletes) {
-            const container = document.getElementById('groupResults');
-            const resultsContainer = document.getElementById('groupResultsContainer');
-            const noResultsMsg = document.getElementById('noResultsMsg');
+        // ✅ Load kết quả bốc thăm từ DB
+         function loadDrawResults(categoryId, tournamentId) {
+             fetch(`/homeyard/tournaments/${tournamentId}/draw-results?category_id=${categoryId}`)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.success && data.data && data.data.length > 0) {
+                         displayResults(data.data);
+                         console.log('Draw results loaded for category:', categoryId);
+                     } else {
+                         document.getElementById('groupResultsContainer').style.display = 'none';
+                         document.getElementById('noResultsMsg').style.display = 'block';
+                     }
+                 })
+                 .catch(err => {
+                     console.error('Error loading draw results:', err);
+                 });
+         }
+
+         function displayResults(groupedAthletes) {
+             const container = document.getElementById('groupResults');
+             const resultsContainer = document.getElementById('groupResultsContainer');
+             const noResultsMsg = document.getElementById('noResultsMsg');
 
             if (!groupedAthletes || groupedAthletes.length === 0) {
                 resultsContainer.style.display = 'none';

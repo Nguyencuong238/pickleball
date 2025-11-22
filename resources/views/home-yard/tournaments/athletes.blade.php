@@ -674,18 +674,43 @@
          }
         
          function submitAddPlayerForm() {
-             const form = document.getElementById('addPlayerForm');
-             const tournamentId = form.tournament_id.value;
-             
-             if (!tournamentId) {
-                 alert('Vui lòng chọn giải đấu');
-                 return;
-             }
-             
-             const actionUrl = `/homeyard/tournaments/${tournamentId}/athletes/add`;
-             form.action = actionUrl;
-             form.submit();
-         }
+              const form = document.getElementById('addPlayerForm');
+              const tournamentId = form.tournament_id.value;
+              
+              if (!tournamentId) {
+                  alert('Vui lòng chọn giải đấu');
+                  return;
+              }
+              
+              // Get form data
+              const formData = new FormData(form);
+              const actionUrl = `/homeyard/tournaments/${tournamentId}/athletes/add`;
+              
+              // Submit via AJAX
+              fetch(actionUrl, {
+                  method: 'POST',
+                  headers: {
+                      'X-Requested-With': 'XMLHttpRequest',
+                      'Accept': 'application/json',
+                  },
+                  body: formData
+              })
+              .then(res => res.json())
+              .then(data => {
+                  if (data.success) {
+                      alert('Thêm vận động viên thành công');
+                      closeAddPlayerModal();
+                      // Optional: reload athletes list or refresh page if needed
+                      // location.reload();
+                  } else {
+                      alert('Lỗi: ' + (data.message || 'Không xác định'));
+                  }
+              })
+              .catch(err => {
+                  console.error('Error:', err);
+                  alert('Có lỗi xảy ra khi thêm vận động viên');
+              });
+          }
          
          function loadTournaments() {
              // Fetch tournaments

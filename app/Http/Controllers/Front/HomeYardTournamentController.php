@@ -677,23 +677,34 @@ class HomeYardTournamentController extends Controller
             }
 
             // Kiểm tra xem các bảng có tồn tại không
-            $existingGroups = Group::where('tournament_id', $tournament->id)
-                ->where('category_id', $categoryId)
-                ->get();
+             $existingGroups = Group::where('tournament_id', $tournament->id)
+                 ->where('category_id', $categoryId)
+                 ->get();
+            
+             if ($existingGroups->isEmpty()) {
+                 return response()->json([
+                     'success' => false,
+                     'message' => 'Vui lòng tạo bảng trước khi bốc thăm'
+                 ], 422);
+             }
 
-            if ($existingGroups->isEmpty()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Vui lòng tạo bảng trước khi bốc thăm'
-                ], 422);
-            }
+             // ✅ VALIDATE: Kiểm tra tổng sức chứa của các bảng
+             $totalCapacity = $existingGroups->sum('max_participants');
+             $totalAthletes = $approvedAthletes->count();
 
-            // Xử lý bốc thăm
-            if ($drawMethod === 'auto') {
-                $this->drawAthletesByRandom($approvedAthletes, $existingGroups);
-            } elseif ($drawMethod === 'seeded') {
-                $this->drawAthletesBySeeding($approvedAthletes, $existingGroups);
-            }
+             if ($totalAthletes > $totalCapacity) {
+                 return response()->json([
+                     'success' => false,
+                     'message' => "Không đủ chỗ trống. Bạn có {$totalAthletes} VĐV nhưng các bảng chỉ có sức chứa {$totalCapacity}. Vui lòng tạo thêm bảng hoặc tăng số VĐV tối đa của bảng."
+                 ], 422);
+             }
+            
+             // Xử lý bốc thăm
+             if ($drawMethod === 'auto') {
+                 $this->drawAthletesByRandom($approvedAthletes, $existingGroups);
+             } elseif ($drawMethod === 'seeded') {
+                 $this->drawAthletesBySeeding($approvedAthletes, $existingGroups);
+             }
 
             // Refresh groups from DB để lấy dữ liệu mới nhất sau update
             $refreshedGroups = Group::where('tournament_id', $tournament->id)
