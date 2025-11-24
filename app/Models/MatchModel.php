@@ -41,16 +41,16 @@ class MatchModel extends Model
     ];
 
     protected $casts = [
-        'match_date' => 'date',
-        'match_time' => 'datetime',
-        'actual_start_time' => 'datetime',
-        'actual_end_time' => 'datetime',
-        'set_scores' => 'array',
-        'athlete1_score' => 'integer',
-        'athlete2_score' => 'integer',
-        'best_of' => 'integer',
-        'bracket_position' => 'integer',
-    ];
+         'match_date' => 'date',
+         'match_time' => 'string',
+         'actual_start_time' => 'datetime',
+         'actual_end_time' => 'datetime',
+         'set_scores' => 'array',
+         'athlete1_score' => 'integer',
+         'athlete2_score' => 'integer',
+         'best_of' => 'integer',
+         'bracket_position' => 'integer',
+     ];
 
     /**
      * Get the tournament that owns this match.

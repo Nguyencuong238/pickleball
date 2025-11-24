@@ -476,27 +476,20 @@ class HomeYardTournamentController extends Controller
         $upcomingCount = MatchModel::whereIn('tournament_id', $tournamentIds)->where('status', 'scheduled')->count();
         $completedCount = MatchModel::whereIn('tournament_id', $tournamentIds)->where('status', 'completed')->count();
         
-        // Paginate matches by actual time vs scheduled time
-        // Live: match_date + match_time <= now() and status != 'completed'
+        // Paginate matches by status
+        // Live: status = 'in_progress'
         $liveMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
-            ->where(function ($query) {
-                // Match starts now or has started, but not yet completed
-                $query->whereRaw('CONCAT(match_date, " ", COALESCE(match_time, "00:00:00")) <= ?', [now()])
-                    ->where('status', '!=', 'completed')
-                    ->where('status', '!=', 'cancelled');
-            })
+            ->where('status', 'in_progress')
+            ->where('status', '!=', 'cancelled')
             ->with(['athlete1', 'athlete2', 'winner', 'court', 'round', 'category'])
             ->orderBy('match_date', 'desc')
             ->orderBy('match_time', 'desc')
             ->paginate(5, ['*'], 'live_page');
         
-        // Upcoming: match_date + match_time > now() and not cancelled
+        // Upcoming: status = 'scheduled'
         $upcomingMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
-            ->where(function ($query) {
-                // Match hasn't started yet
-                $query->whereRaw('CONCAT(match_date, " ", COALESCE(match_time, "00:00:00")) > ?', [now()])
-                    ->where('status', '!=', 'cancelled');
-            })
+            ->where('status', 'scheduled')
+            ->where('status', '!=', 'cancelled')
             ->with(['athlete1', 'athlete2', 'winner', 'court', 'round', 'category'])
             ->orderBy('match_date', 'asc')
             ->orderBy('match_time', 'asc')

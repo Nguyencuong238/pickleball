@@ -12,7 +12,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        // $schedule->command('inspire')->hourly();
+        // Update match status to in_progress when match time arrives
+        $schedule->command('match:update-status')->everyMinute();
     }
 
     /**

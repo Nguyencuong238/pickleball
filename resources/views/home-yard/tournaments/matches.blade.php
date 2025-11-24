@@ -565,7 +565,7 @@
                                             </div>
                                             <div class="match-actions">
                                                 <button class="btn btn-primary btn-sm" onclick="openUpdateScoreModal({{ $match->tournament_id }}, {{ $match->id }})">📊 Cập nhật điểm</button>
-                                                <button class="btn btn-ghost btn-sm">👁️ Chi tiết</button>
+                                                <button class="btn btn-ghost btn-sm" onclick="openMatchDetailsModal({{ $match->tournament_id }}, {{ $match->id }})">👁️ Chi tiết</button>
                                             </div>
                                         </div>
                                     </div>
@@ -596,7 +596,7 @@
                                                 <span class="badge badge-warning">Sắp tới</span>
                                             </div>
                                             <div class="match-time">
-                                                🕐 {{ $match->match_time?->format('H:i') ?? 'N/A' }} • 📅
+                                                🕐 {{ $match->match_time ?? 'N/A' }} • 📅
                                                 {{ $match->match_date?->format('d/m/Y') ?? 'N/A' }}
                                             </div>
                                         </div>
@@ -633,7 +633,7 @@
                                                 @endif
                                             </div>
                                             <div class="match-actions">
-                                                <button class="btn btn-ghost btn-sm">👁️ Chi tiết</button>
+                                                <button class="btn btn-ghost btn-sm" onclick="openMatchDetailsModal({{ $match->tournament_id }}, {{ $match->id }})">👁️ Chi tiết</button>
                                             </div>
                                             </div>
                                             </div>
@@ -665,7 +665,7 @@
                                             </div>
                                             <div class="match-time">
                                                 🕐
-                                                {{ $match->actual_start_time?->format('H:i') ?? ($match->match_time?->format('H:i') ?? 'N/A') }}
+                                                {{ $match->actual_start_time?->format('H:i') ?? ($match->match_time ?? 'N/A') }}
                                                 • 📅 {{ $match->match_date?->format('d/m/Y') ?? 'N/A' }}
                                             </div>
                                         </div>
@@ -705,7 +705,7 @@
                                                 @endif
                                             </div>
                                             <div class="match-actions">
-                                                <button class="btn btn-ghost btn-sm">👁️ Chi tiết</button>
+                                                <button class="btn btn-ghost btn-sm" onclick="openMatchDetailsModal({{ $match->tournament_id }}, {{ $match->id }})">👁️ Chi tiết</button>
                                             </div>
                                             </div>
                                             </div>
@@ -742,6 +742,23 @@
             </div>
         </div>
     </main>
+
+    <!-- Modal Chi Tiết Trận Đấu -->
+    <div id="matchDetailsModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: var(--radius-lg); padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; color: var(--text-primary);">Chi Tiết Trận Đấu</h2>
+                <button onclick="closeMatchDetailsModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">×</button>
+            </div>
+            
+            <div id="matchDetailsContent">
+                <div style="text-align: center; padding: 2rem;">
+                    <p style="color: var(--text-secondary);">Đang tải...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal Cập Nhật Điểm Trận Đấu -->
     <div id="updateScoreModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
         <div style="background: white; border-radius: var(--radius-lg); padding: 2rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto;">
@@ -783,6 +800,26 @@
                     </div>
                 </div>
                 
+                <!-- Ngày + Giờ bắt đầu -->
+                <div style="margin-bottom: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">📅 Ngày bắt đầu</label>
+                        <input type="date" id="matchDate" name="match_date" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">🕐 Giờ bắt đầu</label>
+                        <input type="time" id="matchTime" name="match_time" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem;">
+                    </div>
+                </div>
+
+                <!-- Chọn Bảng/Nhóm -->
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">👥 Bảng/Nhóm</label>
+                    <select id="matchGroup" name="group_id" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem;">
+                        <option value="">-- Không chọn bảng --</option>
+                    </select>
+                </div>
+
                 <!-- Match Status -->
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">Trạng Thái Trận Đấu</label>
@@ -935,6 +972,17 @@
                      document.getElementById('matchStatus').value = match.status || 'in_progress';
                      document.getElementById('finalScore').value = match.final_score || '';
                      
+                     // Populate match date and time
+                     if (match.match_date) {
+                         document.getElementById('matchDate').value = match.match_date;
+                     }
+                     if (match.match_time) {
+                         document.getElementById('matchTime').value = match.match_time;
+                     }
+                     
+                     // Populate group selection
+                     document.getElementById('matchGroup').value = match.group_id || '';
+                     
                      // Display completed sets if available
                      displayCompletedSets(match.set_scores);
                      
@@ -990,10 +1038,180 @@
              container.style.display = 'block';
          }
 
-         function closeUpdateScoreModal() {
-             const modal = document.getElementById('updateScoreModal');
+         // Match Details Modal Functions
+         function openMatchDetailsModal(tournamentId, matchId) {
+             fetch(`/homeyard/tournaments/${tournamentId}/matches/${matchId}`, {
+                 headers: {
+                     'X-Requested-With': 'XMLHttpRequest'
+                 }
+             })
+             .then(response => {
+                 if (!response.ok) {
+                     throw new Error(`HTTP error! status: ${response.status}`);
+                 }
+                 return response.json();
+             })
+             .then(data => {
+                 if (data.success) {
+                     const match = data.match;
+                     const htmlContent = buildMatchDetailsHTML(match);
+                     document.getElementById('matchDetailsContent').innerHTML = htmlContent;
+                     const modal = document.getElementById('matchDetailsModal');
+                     modal.style.display = 'flex';
+                 } else {
+                     alert('Lỗi: ' + (data.message || 'Không thể tải dữ liệu'));
+                 }
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                 alert('Lỗi: Không thể tải chi tiết trận đấu. ' + error.message);
+             });
+         }
+
+         function closeMatchDetailsModal() {
+             const modal = document.getElementById('matchDetailsModal');
              modal.style.display = 'none';
          }
+
+         function buildMatchDetailsHTML(match) {
+             const setScores = match.set_scores ? (typeof match.set_scores === 'string' ? JSON.parse(match.set_scores) : match.set_scores) : [];
+             let setsHTML = '';
+             
+             if (Array.isArray(setScores) && setScores.length > 0) {
+                 setScores.forEach((set, index) => {
+                     const setWinner = set.athlete1_score > set.athlete2_score ? '🏆' : '🏆';
+                     setsHTML += `
+                         <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: var(--bg-light); border-radius: var(--radius-md); margin-bottom: 0.5rem;">
+                             <span style="color: var(--text-secondary); font-size: 0.875rem;">Set ${index + 1}</span>
+                             <span style="font-weight: 600; color: var(--text-primary);">${set.athlete1_score} - ${set.athlete2_score}</span>
+                         </div>
+                     `;
+                 });
+             }
+
+             const statusColors = {
+                 'scheduled': '#FFC107',
+                 'in_progress': '#FF6B6B',
+                 'completed': '#4ADE80',
+                 'cancelled': '#9CA3AF'
+             };
+
+             const statusLabels = {
+                 'scheduled': 'Sắp tới',
+                 'in_progress': '🔴 Đang diễn ra',
+                 'completed': '✅ Đã kết thúc',
+                 'cancelled': '❌ Bị hủy'
+             };
+
+             return `
+                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                     <!-- Athlete 1 -->
+                     <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                             <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                                 ${match.athlete1_name ? match.athlete1_name.substring(0, 2).toUpperCase() : 'N/A'}
+                             </div>
+                             <div>
+                                 <div style="font-weight: 600; color: var(--text-primary);">${match.athlete1_name || 'N/A'}</div>
+                                 <div style="font-size: 0.75rem; color: var(--text-secondary);">Vận động viên 1</div>
+                             </div>
+                         </div>
+                         <div style="padding-top: 0.5rem; border-top: 1px solid var(--border-color); margin-top: 0.5rem;">
+                             <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color); text-align: center;">
+                                 ${match.athlete1_score}
+                             </div>
+                             <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center;">Điểm hiện tại</div>
+                         </div>
+                     </div>
+
+                     <!-- Athlete 2 -->
+                     <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                         <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                             <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--secondary-color), var(--primary-color)); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                                 ${match.athlete2_name ? match.athlete2_name.substring(0, 2).toUpperCase() : 'N/A'}
+                             </div>
+                             <div>
+                                 <div style="font-weight: 600; color: var(--text-primary);">${match.athlete2_name || 'N/A'}</div>
+                                 <div style="font-size: 0.75rem; color: var(--text-secondary);">Vận động viên 2</div>
+                             </div>
+                         </div>
+                         <div style="padding-top: 0.5rem; border-top: 1px solid var(--border-color); margin-top: 0.5rem;">
+                             <div style="font-size: 2rem; font-weight: 700; color: var(--secondary-color); text-align: center;">
+                                 ${match.athlete2_score}
+                             </div>
+                             <div style="font-size: 0.75rem; color: var(--text-secondary); text-align: center;">Điểm hiện tại</div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <!-- Match Info -->
+                 <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                     <h3 style="margin: 0 0 1rem 0; color: var(--text-primary); font-size: 1rem;">Thông Tin Trận Đấu</h3>
+                     
+                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                         <div>
+                             <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">📅 Ngày thi đấu</label>
+                             <div style="font-weight: 600; color: var(--text-primary);">${match.match_date || 'N/A'}</div>
+                         </div>
+                         <div>
+                             <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">🕐 Giờ thi đấu</label>
+                             <div style="font-weight: 600; color: var(--text-primary);">${match.match_time || 'N/A'}</div>
+                         </div>
+                         <div>
+                             <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">🏆 Vòng thi</label>
+                             <div style="font-weight: 600; color: var(--text-primary);">${match.round?.name || 'N/A'}</div>
+                         </div>
+                         <div>
+                             <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">👥 Nội dung thi đấu</label>
+                             <div style="font-weight: 600; color: var(--text-primary);">${match.category?.category_name || 'N/A'}</div>
+                         </div>
+                         <div>
+                             <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">🎾 Sân thi đấu</label>
+                             <div style="font-weight: 600; color: var(--text-primary);">${match.court?.name || 'N/A'}</div>
+                         </div>
+                         <div>
+                             <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Trạng thái</label>
+                             <div style="display: inline-block; background: ${statusColors[match.status] || '#999'}; color: white; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600;">
+                                 ${statusLabels[match.status] || match.status}
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <!-- Sets History -->
+                 ${setsHTML ? `
+                     <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                         <h3 style="margin: 0 0 1rem 0; color: var(--text-primary); font-size: 1rem;">Kết Quả Các Set</h3>
+                         ${setsHTML}
+                     </div>
+                 ` : ''}
+
+                 <!-- Final Score -->
+                 ${match.final_score ? `
+                     <div style="padding: 1rem; background: rgba(74, 222, 128, 0.1); border-radius: var(--radius-md); margin-bottom: 1.5rem; border: 2px solid var(--accent-green);">
+                         <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 1rem;">🏁 Tỷ Số Cuối Cùng</h3>
+                         <div style="font-size: 1.25rem; font-weight: 700; color: var(--accent-green);">${match.final_score}</div>
+                     </div>
+                 ` : ''}
+
+                 <!-- Notes -->
+                 ${match.notes ? `
+                     <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                         <h3 style="margin: 0 0 0.5rem 0; color: var(--text-primary); font-size: 1rem;">📝 Ghi chú</h3>
+                         <p style="margin: 0; color: var(--text-secondary); font-size: 0.875rem;">${match.notes}</p>
+                     </div>
+                 ` : ''}
+
+                 <div style="display: flex; gap: 1rem;">
+                     <button type="button" onclick="closeMatchDetailsModal()" class="btn btn-primary" style="flex: 1; min-width: 100px;">Đóng</button>
+                 </div>
+             `;
+         }
+
+          function closeUpdateScoreModal() {
+              const modal = document.getElementById('updateScoreModal');
+              modal.style.display = 'none';
+          }
 
          function toggleFinalScoreField() {
              const status = document.getElementById('matchStatus').value;
@@ -1061,7 +1279,10 @@
              let payload = {
                  athlete1_score: athlete1Score,
                  athlete2_score: athlete2Score,
-                 action: actionType
+                 action: actionType,
+                 match_date: document.getElementById('matchDate').value || null,
+                 match_time: document.getElementById('matchTime').value || null,
+                 group_id: document.getElementById('matchGroup').value || null
              };
 
              // Xử lý theo từng loại action
@@ -1200,14 +1421,24 @@
              }
 
              // Close modal when clicking outside
-             const modal = document.getElementById('updateScoreModal');
-             if (modal) {
-                 modal.addEventListener('click', function(e) {
+             const updateScoreModal = document.getElementById('updateScoreModal');
+             if (updateScoreModal) {
+                 updateScoreModal.addEventListener('click', function(e) {
                      if (e.target === this) {
                          closeUpdateScoreModal();
                      }
                  });
              }
-         });
+
+             // Close match details modal when clicking outside
+             const detailsModal = document.getElementById('matchDetailsModal');
+             if (detailsModal) {
+                 detailsModal.addEventListener('click', function(e) {
+                     if (e.target === this) {
+                         closeMatchDetailsModal();
+                     }
+                 });
+             }
+             });
         </script>
         @endsection

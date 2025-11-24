@@ -853,7 +853,7 @@
                                                     </td>
                                                     <td style="padding: 10px;">
                                                         <button class="btn btn-warning btn-sm"
-                                                            onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}')">✏️</button>
+                                                            onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}', '{{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : '' }}', '{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}', '{{ $match->group_id }}')">✏️</button>
                                                         <form method="POST"
                                                             action="{{ route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id]) }}"
                                                             style="display: inline;">
@@ -1117,17 +1117,29 @@
                     </div>
 
                     <!-- Chọn bảng/nhóm -->
-                    <div class="form-group">
-                        <label class="form-label">👥 Bảng/Nhóm (Group)</label>
-                        <select id="matchGroupSelect" name="group_id" class="form-select" disabled>
-                            <option value="">-- Chọn nội dung thi đấu trước --</option>
-                        </select>
-                    </div>
+                     <div class="form-group">
+                         <label class="form-label">👥 Bảng/Nhóm (Group)</label>
+                         <select id="matchGroupSelect" name="group_id" class="form-select" disabled>
+                             <option value="">-- Chọn nội dung thi đấu trước --</option>
+                         </select>
+                     </div>
 
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" class="btn btn-success" id="submitMatchBtn">✅ Tạo trận</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeCreateMatchModal()">❌ Hủy</button>
-                    </div>
+                     <!-- Ngày + Giờ bắt đầu -->
+                     <div class="grid grid-2">
+                         <div class="form-group">
+                             <label class="form-label">📅 Ngày bắt đầu *</label>
+                             <input type="date" name="match_date" class="form-select" required style="cursor: pointer;">
+                         </div>
+                         <div class="form-group">
+                             <label class="form-label">🕐 Giờ bắt đầu *</label>
+                             <input type="time" name="match_time" class="form-select" required style="cursor: pointer;">
+                         </div>
+                     </div>
+
+                     <div style="display: flex; gap: 10px; margin-top: 20px;">
+                         <button type="submit" class="btn btn-success" id="submitMatchBtn">✅ Tạo trận</button>
+                         <button type="button" class="btn btn-secondary" onclick="closeCreateMatchModal()">❌ Hủy</button>
+                     </div>
                 </form>
             </div>
         </div>
@@ -1176,35 +1188,60 @@
                     </div>
 
                     <div class="grid grid-2">
-                        <div class="form-group">
-                            <label class="form-label">Nội dung thi đấu (Category) *</label>
-                            <select id="editCategory" name="category_id" class="form-select" required>
-                                <option value="">-- Chọn nội dung --</option>
-                                @if ($tournament && $tournament->categories)
-                                    @foreach ($tournament->categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
+                         <div class="form-group">
+                             <label class="form-label">Nội dung thi đấu (Category) *</label>
+                             <select id="editCategory" name="category_id" class="form-select" required>
+                                 <option value="">-- Chọn nội dung --</option>
+                                 @if ($tournament && $tournament->categories)
+                                     @foreach ($tournament->categories as $category)
+                                         <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                     @endforeach
+                                 @endif
+                             </select>
+                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Vòng đấu (Round) *</label>
-                            <select id="editRound" name="round_id" class="form-select" required>
-                                <option value="">-- Chọn vòng --</option>
-                                @if ($tournament && $tournament->rounds)
-                                    @foreach ($tournament->rounds as $round)
-                                        <option value="{{ $round->id }}">{{ $round->round_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                    </div>
+                         <div class="form-group">
+                             <label class="form-label">Vòng đấu (Round) *</label>
+                             <select id="editRound" name="round_id" class="form-select" required>
+                                 <option value="">-- Chọn vòng --</option>
+                                 @if ($tournament && $tournament->rounds)
+                                     @foreach ($tournament->rounds as $round)
+                                         <option value="{{ $round->id }}">{{ $round->round_name }}</option>
+                                     @endforeach
+                                 @endif
+                             </select>
+                         </div>
+                     </div>
 
-                    <div style="display: flex; gap: 10px; margin-top: 20px;">
-                        <button type="submit" class="btn btn-success" id="submitEditMatchBtn">✅ Cập nhật</button>
-                        <button type="button" class="btn btn-secondary" onclick="closeEditMatchModal()">❌ Hủy</button>
-                    </div>
+                     <!-- Ngày + Giờ bắt đầu -->
+                     <div class="grid grid-2">
+                         <div class="form-group">
+                             <label class="form-label">📅 Ngày bắt đầu</label>
+                             <input type="date" id="editMatchDate" name="match_date" class="form-select" style="cursor: pointer;">
+                         </div>
+                         <div class="form-group">
+                             <label class="form-label">🕐 Giờ bắt đầu</label>
+                             <input type="time" id="editMatchTime" name="match_time" class="form-select" style="cursor: pointer;">
+                         </div>
+                     </div>
+
+                     <!-- Chọn Bảng/Nhóm -->
+                     <div class="form-group">
+                         <label class="form-label">👥 Bảng/Nhóm (Group)</label>
+                         <select id="editMatchGroup" name="group_id" class="form-select">
+                             <option value="">-- Không chọn bảng --</option>
+                             @if ($tournament && $tournament->groups)
+                                 @foreach ($tournament->groups as $group)
+                                     <option value="{{ $group->id }}">{{ $group->group_name }}</option>
+                                 @endforeach
+                             @endif
+                         </select>
+                     </div>
+
+                     <div style="display: flex; gap: 10px; margin-top: 20px;">
+                         <button type="submit" class="btn btn-success" id="submitEditMatchBtn">✅ Cập nhật</button>
+                         <button type="button" class="btn btn-secondary" onclick="closeEditMatchModal()">❌ Hủy</button>
+                     </div>
                 </form>
             </div>
         </div>
@@ -2070,12 +2107,15 @@
         });
 
         // Open Edit Match Modal
-        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId) {
+        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId) {
             document.getElementById('editMatchId').value = matchId;
             document.getElementById('editAthlete1').value = athlete1Id;
             document.getElementById('editAthlete2').value = athlete2Id;
             document.getElementById('editCategory').value = categoryId;
             document.getElementById('editRound').value = roundId;
+            document.getElementById('editMatchDate').value = matchDate || '';
+            document.getElementById('editMatchTime').value = matchTime || '';
+            document.getElementById('editMatchGroup').value = groupId || '';
 
             const modal = document.getElementById('editMatchModal');
             if (modal) {
@@ -2127,12 +2167,19 @@
 
                 messageDiv.innerHTML = '';
 
+                const matchDate = formData.get('match_date')?.trim();
+                const matchTime = formData.get('match_time')?.trim();
+                const roundId = formData.get('round_id')?.trim();
+                const groupId = formData.get('group_id')?.trim();
+
                 const data = {
                     athlete1_id: formData.get('athlete1_id'),
                     athlete2_id: formData.get('athlete2_id'),
                     category_id: formData.get('category_id'),
-                    round_id: formData.get('round_id'),
-                    group_id: formData.get('group_id'),
+                    round_id: roundId || null,
+                    match_date: matchDate || null,
+                    match_time: matchTime || null,
+                    group_id: groupId || null,
                     tournament_id: tournamentId
                 };
 
@@ -2220,11 +2267,19 @@
                 const formData = new FormData(this);
                 messageDiv.innerHTML = '';
 
+                const matchDate = formData.get('match_date')?.trim();
+                const matchTime = formData.get('match_time')?.trim();
+                const roundId = formData.get('round_id')?.trim();
+                const groupId = formData.get('group_id')?.trim();
+                
                 const data = {
                     athlete1_id: formData.get('athlete1_id'),
                     athlete2_id: formData.get('athlete2_id'),
                     category_id: formData.get('category_id'),
-                    round_id: formData.get('round_id')
+                    round_id: roundId || null,
+                    match_date: matchDate || null,
+                    match_time: matchTime || null,
+                    group_id: groupId || null
                 };
 
                 fetch(`/homeyard/tournaments/${tournamentId}/matches/${matchId}`, {
