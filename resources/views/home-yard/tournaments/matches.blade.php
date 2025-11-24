@@ -431,7 +431,7 @@
                 <div class="header-right">
                     <div class="header-search">
                         <span class="search-icon">🔍</span>
-                        <input type="text" class="search-input" placeholder="Tìm kiếm trận đấu...">
+                        <input type="text" id="matchSearch" class="search-input" placeholder="Tìm kiếm theo tên VĐV...">
                     </div>
                     <div class="header-notifications">
                         <button class="notification-btn">
@@ -1038,6 +1038,65 @@
              container.style.display = 'block';
          }
 
+         // Search functionality
+         function searchMatches(searchTerm) {
+             const term = searchTerm.toLowerCase().trim();
+             // Chỉ tìm trong 3 tab: live, upcoming, completed (không tìm calendar)
+             const tabIds = ['live', 'upcoming', 'completed'];
+             let hasResults = false;
+
+             // Search trong tất cả tabs
+             tabIds.forEach(tabId => {
+                 const tabContent = document.getElementById(tabId);
+                 if (!tabContent) return;
+                 
+                 const grid = tabContent.querySelector('.schedule-grid');
+                 if (!grid) return; // Skip nếu không có schedule-grid
+                 
+                 const matchCards = grid.querySelectorAll('.match-card');
+                 let gridHasResults = false;
+                 let noResultsMsg = grid.querySelector('.no-results-message');
+
+                 matchCards.forEach(card => {
+                     // Lấy tên vận động viên từ các player-side
+                     const playerSides = card.querySelectorAll('.player-side');
+                     let athlete1Name = '';
+                     let athlete2Name = '';
+                     
+                     if (playerSides.length >= 1) {
+                         athlete1Name = playerSides[0].querySelector('.player-name-sm')?.textContent.toLowerCase().trim() || '';
+                     }
+                     if (playerSides.length >= 2) {
+                         athlete2Name = playerSides[1].querySelector('.player-name-sm')?.textContent.toLowerCase().trim() || '';
+                     }
+                     
+                     const matches = !term || athlete1Name.includes(term) || athlete2Name.includes(term);
+                     
+                     if (matches) {
+                         card.style.display = '';
+                         gridHasResults = true;
+                         hasResults = true;
+                     } else {
+                         card.style.display = 'none';
+                     }
+                 });
+
+                 // Quản lý no results message cho từng grid
+                 if (!gridHasResults && term) {
+                     if (!noResultsMsg) {
+                         noResultsMsg = document.createElement('p');
+                         noResultsMsg.className = 'no-results-message';
+                         noResultsMsg.style.cssText = 'text-align: center; padding: 2rem; color: var(--text-secondary);';
+                         noResultsMsg.textContent = `Không có trận đấu`;
+                         grid.appendChild(noResultsMsg);
+                     }
+                 } else if (noResultsMsg) {
+                     noResultsMsg.remove();
+                 }
+             });
+
+             }
+
          // Match Details Modal Functions
          function openMatchDetailsModal(tournamentId, matchId) {
              fetch(`/homeyard/tournaments/${tournamentId}/matches/${matchId}`, {
@@ -1406,6 +1465,14 @@
              renderCalendar();
              restoreTabState();
              updatePaginationLinks();
+
+             // Add search functionality
+             const searchInput = document.getElementById('matchSearch');
+             if (searchInput) {
+                 searchInput.addEventListener('input', (e) => {
+                     searchMatches(e.target.value);
+                 });
+             }
 
              // Update pagination links whenever tab switches
              document.querySelectorAll('.tab').forEach(tab => {
