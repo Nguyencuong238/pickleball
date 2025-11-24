@@ -617,6 +617,11 @@
             display: none; /* Chrome, Safari, Opera */
         }
 
+        .sidebar-header {
+            justify-content: center;
+            padding: 0.5rem;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .tournament-header-title {
@@ -680,13 +685,12 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
-                <a href="{{ route('home') }}" class="sidebar-brand">
-                    <div class="sidebar-logo">🏆</div>
-                    <span class="sidebar-brand-text">OnePickleball</span>
+                <a href="/" class="sidebar-brand">
+                    <img src="{{ asset('assets/images/logo.jpeg') }}" alt="OnePickleball" width="80px">
                 </a>
-                <button class="sidebar-toggle" onclick="toggleSidebar()">
+                {{-- <button class="sidebar-toggle" onclick="toggleSidebar()">
                     <span>☰</span>
-                </button>
+                </button> --}}
             </div>
 
             <nav class="sidebar-nav">

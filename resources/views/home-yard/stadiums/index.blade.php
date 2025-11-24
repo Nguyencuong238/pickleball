@@ -43,9 +43,9 @@
                             <tbody>
                                 @foreach($stadiums as $stadium)
                                     <tr>
-                                        <td style="text-align: center;">
-                                            @if($stadium->image)
-                                                <img src="{{ asset('storage/' . $stadium->image) }}" alt="{{ $stadium->name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
+                                        <td>
+                                            @if($stadium->hasMedia('banner'))
+                                                <img src="{{ $stadium->getFirstMediaUrl('banner') }}" alt="{{ $stadium->name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 6px;">
                                             @else
                                                 <div style="width: 50px; height: 50px; background-color: #e2e8f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #9ca3af;">
                                                     <i class="fas fa-image"></i>
