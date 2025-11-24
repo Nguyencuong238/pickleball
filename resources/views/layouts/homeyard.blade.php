@@ -705,7 +705,7 @@
                     <a href="{{ route('homeyard.tournaments') }}" class="nav-item">
                         <span class="nav-icon">🏆</span>
                         <span class="nav-text">Giải đấu</span>
-                        <span class="nav-badge">12</span>
+                        <span class="nav-badge">{{ $tournamentsCount ?? 0 }}</span>
                     </a>
 
                     {{-- <a href="{{ route('homeyard.dashboard') }}" class="nav-item">
@@ -716,7 +716,7 @@
                     <a href="{{ route('homeyard.matches') }}" class="nav-item">
                         <span class="nav-icon">🎾</span>
                         <span class="nav-text">Trận đấu</span>
-                        <span class="nav-badge">45</span>
+                        <span class="nav-badge">{{ $matchesCount ?? 0 }}</span>
                     </a>
                 </div>
 
