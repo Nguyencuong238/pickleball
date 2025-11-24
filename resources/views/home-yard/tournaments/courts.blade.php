@@ -459,6 +459,90 @@
         border-color: var(--border-color);
         cursor: not-allowed;
     }
+
+    .pricing-tier {
+        background: var(--bg-light);
+        padding: 1rem;
+        border-radius: var(--radius-md);
+        margin-bottom: 1rem;
+        border: 2px solid var(--border-color);
+    }
+
+    .pricing-tier-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr auto;
+        gap: 0.75rem;
+        align-items: end;
+    }
+
+    .pricing-tier-remove {
+        padding: 0.5rem 0.75rem;
+        background: var(--accent-red);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-weight: 600;
+        transition: all var(--transition);
+    }
+
+    .pricing-tier-remove:hover {
+        background: #c53030;
+        transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+        .pricing-tier-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .pricing-display {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .pricing-item {
+        background: var(--bg-light);
+        padding: 0.75rem;
+        border-radius: var(--radius-md);
+        border-left: 4px solid var(--primary-color);
+    }
+
+    .pricing-time {
+        font-weight: 600;
+        color: var(--text-primary);
+        font-size: 0.875rem;
+    }
+
+    .pricing-price {
+        color: var(--primary-color);
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .pricing-label {
+        font-size: 0.7rem;
+        color: var(--text-light);
+        margin-bottom: 0.25rem;
+    }
+
+    .no-pricing {
+        padding: 1rem;
+        background: var(--bg-light);
+        border-radius: var(--radius-md);
+        text-align: center;
+        color: var(--text-light);
+        font-size: 0.875rem;
+    }
+
+    @media (max-width: 768px) {
+        .pricing-display {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 @section('content')
     <main class="main-content" id="mainContent">
@@ -705,11 +789,20 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Giá thuê (giờ) *</label>
-                    <input type="number" class="form-input" name="rental_price" placeholder="200000">
+                    <input type="number" class="form-input" name="rental_price" placeholder="0">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ghi chú</label>
                     <textarea class="form-textarea" name="description" placeholder="Thông tin thêm về sân..."></textarea>
+                </div>
+                
+                <!-- Pricing Section -->
+                <div class="form-group">
+                    <label class="form-label">Giá Thuê Theo Thời Gian (Tùy Chọn)</label>
+                    <div id="addPricingContainer" style="margin-top: 1rem;">
+                        <!-- Pricing items will be added here dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addPricingTierToAdd()" style="margin-top: 1rem;">➕ Thêm Giá Theo Thời Gian</button>
                 </div>
             </form>
             <div class="modal-footer">
@@ -773,11 +866,20 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Giá thuê (giờ) *</label>
-                    <input type="number" class="form-input" name="rental_price" placeholder="200000">
+                    <input type="number" class="form-input" name="rental_price" placeholder="0">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ghi chú</label>
                     <textarea class="form-textarea" name="description" placeholder="Thông tin chi tiết về sân..."></textarea>
+                </div>
+                
+                <!-- Pricing Section -->
+                <div class="form-group">
+                    <label class="form-label">Giá Thuê Theo Thời Gian (Tùy Chọn)</label>
+                    <div id="pricingContainer" style="margin-top: 1rem;">
+                        <!-- Pricing items will be added here dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addPricingTier()" style="margin-top: 1rem;">➕ Thêm Giá Theo Thời Gian</button>
                 </div>
             </form>
             <div class="modal-footer">
@@ -791,85 +893,306 @@
     <div class="modal" id="courtDetailsModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">Chi Tiết Sân 1</h3>
+                <h3 class="modal-title" id="detailsCourtTitle">Chi Tiết Sân</h3>
                 <button class="modal-close" onclick="closeCourtDetailsModal()">×</button>
             </div>
-            <div>
-                <div class="form-group">
-                    <label class="form-label">Thông Tin Cơ Bản</label>
-                    <div class="court-info">
-                        <div class="court-info-item">
-                            <div class="court-info-label">Trạng thái</div>
-                            <div class="court-info-value">✅ Sẵn Sàng</div>
-                        </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Loại sân</div>
-                            <div class="court-info-value">Indoor - Standard</div>
-                        </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Mặt sân</div>
-                            <div class="court-info-value">Acrylic</div>
-                        </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Kích thước</div>
-                            <div class="court-info-value">13.4m x 6.1m</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Lịch Sử Hoạt Động</label>
-                    <div class="timeline">
-                        <div class="timeline-item">
-                            <div class="timeline-time">14:30 - Hôm nay</div>
-                            <div class="timeline-content">Trận #A-001 đã kết thúc</div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-time">12:00 - Hôm nay</div>
-                            <div class="timeline-content">Bắt đầu trận #A-001</div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-time">10:30 - Hôm nay</div>
-                            <div class="timeline-content">Hoàn thành bảo trì định kỳ</div>
-                        </div>
-                        <div class="timeline-item">
-                            <div class="timeline-time">19/01/2025</div>
-                            <div class="timeline-content">Tổ chức 8 trận đấu</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">Thống Kê Sử Dụng</label>
-                    <div class="court-info">
-                        <div class="court-info-item">
-                            <div class="court-info-label">Tổng trận tháng này</div>
-                            <div class="court-info-value">45 trận</div>
-                        </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Tỷ lệ sử dụng</div>
-                            <div class="court-info-value">82%</div>
-                        </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Bảo trì gần nhất</div>
-                            <div class="court-info-value">10/01/2025</div>
-                        </div>
-                        <div class="court-info-item">
-                            <div class="court-info-label">Đánh giá</div>
-                            <div class="court-info-value">⭐ 4.8/5</div>
-                        </div>
-                    </div>
-                </div>
+            <div id="courtDetailsContent">
+                <!-- Content will be loaded dynamically -->
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="closeCourtDetailsModal()">Đóng</button>
-                <button class="btn btn-primary" onclick="openEditCourt(1)">✏️ Chỉnh Sửa</button>
+                <button class="btn btn-primary" onclick="openEditCurrentCourt()">✏️ Chỉnh Sửa</button>
             </div>
         </div>
     </div>
 @endsection
 @section('js')
     <script>
+        let pricingTiers = [];
+        let currentCourtId = null;
+
+        // Format currency
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('vi-VN', {
+                style: 'currency',
+                currency: 'VND'
+            }).format(amount);
+        }
+
+        // Get court type label
+        function getCourtTypeLabel(type) {
+            const types = {
+                'indoor': 'Indoor',
+                'outdoor': 'Outdoor'
+            };
+            return types[type] || type;
+        }
+
+        // Get surface type label
+        function getSurfaceTypeLabel(type) {
+            const surfaces = {
+                'acrylic': 'Acrylic',
+                'polyurethane': 'Polyurethane',
+                'concrete': 'Concrete',
+                'sport-court': 'Sport Court'
+            };
+            return surfaces[type] || type;
+        }
+
+        // Open court details modal
+        function openCourtDetails(courtId) {
+            currentCourtId = courtId;
+            const detailsContainer = document.getElementById('courtDetailsContent');
+            detailsContainer.innerHTML = '<p style="text-align: center; padding: 2rem;">Đang tải...</p>';
+
+            // Fetch court data
+            Promise.all([
+                fetch(`/homeyard/courts/${courtId}/edit`).then(r => r.json()),
+                fetch(`/homeyard/courts/${courtId}/pricing`).then(r => r.json())
+            ])
+            .then(([courtData, pricingData]) => {
+                const court = courtData.court;
+                const pricing = pricingData.pricing || [];
+
+                // Update title
+                document.getElementById('detailsCourtTitle').textContent = `Chi Tiết Sân - ${court.court_name}`;
+
+                // Build HTML content
+                let html = `
+                    <div class="form-group">
+                        <label class="form-label">Thông Tin Cơ Bản</label>
+                        <div class="court-info">
+                            <div class="court-info-item">
+                                <div class="court-info-label">Tên sân</div>
+                                <div class="court-info-value">${court.court_name}</div>
+                            </div>
+                            <div class="court-info-item">
+                                <div class="court-info-label">Số hiệu</div>
+                                <div class="court-info-value">${court.court_number || 'N/A'}</div>
+                            </div>
+                            <div class="court-info-item">
+                                <div class="court-info-label">Loại sân</div>
+                                <div class="court-info-value">${getCourtTypeLabel(court.court_type)}</div>
+                            </div>
+                            <div class="court-info-item">
+                                <div class="court-info-label">Mặt sân</div>
+                                <div class="court-info-value">${getSurfaceTypeLabel(court.surface_type)}</div>
+                            </div>
+                            <div class="court-info-item">
+                                <div class="court-info-label">Kích thước</div>
+                                <div class="court-info-value">${court.size || 'N/A'}</div>
+                            </div>
+                            <div class="court-info-item">
+                                <div class="court-info-label">Sức chứa</div>
+                                <div class="court-info-value">${court.capacity || 'N/A'} người</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Giá Thuê</label>
+                        <div class="court-info">
+                            <div class="court-info-item">
+                                <div class="court-info-label">Giá cơ bản</div>
+                                <div class="court-info-value">${formatCurrency(court.rental_price)}/giờ</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add pricing tiers if available
+                if (pricing && pricing.length > 0) {
+                    html += `
+                        <div class="form-group">
+                            <label class="form-label">Giá Theo Thời Gian</label>
+                            <div class="pricing-display">
+                    `;
+                    
+                    pricing.forEach(tier => {
+                        html += `
+                            <div class="pricing-item">
+                                <div class="pricing-label">Thời gian</div>
+                                <div class="pricing-time">${tier.start_time} - ${tier.end_time}</div>
+                                <div class="pricing-label" style="margin-top: 0.5rem;">Giá</div>
+                                <div class="pricing-price">${formatCurrency(tier.price_per_hour)}</div>
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="form-group">
+                            <label class="form-label">Giá Theo Thời Gian</label>
+                            <div class="no-pricing">Chưa có giá theo thời gian được thiết lập</div>
+                        </div>
+                    `;
+                }
+
+                // Add description if available
+                if (court.description) {
+                    html += `
+                        <div class="form-group">
+                            <label class="form-label">Ghi Chú</label>
+                            <div style="background: var(--bg-light); padding: 0.75rem; border-radius: var(--radius-md); color: var(--text-primary); font-size: 0.875rem;">
+                                ${court.description}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                detailsContainer.innerHTML = html;
+                document.getElementById('courtDetailsModal').classList.add('active');
+            })
+            .catch(error => {
+                console.error('Error loading court details:', error);
+                detailsContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--accent-red);">Lỗi khi tải dữ liệu sân</p>';
+                document.getElementById('courtDetailsModal').classList.add('active');
+            });
+        }
+
+        // Open edit for current court
+        function openEditCurrentCourt() {
+            if (currentCourtId) {
+                closeCourtDetailsModal();
+                openEditCourt(currentCourtId);
+            }
+        }
+
+        // Add new pricing tier for Edit modal
+        function addPricingTier() {
+            const container = document.getElementById('pricingContainer');
+            const tierId = `tier_${Date.now()}`;
+            
+            const tierHtml = `
+                <div class="pricing-tier" id="${tierId}">
+                    <div class="pricing-tier-grid">
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label" style="font-size: 0.7rem;">Từ (giờ)</label>
+                            <input type="time" class="form-input pricing-start-time" data-tier-id="${tierId}" placeholder="08:00" required>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label" style="font-size: 0.7rem;">Đến (giờ)</label>
+                            <input type="time" class="form-input pricing-end-time" data-tier-id="${tierId}" placeholder="17:00" required>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label" style="font-size: 0.7rem;">Giá (VND/giờ)</label>
+                            <input type="number" class="form-input pricing-price" data-tier-id="${tierId}" placeholder="0" min="1" required>
+                        </div>
+                        <button type="button" class="pricing-tier-remove" onclick="removePricingTier('${tierId}')">✕</button>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', tierHtml);
+        }
+
+        // Add new pricing tier for Add modal
+        function addPricingTierToAdd() {
+            const container = document.getElementById('addPricingContainer');
+            const tierId = `add_tier_${Date.now()}`;
+            
+            const tierHtml = `
+                <div class="pricing-tier" id="${tierId}">
+                    <div class="pricing-tier-grid">
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label" style="font-size: 0.7rem;">Từ (giờ)</label>
+                            <input type="time" class="form-input pricing-start-time" data-tier-id="${tierId}" placeholder="08:00" required>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label" style="font-size: 0.7rem;">Đến (giờ)</label>
+                            <input type="time" class="form-input pricing-end-time" data-tier-id="${tierId}" placeholder="17:00" required>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label class="form-label" style="font-size: 0.7rem;">Giá (VND/giờ)</label>
+                            <input type="number" class="form-input pricing-price" data-tier-id="${tierId}" placeholder="0" min="1" required>
+                        </div>
+                        <button type="button" class="pricing-tier-remove" onclick="removePricingTierFromAdd('${tierId}')">✕</button>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', tierHtml);
+        }
+
+        // Remove pricing tier from Edit modal
+        function removePricingTier(tierId) {
+            const element = document.getElementById(tierId);
+            if (element) {
+                element.remove();
+            }
+        }
+
+        // Remove pricing tier from Add modal
+        function removePricingTierFromAdd(tierId) {
+            const element = document.getElementById(tierId);
+            if (element) {
+                element.remove();
+            }
+        }
+
+        // Get pricing tiers data from form
+        function getPricingTiersData() {
+            const tiers = [];
+            const tierElements = document.querySelectorAll('.pricing-tier');
+            
+            tierElements.forEach(element => {
+                const startTime = element.querySelector('.pricing-start-time').value;
+                const endTime = element.querySelector('.pricing-end-time').value;
+                const price = element.querySelector('.pricing-price').value;
+                
+                if (startTime && endTime && price) {
+                    tiers.push({
+                        start_time: startTime,
+                        end_time: endTime,
+                        price_per_hour: parseInt(price)
+                    });
+                }
+            });
+            
+            return tiers;
+        }
+
+        // Load pricing tiers for a court
+        function loadPricingTiers(courtId) {
+            fetch(`/homeyard/courts/${courtId}/pricing`)
+                .then(response => response.json())
+                .then(data => {
+                    const container = document.getElementById('pricingContainer');
+                    container.innerHTML = '';
+                    
+                    if (data.pricing && data.pricing.length > 0) {
+                        data.pricing.forEach(price => {
+                            const tierId = `tier_${price.id}`;
+                            const tierHtml = `
+                                <div class="pricing-tier" id="${tierId}">
+                                    <div class="pricing-tier-grid">
+                                        <div class="form-group" style="margin: 0;">
+                                            <label class="form-label" style="font-size: 0.7rem;">Từ (giờ)</label>
+                                            <input type="time" class="form-input pricing-start-time" data-tier-id="${tierId}" data-pricing-id="${price.id}" value="${price.start_time}" required>
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label class="form-label" style="font-size: 0.7rem;">Đến (giờ)</label>
+                                            <input type="time" class="form-input pricing-end-time" data-tier-id="${tierId}" data-pricing-id="${price.id}" value="${price.end_time}" required>
+                                        </div>
+                                        <div class="form-group" style="margin: 0;">
+                                            <label class="form-label" style="font-size: 0.7rem;">Giá (VND/giờ)</label>
+                                            <input type="number" class="form-input pricing-price" data-tier-id="${tierId}" data-pricing-id="${price.id}" value="${price.price_per_hour}" min="1" required>
+                                        </div>
+                                        <button type="button" class="pricing-tier-remove" onclick="removePricingTier('${tierId}')">✕</button>
+                                    </div>
+                                </div>
+                            `;
+                            container.insertAdjacentHTML('beforeend', tierHtml);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error loading pricing tiers:', error));
+        }
+
         // Toggle sidebar
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -966,47 +1289,53 @@
             modal.querySelector('.modal-title').textContent = 'Thêm Sân Mới';
             delete form.dataset.courtId;
             form.reset();
-        }
-
-        function openCourtDetails(courtId) {
-            document.getElementById('courtDetailsModal').classList.add('active');
+            
+            // Clear pricing tiers
+            const pricingContainer = document.getElementById('addPricingContainer');
+            if (pricingContainer) {
+                pricingContainer.innerHTML = '';
+            }
         }
 
         function closeCourtDetailsModal() {
             document.getElementById('courtDetailsModal').classList.remove('active');
+            currentCourtId = null;
         }
 
         function openEditCourt(courtId) {
-            // Populate form with court data and open modal
-            const modal = document.getElementById('editCourtModal');
-            const form = document.getElementById('editCourtForm');
-            
-            // Set edit mode flag
-            form.dataset.courtId = courtId;
-            
-            // Fetch court data
-            fetch(`/homeyard/courts/${courtId}/edit`)
-                .then(response => response.json())
-                .then(data => {
-                    // Populate form fields
-                    form.querySelector('input[name="court_name"]').value = data.court.court_name || '';
-                    form.querySelector('input[name="court_number"]').value = data.court.court_number || '';
-                    form.querySelector('select[name="court_type"]').value = data.court.court_type || '';
-                    form.querySelector('select[name="surface_type"]').value = data.court.surface_type || '';
-                    form.querySelector('select[name="stadium_id"]').value = data.court.stadium_id || '';
-                    form.querySelector('input[name="capacity"]').value = data.court.capacity || '';
-                    form.querySelector('input[name="rental_price"]').value = data.court.rental_price || '';
-                    form.querySelector('input[name="size"]').value = data.court.size || '';
-                    form.querySelector('textarea[name="description"]').value = data.court.description || '';
-                    
-                    // Open modal
-                    modal.classList.add('active');
-                })
-                .catch(error => {
-                    console.error('Error loading court:', error);
-                    toastr.error('Không thể tải dữ liệu sân');
-                });
-        }
+             // Populate form with court data and open modal
+             const modal = document.getElementById('editCourtModal');
+             const form = document.getElementById('editCourtForm');
+             
+             // Set edit mode flag
+             form.dataset.courtId = courtId;
+             
+             // Fetch court data
+             fetch(`/homeyard/courts/${courtId}/edit`)
+                 .then(response => response.json())
+                 .then(data => {
+                     // Populate form fields
+                     form.querySelector('input[name="court_name"]').value = data.court.court_name || '';
+                     form.querySelector('input[name="court_number"]').value = data.court.court_number || '';
+                     form.querySelector('select[name="court_type"]').value = data.court.court_type || '';
+                     form.querySelector('select[name="surface_type"]').value = data.court.surface_type || '';
+                     form.querySelector('select[name="stadium_id"]').value = data.court.stadium_id || '';
+                     form.querySelector('input[name="capacity"]').value = data.court.capacity || '';
+                     form.querySelector('input[name="rental_price"]').value = data.court.rental_price || '';
+                     form.querySelector('input[name="size"]').value = data.court.size || '';
+                     form.querySelector('textarea[name="description"]').value = data.court.description || '';
+                     
+                     // Load pricing tiers
+                     loadPricingTiers(courtId);
+                     
+                     // Open modal
+                     modal.classList.add('active');
+                 })
+                 .catch(error => {
+                     console.error('Error loading court:', error);
+                     toastr.error('Không thể tải dữ liệu sân');
+                 });
+         }
 
         function closeEditCourtModal() {
             const modal = document.getElementById('editCourtModal');
@@ -1023,6 +1352,27 @@
         function submitAddCourtForm() {
             const form = document.getElementById('addCourtForm');
             const formData = new FormData(form);
+
+            // Get pricing tiers from add form
+            const pricingTiers = [];
+            const tierElements = document.querySelectorAll('#addPricingContainer .pricing-tier');
+            
+            tierElements.forEach(element => {
+                const startTime = element.querySelector('.pricing-start-time').value;
+                const endTime = element.querySelector('.pricing-end-time').value;
+                const price = element.querySelector('.pricing-price').value;
+                
+                if (startTime && endTime && price) {
+                    pricingTiers.push({
+                        start_time: startTime,
+                        end_time: endTime,
+                        price_per_hour: parseInt(price)
+                    });
+                }
+            });
+            
+            // Add pricing tiers to form data
+            formData.append('pricing_tiers', JSON.stringify(pricingTiers));
 
             fetch('{{ route('homeyard.courts.store') }}', {
                     method: 'POST',
@@ -1057,46 +1407,50 @@
         }
 
         // Submit Edit Court Form
-        function submitEditCourtForm() {
-            const form = document.getElementById('editCourtForm');
-            const formData = new FormData(form);
-            const courtId = form.dataset.courtId;
+         function submitEditCourtForm() {
+             const form = document.getElementById('editCourtForm');
+             const formData = new FormData(form);
+             const courtId = form.dataset.courtId;
 
-            // Add method to formData for Laravel to recognize PUT request
-            formData.append('_method', 'PUT');
+             // Add method to formData for Laravel to recognize PUT request
+             formData.append('_method', 'PUT');
+             
+             // Add pricing tiers
+             const pricingTiers = getPricingTiersData();
+             formData.append('pricing_tiers', JSON.stringify(pricingTiers));
 
-            fetch(`/homeyard/courts/${courtId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
-                        'Accept': 'application/json',
-                    },
-                    body: formData
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            console.error('Response Error:', response.status, text);
-                            throw new Error(`HTTP ${response.status}: ${text}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        toastr.success(data.message);
-                        closeEditCourtModal();
-                        form.reset();
-                        delete form.dataset.courtId;
-                        location.reload();
-                    } else {
-                        toastr.error(data.message);
-                    }
-                })
-                .catch(error => {
-                    toastr.error(error.message);
-                });
-        }
+             fetch(`/homeyard/courts/${courtId}`, {
+                     method: 'POST',
+                     headers: {
+                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value,
+                         'Accept': 'application/json',
+                     },
+                     body: formData
+                 })
+                 .then(response => {
+                     if (!response.ok) {
+                         return response.text().then(text => {
+                             console.error('Response Error:', response.status, text);
+                             throw new Error(`HTTP ${response.status}: ${text}`);
+                         });
+                     }
+                     return response.json();
+                 })
+                 .then(data => {
+                     if (data.success) {
+                         toastr.success(data.message);
+                         closeEditCourtModal();
+                         form.reset();
+                         delete form.dataset.courtId;
+                         location.reload();
+                     } else {
+                         toastr.error(data.message);
+                     }
+                 })
+                 .catch(error => {
+                     toastr.error(error.message);
+                 });
+         }
 
         // Close modal on outside click
         document.querySelectorAll('.modal').forEach(modal => {

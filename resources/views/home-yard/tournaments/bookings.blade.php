@@ -626,6 +626,9 @@
                                     <div class="time-label">18:00</div>
                                     <div class="time-label">19:00</div>
                                     <div class="time-label">20:00</div>
+                                    <div class="time-label">21:00</div>
+                                    <div class="time-label">22:00</div>
+                                    <div class="time-label">23:00</div>
                                 </div>
 
                                 <div class="courts-grid">
@@ -746,11 +749,11 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Ngày đặt *</label>
-                    <input type="date" class="form-input" name="booking_date" required>
+                    <input type="date" class="form-input" name="booking_date" required onchange="updateCourtRate()">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Giờ bắt đầu *</label>
-                    <select class="form-select" name="start_time" required onchange="calculateTotal()">
+                    <select class="form-select" name="start_time" required onchange="updateCourtRate()">
                         <option value="">Chọn giờ</option>
                         <option value="06:00">06:00</option>
                         <option value="07:00">07:00</option>
@@ -767,11 +770,14 @@
                         <option value="18:00">18:00</option>
                         <option value="19:00">19:00</option>
                         <option value="20:00">20:00</option>
+                        <option value="21:00">21:00</option>
+                        <option value="22:00">22:00</option>
+                        <option value="23:00">23:00</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Thời gian (giờ) *</label>
-                    <select class="form-select" name="duration_hours" required onchange="calculateTotal()">
+                    <select class="form-select" name="duration_hours" required onchange="updateCourtRate()">
                         <option value="">Chọn thời gian</option>
                         <option value="1">1 giờ</option>
                         <option value="2">2 giờ</option>
@@ -793,7 +799,7 @@
                 <div class="booking-summary">
                     <div class="summary-row">
                         <span class="summary-label">Giá sân</span>
-                        <span class="summary-value" id="hourlyRateDisplay">₫150,000/giờ</span>
+                        <span class="summary-value" id="hourlyRateDisplay">₫0/giờ</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Thời gian</span>
@@ -871,17 +877,9 @@
                 </div>
 
                 <div class="booking-summary">
+                    <!-- Pricing summary will be populated dynamically -->
                     <div class="summary-row">
-                        <span class="summary-label">Giá sân</span>
-                        <span class="summary-value" id="modalHourlyRate">₫150,000/giờ</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="summary-label">Thời gian</span>
-                        <span class="summary-value" id="modalDurationDisplay">2 giờ</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="summary-label">Tổng tiền</span>
-                        <span class="summary-value" id="modalTotalPrice">₫300,000</span>
+                        <span class="summary-label">Đang tải giá...</span>
                     </div>
                 </div>
 
@@ -1063,7 +1061,7 @@
                 `;
 
                 // Generate time slots from 6:00 to 21:00
-                for (let hour = 6; hour < 21; hour++) {
+                for (let hour = 6; hour < 24; hour++) {
                     const timeStr = String(hour).padStart(2, '0') + ':00';
                     const isBooked = isTimeSlotBooked(court.id, timeStr);
                     const slotClass = isBooked ? 'booked' : 'available';
@@ -1108,24 +1106,125 @@
             openNewBookingModalDirect();
         }
 
-        // Update court hourly rate
+        // Update court hourly rate with multi-price support
         function updateCourtRate() {
             const courtId = document.querySelector('select[name="court_id"]').value;
-            if (!courtId) return;
+            const bookingDate = document.querySelector('input[name="booking_date"]').value;
+            const startTime = document.querySelector('select[name="start_time"]').value.trim();
+            const durationHours = parseFloat(document.querySelector('select[name="duration_hours"]').value) || 0;
             
-            const courtInfo = courtsData[courtId];
-            const rate = (courtInfo && courtInfo.hourly_rate) ? courtInfo.hourly_rate : 0;
-            document.getElementById('hourlyRateDisplay').textContent = '₫' + rate.toLocaleString('vi-VN') + '/giờ';
+            if (!courtId || !bookingDate || !startTime || durationHours === 0) {
+                return;
+            }
             
-            // Store rate in form for submission
-            document.getElementById('bookingForm').dataset.hourlyRate = rate;
-            calculateTotal();
+            // Validate start_time format (H:i)
+            if (!/^\d{2}:\d{2}$/.test(startTime)) {
+                console.error('Invalid start_time format. Expected H:i, got:', startTime);
+                return;
+            }
+            
+            // Call API to calculate price
+            fetch('{{ route('homeyard.bookings.calculate-price') }}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    court_id: courtId,
+                    booking_date: bookingDate,
+                    start_time: startTime,
+                    duration_hours: Math.floor(durationHours)
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Store pricing data
+                    document.getElementById('bookingForm').dataset.hourlyRate = data.average_hourly_rate;
+                    document.getElementById('bookingForm').dataset.totalPrice = data.total_price;
+                    document.getElementById('bookingForm').dataset.priceBreakdown = JSON.stringify(data.price_breakdown);
+                    document.getElementById('bookingForm').dataset.hasMultiPrice = data.has_multi_price;
+                    
+                    // Update summary display
+                    updateBookingSummaryDisplay(data);
+                } else {
+                    console.error('Price calculation error:', data.message);
+                    // Fallback to simple calculation
+                    const courtInfo = courtsData[courtId];
+                    const rate = (courtInfo && courtInfo.hourly_rate) ? courtInfo.hourly_rate : 150000;
+                    document.getElementById('bookingForm').dataset.hourlyRate = rate;
+                    document.getElementById('bookingForm').dataset.hasMultiPrice = false;
+                    calculateTotal();
+                }
+            })
+            .catch(error => {
+                console.error('Error calculating price:', error);
+                // Fallback to simple calculation
+                const courtInfo = courtsData[courtId];
+                const rate = (courtInfo && courtInfo.hourly_rate) ? courtInfo.hourly_rate : 150000;
+                document.getElementById('bookingForm').dataset.hourlyRate = rate;
+                document.getElementById('bookingForm').dataset.hasMultiPrice = false;
+                calculateTotal();
+            });
         }
 
-        // Calculate total price
+        // Update booking summary display with multi-price support
+        function updateBookingSummaryDisplay(data) {
+            const summaryContainer = document.querySelector('.booking-summary');
+            let html = '';
+            
+            if (data.has_multi_price && data.price_breakdown.length > 0) {
+                // Multi-price display with breakdown sections
+                html = '<h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-primary);">Chi tiết giá sân</h4>';
+                
+                // Show each hour's pricing
+                data.price_breakdown.forEach(item => {
+                    html += `
+                        <div class="summary-row">
+                            <span class="summary-label">${item.start_time} - ${item.end_time} (${item.pricing_label})</span>
+                            <span class="summary-value">₫${item.price_per_hour.toLocaleString('vi-VN')}</span>
+                        </div>
+                    `;
+                });
+                
+                // Add separator
+                // html += '<div style="margin: 1rem 0; border-top: 2px solid var(--border-color);"></div>';
+                
+                // Show total
+                html += `
+                    <div class="summary-row">
+                        <span class="summary-label">Tổng tiền (${data.duration_hours} giờ)</span>
+                        <span class="summary-value" style="font-size: 1.25rem; color: var(--primary-color);">₫${data.total_price.toLocaleString('vi-VN')}</span>
+                    </div>
+                `;
+            } else {
+                // Simple single-price display
+                const hourlyRate = data.average_hourly_rate;
+                html = `
+                    <div class="summary-row">
+                        <span class="summary-label">Giá sân</span>
+                        <span class="summary-value">₫${hourlyRate.toLocaleString('vi-VN')}/giờ</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Thời gian</span>
+                        <span class="summary-value">${data.duration_hours} giờ</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Tổng tiền</span>
+                        <span class="summary-value">₫${data.total_price.toLocaleString('vi-VN')}</span>
+                    </div>
+                `;
+            }
+            
+            summaryContainer.innerHTML = html;
+        }
+
+        // Calculate total price (fallback for simple cases)
         function calculateTotal() {
-            const duration = parseFloat(document.querySelector('select[name="duration_hours"]').value) || 2;
-            const rate = parseFloat(document.getElementById('bookingForm').dataset.hourlyRate) || 150000;
+            const duration = parseFloat(document.querySelector('select[name="duration_hours"]').value) || 0;
+            const rate = parseFloat(document.getElementById('bookingForm').dataset.hourlyRate) || 0;
             const total = Math.round(rate * duration);
             
             document.getElementById('durationDisplay').textContent = duration + ' giờ';
@@ -1137,8 +1236,12 @@
             const form = document.getElementById('bookingForm');
             const formData = new FormData(form);
             
-            // Add hourly_rate
-            formData.append('hourly_rate', form.dataset.hourlyRate || 0);
+            // Add hourly_rate (use average rate, or fallback to stored rate)
+            const hourlyRate = form.dataset.hourlyRate || 150000;
+            formData.append('hourly_rate', hourlyRate);
+            
+            // If we have a calculated total price from multi-price calculation, 
+            // we'll use that in the controller since total_price = hourly_rate * duration_hours
             formData.append('status', 'completed');
 
             fetch('{{ route('homeyard.bookings.store') }}', {
@@ -1263,10 +1366,15 @@
             document.getElementById('modalTimeRange').textContent = `${startTimeStr} - ${endTimeStr}`;
             document.getElementById('modalDuration').textContent = `${durationHours} giờ`;
             
-            // Update summary
-            document.getElementById('modalHourlyRate').textContent = '₫' + hourlyRate.toLocaleString('vi-VN') + '/giờ';
-            document.getElementById('modalDurationDisplay').textContent = `${durationHours} giờ`;
-            document.getElementById('modalTotalPrice').textContent = '₫' + parseInt(booking.total_price).toLocaleString('vi-VN');
+            // Fetch detailed pricing breakdown (normalize start_time to H:i format)
+             console.log('Calling fetchAndUpdateBookingSummary with:', {
+                 court_id: booking.court_id,
+                 booking_date: booking.booking_date,
+                 start_time: booking.start_time.substring(0, 5),
+                 duration_hours: durationHours,
+                 total_price: booking.total_price
+             });
+             fetchAndUpdateBookingSummary(booking.court_id, booking.booking_date, booking.start_time.substring(0, 5), durationHours, booking.total_price);
             
             // Update notes
             document.getElementById('modalNotes').textContent = booking.notes || 'Không có ghi chú';
@@ -1276,6 +1384,140 @@
             document.getElementById('modalCreatedBy').textContent = 'Admin User'; // This could be enhanced with actual creator info
             document.getElementById('modalPaymentMethod').textContent = booking.payment_method ? getPaymentMethodText(booking.payment_method) : '-';
             document.getElementById('modalBookingId').textContent = `#${bookingId}`;
+        }
+
+        // Fetch and update booking summary with detailed pricing
+         function fetchAndUpdateBookingSummary(courtId, bookingDate, startTime, durationHours, totalPrice) {
+             // Ensure startTime is in H:i format
+             const normalizedStartTime = startTime.trim();
+             
+             // Validate start_time format (H:i)
+             if (!/^\d{2}:\d{2}$/.test(normalizedStartTime)) {
+                 console.error('Invalid start_time format. Expected H:i, got:', normalizedStartTime);
+                 updateModalBookingSummarySimple(durationHours, totalPrice);
+                 return;
+             }
+             
+             console.log('Fetching pricing for:', { courtId, bookingDate, startTime: normalizedStartTime, durationHours });
+             
+             fetch('{{ route('homeyard.bookings.calculate-price') }}', {
+                 method: 'POST',
+                 headers: {
+                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                     'Content-Type': 'application/json',
+                     'Accept': 'application/json',
+                 },
+                 body: JSON.stringify({
+                     court_id: parseInt(courtId),
+                     booking_date: bookingDate,
+                     start_time: normalizedStartTime,
+                     duration_hours: parseInt(durationHours)
+                 })
+             })
+             .then(response => {
+                 console.log('Pricing response status:', response.status);
+                 return response.json();
+             })
+             .then(data => {
+                 console.log('Pricing data received:', data);
+                 if (data.success) {
+                     console.log('Price breakdown:', data.price_breakdown);
+                     updateModalBookingSummary(data);
+                 } else {
+                     console.error('Pricing calculation failed:', data.message);
+                     // Fallback to simple display
+                     updateModalBookingSummarySimple(durationHours, totalPrice);
+                 }
+             })
+             .catch(error => {
+                 console.error('Error fetching pricing:', error);
+                 // Fallback to simple display
+                 updateModalBookingSummarySimple(durationHours, totalPrice);
+             });
+         }
+
+        // Update modal summary with detailed pricing breakdown
+         function updateModalBookingSummary(data) {
+             // Get the active booking details modal, not the new booking modal
+             const bookingDetailsModal = document.getElementById('bookingDetailsModal');
+             const summaryContainer = bookingDetailsModal.querySelector('.booking-summary');
+             console.log('summaryContainer found:', !!summaryContainer);
+             let html = '';
+             
+             if (data.price_breakdown && data.price_breakdown.length > 0) {
+                 console.log('Showing detailed pricing breakdown with', data.price_breakdown.length, 'items');
+                 // Show pricing breakdown (multi-price or single-price with details)
+                 if (data.has_multi_price) {
+                     html = '<h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-primary);">Chi tiết giá sân (Giá khác nhau)</h4>';
+                 } else {
+                     html = '<h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-primary);">Chi tiết giá sân</h4>';
+                 }
+                 
+                 // Show each hour's pricing
+                 data.price_breakdown.forEach(item => {
+                     html += `
+                         <div class="summary-row">
+                             <span class="summary-label">${item.start_time} - ${item.end_time} (${item.pricing_label})</span>
+                             <span class="summary-value">₫${item.price_per_hour.toLocaleString('vi-VN')}</span>
+                         </div>
+                     `;
+                 });
+                 
+                 // Add separator
+                //  html += '<div style="margin: 1rem 0; border-top: 2px solid var(--border-color);"></div>';
+                 
+                 // Show total
+                 html += `
+                     <div class="summary-row">
+                         <span class="summary-label">Tổng tiền (${data.duration_hours} giờ)</span>
+                         <span class="summary-value" style="font-size: 1.25rem; color: var(--primary-color);">₫${data.total_price.toLocaleString('vi-VN')}</span>
+                     </div>
+                 `;
+             } else {
+                 console.log('Showing fallback simple pricing display');
+                 // Simple single-price display (fallback)
+                 const hourlyRate = data.average_hourly_rate;
+                 html = `
+                     <div class="summary-row">
+                         <span class="summary-label">Giá sân</span>
+                         <span class="summary-value">₫${hourlyRate.toLocaleString('vi-VN')}/giờ</span>
+                     </div>
+                     <div class="summary-row">
+                         <span class="summary-label">Thời gian</span>
+                         <span class="summary-value">${data.duration_hours} giờ</span>
+                     </div>
+                     <div class="summary-row">
+                         <span class="summary-label">Tổng tiền</span>
+                         <span class="summary-value">₫${data.total_price.toLocaleString('vi-VN')}</span>
+                     </div>
+                 `;
+             }
+             
+             console.log('Setting innerHTML on summaryContainer');
+             summaryContainer.innerHTML = html;
+         }
+
+        // Fallback simple summary display for booking details
+        function updateModalBookingSummarySimple(durationHours, totalPrice) {
+            const summaryContainer = document.querySelector('.booking-summary');
+            const hourlyRate = totalPrice ? Math.round(totalPrice / durationHours) : 0;
+            
+            let html = `
+                <div class="summary-row">
+                    <span class="summary-label">Giá sân</span>
+                    <span class="summary-value">₫${hourlyRate.toLocaleString('vi-VN')}/giờ</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Thời gian</span>
+                    <span class="summary-value">${durationHours} giờ</span>
+                </div>
+                <div class="summary-row">
+                    <span class="summary-label">Tổng tiền</span>
+                    <span class="summary-value">₫${parseInt(totalPrice).toLocaleString('vi-VN')}</span>
+                </div>
+            `;
+            
+            summaryContainer.innerHTML = html;
         }
 
         function getPaymentMethodText(method) {

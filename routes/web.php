@@ -114,10 +114,12 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
     Route::post('courts', [HomeYardTournamentController::class, 'storeCourt'])->name('courts.store');
     Route::get('courts/{court}/edit', [HomeYardTournamentController::class, 'editCourt'])->name('courts.edit');
+    Route::get('courts/{court}/pricing', [HomeYardTournamentController::class, 'getPricingTiers'])->name('courts.pricing');
     Route::put('courts/{court}', [HomeYardTournamentController::class, 'updateCourt'])->name('courts.update');
     Route::get('courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('courts.available-slots');
     Route::get('bookings', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
     Route::post('bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('bookings.store');
+    Route::post('bookings/calculate-price', [HomeYardTournamentController::class, 'calculateBookingPrice'])->name('bookings.calculate-price');
     Route::get('bookings/by-date', [HomeYardTournamentController::class, 'getBookingsByDate'])->name('bookings.by-date');
     Route::get('bookings/stats', [HomeYardTournamentController::class, 'getBookingStats'])->name('bookings.stats');
     Route::get('bookings/all', [HomeYardTournamentController::class, 'getAllBookings'])->name('bookings.all');
