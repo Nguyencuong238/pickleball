@@ -61,6 +61,22 @@ class Court extends Model
     }
 
     /**
+     * Get the pricing tiers for this court.
+     */
+    public function pricing(): HasMany
+    {
+        return $this->hasMany(CourtPricing::class, 'court_id');
+    }
+
+    /**
+     * Get active pricing tiers for this court.
+     */
+    public function activePricing(): HasMany
+    {
+        return $this->pricing()->where('is_active', true);
+    }
+
+    /**
      * Check if court is available.
      */
     public function isAvailable(): bool
@@ -93,5 +109,43 @@ class Court extends Model
     public function markAvailable(): void
     {
         $this->update(['status' => 'available']);
+    }
+
+    /**
+     * Get the price for a specific time on a given date.
+     * Returns the applicable pricing, or the default rental_price if no specific pricing found.
+     */
+    public function getPriceForTime(\DateTime $dateTime): int
+    {
+        $dayOfWeek = (int) $dateTime->format('w');
+
+        // Find active pricing that covers this time and day
+        $pricing = $this->activePricing()
+            ->get()
+            ->first(function ($p) use ($dateTime, $dayOfWeek) {
+                return $p->isValid() && $p->appliesOnDay($dayOfWeek) && $p->coversTime($dateTime);
+            });
+
+        if ($pricing) {
+            return $pricing->price_per_hour;
+        }
+
+        // Fallback to default rental price
+        return $this->rental_price ?? 0;
+    }
+
+    /**
+     * Get all applicable pricing tiers for a given date.
+     */
+    public function getPricingForDate(\DateTime $date): \Illuminate\Support\Collection
+    {
+        $dayOfWeek = (int) $date->format('w');
+
+        return $this->activePricing()
+            ->get()
+            ->filter(function ($p) use ($date, $dayOfWeek) {
+                return $p->isValid() && $p->appliesOnDay($dayOfWeek);
+            })
+            ->sortBy('start_time');
     }
 }

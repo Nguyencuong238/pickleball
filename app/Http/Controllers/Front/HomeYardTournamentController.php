@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
 use App\Models\Court;
+use App\Models\CourtPricing;
 use App\Models\Stadium;
 use App\Models\Group;
 use App\Models\GroupStanding;
@@ -559,7 +560,7 @@ class HomeYardTournamentController extends Controller
                 'description' => 'nullable|string',
             ]);
 
-            Court::create([
+            $court = Court::create([
                 'stadium_id' => $validated['stadium_id'],
                 'court_name' => $validated['court_name'],
                 'court_number' => $validated['court_number'] ?? null,
@@ -572,6 +573,26 @@ class HomeYardTournamentController extends Controller
                 'status' => 'available',
                 'is_active' => true,
             ]);
+
+            // Handle pricing tiers
+            if ($request->has('pricing_tiers')) {
+                $pricingTiers = json_decode($request->pricing_tiers, true);
+                
+                if (is_array($pricingTiers) && !empty($pricingTiers)) {
+                    // Create pricing tiers for the new court
+                    foreach ($pricingTiers as $tier) {
+                        if (!empty($tier['start_time']) && !empty($tier['end_time']) && !empty($tier['price_per_hour'])) {
+                            CourtPricing::create([
+                                'court_id' => $court->id,
+                                'start_time' => $tier['start_time'],
+                                'end_time' => $tier['end_time'],
+                                'price_per_hour' => (int) $tier['price_per_hour'],
+                                'is_active' => true,
+                            ]);
+                        }
+                    }
+                }
+            }
 
             return response()->json(['success' => true, 'message' => 'Sân được thêm thành công']);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -620,6 +641,7 @@ class HomeYardTournamentController extends Controller
                     'capacity' => $court->capacity,
                     'rental_price' => $court->rental_price,
                     'description' => $court->description,
+                    'size' => $court->size
                 ]
             ]);
         } catch (\Exception $e) {
@@ -628,6 +650,35 @@ class HomeYardTournamentController extends Controller
                 'success' => false,
                 'message' => 'Không thể tải dữ liệu sân'
             ], 500);
+        }
+    }
+
+    public function getPricingTiers(Court $court)
+    {
+        try {
+            $pricing = $court->activePricing()
+                ->select('id', 'start_time', 'end_time', 'price_per_hour', 'is_active')
+                ->get()
+                ->map(function ($p) {
+                    return [
+                        'id' => $p->id,
+                        'start_time' => $p->start_time->format('H:i') ?? '',
+                        'end_time' => $p->end_time->format('H:i') ?? '',
+                        'price_per_hour' => $p->price_per_hour,
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'pricing' => $pricing
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Pricing fetch error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'pricing' => [],
+                'message' => 'Không thể tải giá'
+            ]);
         }
     }
 
@@ -656,6 +707,29 @@ class HomeYardTournamentController extends Controller
                 'rental_price' => $validated['rental_price'] ?? null,
                 'description' => $validated['description'] ?? null,
             ]);
+
+            // Handle pricing tiers
+            if ($request->has('pricing_tiers')) {
+                $pricingTiers = json_decode($request->pricing_tiers, true);
+                
+                if (is_array($pricingTiers) && !empty($pricingTiers)) {
+                    // Delete existing pricing tiers
+                    CourtPricing::where('court_id', $court->id)->delete();
+                    
+                    // Create new pricing tiers
+                    foreach ($pricingTiers as $tier) {
+                        if (!empty($tier['start_time']) && !empty($tier['end_time']) && !empty($tier['price_per_hour'])) {
+                            CourtPricing::create([
+                                'court_id' => $court->id,
+                                'start_time' => $tier['start_time'],
+                                'end_time' => $tier['end_time'],
+                                'price_per_hour' => (int) $tier['price_per_hour'],
+                                'is_active' => true,
+                            ]);
+                        }
+                    }
+                }
+            }
 
             return response()->json(['success' => true, 'message' => 'Sân được cập nhật thành công']);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -1288,8 +1362,13 @@ class HomeYardTournamentController extends Controller
         $durationHours = $request->duration_hours;
         $endTime = $startTime->modify('+' . $durationHours . ' hours');
 
-        // Calculate total price
-        $totalPrice = round($request->hourly_rate * $durationHours);
+        // Recalculate total price on server side with multi-price support
+        $totalPrice = $this->calculateBookingTotalPrice(
+            $court->id, 
+            $request->booking_date, 
+            $request->start_time, 
+            $durationHours
+        );
 
         // Check if slot is already booked
         $existingBooking = Booking::where('court_id', $request->court_id)
@@ -2792,4 +2871,179 @@ class HomeYardTournamentController extends Controller
         }
     }
 
+    /**
+     * Calculate total price for a booking with multi-price support
+     * This is used internally and by the API
+     */
+    private function calculateBookingTotalPrice($courtId, $bookingDate, $startTime, $durationHours)
+    {
+        $court = Court::findOrFail($courtId);
+        $bookingDate = \Carbon\Carbon::createFromFormat('Y-m-d', $bookingDate);
+        $dayOfWeek = $bookingDate->dayOfWeek;
+        
+        $startTimeObj = \DateTime::createFromFormat('H:i', $startTime);
+        $totalPrice = 0;
+        $currentTime = clone $startTimeObj;
+        
+        for ($i = 0; $i < $durationHours; $i++) {
+            $hourStart = clone $currentTime;
+            
+            // Find matching court pricing for this hour
+            $pricing = CourtPricing::where('court_id', $courtId)
+                ->where('is_active', true)
+                ->where(function ($query) use ($bookingDate) {
+                    $query->whereNull('valid_from')
+                          ->orWhere('valid_from', '<=', $bookingDate);
+                })
+                ->where(function ($query) use ($bookingDate) {
+                    $query->whereNull('valid_to')
+                          ->orWhere('valid_to', '>=', $bookingDate);
+                })
+                ->where(function ($query) use ($hourStart) {
+                    $query->whereRaw('TIME(start_time) <= ?', [$hourStart->format('H:i:s')])
+                          ->whereRaw('TIME(end_time) > ?', [$hourStart->format('H:i:s')]);
+                })
+                ->where(function ($query) use ($dayOfWeek) {
+                    $query->whereNull('days_of_week')
+                          ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                })
+                ->orderByRaw('TIME(start_time) DESC')
+                ->first();
+            
+            // Use court pricing if found, otherwise use court's rental_price
+            $hourlyRate = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 150000);
+            $totalPrice += $hourlyRate;
+            $currentTime->modify('+1 hour');
+        }
+        
+        return $totalPrice;
+    }
+
+    /**
+     * Calculate booking price with multi-price support
+     * Returns pricing breakdown by hour or time period
+     */
+    public function calculateBookingPrice(Request $request)
+    {
+        try {
+            // Trim and validate input
+            $startTimeInput = trim($request->input('start_time', ''));
+            
+            $request->validate([
+                'court_id' => 'required|exists:courts,id',
+                'booking_date' => 'required|date',
+                'start_time' => 'required|date_format:H:i',
+                'duration_hours' => 'required|integer|min:1|max:12',
+            ]);
+
+            $court = Court::findOrFail($request->court_id);
+            
+            $bookingDate = \Carbon\Carbon::parse($request->booking_date);
+            $dayOfWeek = $bookingDate->dayOfWeek; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+
+            // Create DateTime object with trimmed start_time
+            $startTime = \DateTime::createFromFormat('H:i', $startTimeInput);
+            if (!$startTime) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid start_time format. Must be H:i (e.g., 14:00)',
+                ], 422);
+            }
+            $durationHours = $request->duration_hours;
+            
+            // Calculate hourly breakdown
+            $priceBreakdown = [];
+            $totalPrice = 0;
+            $currentTime = clone $startTime;
+            
+            for ($i = 0; $i < $durationHours; $i++) {
+                $hourStart = clone $currentTime;
+                $hourEnd = clone $currentTime;
+                $hourEnd->modify('+1 hour');
+                
+                // Find matching court pricing for this hour
+                $pricing = CourtPricing::where('court_id', $court->id)
+                    ->where('is_active', true)
+                    ->where(function ($query) use ($bookingDate) {
+                        $query->whereNull('valid_from')
+                              ->orWhere('valid_from', '<=', $bookingDate);
+                    })
+                    ->where(function ($query) use ($bookingDate) {
+                        $query->whereNull('valid_to')
+                              ->orWhere('valid_to', '>=', $bookingDate);
+                    })
+                    ->where(function ($query) use ($hourStart) {
+                        $query->whereRaw('TIME(start_time) <= ?', [$hourStart->format('H:i:s')])
+                              ->whereRaw('TIME(end_time) > ?', [$hourStart->format('H:i:s')]);
+                    })
+                    ->where(function ($query) use ($dayOfWeek) {
+                        $query->whereNull('days_of_week')
+                              ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                    })
+                    ->orderByRaw('TIME(start_time) DESC')
+                    ->first();
+                
+                // Use court pricing if found, otherwise use court's rental_price
+                $hourlyRate = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 150000);
+                
+                // Build pricing label - avoid calling getLabel() which may cause JSON serialization issues
+                $pricingLabel = 'Giá mặc định';
+                if ($pricing) {
+                    if ($pricing->description) {
+                        $pricingLabel = $pricing->description;
+                    } else {
+                        // Format times directly from the raw original attributes
+                        $startTime = $pricing->getRawOriginal('start_time') ?? '00:00:00';
+                        $endTime = $pricing->getRawOriginal('end_time') ?? '23:59:59';
+                        $startStr = substr($startTime, 0, 5);
+                        $endStr = substr($endTime, 0, 5);
+                        $pricingLabel = "{$startStr} - {$endStr}";
+                    }
+                }
+                
+                $priceBreakdown[] = [
+                    'hour' => $i + 1,
+                    'start_time' => $hourStart->format('H:i'),
+                    'end_time' => $hourEnd->format('H:i'),
+                    'price_per_hour' => $hourlyRate,
+                    'pricing_label' => $pricingLabel
+                ];
+                
+                $totalPrice += $hourlyRate;
+                $currentTime->modify('+1 hour');
+            }
+            
+            // Check if there are multiple different prices
+            $hasMultiPrice = count(array_unique(array_column($priceBreakdown, 'price_per_hour'))) > 1;
+            
+            // Calculate average hourly rate for fallback
+            $averageHourlyRate = $durationHours > 0 ? round($totalPrice / $durationHours) : $totalPrice;
+            
+            return response()->json([
+                'success' => true,
+                'total_price' => $totalPrice,
+                'average_hourly_rate' => $averageHourlyRate,
+                'has_multi_price' => $hasMultiPrice,
+                'duration_hours' => $durationHours,
+                'price_breakdown' => $priceBreakdown,
+                'court' => [
+                    'id' => $court->id,
+                    'name' => $court->court_name,
+                    'default_rental_price' => $court->rental_price ?? 150000
+                ]
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Calculate booking price error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }
