@@ -770,6 +770,9 @@ class HomeYardTournamentController extends Controller
                 ->where('category_id', $categoryId)
                 ->get();
 
+            // Tạo matches tự động cho mỗi group (round-robin)
+            $this->createMatchesForGroups($tournament, $categoryId, $refreshedGroups);
+
             $results = $this->getGroupedAthletes($refreshedGroups);
 
             return response()->json([
@@ -981,6 +984,68 @@ class HomeYardTournamentController extends Controller
                 'group_name' => $group->group_name,
                 'participants_count' => $count
             ]);
+        }
+    }
+
+    /**
+     * Tạo matches tự động cho mỗi group (round-robin)
+     */
+    private function createMatchesForGroups($tournament, $categoryId, $groups)
+    {
+        try {
+            foreach ($groups as $group) {
+                // Lấy tất cả VĐV trong group này
+                $athletes = TournamentAthlete::where('group_id', $group->id)
+                    ->get();
+
+                if ($athletes->count() < 2) {
+                    continue; // Bỏ qua nếu không đủ 2 VĐV
+                }
+
+                // Tạo matches round-robin (mỗi VĐV đấu với mọi VĐV khác)
+                $matchCount = MatchModel::where('tournament_id', $tournament->id)
+                    ->where('category_id', $categoryId)
+                    ->where('group_id', $group->id)
+                    ->count();
+
+                for ($i = 0; $i < $athletes->count(); $i++) {
+                    for ($j = $i + 1; $j < $athletes->count(); $j++) {
+                        $athlete1 = $athletes[$i];
+                        $athlete2 = $athletes[$j];
+
+                        // Get athlete names
+                        $athlete1Name = $athlete1->athlete_name ?? ($athlete1->user ? $athlete1->user->name : 'Unknown');
+                        $athlete2Name = $athlete2->athlete_name ?? ($athlete2->user ? $athlete2->user->name : 'Unknown');
+
+                        $matchCount++;
+
+                        MatchModel::create([
+                            'tournament_id' => $tournament->id,
+                            'athlete1_id' => $athlete1->id,
+                            'athlete1_name' => $athlete1Name,
+                            'athlete2_id' => $athlete2->id,
+                            'athlete2_name' => $athlete2Name,
+                            'category_id' => $categoryId,
+                            'group_id' => $group->id,
+                            'match_number' => 'M' . $matchCount,
+                            'status' => 'scheduled',
+                            'match_date' => now()->toDateString()
+                        ]);
+
+                        Log::info('Auto-created match for group', [
+                            'group_id' => $group->id,
+                            'group_name' => $group->group_name,
+                            'athlete1_id' => $athlete1->id,
+                            'athlete1_name' => $athlete1Name,
+                            'athlete2_id' => $athlete2->id,
+                            'athlete2_name' => $athlete2Name,
+                            'match_number' => 'M' . $matchCount
+                        ]);
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Error creating matches for groups: ' . $e->getMessage());
         }
     }
 
@@ -1589,6 +1654,7 @@ class HomeYardTournamentController extends Controller
                 'athlete2_id' => 'required|exists:tournament_athletes,id',
                 'category_id' => 'required|exists:tournament_categories,id',
                 'round_id' => 'nullable|exists:rounds,id',
+                'group_id' => 'nullable|exists:groups,id',
             ]);
 
             // Ensure both athletes are from this tournament
@@ -1623,13 +1689,27 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
 
+            // Generate match number
+            $matchCount = MatchModel::where('tournament_id', $tournament->id)
+                ->where('category_id', $validated['category_id'])
+                ->count();
+            $matchNumber = 'M' . ($matchCount + 1);
+
+            // Get athlete names (prioritize athlete_name from tournament_athletes)
+            $athlete1Name = $athlete1->athlete_name ?? ($athlete1->user ? $athlete1->user->name : 'Unknown');
+            $athlete2Name = $athlete2->athlete_name ?? ($athlete2->user ? $athlete2->user->name : 'Unknown');
+
             // Create match
             $match = MatchModel::create([
                 'tournament_id' => $tournament->id,
                 'athlete1_id' => $validated['athlete1_id'],
+                'athlete1_name' => $athlete1Name,
                 'athlete2_id' => $validated['athlete2_id'],
+                'athlete2_name' => $athlete2Name,
                 'category_id' => $validated['category_id'],
                 'round_id' => $validated['round_id'],
+                'group_id' => $validated['group_id'] ?? null,
+                'match_number' => $matchNumber,
                 'status' => 'scheduled',
                 'match_date' => now()->toDateString()
             ]);
@@ -1853,12 +1933,35 @@ class HomeYardTournamentController extends Controller
         $match->status = 'completed';
         $match->final_score = $validated['final_score'];
 
-        // Xác định người thắng cuộc
-        if ($validated['athlete1_score'] > $validated['athlete2_score']) {
+        // Xác định người thắng cuộc dựa trên final_score
+        // Parse final_score (ví dụ "11-9, 11-8" hoặc "11-9")
+        $setsWonAthlete1 = 0;
+        $setsWonAthlete2 = 0;
+        
+        if ($validated['final_score']) {
+            $sets = explode(',', $validated['final_score']);
+            foreach ($sets as $set) {
+                $scores = explode('-', trim($set));
+                if (count($scores) === 2) {
+                    $score1 = (int)trim($scores[0]);
+                    $score2 = (int)trim($scores[1]);
+                    
+                    if ($score1 > $score2) {
+                        $setsWonAthlete1++;
+                    } elseif ($score2 > $score1) {
+                        $setsWonAthlete2++;
+                    }
+                }
+            }
+        }
+
+        // Xác định winner
+        if ($setsWonAthlete1 > $setsWonAthlete2) {
             $match->winner_id = $match->athlete1_id;
-        } elseif ($validated['athlete2_score'] > $validated['athlete1_score']) {
+        } elseif ($setsWonAthlete2 > $setsWonAthlete1) {
             $match->winner_id = $match->athlete2_id;
         } else {
+            // Hòa set
             $match->winner_id = null;
         }
 
@@ -1871,7 +1974,7 @@ class HomeYardTournamentController extends Controller
 
         // Cập nhật standings nếu trận này thuộc một group
         if ($match->group_id && $match->athlete1_id && $match->athlete2_id) {
-            $this->updateGroupStandings($match);
+            $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
         }
     }
 
@@ -1915,6 +2018,93 @@ class HomeYardTournamentController extends Controller
             if ($match->group_id) {
                 $this->updateGroupStandings($match);
             }
+        }
+    }
+
+    /**
+     * Update group standings with set information
+     */
+    private function updateGroupStandingsWithSets(MatchModel $match, int $setsWonAthlete1, int $setsWonAthlete2)
+    {
+        try {
+            $athlete1Id = $match->athlete1_id;
+            $athlete2Id = $match->athlete2_id;
+            $groupId = $match->group_id;
+
+            // Get or create standings for both athletes
+            $standing1 = GroupStanding::firstOrCreate(
+                ['group_id' => $groupId, 'athlete_id' => $athlete1Id],
+                [
+                    'rank_position' => 0,
+                    'matches_played' => 0,
+                    'matches_won' => 0,
+                    'matches_lost' => 0,
+                    'matches_drawn' => 0,
+                    'points' => 0,
+                    'sets_won' => 0,
+                    'sets_lost' => 0,
+                    'sets_differential' => 0,
+                    'games_won' => 0,
+                    'games_lost' => 0,
+                    'games_differential' => 0,
+                ]
+            );
+
+            $standing2 = GroupStanding::firstOrCreate(
+                ['group_id' => $groupId, 'athlete_id' => $athlete2Id],
+                [
+                    'rank_position' => 0,
+                    'matches_played' => 0,
+                    'matches_won' => 0,
+                    'matches_lost' => 0,
+                    'matches_drawn' => 0,
+                    'points' => 0,
+                    'sets_won' => 0,
+                    'sets_lost' => 0,
+                    'sets_differential' => 0,
+                    'games_won' => 0,
+                    'games_lost' => 0,
+                    'games_differential' => 0,
+                ]
+            );
+
+            // Determine winner and update standings based on sets won
+            if ($setsWonAthlete1 > $setsWonAthlete2) {
+                // Athlete 1 wins - thêm sets_won cho athlete1, sets_lost cho athlete2
+                $standing1->updateAfterMatch(true, $setsWonAthlete1, $setsWonAthlete2, 0, 0);
+                $standing2->updateAfterMatch(false, $setsWonAthlete2, $setsWonAthlete1, 0, 0);
+            } elseif ($setsWonAthlete2 > $setsWonAthlete1) {
+                // Athlete 2 wins
+                $standing1->updateAfterMatch(false, $setsWonAthlete1, $setsWonAthlete2, 0, 0);
+                $standing2->updateAfterMatch(true, $setsWonAthlete2, $setsWonAthlete1, 0, 0);
+            } else {
+                // Draw
+                $standing1->update([
+                    'matches_played' => $standing1->matches_played + 1,
+                    'matches_drawn' => $standing1->matches_drawn + 1,
+                    'sets_won' => $standing1->sets_won + $setsWonAthlete1,
+                    'sets_lost' => $standing1->sets_lost + $setsWonAthlete2,
+                ]);
+                $standing2->update([
+                    'matches_played' => $standing2->matches_played + 1,
+                    'matches_drawn' => $standing2->matches_drawn + 1,
+                    'sets_won' => $standing2->sets_won + $setsWonAthlete2,
+                    'sets_lost' => $standing2->sets_lost + $setsWonAthlete1,
+                ]);
+            }
+
+            // Recalculate rankings for the group
+            $this->recalculateGroupRankings($groupId);
+
+            Log::info('Group standings updated with sets', [
+                'group_id' => $groupId,
+                'match_id' => $match->id,
+                'sets_won_athlete1' => $setsWonAthlete1,
+                'sets_won_athlete2' => $setsWonAthlete2,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Update group standings error: ' . $e->getMessage());
+            throw $e;
         }
     }
 
@@ -2099,6 +2289,33 @@ class HomeYardTournamentController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Get category athletes error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get groups for a specific category
+     */
+    public function getCategoryGroups(Tournament $tournament, $categoryId)
+    {
+        try {
+            $this->authorize('update', $tournament);
+
+            // Get groups for this category
+            $groups = Group::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->orderBy('group_name')
+                ->get(['id', 'group_name']);
+
+            return response()->json([
+                'success' => true,
+                'groups' => $groups
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get category groups error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi: ' . $e->getMessage()

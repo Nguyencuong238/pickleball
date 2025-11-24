@@ -1116,6 +1116,14 @@
                         </select>
                     </div>
 
+                    <!-- Chọn bảng/nhóm -->
+                    <div class="form-group">
+                        <label class="form-label">👥 Bảng/Nhóm (Group)</label>
+                        <select id="matchGroupSelect" name="group_id" class="form-select" disabled>
+                            <option value="">-- Chọn nội dung thi đấu trước --</option>
+                        </select>
+                    </div>
+
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
                         <button type="submit" class="btn btn-success" id="submitMatchBtn">✅ Tạo trận</button>
                         <button type="button" class="btn btn-secondary" onclick="closeCreateMatchModal()">❌ Hủy</button>
@@ -1950,11 +1958,12 @@
         }
 
         // Handle category selection in match modal
-        document.addEventListener('DOMContentLoaded', function() {
-            const categorySelect = document.getElementById('matchCategoryId');
-            const athlete1Select = document.getElementById('athlete1Select');
-            const athlete2Select = document.getElementById('athlete2Select');
-            const tournamentId = {!! $tournament->id ?? 0 !!};
+         document.addEventListener('DOMContentLoaded', function() {
+             const categorySelect = document.getElementById('matchCategoryId');
+             const athlete1Select = document.getElementById('athlete1Select');
+             const athlete2Select = document.getElementById('athlete2Select');
+             const groupSelect = document.getElementById('matchGroupSelect');
+             const tournamentId = {!! $tournament->id ?? 0 !!};
 
             if (categorySelect) {
                 categorySelect.addEventListener('change', function() {
@@ -1966,6 +1975,10 @@
                             '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
                         athlete1Select.disabled = true;
                         athlete2Select.disabled = true;
+                        
+                        groupSelect.innerHTML =
+                            '<option value="">-- Chọn nội dung thi đấu trước --</option>';
+                        groupSelect.disabled = true;
                         return;
                     }
 
@@ -2009,6 +2022,48 @@
                             '<option value="">Lỗi tải dữ liệu</option>';
                         athlete1Select.disabled = true;
                         athlete2Select.disabled = true;
+                    });
+
+                    // Fetch danh sách groups của category từ server
+                    console.log('Fetching groups for categoryId:', categoryId);
+                    fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/groups`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => {
+                        console.log('Groups fetch response status:', response.status);
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Groups fetch response data:', data);
+                        console.log('Groups array:', data.groups);
+                        console.log('Groups length:', data.groups ? data.groups.length : 'undefined');
+                        console.log('Each group:', data.groups ? data.groups.map(g => ({id: g.id, name: g.group_name})) : 'no groups');
+                        if (data.success && data.groups && data.groups.length > 0) {
+                            const groups = data.groups;
+                            console.log('Processing groups, count:', groups.length);
+                            const groupOptions = groups.map(group => {
+                                console.log('Group item:', group);
+                                return `<option value="${group.id}">${group.group_name}</option>`;
+                            }).join('');
+
+                            groupSelect.innerHTML =
+                                `<option value="">-- Chọn bảng/nhóm (tuỳ chọn) --</option>${groupOptions}`;
+                            groupSelect.disabled = false;
+                            console.log('Groups loaded successfully, count:', groups.length);
+                        } else {
+                            groupSelect.innerHTML =
+                                '<option value="">-- Không có bảng/nhóm nào (Tạo bảng trước) --</option>';
+                            groupSelect.disabled = true;
+                            console.log('No groups found for this category');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching groups:', error);
+                        groupSelect.innerHTML =
+                            '<option value="">Lỗi tải dữ liệu</option>';
+                        groupSelect.disabled = true;
                     });
                 });
             }
@@ -2077,6 +2132,7 @@
                     athlete2_id: formData.get('athlete2_id'),
                     category_id: formData.get('category_id'),
                     round_id: formData.get('round_id'),
+                    group_id: formData.get('group_id'),
                     tournament_id: tournamentId
                 };
 

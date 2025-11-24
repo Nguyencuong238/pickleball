@@ -640,8 +640,8 @@
                                             @endforeach
                                             @else
                                             <p style="text-align: center; padding: 2rem; color: var(--text-secondary);">Không có trận
-                                            đấu nào sắp tới</p>
-                            @endif
+                                                đấu nào sắp tới</p>
+                                            @endif
                         </div>
                         <!-- Pagination for Upcoming Matches -->
                         @if ($upcomingMatches->hasPages())
@@ -713,7 +713,7 @@
                                             @else
                                             <p style="text-align: center; padding: 2rem; color: var(--text-secondary);">Không có trận
                                             đấu nào đã kết thúc</p>
-                            @endif
+                                            @endif
                         </div>
                         <!-- Pagination for Completed Matches -->
                         @if ($completedMatches->hasPages())
@@ -904,8 +904,8 @@
                 
                 <!-- Final Score (for completed matches) -->
                 <div id="finalScoreContainer" style="margin-bottom: 1.5rem; display: none;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">Tỷ Số Cuối Cùng (ví dụ: 11-7)</label>
-                    <input type="text" id="finalScore" name="final_score" placeholder="11-7" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">Tỷ Số Cuối Cùng (ví dụ: 11-7, 11-8 hoặc 11-9)</label>
+                    <input type="text" id="finalScore" name="final_score" placeholder="11-7, 11-8" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem;">
                 </div>
                 
                 <!-- Actions -->
@@ -1132,7 +1132,30 @@
                      // Hiển thị field finalScore
                      document.getElementById('finalScoreContainer').style.display = 'block';
                      document.getElementById('finalScore').focus();
-                     alert('Vui lòng nhập tỷ số cuối cùng (ví dụ: 11-7, 11-5)');
+                     alert('Vui lòng nhập tỷ số cuối cùng\n\nVí dụ:\n- 11-7 (1 set)\n- 11-7, 11-8 (2 set)\n- 11-7, 9-11, 11-9 (3 set)');
+                     return;
+                 }
+                 
+                 // Validate format
+                 const sets = finalScore.split(',');
+                 let isValid = true;
+                 for (let set of sets) {
+                     const scores = set.trim().split('-');
+                     if (scores.length !== 2 || !scores[0].trim() || !scores[1].trim()) {
+                         isValid = false;
+                         break;
+                     }
+                     const score1 = parseInt(scores[0].trim());
+                     const score2 = parseInt(scores[1].trim());
+                     if (isNaN(score1) || isNaN(score2)) {
+                         isValid = false;
+                         break;
+                     }
+                 }
+                 
+                 if (!isValid) {
+                     alert('Format tỷ số không hợp lệ\n\nVí dụ đúng:\n- 11-7\n- 11-7, 11-8\n- 11-7, 9-11, 11-9');
+                     document.getElementById('finalScore').focus();
                      return;
                  }
              }
