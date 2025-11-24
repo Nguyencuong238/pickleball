@@ -518,7 +518,21 @@ class HomeYardTournamentController extends Controller
             'total' => $totalMatches,
         ];
         
-        return view('home-yard.tournaments.matches', compact('liveMatches', 'upcomingMatches', 'completedMatches', 'stats'));
+        // Get matches grouped by date for calendar view
+        $allMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
+            ->where('status', '!=', 'cancelled')
+            ->select('match_date')
+            ->groupBy('match_date')
+            ->pluck('match_date');
+        
+        // Count matches per date
+        $matchesByDate = MatchModel::whereIn('tournament_id', $tournamentIds)
+            ->where('status', '!=', 'cancelled')
+            ->selectRaw('DATE(match_date) as date, COUNT(*) as count')
+            ->groupBy('date')
+            ->pluck('count', 'date');
+        
+        return view('home-yard.tournaments.matches', compact('liveMatches', 'upcomingMatches', 'completedMatches', 'stats', 'matchesByDate'));
     }
 
     public function athletes()

@@ -725,129 +725,19 @@
 
                     <!-- Calendar Tab -->
                     <div class="tab-content" id="calendar">
-                        <div class="calendar-view">
-                            <div class="calendar-header-full">
-                                <h3 class="calendar-title-full">Tháng 1, 2025</h3>
-                                <div class="calendar-nav-full">
-                                    <button class="btn btn-secondary btn-sm">‹ Tháng trước</button>
-                                    <button class="btn btn-secondary btn-sm">Tháng sau ›</button>
-                                </div>
-                            </div>
-                            <div class="calendar-grid-full">
-                                <div class="calendar-day-full" style="opacity: 0.5;">
-                                    <div class="day-number">29</div>
-                                </div>
-                                <div class="calendar-day-full" style="opacity: 0.5;">
-                                    <div class="day-number">30</div>
-                                </div>
-                                <div class="calendar-day-full" style="opacity: 0.5;">
-                                    <div class="day-number">31</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">1</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">2</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">3</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">4</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">5</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">6</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">7</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">8</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">9</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">10</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">11</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">12</div>
-                                </div>
-                                <div class="calendar-day-full has-matches">
-                                    <div class="day-number">13</div>
-                                    <div class="day-matches">8 trận</div>
-                                </div>
-                                <div class="calendar-day-full has-matches">
-                                    <div class="day-number">14</div>
-                                    <div class="day-matches">12 trận</div>
-                                </div>
-                                <div class="calendar-day-full has-matches">
-                                    <div class="day-number">15</div>
-                                    <div class="day-matches">10 trận</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">16</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">17</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">18</div>
-                                </div>
-                                <div class="calendar-day-full has-matches">
-                                    <div class="day-number">19</div>
-                                    <div class="day-matches">6 trận</div>
-                                </div>
-                                <div class="calendar-day-full today has-matches">
-                                    <div class="day-number">20</div>
-                                    <div class="day-matches">15 trận</div>
-                                </div>
-                                <div class="calendar-day-full has-matches">
-                                    <div class="day-number">21</div>
-                                    <div class="day-matches">14 trận</div>
-                                </div>
-                                <div class="calendar-day-full has-matches">
-                                    <div class="day-number">22</div>
-                                    <div class="day-matches">11 trận</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">23</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">24</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">25</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">26</div>
-                                </div>
-                                <div class="calendar-day-full has-matches">
-                                    <div class="day-number">27</div>
-                                    <div class="day-matches">9 trận</div>
-                                </div>
-                                <div class="calendar-day-full has-matches">
-                                    <div class="day-number">28</div>
-                                    <div class="day-matches">7 trận</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">29</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">30</div>
-                                </div>
-                                <div class="calendar-day-full">
-                                    <div class="day-number">31</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                         <div class="calendar-view">
+                             <div class="calendar-header-full">
+                                 <h3 class="calendar-title-full" id="calendarMonth">Tháng 1, 2025</h3>
+                                 <div class="calendar-nav-full">
+                                     <button type="button" class="btn btn-secondary btn-sm" onclick="previousMonth()">‹ Tháng trước</button>
+                                     <button type="button" class="btn btn-secondary btn-sm" onclick="nextMonth()">Tháng sau ›</button>
+                                 </div>
+                             </div>
+                             <div class="calendar-grid-full" id="calendarDays">
+                                 <!-- Calendar days will be generated by JavaScript -->
+                             </div>
+                         </div>
+                     </div>
                 </div>
             </div>
         </div>
@@ -1221,9 +1111,78 @@
              });
          }
 
+         // Calendar data from PHP
+         const matchesByDate = @json($matchesByDate);
+
+         // Calendar management
+         let currentDate = new Date();
+
+         function renderCalendar() {
+             const year = currentDate.getFullYear();
+             const month = currentDate.getMonth();
+             
+             // Update title
+             const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6',
+                                'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+             document.getElementById('calendarMonth').textContent = monthNames[month] + ', ' + year;
+             
+             // Get first day of month and number of days
+             const firstDay = new Date(year, month, 1).getDay();
+             const daysInMonth = new Date(year, month + 1, 0).getDate();
+             const daysInPrevMonth = new Date(year, month, 0).getDate();
+             
+             let html = '';
+             
+             // Previous month days (grayed out)
+             for (let i = firstDay - 1; i >= 0; i--) {
+                 html += `<div class="calendar-day-full" style="opacity: 0.5;">
+                     <div class="day-number">${daysInPrevMonth - i}</div>
+                 </div>`;
+             }
+             
+             // Current month days
+             const today = new Date();
+             for (let day = 1; day <= daysInMonth; day++) {
+                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                 const matchCount = matchesByDate[dateStr] || 0;
+                 const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                 
+                 let className = 'calendar-day-full';
+                 if (matchCount > 0) className += ' has-matches';
+                 if (isToday) className += ' today';
+                 
+                 html += `<div class="${className}">
+                     <div class="day-number">${day}</div>
+                     ${matchCount > 0 ? `<div class="day-matches">${matchCount} trận</div>` : ''}
+                 </div>`;
+             }
+             
+             // Next month days (grayed out)
+             const totalCells = firstDay + daysInMonth;
+             const remainingCells = Math.ceil(totalCells / 7) * 7 - totalCells;
+             for (let i = 1; i <= remainingCells; i++) {
+                 html += `<div class="calendar-day-full" style="opacity: 0.5;">
+                     <div class="day-number">${i}</div>
+                 </div>`;
+             }
+             
+             document.getElementById('calendarDays').innerHTML = html;
+         }
+
+         function previousMonth() {
+             currentDate.setMonth(currentDate.getMonth() - 1);
+             renderCalendar();
+         }
+
+         function nextMonth() {
+             currentDate.setMonth(currentDate.getMonth() + 1);
+             renderCalendar();
+         }
+
          // Load page
          document.addEventListener('DOMContentLoaded', () => {
              console.log('Match Management Loaded');
+             renderCalendar();
              restoreTabState();
              updatePaginationLinks();
 
