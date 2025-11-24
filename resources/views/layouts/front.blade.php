@@ -174,8 +174,9 @@
     <header class="header">
         <nav class="nav container">
             <div class="nav-brand">
-                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18' fill='%2300D9B5' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M15 15 L25 25 M25 15 L15 25' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" alt="onePickleball Logo" class="logo">
-                <span class="brand-name">one<strong>Pickleball</strong></span>
+                <a href="/" class="sidebar-brand">
+                    <img src="{{ asset('assets/images/logo.jpeg') }}" alt="OnePickleball" width="80px">
+                </a>
             </div>
             
             <button class="mobile-menu-toggle" aria-label="Toggle menu">
@@ -185,7 +186,7 @@
             </button>
             
             <ul class="nav-menu">
-                <li><a href="{{ route('home') }}" class="nav-link @if(request()->routeIs('home')) active @endif">Trang chủ</a></li>
+                <li><a href="/" class="nav-link @if(request()->routeIs('home')) active @endif">Trang chủ</a></li>
                 <li><a href="{{ route('tournaments') }}" class="nav-link @if(request()->routeIs('tournaments')) active @endif">Giải đấu</a></li>
                 <li><a href="{{ route('courts') }}" class="nav-link @if(request()->routeIs('courts')) active @endif">Sân thi đấu</a></li>
                 <li><a href="{{ route('social') }}" class="nav-link @if(request()->routeIs('social')) active @endif">Giờ đi đấu</a></li>

@@ -652,7 +652,6 @@
                     <!-- Court Grid -->
                     <div class="court-grid" id="courtGrid">
                         @forelse($courts as $court)
-                            <!-- Court {{ $court->id }} - {{ ucfirst($court->status) }} -->
                             <div class="court-card {{ $court->status }}">
                                 <div class="court-header">
                                     <div class="court-number">
