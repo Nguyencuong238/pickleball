@@ -53,12 +53,6 @@ Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCal
 Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
-// Route bảo vệ
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware('auth');
-
-
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/booking', [HomeController::class, 'booking'])->name('booking');
 Route::get('/courts', [HomeController::class, 'courts'])->name('courts');
@@ -73,38 +67,40 @@ Route::get('/tournaments-detail/{tournament_id}', [HomeController::class, 'tourn
 // Tournament Registration
 Route::post('/tournament/{tournament}/register', [TournamentRegistrationController::class, 'register'])->name('tournament.register');
 
-// Review Routes (Web - Using AJAX)
+// Reviews Routes
+Route::get('/reviews/stadium/{stadium}', [ReviewController::class, 'getStadiumReviews'])->name('reviews.list');
+Route::get('/reviews/summary/{stadium}', [ReviewController::class, 'getRatingSummary'])->name('reviews.summary');
+
 Route::middleware('auth')->group(function () {
     Route::post('/reviews/store', [ReviewController::class, 'store'])->name('reviews.store');
     Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::post('/reviews/{review}/helpful', [ReviewController::class, 'markHelpful'])->name('reviews.helpful');
-    
+
     // Favorite routes
     Route::post('/stadiums/{stadium}/toggle-favorite', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+
+    // Media Upload API Routes
+    Route::post('/api/upload-media', [MediaUploadController::class, 'uploadMedia'])->name('api.upload-media');
+    Route::delete('/api/delete-media/{mediaId}', [MediaUploadController::class, 'deleteMedia'])->name('api.delete-media');
 });
-Route::get('/reviews/stadium/{stadium}', [ReviewController::class, 'getStadiumReviews'])->name('reviews.list');
-Route::get('/reviews/summary/{stadium}', [ReviewController::class, 'getRatingSummary'])->name('reviews.summary');
 
-// User Dashboard Route
-Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('user.dashboard');
-
-// HomeYard Dashboard and Stadium CRUD Routes
+// HomeYard Routes
 Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyard.')->group(function () {
-     Route::get('/dashboard/{tournament_id?}', [DashboardController::class, 'homeYardDashboard'])->name('dashboard');
-     Route::resource('stadiums', HomeYardStadiumController::class);
-     
-     // Tournament export routes (before resource route to take priority)
-     Route::get('tournaments/export/list', [HomeYardTournamentController::class, 'exportTournamentsList'])->name('tournaments.export');
-     Route::get('tournaments/{tournament}/athletes/export', [HomeYardTournamentController::class, 'exportAthletes'])->name('tournaments.athletes.export');
-     
-     Route::resource('tournaments', HomeYardTournamentController::class);
-     Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
-     Route::put('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'updateAthlete'])->name('tournaments.athletes.update');
-     Route::delete('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
-     Route::patch('tournaments/{tournament}/athletes/{athlete}/status', [HomeYardTournamentController::class, 'updateAthleteStatus'])->name('tournaments.athletes.updateStatus');
-     Route::post('tournaments/{tournament}/athletes/{athlete}/approve', [HomeYardTournamentController::class, 'approveAthlete'])->name('athletes.approve');
-     Route::post('tournaments/{tournament}/athletes/{athlete}/reject', [HomeYardTournamentController::class, 'rejectAthlete'])->name('athletes.reject');
+    Route::get('/dashboard/{tournament_id?}', [DashboardController::class, 'homeYardDashboard'])->name('dashboard');
+    Route::resource('stadiums', HomeYardStadiumController::class);
+
+    // Tournament export routes (before resource route to take priority)
+    Route::get('tournaments/export/list', [HomeYardTournamentController::class, 'exportTournamentsList'])->name('tournaments.export');
+    Route::get('tournaments/{tournament}/athletes/export', [HomeYardTournamentController::class, 'exportAthletes'])->name('tournaments.athletes.export');
+
+    Route::resource('tournaments', HomeYardTournamentController::class);
+    Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
+    Route::put('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'updateAthlete'])->name('tournaments.athletes.update');
+    Route::delete('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
+    Route::patch('tournaments/{tournament}/athletes/{athlete}/status', [HomeYardTournamentController::class, 'updateAthleteStatus'])->name('tournaments.athletes.updateStatus');
+    Route::post('tournaments/{tournament}/athletes/{athlete}/approve', [HomeYardTournamentController::class, 'approveAthlete'])->name('athletes.approve');
+    Route::post('tournaments/{tournament}/athletes/{athlete}/reject', [HomeYardTournamentController::class, 'rejectAthlete'])->name('athletes.reject');
     Route::get('athletes', [HomeYardTournamentController::class, 'listAthletes'])->name('athletes.index');
     Route::get('overview', [HomeYardTournamentController::class, 'overview'])->name('overview');
     Route::get('tournaments', [HomeYardTournamentController::class, 'tournaments'])->name('tournaments');
@@ -127,68 +123,65 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('bookings/{bookingId}', [HomeYardTournamentController::class, 'getBookingDetails'])->name('bookings.show');
     Route::put('bookings/{bookingId}/cancel', [HomeYardTournamentController::class, 'cancelBooking'])->name('bookings.cancel');
     Route::delete('bookings/{bookingId}', [HomeYardTournamentController::class, 'deleteBooking'])->name('bookings.delete');
-    
+
     // Tournament Basic Info
     Route::put('tournaments/{tournament}', [HomeYardTournamentController::class, 'updateTournament'])->name('tournaments.update');
-    
+
     // Tournament Categories, Rounds, and Groups
     Route::post('tournaments/{tournament}/categories', [CategoryController::class, 'store'])->name('tournaments.categories.store');
     Route::put('tournaments/{tournament}/categories/{category}', [CategoryController::class, 'update'])->name('tournaments.categories.update');
     Route::delete('tournaments/{tournament}/categories/{category}', [CategoryController::class, 'destroy'])->name('tournaments.categories.destroy');
-    
+
     Route::post('tournaments/{tournament}/rounds', [RoundController::class, 'store'])->name('tournaments.rounds.store');
     Route::put('tournaments/{tournament}/rounds/{round}', [RoundController::class, 'update'])->name('tournaments.rounds.update');
     Route::delete('tournaments/{tournament}/rounds/{round}', [RoundController::class, 'destroy'])->name('tournaments.rounds.destroy');
-    
+
     Route::post('tournaments/{tournament}/groups', [GroupController::class, 'store'])->name('tournaments.groups.store');
     Route::put('tournaments/{tournament}/groups/{group}', [GroupController::class, 'update'])->name('tournaments.groups.update');
     Route::delete('tournaments/{tournament}/groups/{group}', [GroupController::class, 'destroy'])->name('tournaments.groups.destroy');
-    
+
     // Tournament Courts
     Route::post('tournaments/{tournament}/courts/save', [HomeYardTournamentController::class, 'saveCourts'])->name('tournaments.courts.save');
-    
-    // Draw/Lottery for athletes
-     Route::post('tournaments/{tournament}/draw', [HomeYardTournamentController::class, 'drawAthletes'])->name('tournaments.draw');
-     Route::get('tournaments/{tournament}/draw-results', [HomeYardTournamentController::class, 'getDrawResults'])->name('tournaments.draw-results');
-     Route::post('tournaments/{tournament}/reset-draw', [HomeYardTournamentController::class, 'resetDraw'])->name('tournaments.reset-draw');
-     
-     // Match Management
-     Route::post('tournaments/{tournament}/matches', [HomeYardTournamentController::class, 'storeMatch'])->name('tournaments.matches.store');
-     Route::get('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'getMatch'])
-         ->where('match', '[0-9]+')
-         ->name('tournaments.matches.show');
-     Route::put('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'updateMatch'])
-         ->where('match', '[0-9]+')
-         ->name('tournaments.matches.update');
-     Route::delete('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'destroyMatch'])
-         ->where('match', '[0-9]+')
-         ->name('tournaments.matches.destroy');
-     
-     // Get category athletes for match creation
-     Route::get('tournaments/{tournament}/categories/{categoryId}/athletes', [HomeYardTournamentController::class, 'getCategoryAthletes'])->name('tournaments.categories.athletes');
-     
-     // Get category groups for match creation
-     Route::get('tournaments/{tournament}/categories/{categoryId}/groups', [HomeYardTournamentController::class, 'getCategoryGroups'])->name('tournaments.categories.groups');
-     
-     // Rankings/Leaderboard API
-     Route::get('tournaments/{tournament}/rankings', [HomeYardTournamentController::class, 'getRankings'])->name('tournaments.rankings.api');
-     Route::get('tournaments/{tournament}/rankings/export', [HomeYardTournamentController::class, 'exportRankingsExcel'])->name('tournaments.rankings.export');
-     });
 
-// API Routes for AJAX/Frontend
-Route::middleware(['auth', 'role:home_yard'])->prefix('api/homeyard')->name('api.homeyard.')->group(function () {
-    Route::get('tournaments', function () {
+    // Draw/Lottery for athletes
+    Route::post('tournaments/{tournament}/draw', [HomeYardTournamentController::class, 'drawAthletes'])->name('tournaments.draw');
+    Route::get('tournaments/{tournament}/draw-results', [HomeYardTournamentController::class, 'getDrawResults'])->name('tournaments.draw-results');
+    Route::post('tournaments/{tournament}/reset-draw', [HomeYardTournamentController::class, 'resetDraw'])->name('tournaments.reset-draw');
+
+    // Match Management
+    Route::post('tournaments/{tournament}/matches', [HomeYardTournamentController::class, 'storeMatch'])->name('tournaments.matches.store');
+    Route::get('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'getMatch'])
+        ->where('match', '[0-9]+')
+        ->name('tournaments.matches.show');
+    Route::put('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'updateMatch'])
+        ->where('match', '[0-9]+')
+        ->name('tournaments.matches.update');
+    Route::delete('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'destroyMatch'])
+        ->where('match', '[0-9]+')
+        ->name('tournaments.matches.destroy');
+
+    // Get category athletes for match creation
+    Route::get('tournaments/{tournament}/categories/{categoryId}/athletes', [HomeYardTournamentController::class, 'getCategoryAthletes'])->name('tournaments.categories.athletes');
+
+    // Get category groups for match creation
+    Route::get('tournaments/{tournament}/categories/{categoryId}/groups', [HomeYardTournamentController::class, 'getCategoryGroups'])->name('tournaments.categories.groups');
+
+    // Rankings/Leaderboard API
+    Route::get('tournaments/{tournament}/rankings', [HomeYardTournamentController::class, 'getRankings'])->name('tournaments.rankings.api');
+    Route::get('tournaments/{tournament}/rankings/export', [HomeYardTournamentController::class, 'exportRankingsExcel'])->name('tournaments.rankings.export');
+
+    Route::get('my-tournaments', function () {
         $tournaments = \App\Models\Tournament::where('user_id', auth()->id())->get();
         return response()->json(['tournaments' => $tournaments]);
-    })->name('tournaments');
-    
-    Route::get('tournaments/{tournament}/categories', function (\App\Models\Tournament $tournament) {
+    });
+
+    Route::get('tournament-categories/{tournament}', function (\App\Models\Tournament $tournament) {
         $this->authorize('view', $tournament);
         return response()->json(['categories' => $tournament->categories]);
     })->name('tournaments.categories');
 });
 
-// Admin routes for managing user permissions
+// Admin routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
     Route::get('/users', [UserPermissionController::class, 'index'])->name('users.index');
@@ -197,18 +190,11 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('news', NewsController::class);
     Route::resource('pages', PageController::class);
     Route::resource('categories', AdminCategoryController::class);
-});
 
-// Admin Stadium and Tournament CRUD
-Route::middleware(['auth', 'role:admin|home_yard'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('stadiums', StadiumController::class)->only(['index', 'destroy']);
     Route::resource('tournaments', TournamentController::class)->only(['index', 'destroy']);
     Route::post('tournaments/{tournament}/athletes', [TournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [TournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
 });
 
-// Media Upload API Routes
-Route::middleware('auth')->group(function () {
-    Route::post('/api/upload-media', [MediaUploadController::class, 'uploadMedia'])->name('api.upload-media');
-    Route::delete('/api/delete-media/{mediaId}', [MediaUploadController::class, 'deleteMedia'])->name('api.delete-media');
-});
+

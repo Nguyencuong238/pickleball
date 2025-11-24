@@ -1448,7 +1448,7 @@
                  console.log('Showing detailed pricing breakdown with', data.price_breakdown.length, 'items');
                  // Show pricing breakdown (multi-price or single-price with details)
                  if (data.has_multi_price) {
-                     html = '<h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-primary);">Chi tiết giá sân (Giá khác nhau)</h4>';
+                     html = '<h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-primary);">Chi tiết giá sân</h4>';
                  } else {
                      html = '<h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-primary);">Chi tiết giá sân</h4>';
                  }
