@@ -463,9 +463,62 @@ class HomeYardTournamentController extends Controller
         return view('home-yard.tournaments.tournaments', compact('tournaments', 'stats'));
     }
 
-    public function matches()
+    public function matches(Request $request)
     {
-        return view('home-yard.tournaments.matches');
+        // Get all tournaments for the user
+        $tournaments = Tournament::where('user_id', auth()->id())->get();
+        
+        $tournamentIds = $tournaments->pluck('id');
+        
+        // Get total counts for statistics
+        $totalMatches = MatchModel::whereIn('tournament_id', $tournamentIds)->count();
+        $liveCount = MatchModel::whereIn('tournament_id', $tournamentIds)->where('status', 'in_progress')->count();
+        $upcomingCount = MatchModel::whereIn('tournament_id', $tournamentIds)->where('status', 'scheduled')->count();
+        $completedCount = MatchModel::whereIn('tournament_id', $tournamentIds)->where('status', 'completed')->count();
+        
+        // Paginate matches by actual time vs scheduled time
+        // Live: match_date + match_time <= now() and status != 'completed'
+        $liveMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
+            ->where(function ($query) {
+                // Match starts now or has started, but not yet completed
+                $query->whereRaw('CONCAT(match_date, " ", COALESCE(match_time, "00:00:00")) <= ?', [now()])
+                    ->where('status', '!=', 'completed')
+                    ->where('status', '!=', 'cancelled');
+            })
+            ->with(['athlete1', 'athlete2', 'winner', 'court', 'round', 'category'])
+            ->orderBy('match_date', 'desc')
+            ->orderBy('match_time', 'desc')
+            ->paginate(5, ['*'], 'live_page');
+        
+        // Upcoming: match_date + match_time > now() and not cancelled
+        $upcomingMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
+            ->where(function ($query) {
+                // Match hasn't started yet
+                $query->whereRaw('CONCAT(match_date, " ", COALESCE(match_time, "00:00:00")) > ?', [now()])
+                    ->where('status', '!=', 'cancelled');
+            })
+            ->with(['athlete1', 'athlete2', 'winner', 'court', 'round', 'category'])
+            ->orderBy('match_date', 'asc')
+            ->orderBy('match_time', 'asc')
+            ->paginate(5, ['*'], 'upcoming_page');
+        
+        // Completed: status = 'completed'
+        $completedMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
+            ->where('status', 'completed')
+            ->with(['athlete1', 'athlete2', 'winner', 'court', 'round', 'category'])
+            ->orderBy('match_date', 'desc')
+            ->orderBy('match_time', 'desc')
+            ->paginate(5, ['*'], 'completed_page');
+        
+        // Calculate statistics
+        $stats = [
+            'completed' => $completedCount,
+            'live' => $liveCount,
+            'upcoming' => $upcomingCount,
+            'total' => $totalMatches,
+        ];
+        
+        return view('home-yard.tournaments.matches', compact('liveMatches', 'upcomingMatches', 'completedMatches', 'stats'));
     }
 
     public function athletes()
@@ -1605,7 +1658,39 @@ class HomeYardTournamentController extends Controller
     }
 
     /**
-     * Update a match
+     * Get match data (for AJAX)
+     */
+    public function getMatch(Tournament $tournament, $match)
+    {
+        try {
+            $this->authorize('update', $tournament);
+            
+            // Resolve match by ID
+            $match = MatchModel::findOrFail($match);
+            
+            // Verify match belongs to tournament
+            if ($match->tournament_id != $tournament->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Trận đấu không thuộc giải đấu này'
+                ], 403);
+            }
+
+            return response()->json([
+                'success' => true,
+                'match' => $match
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get match error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Update a match (scores, status, and calculate winner)
      */
     public function updateMatch(Request $request, Tournament $tournament, $match)
     {
@@ -1623,6 +1708,12 @@ class HomeYardTournamentController extends Controller
                 ], 403);
             }
 
+            // Handle score update (new route)
+            if ($request->has('athlete1_score') || $request->has('athlete2_score')) {
+                return $this->updateMatchScore($request, $match);
+            }
+
+            // Handle original match update (setup/edit)
             $validated = $request->validate([
                 'athlete1_id' => 'required|exists:tournament_athletes,id',
                 'athlete2_id' => 'required|exists:tournament_athletes,id',
@@ -1652,6 +1743,293 @@ class HomeYardTournamentController extends Controller
                 'success' => false,
                 'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Update match score and group standings
+     */
+    private function updateMatchScore(Request $request, MatchModel $match)
+    {
+        try {
+            $validated = $request->validate([
+                'athlete1_score' => 'required|integer|min:0',
+                'athlete2_score' => 'required|integer|min:0',
+                'status' => 'nullable|in:in_progress,completed,scheduled,cancelled',
+                'final_score' => 'nullable|string',
+                'action' => 'nullable|in:update,end_set,end_match',
+            ]);
+
+            DB::beginTransaction();
+
+            $actionType = $validated['action'] ?? 'update';
+
+            if ($actionType === 'end_set') {
+                // Kết thúc set - lưu điểm vào set_scores
+                $this->handleEndSet($match, $validated);
+            } elseif ($actionType === 'end_match') {
+                // Kết thúc trận - cập nhật status thành completed
+                $this->handleEndMatch($match, $validated);
+            } else {
+                // Cập nhật thường (chỉ update điểm, không làm gì thêm)
+                $this->handleRegularUpdate($match, $validated);
+            }
+
+            DB::commit();
+
+            Log::info('Match score updated', [
+                'match_id' => $match->id,
+                'action' => $actionType,
+                'winner_id' => $match->winner_id,
+                'athlete1_score' => $validated['athlete1_score'],
+                'athlete2_score' => $validated['athlete2_score']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật kết quả trận đấu thành công',
+                'match' => $match
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Update match score error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Handle end set action - save set score to set_scores JSON
+     */
+    private function handleEndSet(MatchModel $match, array $validated)
+    {
+        $setScores = $match->set_scores ? json_decode($match->set_scores, true) : [];
+        if (!is_array($setScores)) {
+            $setScores = [];
+        }
+
+        // Thêm set mới vào mảng
+        $setScores[] = [
+            'athlete1_score' => $validated['athlete1_score'],
+            'athlete2_score' => $validated['athlete2_score'],
+            'completed_at' => now()->toDateTimeString()
+        ];
+
+        // Cập nhật match
+        $match->update([
+            'set_scores' => json_encode($setScores),
+            'status' => 'in_progress'
+        ]);
+
+        // Reset điểm cho set kế tiếp
+        $match->athlete1_score = 0;
+        $match->athlete2_score = 0;
+        $match->save();
+    }
+
+    /**
+     * Handle end match action - mark match as completed
+     */
+    private function handleEndMatch(MatchModel $match, array $validated)
+    {
+        // Lưu set cuối cùng vào set_scores nếu có điểm
+        if ($validated['athlete1_score'] > 0 || $validated['athlete2_score'] > 0) {
+            $setScores = $match->set_scores ? json_decode($match->set_scores, true) : [];
+            if (!is_array($setScores)) {
+                $setScores = [];
+            }
+
+            $setScores[] = [
+                'athlete1_score' => $validated['athlete1_score'],
+                'athlete2_score' => $validated['athlete2_score'],
+                'completed_at' => now()->toDateTimeString()
+            ];
+
+            $match->set_scores = json_encode($setScores);
+        }
+
+        // Cập nhật match - đánh dấu hoàn thành
+        $match->athlete1_score = $validated['athlete1_score'];
+        $match->athlete2_score = $validated['athlete2_score'];
+        $match->status = 'completed';
+        $match->final_score = $validated['final_score'];
+
+        // Xác định người thắng cuộc
+        if ($validated['athlete1_score'] > $validated['athlete2_score']) {
+            $match->winner_id = $match->athlete1_id;
+        } elseif ($validated['athlete2_score'] > $validated['athlete1_score']) {
+            $match->winner_id = $match->athlete2_id;
+        } else {
+            $match->winner_id = null;
+        }
+
+        // Đánh dấu thời gian kết thúc
+        if (!$match->actual_end_time) {
+            $match->actual_end_time = now();
+        }
+
+        $match->save();
+
+        // Cập nhật standings nếu trận này thuộc một group
+        if ($match->group_id && $match->athlete1_id && $match->athlete2_id) {
+            $this->updateGroupStandings($match);
+        }
+    }
+
+    /**
+     * Handle regular update - just update scores without ending match
+     */
+    private function handleRegularUpdate(MatchModel $match, array $validated)
+    {
+        // Determine if match was just completed
+        $wasCompleted = $match->status === 'completed';
+        $isNowCompleted = ($validated['status'] ?? $match->status) === 'completed';
+        $justCompleted = !$wasCompleted && $isNowCompleted;
+
+        // Update match scores and status
+        $match->update([
+            'athlete1_score' => $validated['athlete1_score'],
+            'athlete2_score' => $validated['athlete2_score'],
+            'status' => $validated['status'] ?? $match->status,
+            'final_score' => $validated['final_score'] ?? $match->final_score,
+        ]);
+
+        // If match is being marked as completed for the first time
+        if ($justCompleted && $match->athlete1_id && $match->athlete2_id) {
+            // Determine winner based on scores
+            if ($validated['athlete1_score'] > $validated['athlete2_score']) {
+                $match->winner_id = $match->athlete1_id;
+            } elseif ($validated['athlete2_score'] > $validated['athlete1_score']) {
+                $match->winner_id = $match->athlete2_id;
+            } else {
+                $match->winner_id = null;
+            }
+
+            // Mark actual end time
+            if (!$match->actual_end_time) {
+                $match->actual_end_time = now();
+            }
+
+            $match->save();
+
+            // Update group standings if the match has a group
+            if ($match->group_id) {
+                $this->updateGroupStandings($match);
+            }
+        }
+    }
+
+    /**
+     * Update group standings after a match completes
+     */
+    private function updateGroupStandings(MatchModel $match)
+    {
+        try {
+            $athlete1Id = $match->athlete1_id;
+            $athlete2Id = $match->athlete2_id;
+            $groupId = $match->group_id;
+
+            $athlete1Score = $match->athlete1_score;
+            $athlete2Score = $match->athlete2_score;
+
+            // Get or create standings for both athletes
+            $standing1 = GroupStanding::firstOrCreate(
+                ['group_id' => $groupId, 'athlete_id' => $athlete1Id],
+                [
+                    'rank_position' => 0,
+                    'matches_played' => 0,
+                    'matches_won' => 0,
+                    'matches_lost' => 0,
+                    'matches_drawn' => 0,
+                    'points' => 0,
+                    'sets_won' => 0,
+                    'sets_lost' => 0,
+                    'sets_differential' => 0,
+                    'games_won' => 0,
+                    'games_lost' => 0,
+                    'games_differential' => 0,
+                ]
+            );
+
+            $standing2 = GroupStanding::firstOrCreate(
+                ['group_id' => $groupId, 'athlete_id' => $athlete2Id],
+                [
+                    'rank_position' => 0,
+                    'matches_played' => 0,
+                    'matches_won' => 0,
+                    'matches_lost' => 0,
+                    'matches_drawn' => 0,
+                    'points' => 0,
+                    'sets_won' => 0,
+                    'sets_lost' => 0,
+                    'sets_differential' => 0,
+                    'games_won' => 0,
+                    'games_lost' => 0,
+                    'games_differential' => 0,
+                ]
+            );
+
+            // Determine winner and update standings
+            if ($athlete1Score > $athlete2Score) {
+                // Athlete 1 wins
+                $standing1->updateAfterMatch(true, 0, 0, $athlete1Score, $athlete2Score);
+                $standing2->updateAfterMatch(false, 0, 0, $athlete2Score, $athlete1Score);
+            } elseif ($athlete2Score > $athlete1Score) {
+                // Athlete 2 wins
+                $standing1->updateAfterMatch(false, 0, 0, $athlete1Score, $athlete2Score);
+                $standing2->updateAfterMatch(true, 0, 0, $athlete2Score, $athlete1Score);
+            } else {
+                // Draw
+                $standing1->update([
+                    'matches_played' => $standing1->matches_played + 1,
+                    'matches_drawn' => $standing1->matches_drawn + 1,
+                    'games_won' => $standing1->games_won + $athlete1Score,
+                    'games_lost' => $standing1->games_lost + $athlete2Score,
+                ]);
+                $standing2->update([
+                    'matches_played' => $standing2->matches_played + 1,
+                    'matches_drawn' => $standing2->matches_drawn + 1,
+                    'games_won' => $standing2->games_won + $athlete2Score,
+                    'games_lost' => $standing2->games_lost + $athlete1Score,
+                ]);
+            }
+
+            // Recalculate rankings for the group
+            $this->recalculateGroupRankings($groupId);
+
+            Log::info('Group standings updated', [
+                'group_id' => $groupId,
+                'match_id' => $match->id
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Update group standings error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Recalculate rankings for a group
+     */
+    private function recalculateGroupRankings($groupId)
+    {
+        try {
+            $standings = GroupStanding::where('group_id', $groupId)
+                ->get()
+                ->sortByDesc('points')
+                ->sortByDesc('matches_won')
+                ->sortByDesc(function ($standing) {
+                    return ($standing->games_won ?? 0) - ($standing->games_lost ?? 0);
+                })
+                ->values();
+
+            foreach ($standings as $index => $standing) {
+                $standing->update([
+                    'rank_position' => $index + 1,
+                    'win_rate' => $standing->calculateWinRate(),
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Recalculate group rankings error: ' . $e->getMessage());
+            throw $e;
         }
     }
 
@@ -2189,4 +2567,5 @@ class HomeYardTournamentController extends Controller
             ], 500);
         }
     }
+
 }
