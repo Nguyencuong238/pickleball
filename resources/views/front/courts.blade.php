@@ -366,12 +366,12 @@
                                         </div>
 
                                         <div class="court-features">
-                                            <span class="feature-tag">🏟️ {{ $stadium->courts_count }} sân</span>
+                                             <span class="feature-tag">🏟️ {{ $stadium->courts_count }} sân</span>
 
-                                            @foreach (($stadium->amenities??[]) as $amenity)
-                                                <span class="feature-tag">{{ $amenity }}</span>
-                                            @endforeach
-                                        </div>
+                                             @foreach ((is_array($stadium->amenities) ? $stadium->amenities : json_decode($stadium->amenities, true)??[]) as $amenity)
+                                                 <span class="feature-tag">{{ $amenity }}</span>
+                                             @endforeach
+                                         </div>
 
                                         <div class="court-info">
                                             <div class="info-row">
@@ -380,7 +380,7 @@
                                             </div>
                                             <div class="info-row price-row">
                                                 <span class="info-label">Địa chỉ:</span>
-                                                <span class="price-value">{{ $stadium->phone ?? 'Không có' }}</span>
+                                                <span class="price-value">{{ $stadium->address ?? 'Không có' }}</span>
                                             </div>
                                         </div>
 
@@ -469,13 +469,6 @@
                 <button class="btn btn-white btn-lg">Đăng ký làm đối tác</button>
             </div>
         </div>
-<<<<<<< HEAD
-        </section>
-
-        @section('js')
-        <script src="{{ asset('assets/js/courts.js') }}"></script>
-        @endsection
-=======
     </section>
 @endsection
 @section('js')
@@ -490,7 +483,6 @@
                 });
             });
         });
->>>>>>> 0911c1a8edf7d23a92f251dcd398a3d5463842db
 
         async function toggleFavorite(btn) {
             const stadiumId = btn.getAttribute('data-stadium-id');
