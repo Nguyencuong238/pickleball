@@ -238,19 +238,45 @@
         window.GalleryMediaUploader = GalleryMediaUploader;
     }
 
-    // Initialize uploader
-    (function() {
-        const fileInput = document.querySelector('[data-gallery-id="{{ $uniqueId }}"]');
-        const container = document.getElementById('{{ $uniqueId }}');
-        
-        // Get CSRF token from multiple sources
-        let csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
-                        document.querySelector('input[name="_token"]')?.value || 
-                        '{{ csrf_token() }}';
-        
-        if (fileInput && container) {
-            const uploader = new GalleryMediaUploader(fileInput, container, csrfToken);
-            uploader.init();
-        }
-    })();
+    // Initialize uploader for a specific gallery ID
+     window.initGalleryUploader = function(galleryId) {
+         const fileInput = document.querySelector(`[data-gallery-id="${galleryId}"]`);
+         const container = document.getElementById(galleryId);
+         
+         // Get CSRF token from multiple sources
+         let csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || 
+                         document.querySelector('input[name="_token"]')?.value || 
+                         '{{ csrf_token() }}';
+         
+         if (fileInput && container) {
+             const uploader = new GalleryMediaUploader(fileInput, container, csrfToken);
+             uploader.init();
+         }
+     };
+     
+     // Auto-initialize all gallery uploaders (for page load and AJAX)
+     function initAllGalleryUploaders() {
+         document.querySelectorAll('.gallery-uploader-container').forEach(container => {
+             const uniqueId = container.id;
+             // Only initialize if not already initialized (check for data attribute)
+             if (!container.dataset.initialized) {
+                 window.initGalleryUploader(uniqueId);
+                 container.dataset.initialized = 'true';
+             }
+         });
+     }
+     
+     if (document.readyState === 'loading') {
+         document.addEventListener('DOMContentLoaded', initAllGalleryUploaders);
+     } else {
+         initAllGalleryUploaders();
+     }
+     
+     // Also initialize when new content is added to the DOM (AJAX)
+     if (window.MutationObserver) {
+         const observer = new MutationObserver(() => {
+             initAllGalleryUploaders();
+         });
+         observer.observe(document.body, { childList: true, subtree: true });
+     }
 </script>

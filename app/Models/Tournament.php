@@ -36,8 +36,6 @@ class Tournament extends Model implements HasMedia
         'organizer_hotline',
         'competition_schedule',
         'results',
-        'gallery',
-        'banner',
     ];
 
     protected $casts = [
@@ -48,7 +46,6 @@ class Tournament extends Model implements HasMedia
         'prizes' => 'float',
         'max_participants' => 'integer',
         'status' => 'boolean',
-        'gallery' => 'json',
     ];
 
     public function user()
