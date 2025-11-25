@@ -710,7 +710,7 @@
                     <a href="{{ route('homeyard.tournaments') }}" class="nav-item">
                         <span class="nav-icon">🏆</span>
                         <span class="nav-text">Giải đấu</span>
-                        <span class="nav-badge">{{ $tournamentsCount ?? 0 }}</span>
+                        {{-- <span class="nav-badge">{{ $tournamentsCount ?? 0 }}</span> --}}
                     </a>
 
                     {{-- <a href="{{ route('homeyard.dashboard') }}" class="nav-item">
@@ -721,7 +721,7 @@
                     <a href="{{ route('homeyard.matches') }}" class="nav-item">
                         <span class="nav-icon">🎾</span>
                         <span class="nav-text">Trận đấu</span>
-                        <span class="nav-badge">{{ $matchesCount ?? 0 }}</span>
+                        {{-- <span class="nav-badge">{{ $matchesCount ?? 0 }}</span> --}}
                     </a>
                 </div>
 
@@ -747,7 +747,7 @@
                     <a href="{{ route('homeyard.athletes') }}" class="nav-item">
                         <span class="nav-icon">👥</span>
                         <span class="nav-text">Vận động viên</span>
-                        <span class="nav-badge">248</span>
+                        {{-- <span class="nav-badge">248</span> --}}
                     </a>
                     <a href="{{ route('homeyard.rankings') }}" class="nav-item">
                         <span class="nav-icon">🏅</span>

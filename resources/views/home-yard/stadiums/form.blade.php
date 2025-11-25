@@ -123,7 +123,7 @@
             <!-- Banner Image -->
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">
-                    Banner Image
+                    Banner
                 </label>
                 @include('components.media-uploader', [
                     'model' => $stadium,
@@ -137,7 +137,7 @@
             <!-- Gallery Images Component -->
             <div style="margin-bottom: 20px;">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">
-                    Gallery Images
+                    Gallery
                 </label>
                 @include('components.media-uploader', [
                     'model' => $stadium,
