@@ -21,6 +21,13 @@ class TournamentAthlete extends Model
         'payment_status',
         'group_id',
         'seed_number',
+        'matches_played',
+        'matches_won',
+        'matches_lost',
+        'win_rate',
+        'total_points',
+        'sets_won',
+        'sets_lost',
     ];
 
     protected $casts = [

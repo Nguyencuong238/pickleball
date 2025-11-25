@@ -800,26 +800,6 @@
                     </div>
                 </div>
                 
-                <!-- Ngày + Giờ bắt đầu -->
-                <div style="margin-bottom: 1.5rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">📅 Ngày bắt đầu</label>
-                        <input type="date" id="matchDate" name="match_date" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">🕐 Giờ bắt đầu</label>
-                        <input type="time" id="matchTime" name="match_time" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem;">
-                    </div>
-                </div>
-
-                <!-- Chọn Bảng/Nhóm -->
-                <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">👥 Bảng/Nhóm</label>
-                    <select id="matchGroup" name="group_id" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: var(--radius-md); font-size: 1rem;">
-                        <option value="">-- Không chọn bảng --</option>
-                    </select>
-                </div>
-
                 <!-- Match Status -->
                 <div style="margin-bottom: 1.5rem;">
                     <label style="display: block; margin-bottom: 0.5rem; font-size: 0.875rem; color: var(--text-secondary);">Trạng Thái Trận Đấu</label>
@@ -971,17 +951,6 @@
                      document.getElementById('athlete2Score').value = match.athlete2_score || 0;
                      document.getElementById('matchStatus').value = match.status || 'in_progress';
                      document.getElementById('finalScore').value = match.final_score || '';
-                     
-                     // Populate match date and time
-                     if (match.match_date) {
-                         document.getElementById('matchDate').value = match.match_date;
-                     }
-                     if (match.match_time) {
-                         document.getElementById('matchTime').value = match.match_time;
-                     }
-                     
-                     // Populate group selection
-                     document.getElementById('matchGroup').value = match.group_id || '';
                      
                      // Display completed sets if available
                      displayCompletedSets(match.set_scores);
@@ -1338,10 +1307,7 @@
              let payload = {
                  athlete1_score: athlete1Score,
                  athlete2_score: athlete2Score,
-                 action: actionType,
-                 match_date: document.getElementById('matchDate').value || null,
-                 match_time: document.getElementById('matchTime').value || null,
-                 group_id: document.getElementById('matchGroup').value || null
+                 action: actionType
              };
 
              // Xử lý theo từng loại action

@@ -2256,10 +2256,13 @@ class HomeYardTournamentController extends Controller
         ActivityLog::log("Trận đấu kết thúc với kết quả {$validated['final_score']} - Người thắng: {$winnerName}", 'Match', $match->id);
 
          // Cập nhật standings nếu trận này thuộc một group
-         if ($match->group_id && $match->athlete1_id && $match->athlete2_id) {
-             $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
+          if ($match->group_id && $match->athlete1_id && $match->athlete2_id) {
+              $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
+          }
+
+          // Cập nhật thống kê vào bảng tournament_athlete
+          $this->updateTournamentAthleteStats($match, $setsWonAthlete1, $setsWonAthlete2);
          }
-        }
 
     /**
      * Handle regular update - just update scores without ending match
@@ -2301,6 +2304,20 @@ class HomeYardTournamentController extends Controller
             if ($match->group_id) {
                 $this->updateGroupStandings($match);
             }
+
+            // Update tournament athlete statistics
+            // For handleRegularUpdate, we use current scores to determine sets won
+            // This assumes athlete1_score and athlete2_score are the final set scores
+            $setsWonAthlete1 = $validated['athlete1_score'] > $validated['athlete2_score'] ? 1 : 0;
+            $setsWonAthlete2 = $validated['athlete2_score'] > $validated['athlete1_score'] ? 1 : 0;
+            
+            // If scores are equal, treat as draw
+            if ($validated['athlete1_score'] === $validated['athlete2_score']) {
+                $setsWonAthlete1 = 0;
+                $setsWonAthlete2 = 0;
+            }
+
+            $this->updateTournamentAthleteStats($match, $setsWonAthlete1, $setsWonAthlete2);
         }
     }
 
@@ -2475,6 +2492,83 @@ class HomeYardTournamentController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('Update group standings error: ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /**
+     * Update tournament athlete statistics
+     * Cập nhật matches_played, matches_won, matches_lost, sets_won, sets_lost vào bảng tournament_athlete
+     */
+    private function updateTournamentAthleteStats(MatchModel $match, int $setsWonAthlete1, int $setsWonAthlete2)
+    {
+        try {
+            $athlete1Id = $match->athlete1_id;
+            $athlete2Id = $match->athlete2_id;
+
+            if (!$athlete1Id || !$athlete2Id) {
+                return;
+            }
+
+            // Get both athletes
+            $athlete1 = TournamentAthlete::find($athlete1Id);
+            $athlete2 = TournamentAthlete::find($athlete2Id);
+
+            if (!$athlete1 || !$athlete2) {
+                return;
+            }
+
+            // Determine winner
+            $athlete1Wins = $setsWonAthlete1 > $setsWonAthlete2;
+            $athlete2Wins = $setsWonAthlete2 > $setsWonAthlete1;
+
+            // Update athlete1 statistics
+            $athlete1->matches_played = ($athlete1->matches_played ?? 0) + 1;
+            $athlete1->sets_won = ($athlete1->sets_won ?? 0) + $setsWonAthlete1;
+            $athlete1->sets_lost = ($athlete1->sets_lost ?? 0) + $setsWonAthlete2;
+
+            if ($athlete1Wins) {
+                $athlete1->matches_won = ($athlete1->matches_won ?? 0) + 1;
+            } elseif (!$athlete2Wins) {
+                // Draw - không tính vào matches_won hay matches_lost
+            } else {
+                $athlete1->matches_lost = ($athlete1->matches_lost ?? 0) + 1;
+            }
+
+            $athlete1->save();
+
+            // Update athlete2 statistics
+            $athlete2->matches_played = ($athlete2->matches_played ?? 0) + 1;
+            $athlete2->sets_won = ($athlete2->sets_won ?? 0) + $setsWonAthlete2;
+            $athlete2->sets_lost = ($athlete2->sets_lost ?? 0) + $setsWonAthlete1;
+
+            if ($athlete2Wins) {
+                $athlete2->matches_won = ($athlete2->matches_won ?? 0) + 1;
+            } elseif (!$athlete1Wins) {
+                // Draw - không tính vào matches_won hay matches_lost
+            } else {
+                $athlete2->matches_lost = ($athlete2->matches_lost ?? 0) + 1;
+            }
+
+            $athlete2->save();
+
+            Log::info('Tournament athlete stats updated', [
+                'match_id' => $match->id,
+                'athlete1_id' => $athlete1Id,
+                'athlete1_matches_played' => $athlete1->matches_played,
+                'athlete1_matches_won' => $athlete1->matches_won,
+                'athlete1_matches_lost' => $athlete1->matches_lost,
+                'athlete1_sets_won' => $athlete1->sets_won,
+                'athlete1_sets_lost' => $athlete1->sets_lost,
+                'athlete2_id' => $athlete2Id,
+                'athlete2_matches_played' => $athlete2->matches_played,
+                'athlete2_matches_won' => $athlete2->matches_won,
+                'athlete2_matches_lost' => $athlete2->matches_lost,
+                'athlete2_sets_won' => $athlete2->sets_won,
+                'athlete2_sets_lost' => $athlete2->sets_lost,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Update tournament athlete stats error: ' . $e->getMessage());
             throw $e;
         }
     }
