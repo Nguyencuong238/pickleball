@@ -107,6 +107,13 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     // Tournament export routes (before resource route to take priority)
     Route::get('tournaments/export/list', [HomeYardTournamentController::class, 'exportTournamentsList'])->name('tournaments.export');
     Route::get('tournaments/{tournament}/athletes/export', [HomeYardTournamentController::class, 'exportAthletes'])->name('tournaments.athletes.export');
+    
+    // Rankings/Leaderboard API (before resource route to take priority)
+    Route::get('tournaments-list', [HomeYardTournamentController::class, 'getTournamentsListJson'])->name('tournaments.list.json');
+    Route::get('tournaments/stats', [HomeYardTournamentController::class, 'getTournamentStats'])->name('tournaments.stats');
+    Route::get('tournaments/rankings-all', [HomeYardTournamentController::class, 'getAllTournamentsRankings'])->name('tournaments.rankings.all');
+    Route::get('tournaments/{tournament}/rankings', [HomeYardTournamentController::class, 'getRankings'])->name('tournaments.rankings.api');
+    Route::get('tournaments/{tournament}/rankings/export', [HomeYardTournamentController::class, 'exportRankingsExcel'])->name('tournaments.rankings.export');
 
     Route::resource('tournaments', HomeYardTournamentController::class);
     Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
@@ -179,10 +186,6 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
 
     // Get category groups for match creation
     Route::get('tournaments/{tournament}/categories/{categoryId}/groups', [HomeYardTournamentController::class, 'getCategoryGroups'])->name('tournaments.categories.groups');
-
-    // Rankings/Leaderboard API
-    Route::get('tournaments/{tournament}/rankings', [HomeYardTournamentController::class, 'getRankings'])->name('tournaments.rankings.api');
-    Route::get('tournaments/{tournament}/rankings/export', [HomeYardTournamentController::class, 'exportRankingsExcel'])->name('tournaments.rankings.export');
 
     Route::get('my-tournaments', function () {
         $tournaments = \App\Models\Tournament::where('user_id', auth()->id())->get();

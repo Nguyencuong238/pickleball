@@ -725,6 +725,205 @@ class HomeYardTournamentController extends Controller
         return view('home-yard.tournaments.rankings');
     }
 
+    /**
+     * Get tournaments list as JSON for filter
+     */
+    public function getTournamentsListJson()
+    {
+        try {
+            $tournaments = Tournament::where('user_id', auth()->id())
+                ->select('id', 'name')
+                ->latest()
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'tournaments' => $tournaments
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get tournaments list error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get rankings for all tournaments created by the user
+     * Athletes who participated in any of the user's tournaments, sorted by total points
+     */
+    public function getTournamentStats(Request $request)
+    {
+        try {
+            $userId = auth()->id();
+            $tournamentId = $request->get('tournament_id');
+            $categoryId = $request->get('category_id');
+            $groupId = $request->get('group_id');
+            
+            if ($tournamentId) {
+                // Stats for specific tournament
+                $tournaments = [$tournamentId];
+            } else {
+                // Stats for all tournaments created by user
+                $tournaments = Tournament::where('user_id', $userId)
+                    ->pluck('id')
+                    ->toArray();
+            }
+            
+            if (empty($tournaments)) {
+                return response()->json([
+                    'total_athletes' => 0,
+                    'total_matches' => 0,
+                    'avg_win_rate' => 0,
+                    'total_wins' => 0
+                ]);
+            }
+            
+            // Get standings - same source as rankings display with same filters
+            $query = GroupStanding::whereHas('group', function ($q) use ($tournaments) {
+                $q->whereIn('tournament_id', $tournaments);
+            });
+            
+            // Filter by category if provided
+            if ($categoryId) {
+                $query->whereHas('athlete', function ($q) use ($categoryId) {
+                    $q->where('category_id', $categoryId);
+                });
+            }
+            
+            // Filter by group if provided
+            if ($groupId) {
+                $query->where('group_id', $groupId);
+            }
+            
+            $standings = $query->get();
+            
+            // Count unique athletes from standings
+            $totalAthletes = $standings->pluck('athlete_id')->unique()->count();
+            
+            $totalMatches = $standings->sum('matches_played');
+            $totalWins = $standings->sum('matches_won');
+            $avgWinRate = $totalMatches > 0 ? round(($totalWins / $totalMatches) * 100, 0) : 0;
+            
+            return response()->json([
+                'total_athletes' => $totalAthletes,
+                'total_matches' => $totalMatches,
+                'avg_win_rate' => $avgWinRate,
+                'total_wins' => $totalWins
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Get tournament stats error: ' . $e->getMessage());
+            return response()->json([
+                'total_athletes' => 0,
+                'total_matches' => 0,
+                'avg_win_rate' => 0,
+                'total_wins' => 0
+            ], 500);
+        }
+    }
+
+    public function getAllTournamentsRankings(Request $request)
+    {
+        try {
+            $userId = auth()->id();
+            $perPage = $request->get('per_page', 10);
+            $page = $request->get('page', 1);
+            
+            // Get all tournaments created by the user
+            $tournaments = Tournament::where('user_id', $userId)
+                ->pluck('id')
+                ->toArray();
+
+            if (empty($tournaments)) {
+                return response()->json([
+                    'success' => true,
+                    'standings' => [],
+                    'total' => 0,
+                    'per_page' => $perPage,
+                    'current_page' => 1,
+                    'last_page' => 1,
+                    'message' => 'Không có giải đấu nào'
+                ]);
+            }
+
+            // Get all GroupStandings for these tournaments
+            $standings = GroupStanding::select([
+                'id', 'athlete_id', 'group_id', 'points', 'matches_played', 'matches_won',
+                'matches_lost', 'matches_drawn', 'win_rate', 'sets_won', 'sets_lost', 
+                'sets_differential', 'games_won', 'games_lost', 'games_differential', 'is_advanced'
+            ])
+            ->with([
+                'athlete' => function ($q) {
+                    $q->select('id', 'athlete_name', 'email', 'phone', 'category_id');
+                },
+                'athlete.category' => function ($q) {
+                    $q->select('id', 'category_name');
+                }
+            ])
+            ->whereHas('group', function ($q) use ($tournaments) {
+                $q->whereIn('tournament_id', $tournaments);
+            })
+            ->get();
+
+            // Group by athlete and sum their points across all tournaments
+            $athleteStats = $standings->groupBy('athlete_id')->map(function ($standings, $athleteId) {
+                $totalPoints = $standings->sum('points');
+                $totalMatches = $standings->sum('matches_played');
+                $totalWins = $standings->sum('matches_won');
+                $totalLosses = $standings->sum('matches_lost');
+                
+                $firstAthleteData = $standings->first();
+                $athlete = $firstAthleteData->athlete;
+
+                return [
+                    'athlete_id' => $athleteId,
+                    'athlete' => $athlete ? [
+                        'id' => $athlete->id,
+                        'athlete_name' => $athlete->athlete_name,
+                        'email' => $athlete->email,
+                        'phone' => $athlete->phone,
+                        'category_id' => $athlete->category_id,
+                        'category_name' => $athlete->category ? $athlete->category->category_name : 'N/A'
+                    ] : null,
+                    'points' => $totalPoints,
+                    'matches_played' => $totalMatches,
+                    'matches_won' => $totalWins,
+                    'matches_lost' => $totalLosses,
+                    'win_rate' => $totalMatches > 0 ? round(($totalWins / $totalMatches) * 100, 2) : 0,
+                    'tournaments_count' => $standings->count(),
+                    'rank_change' => 0
+                ];
+            });
+
+            // Sort by points (descending), then by wins (descending)
+            $sortedStandings = $athleteStats
+                ->sortByDesc('points')
+                ->sortByDesc('matches_won')
+                ->values();
+
+            $total = $sortedStandings->count();
+            $lastPage = ceil($total / $perPage);
+            $offset = ($page - 1) * $perPage;
+            $paginatedStandings = $sortedStandings->slice($offset, $perPage)->values();
+
+            return response()->json([
+                'success' => true,
+                'standings' => $paginatedStandings->all(),
+                'total' => $total,
+                'per_page' => $perPage,
+                'current_page' => $page,
+                'last_page' => $lastPage
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get all tournaments rankings error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function courts()
     {
         $stadiums = Stadium::where('user_id', auth()->id())->get();
