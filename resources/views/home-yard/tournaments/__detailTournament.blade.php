@@ -23,7 +23,7 @@
                             style="color: var(--text-light); font-size: 0.75rem; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px;">
                             Loại giải</div>
                         <div style="color: var(--text-primary); font-weight: 600; font-size: 1rem;">
-                            {{ $tyepTournaments[$tournament->competition_format] }}</div>
+                            {{ @$tyepTournaments[$tournament->competition_format] }}</div>
                     </div>
                     <div style="padding: 0.75rem; background: var(--bg-light); border-radius: 6px;">
                         <div
