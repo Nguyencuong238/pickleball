@@ -6,6 +6,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>OnePickleball - Cộng Đồng Pickleball Việt Nam</title>
     <meta name="description" content="Nền tảng hàng đầu về Pickleball tại Việt Nam - Tin tức, giải đấu, sân thi đấu và cộng đồng">
+
+    <link rel="icon" href="{{asset('assets/images/logo.jpeg')}}">
+
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/booking.css') }}">
@@ -249,8 +252,7 @@
             <div class="footer-content">
                 <div class="footer-col footer-about">
                     <div class="footer-brand">
-                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='18' fill='%2300D9B5' stroke='%23fff' stroke-width='2'/%3E%3Cpath d='M15 15 L25 25 M25 15 L15 25' stroke='%23fff' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" alt="onePickleball Logo" class="footer-logo">
-                        <span class="footer-brand-name">one<strong>Pickleball</strong></span>
+                        <img src="{{ asset('assets/images/logo.jpeg') }}" alt="OnePickleball" width="80px">
                     </div>
                     <p class="footer-description">
                         Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam. Tìm sân, đăng ký giải đấu và kết nối với hàng ngàn tay vợt.
@@ -286,8 +288,6 @@
                         <li><a href="#courts">Sân thi đấu</a></li>
                         <li><a href="#social">Giờ đi đấu Social</a></li>
                         <li><a href="#news">Tin tức</a></li>
-                        <li><a href="#">Huấn luyện viên</a></li>
-                        <li><a href="#">Cửa hàng</a></li>
                     </ul>
                 </div>
                 
@@ -297,8 +297,6 @@
                         <li><a href="#">Về chúng tôi</a></li>
                         <li><a href="#">Liên hệ</a></li>
                         <li><a href="#">Câu hỏi thường gặp</a></li>
-                        <li><a href="#">Hướng dẫn đăng ký</a></li>
-                        <li><a href="#">Chính sách hoàn tiền</a></li>
                         <li><a href="#">Điều khoản sử dụng</a></li>
                     </ul>
                 </div>

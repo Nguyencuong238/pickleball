@@ -41,8 +41,8 @@
 
 <div class="gallery-uploader-container" id="{{ $uniqueId }}">
     <small style="color: #64748b; display: block; margin-bottom: 8px;">
-        Upload @if($isMultiple) multiple @endif media 
-        ({{ strtoupper($rules) }} - max 2MB each)
+        Thêm @if($isMultiple) nhiều @endif ảnh 
+        ({{ strtoupper($rules) }} - tối đa 2MB / ảnh)
     </small>
 
     <!-- Media Gallery -->

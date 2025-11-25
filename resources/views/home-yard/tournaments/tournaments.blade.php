@@ -1,83 +1,5 @@
 @extends('layouts.homeyard')
 <style>
-    .toast {
-        position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        color: white;
-        padding: 1.5rem 2rem;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-xl);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-        max-width: 400px;
-    }
-
-    .toast.success {
-        background: linear-gradient(135deg, #10b981, #059669);
-    }
-
-    .toast.error {
-        background: linear-gradient(135deg, #ef4444, #dc2626);
-    }
-
-    .toast-icon {
-        font-size: 1.5rem;
-        flex-shrink: 0;
-    }
-
-    .toast-message {
-        flex: 1;
-        font-weight: 500;
-    }
-
-    .toast-close {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.25rem;
-        cursor: pointer;
-        flex-shrink: 0;
-        padding: 0;
-        opacity: 0.8;
-        transition: opacity var(--transition);
-    }
-
-    .toast-close:hover {
-        opacity: 1;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-
-    @keyframes slideOut {
-        from {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        to {
-            transform: translateX(400px);
-            opacity: 0;
-        }
-    }
-
-    .toast.hide {
-        animation: slideOut 0.3s ease-out forwards;
-    }
-</style>
-<style>
     /* Page-specific styles */
     .filter-bar {
         background: var(--bg-white);
@@ -429,9 +351,6 @@
     }
 </style>
 @section('content')
-    <!-- Toast notification container -->
-    <div id="toastContainer"></div>
-
     <main class="main-content" id="mainContent">
         <div class="container">
             <!-- Top Header -->
@@ -781,7 +700,9 @@
     
     <div class="modal" id="createModal">
         <div class="modal-content">
-            <form id="tournamentForm" method="POST" enctype="multipart/form-data">
+            <form id="tournamentForm" method="POST" enctype="multipart/form-data" 
+                action="{{ route("homeyard.tournaments.store") }}">
+
                 @csrf
                 <div class="modal-header">
                     <h3 class="modal-title">Tạo Giải Đấu Mới</h3>
@@ -790,7 +711,7 @@
                 <div class="modal-body">
                     <div class="form-group">
                         <label class="form-label">Tên giải đấu *</label>
-                        <input type="text" class="form-input" name="name" placeholder="VD: Giải Pickleball Mở Rộng 2025" required>
+                        <input type="text" class="form-input" name="name" placeholder="VD: Giải Pickleball Mở Rộng" required>
                     </div>
                     <div class="grid grid-2">
                         <div class="form-group">
@@ -824,11 +745,11 @@
                     <div class="grid grid-2">
                         <div class="form-group">
                             <label class="form-label">Lệ phí giải đấu (VNĐ)</label>
-                            <input type="number" class="form-input" name="price" placeholder="500000" step="0.01" min="0" max="99999999">
+                            <input type="number" class="form-input" name="price" placeholder="500000">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Giải thưởng (VNĐ)</label>
-                            <input type="number" class="form-input" name="prizes" placeholder="50000000" step="0.01" min="0" max="99999999">
+                            <input type="number" class="form-input" name="prizes" placeholder="50000000">
                         </div>
                     </div>
                     <div class="form-group">
@@ -847,17 +768,29 @@
                         <label class="form-label">Quyền lợi khi tham gia</label>
                         <textarea class="form-input" name="registration_benefits" placeholder="Nhập quyền lợi khi tham gia..." rows="3"></textarea>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Ảnh</label>
-                        <input type="file" class="form-input" id="imageInput" name="image" accept="image/*">
-                        <div id="imagePreview" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;"></div>
-                    </div>
+
+                    @php
+                        $tournament = new \App\Models\Tournament();
+                    @endphp
                     <div class="form-group">
                         <label class="form-label">Banner</label>
-                        <input type="file" class="form-input" id="bannerInput" name="banner" accept="image/*">
-                        <div id="bannerPreview" style="display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem;"></div>
+                        @include('components.media-uploader', [
+                            'model' => $tournament,
+                            'collection' => 'banner',
+                            'name' => 'banner',
+                            'rules' => 'JPG, JPEG, SVG, PNG, WebP',
+                            'maxItems' => 1,
+                        ])
                     </div>
-                    <input type="hidden" name="status" value="1">
+                    <div class="form-group">
+                        <label class="form-label">Hình ảnh</label>
+                        @include('components.media-uploader', [
+                            'model' => $tournament,
+                            'collection' => 'gallery',
+                            'name' => 'gallery',
+                            'rules' => 'JPG, JPEG, SVG, PNG, WebP'
+                        ])
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" onclick="closeCreateModal()">Hủy</button>
@@ -869,41 +802,6 @@
 @endsection
 @section('js')
     <script>
-        // Toast notification function
-        function showToast(message, type = 'success', duration = 4000) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            
-            const icons = {
-                success: '✓',
-                error: '✕',
-                warning: '⚠',
-                info: 'ℹ'
-            };
-            
-            toast.innerHTML = `
-                <span class="toast-icon">${icons[type] || '✓'}</span>
-                <span class="toast-message">${message}</span>
-                <button class="toast-close" onclick="this.parentElement.classList.add('hide'); setTimeout(() => this.parentElement.remove(), 300)">×</button>
-            `;
-            
-            container.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add('hide');
-                setTimeout(() => toast.remove(), 300);
-            }, duration);
-        }
-
-        // Check for flash success message
-        @if(session('success'))
-            showToast('{{ session('success') }}', 'success');
-        @endif
-
-        @if(session('error'))
-            showToast('{{ session('error') }}', 'error');
-        @endif
 
         // Toggle sidebar
         function toggleSidebar() {
@@ -1168,65 +1066,9 @@
              // Reset form after a short delay to avoid interfering with submission
              setTimeout(() => {
                  document.getElementById('tournamentForm').reset();
-                 document.getElementById('imagePreview').innerHTML = '';
-                 document.getElementById('bannerPreview').innerHTML = '';
              }, 500);
          }
 
-        // Image preview
-        const imageInput = document.getElementById('imageInput');
-        const imagePreview = document.getElementById('imagePreview');
-
-        imageInput?.addEventListener('change', function() {
-            imagePreview.innerHTML = '';
-            const file = this.files[0];
-            
-            if (file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '120px';
-                    img.style.height = '120px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = 'var(--radius-md)';
-                    img.style.border = '2px solid var(--border-color)';
-                    imagePreview.appendChild(img);
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Banner preview
-        const bannerInput = document.getElementById('bannerInput');
-        const bannerPreview = document.getElementById('bannerPreview');
-
-        bannerInput?.addEventListener('change', function() {
-            bannerPreview.innerHTML = '';
-            const file = this.files[0];
-            
-            if (file) {
-                const reader = new FileReader();
-                
-                reader.onload = function(e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.width = '120px';
-                    img.style.height = '80px';
-                    img.style.objectFit = 'cover';
-                    img.style.borderRadius = 'var(--radius-md)';
-                    img.style.border = '2px solid var(--border-color)';
-                    bannerPreview.appendChild(img);
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        });
-
-        // Set form action - controller handles the redirect
-         document.getElementById('tournamentForm')?.setAttribute('action', '{{ route("homeyard.tournaments.store") }}')
 
         // Initialize
         initializeFilters();
@@ -1590,16 +1432,16 @@
                  })
                  .then(response => {
                      if (response.ok) {
-                         showToast('Giải đấu đã được cập nhật thành công', 'success');
+                         toastr.success('Giải đấu đã được cập nhật thành công');
                          closeEditModal();
                          setTimeout(() => location.reload(), 1500);
                      } else {
-                         showToast('Lỗi khi cập nhật giải đấu', 'error');
+                         toastr.success('Lỗi khi cập nhật giải đấu', 'error');
                      }
                  })
                  .catch(error => {
                      console.error('Error:', error);
-                     showToast('Có lỗi xảy ra, vui lòng thử lại', 'error');
+                     toastr.success('Có lỗi xảy ra, vui lòng thử lại', 'error');
                  });
              };
          }
@@ -1608,7 +1450,5 @@
              const modal = document.getElementById('editModal');
              modal.classList.remove('show');
          }
-
-         console.log('Tournaments Page Loaded');
         </script>
         @endsection
