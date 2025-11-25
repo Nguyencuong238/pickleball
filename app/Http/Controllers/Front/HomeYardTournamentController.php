@@ -61,21 +61,21 @@ class HomeYardTournamentController extends Controller
             'max_participants',
             'price',
             'rules',
-            'status',
         ]);
 
         $data['user_id'] = auth()->id();
-        // Convert status string to boolean: upcoming/ongoing = true, completed/cancelled = false
-        if (isset($data['status'])) {
-            $data['status'] = in_array($data['status'], ['upcoming', 'ongoing']) ? true : false;
-        } else {
-            $data['status'] = true; // Default to upcoming
-        }
 
         $tournament = Tournament::create($data);
         
         // Log activity
         ActivityLog::log("Giải đấu '{$tournament->name}' được tạo", 'Tournament', $tournament->id);
+
+
+        // Sync gallery images
+        $tournament->syncMediaCollection('gallery', 'gallery', $request);
+
+        // Sync banner image
+        $tournament->syncMediaCollection('banner', 'banner', $request);
 
         return redirect()->back()->with('success', 'Giải đấu đã được tạo thành công. Bạn có thể tiếp tục thêm nội dung thi đấu.');
     }
