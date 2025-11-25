@@ -46,6 +46,6 @@ class TournamentAthlete extends Model
 
     public function category()
     {
-        return $this->belongsTo(TournamentCategory::class);
+        return $this->belongsTo(TournamentCategory::class, 'category_id', 'id');
     }
 }

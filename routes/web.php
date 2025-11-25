@@ -6,6 +6,7 @@ use App\Http\Controllers\Front\NewsController as FrontNewsController;
 use App\Http\Controllers\Front\DashboardController;
 use App\Http\Controllers\Front\HomeYardStadiumController;
 use App\Http\Controllers\Front\HomeYardTournamentController;
+use App\Http\Controllers\Front\AthleteManagementController;
 use App\Http\Controllers\Front\TournamentRegistrationController;
 use App\Http\Controllers\Front\CategoryController;
 use App\Http\Controllers\Front\RoundController;
@@ -32,6 +33,19 @@ use App\Http\Controllers\FavoriteController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
+Route::get('/athlete-debug', function() {
+    $user = auth()->user();
+    return response()->json([
+        'user' => $user ? [
+            'id' => $user->id,
+            'name' => $user->name,
+            'roles' => $user->getRoleNames(),
+            'tournaments_count' => \App\Models\Tournament::where('user_id', $user->id)->count(),
+            'athletes_count' => \App\Models\TournamentAthlete::count(),
+        ] : 'Not authenticated'
+    ]);
+});
 
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
@@ -179,6 +193,28 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
         $this->authorize('view', $tournament);
         return response()->json(['categories' => $tournament->categories]);
     })->name('tournaments.categories');
+
+    // Athlete Management Routes
+    Route::get('athlete-management/list', [AthleteManagementController::class, 'getAthletesByUserTournaments'])->name('athlete-management.list');
+    Route::get('athlete-management/tournaments', [AthleteManagementController::class, 'getTournamentsForFilter'])->name('athlete-management.tournaments');
+    Route::get('athlete-management/tournament/{tournament_id}', [AthleteManagementController::class, 'getTournamentAthletes'])->name('athlete-management.tournament');
+    Route::get('athlete-management/category/{tournament_id}/{category_id}', [AthleteManagementController::class, 'getCategoryStatistics'])->name('athlete-management.category');
+    Route::delete('athlete-management/athlete/{athlete_id}', [AthleteManagementController::class, 'deleteAthlete'])->name('athlete-management.delete');
+    Route::put('athlete-management/athlete/{athlete_id}', [AthleteManagementController::class, 'updateAthlete'])->name('athlete-management.update');
+    Route::get('athlete-management/debug', function() {
+        $user = auth()->user();
+        $tournaments = \App\Models\Tournament::where('user_id', $user->id)->with('athletes')->get();
+        return response()->json([
+            'user_id' => $user->id,
+            'tournaments_count' => $tournaments->count(),
+            'tournaments' => $tournaments->map(fn($t) => [
+                'id' => $t->id,
+                'name' => $t->name,
+                'athletes_count' => $t->athletes->count(),
+                'athletes' => $t->athletes->take(3)
+            ])
+        ]);
+    })->name('athlete-management.debug');
 });
 
 // Admin routes
