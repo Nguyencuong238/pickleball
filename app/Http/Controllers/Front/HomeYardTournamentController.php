@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
+use App\Models\ActivityLog;
 use App\Models\Court;
 use App\Models\CourtPricing;
 use App\Models\Stadium;
@@ -72,6 +73,9 @@ class HomeYardTournamentController extends Controller
         }
 
         $tournament = Tournament::create($data);
+        
+        // Log activity
+        ActivityLog::log("Giải đấu '{$tournament->name}' được tạo", 'Tournament', $tournament->id);
 
         return redirect()->back()->with('success', 'Giải đấu đã được tạo thành công. Bạn có thể tiếp tục thêm nội dung thi đấu.');
     }
@@ -256,6 +260,9 @@ class HomeYardTournamentController extends Controller
             ]);
 
             \Log::info('Athlete created', ['id' => $athlete->id]);
+            
+            // Log activity
+            ActivityLog::log("VĐV '{$athlete->athlete_name}' tham gia giải đấu '{$tournament->name}'", 'TournamentAthlete', $athlete->id);
 
             // Always return JSON for this endpoint
             return response()->json([
@@ -429,7 +436,155 @@ class HomeYardTournamentController extends Controller
 
     public function overview()
     {
-        return view('home-yard.tournaments.overview');
+        $userId = auth()->id();
+        $today = now()->toDateString();
+        $monthStart = now()->startOfMonth();
+        $monthEnd = now()->endOfMonth();
+        $lastMonthStart = now()->subMonth()->startOfMonth();
+        $lastMonthEnd = now()->subMonth()->endOfMonth();
+
+        // 1. Tổng giải đấu (tất cả)
+        $totalTournaments = Tournament::where('user_id', $userId)->count();
+        $lastMonthTournaments = Tournament::where('user_id', $userId)
+            ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
+            ->count();
+        $tournamentChangePercent = $lastMonthTournaments > 0 
+            ? round((($totalTournaments - $lastMonthTournaments) / $lastMonthTournaments) * 100, 2)
+            : 0;
+
+        // 2. Giải đấu theo trạng thái
+        $now = now();
+        $ongoingTournaments = Tournament::where('user_id', $userId)
+            ->where('start_date', '<=', $now)
+            ->where(function ($q) {
+                $q->where('end_date', '>=', now())
+                    ->orWhereNull('end_date');
+            })
+            ->count();
+
+        $upcomingTournaments = Tournament::where('user_id', $userId)
+            ->where('start_date', '>', $now)
+            ->count();
+
+        $completedTournaments = Tournament::where('user_id', $userId)
+            ->where(function ($q) use ($now) {
+                $q->where('end_date', '<', $now)
+                    ->orWhere('status', 0);
+            })
+            ->count();
+
+        // 3. Tổng vận động viên
+        $totalAthletes = TournamentAthlete::whereHas('tournament', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->count();
+
+        // 4. VĐV mới trong tháng này
+        $newAthletesThisMonth = TournamentAthlete::whereHas('tournament', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->whereBetween('created_at', [$monthStart, $monthEnd])
+            ->count();
+
+        // VĐV mới tháng trước
+        $newAthletesLastMonth = TournamentAthlete::whereHas('tournament', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
+            ->count();
+
+        $athleteChangePercent = $newAthletesLastMonth > 0 
+            ? round((($newAthletesThisMonth - $newAthletesLastMonth) / $newAthletesLastMonth) * 100, 2)
+            : 0;
+
+        // 5. Trận đấu hôm nay
+        $todayMatches = MatchModel::whereIn('tournament_id', function ($q) use ($userId) {
+            $q->select('id')->from('tournaments')->where('user_id', $userId);
+        })
+            ->where('match_date', $today)
+            ->count();
+
+        $todayLiveMatches = MatchModel::whereIn('tournament_id', function ($q) use ($userId) {
+            $q->select('id')->from('tournaments')->where('user_id', $userId);
+        })
+            ->where('match_date', $today)
+            ->where('status', 'in_progress')
+            ->count();
+
+        $todayRemainingMatches = MatchModel::whereIn('tournament_id', function ($q) use ($userId) {
+            $q->select('id')->from('tournaments')->where('user_id', $userId);
+        })
+            ->where('match_date', $today)
+            ->where('status', 'scheduled')
+            ->count();
+
+        $todayDelayedMatches = MatchModel::whereIn('tournament_id', function ($q) use ($userId) {
+            $q->select('id')->from('tournaments')->where('user_id', $userId);
+        })
+            ->where('match_date', $today)
+            ->where('status', 'delayed')
+            ->count();
+
+        // 6. Doanh thu tháng này
+        $monthlyRevenue = 0;
+        // Tính từ các bookings hoặc tournament fees
+        // Bạn có thể điều chỉnh logic này tùy theo cách tính doanh thu của bạn
+
+        // 7. Lấy danh sách giải đấu gần đây (5 giải mới nhất)
+        $recentTournaments = Tournament::where('user_id', $userId)
+            ->with('athletes')
+            ->latest()
+            ->limit(5)
+            ->get()
+            ->map(function ($tournament) {
+                $athleteCount = $tournament->athletes()->count();
+                $matchCount = MatchModel::where('tournament_id', $tournament->id)->count();
+                
+                // Xác định trạng thái
+                $now = now();
+                $startDate = \Carbon\Carbon::parse($tournament->start_date);
+                $endDate = $tournament->end_date ? \Carbon\Carbon::parse($tournament->end_date) : null;
+                
+                if ($startDate > $now) {
+                    $status = 'upcoming';
+                } elseif ($startDate <= $now && ($endDate === null || $endDate >= $now)) {
+                    $status = 'ongoing';
+                } else {
+                    $status = 'completed';
+                }
+                
+                return [
+                    'id' => $tournament->id,
+                    'name' => $tournament->name,
+                    'athleteCount' => $athleteCount,
+                    'matchCount' => $matchCount,
+                    'startDate' => $startDate->format('d/m/Y'),
+                    'status' => $status,
+                ];
+            });
+
+        $stats = [
+            'totalTournaments' => $totalTournaments,
+            'ongoingTournaments' => $ongoingTournaments,
+            'upcomingTournaments' => $upcomingTournaments,
+            'completedTournaments' => $completedTournaments,
+            'tournamentChangePercent' => $tournamentChangePercent,
+            'totalAthletes' => $totalAthletes,
+            'newAthletesThisMonth' => $newAthletesThisMonth,
+            'athleteChangePercent' => $athleteChangePercent,
+            'todayMatches' => $todayMatches,
+            'todayLiveMatches' => $todayLiveMatches,
+            'todayRemainingMatches' => $todayRemainingMatches,
+            'todayDelayedMatches' => $todayDelayedMatches,
+            'monthlyRevenue' => $monthlyRevenue,
+        ];
+
+        // Get recent activities
+        $recentActivities = ActivityLog::where('user_id', $userId)
+            ->latest()
+            ->limit(10)
+            ->get();
+
+        return view('home-yard.tournaments.overview', compact('stats', 'recentTournaments', 'recentActivities'));
     }
 
     public function tournaments()
@@ -573,6 +728,9 @@ class HomeYardTournamentController extends Controller
                 'status' => 'available',
                 'is_active' => true,
             ]);
+            
+            // Log activity
+            ActivityLog::log("Sân '{$validated['court_name']}' được thêm", 'Court', $court->id);
 
             // Handle pricing tiers
             if ($request->has('pricing_tiers')) {
@@ -1990,6 +2148,10 @@ class HomeYardTournamentController extends Controller
         $match->athlete1_score = 0;
         $match->athlete2_score = 0;
         $match->save();
+        
+        // Log activity
+        $setNumber = count($setScores);
+        ActivityLog::log("Set {$setNumber} của trận đấu kết thúc với tỉ số {$validated['athlete1_score']}-{$validated['athlete2_score']}", 'Match', $match->id);
     }
 
     /**
@@ -2057,12 +2219,16 @@ class HomeYardTournamentController extends Controller
         }
 
         $match->save();
+        
+        // Log activity
+        $winnerName = $match->winner_id ? ($match->winner_id === $match->athlete1_id ? $match->athlete1->athlete_name : $match->athlete2->athlete_name) : 'Hòa';
+        ActivityLog::log("Trận đấu kết thúc với kết quả {$validated['final_score']} - Người thắng: {$winnerName}", 'Match', $match->id);
 
-        // Cập nhật standings nếu trận này thuộc một group
-        if ($match->group_id && $match->athlete1_id && $match->athlete2_id) {
-            $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
+         // Cập nhật standings nếu trận này thuộc một group
+         if ($match->group_id && $match->athlete1_id && $match->athlete2_id) {
+             $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
+         }
         }
-    }
 
     /**
      * Handle regular update - just update scores without ending match

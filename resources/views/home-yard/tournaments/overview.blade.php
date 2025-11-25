@@ -257,11 +257,11 @@
                     <div class="quick-action-icon">➕</div>
                     <div class="quick-action-title">Tạo Giải Mới</div>
                 </a>
-                <a href="#" class="quick-action-btn">
+                {{-- <a href="#" class="quick-action-btn">
                     <div class="quick-action-icon">✅</div>
                     <div class="quick-action-title">Duyệt VĐV</div>
-                </a>
-                <a href="#" class="quick-action-btn">
+                </a> --}}
+                <a href="{{ route('homeyard.matches') }}" class="quick-action-btn">
                     <div class="quick-action-icon">🎾</div>
                     <div class="quick-action-title">Cập Nhật Kết Quả</div>
                 </a>
@@ -277,16 +277,16 @@
                     <div class="stat-card-header">
                         <div>
                             <div class="stat-label">Tổng Giải Đấu</div>
-                            <div class="stat-value">24</div>
+                            <div class="stat-value">{{ $stats['totalTournaments'] }}</div>
                         </div>
                         <div class="stat-icon primary">🏆</div>
                     </div>
-                    <div class="stat-trend up">
-                        <span>↗</span>
-                        <span>12% vs tháng trước</span>
+                    <div class="stat-trend {{ $stats['tournamentChangePercent'] >= 0 ? 'up' : 'down' }}">
+                        <span>{{ $stats['tournamentChangePercent'] >= 0 ? '↗' : '↘' }}</span>
+                        <span>{{ abs($stats['tournamentChangePercent']) }}% vs tháng trước</span>
                     </div>
                     <div class="stat-footer">
-                        12 đang diễn ra • 8 sắp tới • 4 đã kết thúc
+                        {{ $stats['ongoingTournaments'] }} đang diễn ra • {{ $stats['upcomingTournaments'] }} sắp tới • {{ $stats['completedTournaments'] }} đã kết thúc
                     </div>
                 </div>
 
@@ -294,16 +294,16 @@
                     <div class="stat-card-header">
                         <div>
                             <div class="stat-label">Vận Động Viên</div>
-                            <div class="stat-value">1,248</div>
+                            <div class="stat-value">{{ number_format($stats['totalAthletes'], 0, ',', '.') }}</div>
                         </div>
                         <div class="stat-icon success">👥</div>
                     </div>
-                    <div class="stat-trend up">
-                        <span>↗</span>
-                        <span>8% vs tháng trước</span>
+                    <div class="stat-trend {{ $stats['athleteChangePercent'] >= 0 ? 'up' : 'down' }}">
+                        <span>{{ $stats['athleteChangePercent'] >= 0 ? '↗' : '↘' }}</span>
+                        <span>{{ abs($stats['athleteChangePercent']) }}% vs tháng trước</span>
                     </div>
                     <div class="stat-footer">
-                        156 VĐV mới tháng này
+                        {{ $stats['newAthletesThisMonth'] }} VĐV mới tháng này
                     </div>
                 </div>
 
@@ -311,24 +311,24 @@
                     <div class="stat-card-header">
                         <div>
                             <div class="stat-label">Trận Đấu Hôm Nay</div>
-                            <div class="stat-value">45</div>
+                            <div class="stat-value">{{ $stats['todayMatches'] }}</div>
                         </div>
                         <div class="stat-icon warning">🎾</div>
                     </div>
                     <div class="stat-trend">
                         <span>→</span>
-                        <span>12 đang diễn ra</span>
+                        <span>{{ $stats['todayLiveMatches'] }} đang diễn ra</span>
                     </div>
                     <div class="stat-footer">
-                        33 trận còn lại • 2 trận delay
+                        {{ $stats['todayRemainingMatches'] }} trận còn lại • {{ $stats['todayDelayedMatches'] }} trận delay
                     </div>
                 </div>
 
-                <div class="stat-card">
+                {{-- <div class="stat-card">
                     <div class="stat-card-header">
                         <div>
                             <div class="stat-label">Doanh Thu Tháng</div>
-                            <div class="stat-value">₫458M</div>
+                            <div class="stat-value">₫{{ number_format($stats['monthlyRevenue'], 0, ',', '.') }}</div>
                         </div>
                         <div class="stat-icon danger">💰</div>
                     </div>
@@ -339,7 +339,7 @@
                     <div class="stat-footer">
                         Mục tiêu: ₫500M (92%)
                     </div>
-                </div>
+                </div> --}}
             </div>
 
             <!-- Main Content Grid -->
@@ -349,46 +349,30 @@
                     <div class="card-header">
                         <h3 class="card-title">Giải Đấu Gần Đây</h3>
                         <div class="card-actions">
-                            <a href="tournaments.html" class="btn btn-ghost btn-sm">Xem tất cả →</a>
+                            <a href="{{ route('homeyard.tournaments')}}" class="btn btn-ghost btn-sm">Xem tất cả →</a>
                         </div>
                     </div>
                     <div class="card-body">
                         <ul class="recent-list">
-                            <li class="recent-item">
-                                <div class="recent-item-info">
-                                    <div class="recent-item-title">🏆 Giải Pickleball Mở Rộng TP.HCM 2025</div>
-                                    <div class="recent-item-meta">64 VĐV • 32 trận • Bắt đầu 20/01/2025</div>
-                                </div>
-                                <span class="badge badge-success">Đang diễn ra</span>
-                            </li>
-                            <li class="recent-item">
-                                <div class="recent-item-info">
-                                    <div class="recent-item-title">🏆 Cúp Pickleball Hà Nội 2025</div>
-                                    <div class="recent-item-meta">48 VĐV • 24 trận • Bắt đầu 22/01/2025</div>
-                                </div>
-                                <span class="badge badge-warning">Sắp tới</span>
-                            </li>
-                            <li class="recent-item">
-                                <div class="recent-item-info">
-                                    <div class="recent-item-title">🏆 Giải Đôi Nam Nữ Đà Nẵng</div>
-                                    <div class="recent-item-meta">32 cặp • 16 trận • Bắt đầu 25/01/2025</div>
-                                </div>
-                                <span class="badge badge-warning">Sắp tới</span>
-                            </li>
-                            <li class="recent-item">
-                                <div class="recent-item-info">
-                                    <div class="recent-item-title">🏆 Giải Nội Bộ Tháng 12</div>
-                                    <div class="recent-item-meta">28 VĐV • 14 trận • Kết thúc 18/12/2024</div>
-                                </div>
-                                <span class="badge badge-gray">Đã kết thúc</span>
-                            </li>
-                            <li class="recent-item">
-                                <div class="recent-item-info">
-                                    <div class="recent-item-title">🏆 Cúp Mùa Đông 2024</div>
-                                    <div class="recent-item-meta">56 VĐV • 28 trận • Kết thúc 15/12/2024</div>
-                                </div>
-                                <span class="badge badge-gray">Đã kết thúc</span>
-                            </li>
+                            @forelse($recentTournaments as $tournament)
+                                <li class="recent-item">
+                                    <div class="recent-item-info">
+                                        <div class="recent-item-title">🏆 {{ $tournament['name'] }}</div>
+                                        <div class="recent-item-meta">{{ $tournament['athleteCount'] }} VĐV • {{ $tournament['matchCount'] }} trận • Bắt đầu {{ $tournament['startDate'] }}</div>
+                                    </div>
+                                    @if($tournament['status'] === 'ongoing')
+                                        <span class="badge badge-success">Đang diễn ra</span>
+                                    @elseif($tournament['status'] === 'upcoming')
+                                        <span class="badge badge-warning">Sắp tới</span>
+                                    @else
+                                        <span class="badge badge-gray">Đã kết thúc</span>
+                                    @endif
+                                </li>
+                            @empty
+                                <li style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                    Chưa có giải đấu nào
+                                </li>
+                            @endforelse
                         </ul>
                     </div>
                 </div>
@@ -400,36 +384,18 @@
                     </div>
                     <div class="card-body">
                         <div class="activity-timeline">
-                            <div class="activity-item">
-                                <div class="activity-time">5 phút trước</div>
-                                <div class="activity-content">
-                                    <strong>Nguyễn Văn An</strong> đã check-in cho trận đấu Vòng 1/8
+                            @forelse($recentActivities as $activity)
+                                <div class="activity-item">
+                                    <div class="activity-time">{{ $activity->created_at->diffForHumans() }}</div>
+                                    <div class="activity-content">
+                                        {{ $activity->action }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-time">12 phút trước</div>
-                                <div class="activity-content">
-                                    Trận đấu <strong>Bảng A - Trận 5</strong> đã hoàn thành
+                            @empty
+                                <div style="text-align: center; padding: 2rem; color: var(--text-light);">
+                                    Chưa có hoạt động nào
                                 </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-time">25 phút trước</div>
-                                <div class="activity-content">
-                                    <strong>15 VĐV mới</strong> đã đăng ký Giải Pickleball TP.HCM
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-time">1 giờ trước</div>
-                                <div class="activity-content">
-                                    Admin đã duyệt <strong>23 đơn đăng ký</strong> VĐV
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-time">2 giờ trước</div>
-                                <div class="activity-content">
-                                    Đã tạo giải đấu mới: <strong>Cúp Mùa Xuân 2025</strong>
-                                </div>
-                            </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>

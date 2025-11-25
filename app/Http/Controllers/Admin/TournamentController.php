@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -117,7 +118,10 @@ class TournamentController extends Controller
 
         $data['user_id'] = auth()->id();
 
-        Tournament::create($data);
+        $tournament = Tournament::create($data);
+        
+        // Log activity
+        ActivityLog::log("Giải đấu '{$tournament->name}' được tạo", 'Tournament', $tournament->id);
 
         // Redirect to homeyard tournaments if user is home_yard, else admin
         $redirectRoute = auth()->user()->hasRole('home_yard') ? 'homeyard.tournaments' : 'admin.tournaments.index';

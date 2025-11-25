@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Stadium;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -55,15 +56,18 @@ class HomeYardStadiumController extends Controller
         ]);
 
         $data['user_id'] = auth()->id();
-        $stadium = Stadium::create($data);
+         $stadium = Stadium::create($data);
+         
+         // Log activity
+         ActivityLog::log("Sân '{$stadium->name}' được tạo", 'Stadium', $stadium->id);
 
-        // Sync gallery images
-        $stadium->syncMediaCollection('gallery', 'gallery', $request);
+         // Sync gallery images
+         $stadium->syncMediaCollection('gallery', 'gallery', $request);
 
-        // Sync banner image
-        $stadium->syncMediaCollection('banner', 'banner', $request);
+         // Sync banner image
+         $stadium->syncMediaCollection('banner', 'banner', $request);
 
-        return redirect()->route('homeyard.stadiums.index')->with('success', 'Stadium created successfully.');
+         return redirect()->route('homeyard.stadiums.index')->with('success', 'Stadium created successfully.');
     }
 
     public function edit(Stadium $stadium)
