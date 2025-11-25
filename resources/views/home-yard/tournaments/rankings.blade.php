@@ -364,9 +364,9 @@
     }
 
     .performance-badge.average {
-         background: rgba(255, 211, 61, 0.1);
-         color: #ca8a04;
-     }
+        background: rgba(255, 211, 61, 0.1);
+        color: #ca8a04;
+    }
 
     .pagination {
         display: flex;
@@ -397,7 +397,7 @@
         color: white;
         border-color: transparent;
     }
-    </style>
+</style>
 @section('content')
     <main class="main-content" id="mainContent">
         <div class="container">
@@ -489,15 +489,38 @@
 @section('js')
     <script>
         // Filter options configuration with category type mapping
-        const rankingFilters = [
-            { value: 'all', label: '🏆 Tổng Hợp', categoryType: null },
-            { value: 'singles', label: '👤 Đơn Nam', categoryType: 'single_men' },
-            { value: 'women', label: '👤 Đơn Nữ', categoryType: 'single_women' },
-            { value: 'doubles', label: '👥 Đôi Nam', categoryType: 'double_men' },
-            { value: 'women-doubles', label: '👥 Đôi Nữ', categoryType: 'double_women' },
-            { value: 'mixed', label: '👫 Đôi Nam Nữ', categoryType: 'double_mixed' }
+        const rankingFilters = [{
+                value: 'all',
+                label: '🏆 Tổng Hợp',
+                categoryType: null
+            },
+            {
+                value: 'singles',
+                label: '👤 Đơn Nam',
+                categoryType: 'single_men'
+            },
+            {
+                value: 'women',
+                label: '👤 Đơn Nữ',
+                categoryType: 'single_women'
+            },
+            {
+                value: 'doubles',
+                label: '👥 Đôi Nam',
+                categoryType: 'double_men'
+            },
+            {
+                value: 'women-doubles',
+                label: '👥 Đôi Nữ',
+                categoryType: 'double_women'
+            },
+            {
+                value: 'mixed',
+                label: '👫 Đôi Nam Nữ',
+                categoryType: 'double_mixed'
+            }
         ];
-        
+
         // Map category type to category ID (will be loaded from API)
         let categoryTypeToIdMap = {};
 
@@ -566,7 +589,7 @@
                             option.value = tournament.id;
                             option.textContent = tournament.name;
                             select.appendChild(option);
-                            
+
                             // Build category type to ID map from tournament categories
                             if (tournament.categories && Array.isArray(tournament.categories)) {
                                 console.log('Tournament categories:', tournament.categories);
@@ -577,8 +600,8 @@
                                     }
                                 });
                             }
-                       });
-                       console.log('Final categoryTypeToIdMap:', categoryTypeToIdMap);
+                        });
+                        console.log('Final categoryTypeToIdMap:', categoryTypeToIdMap);
                     }
                 }
             } catch (error) {
@@ -588,100 +611,286 @@
 
         // Filter by tournament
         let currentTournamentFilter = null; // Store current tournament filter
-        
+
         document.addEventListener('DOMContentLoaded', () => {
-             initializeFilterButtons(); // Initialize filter buttons
-             loadTournaments();
-             loadAllRankings(1); // Load all rankings on page load with page 1
-             loadStats(); // Load stats on page load
+            initializeFilterButtons(); // Initialize filter buttons
+            loadTournaments();
+            loadAllRankings(1); // Load all rankings on page load with page 1
+            loadStats(); // Load stats on page load
 
-             const tournamentFilter = document.getElementById('tournamentFilter');
-             if (tournamentFilter) {
-                 tournamentFilter.addEventListener('change', function() {
-                     const tournamentId = this.value;
-                     currentTournamentFilter = tournamentId || null; // Store filter
-                     currentCategory = 'all'; // Reset category filter
-                     currentCategoryType = null;
-                     updateFilterButtonsUI(); // Update UI
-                     
-                     if (tournamentId) {
-                         // Load rankings for selected tournament (reset to page 1)
-                         loadRankingsByTournament(tournamentId, 1, null);
-                         loadStats(tournamentId); // Load stats for this tournament
-                     } else {
-                         // Load all rankings
-                         loadAllRankings(1, null);
-                         loadStats(); // Load stats for all
-                     }
-                 });
-             }
-         });
-         
-         // Update filter buttons UI to show selected filter
-         function updateFilterButtonsUI() {
-             document.querySelectorAll('.filter-btn').forEach(btn => {
-                 if (btn.getAttribute('data-filter') === currentCategory) {
-                     btn.classList.add('active');
-                 } else {
-                     btn.classList.remove('active');
-                 }
-             });
-         }
+            const tournamentFilter = document.getElementById('tournamentFilter');
+            if (tournamentFilter) {
+                tournamentFilter.addEventListener('change', function() {
+                    const tournamentId = this.value;
+                    currentTournamentFilter = tournamentId || null; // Store filter
+                    currentCategory = 'all'; // Reset category filter
+                    currentCategoryType = null;
+                    updateFilterButtonsUI(); // Update UI
 
+                    // Clear search when tournament changes
+                    const searchInput = document.querySelector('.search-input');
+                    if (searchInput) searchInput.value = '';
 
-         
-         // Load tournament stats
-         async function loadStats(tournamentId = null) {
-             try {
-                 let url = '/homeyard/tournaments/stats';
-                 if (tournamentId) {
-                     url += `?tournament_id=${tournamentId}`;
-                 }
-                 const response = await fetch(url, {
-                     method: 'GET',
-                     headers: {
-                         'Accept': 'application/json',
-                         'X-Requested-With': 'XMLHttpRequest'
-                     }
-                 });
+                    if (tournamentId) {
+                        // Load rankings for selected tournament (reset to page 1)
+                        loadRankingsByTournament(tournamentId, 1, null);
+                        loadStats(tournamentId); // Load stats for this tournament
+                    } else {
+                        // Load all rankings
+                        loadAllRankings(1, null);
+                        loadStats(); // Load stats for all
+                    }
+                });
+            }
 
-                 if (response.ok) {
-                     const stats = await response.json();
-                     // If filtering by tournament, get total count from rankings endpoint
-                     if (tournamentId && currentTournamentFilter) {
-                         const rankingsUrl = `/homeyard/tournaments/${tournamentId}/rankings?page=1&per_page=1`;
-                         const rankingsResponse = await fetch(rankingsUrl, {
-                             method: 'GET',
-                             headers: {
-                                 'Accept': 'application/json',
-                                 'X-Requested-With': 'XMLHttpRequest'
-                             }
-                         });
-                         
-                         if (rankingsResponse.ok) {
-                             const rankingsData = await rankingsResponse.json();
-                             // Get total from pagination data
-                             let totalAthletes = 0;
-                             if (rankingsData.pagination) {
-                                 totalAthletes = rankingsData.pagination.total;
-                             } else if (rankingsData.total) {
-                                 totalAthletes = rankingsData.total;
-                             }
-                             if (totalAthletes > 0) {
-                                 stats.total_athletes = totalAthletes; // Override with actual count
-                             }
-                         }
-                     }
-                     updateStatsDisplay(stats);
-                 }
-             } catch (error) {
-                 console.error('Error loading stats:', error);
-             }
-         }
-         
-         // Update stats display
-         function updateStatsDisplay(stats) {
-             const html = `
+            // Add search functionality
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                searchInput.addEventListener('input', function(e) {
+                    searchAthlete(e.target.value);
+                });
+            }
+        });
+
+        // Update filter buttons UI to show selected filter
+        function updateFilterButtonsUI() {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                if (btn.getAttribute('data-filter') === currentCategory) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        // Store original rankings data for search
+        let originalRankingsData = null;
+        let lastRequestPage = 1;
+        let lastRequestCategoryType = null;
+
+        // Search athlete by name - loads all data from all pages
+        function searchAthlete(searchTerm) {
+            const rankingContainer = document.querySelector('.card-body');
+            if (!rankingContainer) return;
+
+            const term = searchTerm.toLowerCase().trim();
+            console.log('Searching for:', term);
+
+            // If search term is empty, reload the previous page
+            if (!term) {
+                if (currentTournamentFilter) {
+                    loadRankingsByTournament(currentTournamentFilter, lastRequestPage, lastRequestCategoryType);
+                } else {
+                    loadAllRankings(lastRequestPage, lastRequestCategoryType);
+                }
+                return;
+            }
+
+            // Load all data (no pagination) for searching across all pages
+            loadAllDataForSearch(term);
+        }
+
+        // Load all rankings data without pagination for search
+        async function loadAllDataForSearch(searchTerm) {
+            try {
+                const rankingContainer = document.querySelector('.card-body');
+                let allStandings = [];
+                let url;
+                let page = 1;
+                let hasMore = true;
+
+                // Fetch all pages
+                while (hasMore) {
+                    if (currentTournamentFilter) {
+                        url = `/homeyard/tournaments/${currentTournamentFilter}/rankings?page=${page}&per_page=100`;
+                        if (lastRequestCategoryType) {
+                            // For specific tournament, convert category type to category_id
+                            if (categoryTypeToIdMap[lastRequestCategoryType]) {
+                                url += `&category_id=${categoryTypeToIdMap[lastRequestCategoryType]}`;
+                            }
+                        }
+                    } else {
+                        url = `/homeyard/tournaments/rankings-all?page=${page}&per_page=100`;
+                        if (lastRequestCategoryType) {
+                            url += `&category_type=${lastRequestCategoryType}`;
+                        }
+                    }
+
+                    const response = await fetch(url, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        let standings = data.standings || data.rankings || [];
+                        allStandings = allStandings.concat(standings);
+
+                        // Check if there are more pages
+                        if (data.current_page && data.last_page && data.current_page >= data.last_page) {
+                            hasMore = false;
+                        } else if (!data.current_page) {
+                            hasMore = false;
+                        }
+
+                        page++;
+                    } else {
+                        hasMore = false;
+                    }
+                }
+
+                // Filter by search term
+                let standings = allStandings.filter(standing => {
+                    const athlete = standing.athlete || standing;
+                    const athleteName = (athlete.athlete_name || '').toLowerCase();
+                    return athleteName.includes(searchTerm.toLowerCase());
+                });
+
+                if (standings.length === 0) {
+                    rankingContainer.innerHTML =
+                        '<p style="padding: 2rem; text-align: center; color: var(--text-secondary);">Không tìm thấy VĐV nào phù hợp</p>';
+                    return;
+                }
+
+                // Render filtered standings
+                let html = '';
+                standings.forEach((standing, index) => {
+                    const athlete = standing.athlete || standing;
+                    const matchesPlayed = standing.matches_played || 0;
+                    const matchesWon = standing.matches_won || 0;
+                    const winRate = standing.win_rate !== undefined ?
+                        Math.round(standing.win_rate) :
+                        (matchesPlayed > 0 ? Math.round((matchesWon / matchesPlayed) * 100) : 0);
+
+                    let rankChange = '';
+                    if (standing.rank_change > 0) {
+                        rankChange = `<span class="rank-change up">↑${standing.rank_change}</span>`;
+                    } else if (standing.rank_change < 0) {
+                        rankChange = `<span class="rank-change down">↓${Math.abs(standing.rank_change)}</span>`;
+                    } else {
+                        rankChange = `<span class="rank-change same">—</span>`;
+                    }
+
+                    const athleteName = athlete.athlete_name || 'N/A';
+                    const athleteEmail = athlete.email || 'N/A';
+                    const athletePhone = athlete.phone || 'N/A';
+
+                    const initials = athleteName !== 'N/A' ?
+                        athleteName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) :
+                        'N/A';
+
+                    html += `
+                     <div class="ranking-row">
+                         <div>
+                             <span class="rank-number">${index + 1}</span>
+                            ${rankChange}
+                         </div>
+                         <div class="player-ranking-info">
+                             <div class="player-avatar-rank">${initials}</div>
+                             <div class="player-details-rank">
+                                 <div class="player-name-rank">${athleteName}</div>
+                                 <div class="player-meta-rank">
+                                     <span>📧 ${athleteEmail}</span>
+                                     <span>📱 ${athletePhone}</span>
+                                 </div>
+                             </div>
+                         </div>
+                         <div class="stats-row-rank">
+                             <div class="stat-item-rank">
+                                 <div class="stat-value-rank">${standing.points || 0}</div>
+                                 <div class="stat-label-rank">Điểm</div>
+                             </div>
+                             <div class="stat-item-rank">
+                                 <div class="stat-value-rank">${matchesPlayed}</div>
+                                 <div class="stat-label-rank">Trận</div>
+                             </div>
+                             <div class="stat-item-rank">
+                                 <div class="stat-value-rank">${matchesWon}</div>
+                                 <div class="stat-label-rank">Thắng</div>
+                             </div>
+                             <div class="stat-item-rank">
+                                 <div class="stat-value-rank">${standing.matches_lost || 0}</div>
+                                 <div class="stat-label-rank">Thua</div>
+                             </div>
+                             <div class="stat-item-rank">
+                                 <div class="stat-value-rank">${winRate}%</div>
+                                 <div class="stat-label-rank">Tỷ lệ</div>
+                             </div>
+                         </div>
+                         <div class="ranking-actions">
+                             <button class="btn btn-ghost btn-icon-sm" title="Xem chi tiết">👁️</button>
+                             <button class="btn btn-ghost btn-icon-sm" title="Thống kê">📊</button>
+                         </div>
+                      </div>
+                  `;
+                });
+
+                rankingContainer.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading data for search:', error);
+                const rankingContainer = document.querySelector('.card-body');
+                if (rankingContainer) {
+                    rankingContainer.innerHTML =
+                        '<p style="padding: 2rem; text-align: center; color: var(--text-secondary);">Lỗi khi tìm kiếm</p>';
+                }
+            }
+        }
+
+        // Load tournament stats
+        async function loadStats(tournamentId = null) {
+            try {
+                let url = '/homeyard/tournaments/stats';
+                if (tournamentId) {
+                    url += `?tournament_id=${tournamentId}`;
+                }
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const stats = await response.json();
+                    // If filtering by tournament, get total count from rankings endpoint
+                    if (tournamentId && currentTournamentFilter) {
+                        const rankingsUrl = `/homeyard/tournaments/${tournamentId}/rankings?page=1&per_page=1`;
+                        const rankingsResponse = await fetch(rankingsUrl, {
+                            method: 'GET',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+
+                        if (rankingsResponse.ok) {
+                            const rankingsData = await rankingsResponse.json();
+                            // Get total from pagination data
+                            let totalAthletes = 0;
+                            if (rankingsData.pagination) {
+                                totalAthletes = rankingsData.pagination.total;
+                            } else if (rankingsData.total) {
+                                totalAthletes = rankingsData.total;
+                            }
+                            if (totalAthletes > 0) {
+                                stats.total_athletes = totalAthletes; // Override with actual count
+                            }
+                        }
+                    }
+                    updateStatsDisplay(stats);
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Update stats display
+        function updateStatsDisplay(stats) {
+            const html = `
                   <div class="stat-overview-card">
                       <div class="stat-overview-icon">👥</div>
                       <div class="stat-overview-value">${stats.total_athletes}</div>
@@ -703,43 +912,48 @@
                       <div class="stat-overview-label">Tỷ Lệ Thắng TB</div>
                   </div>
               `;
-             const statsContainer = document.getElementById('statsOverview');
-             if (statsContainer) {
-                 statsContainer.innerHTML = html;
-             }
-         }
+            const statsContainer = document.getElementById('statsOverview');
+            if (statsContainer) {
+                statsContainer.innerHTML = html;
+            }
+        }
 
         // Update rankings display
-         function updateRankingsDisplay(data) {
-             const rankingContainer = document.querySelector('.card-body');
-             if (!rankingContainer) return;
+        function updateRankingsDisplay(data) {
+            const rankingContainer = document.querySelector('.card-body');
+            if (!rankingContainer) return;
 
-             let standings = data.standings || data.rankings || [];
-             
-             // Handle pagination metadata from both formats
-             if (!data.current_page && data.pagination) {
-                 data.current_page = data.pagination.current_page;
-                 data.per_page = data.pagination.per_page;
-                 data.total = data.pagination.total;
-                 data.last_page = data.pagination.total_pages;
-             }
-             
-             if (!standings || standings.length === 0) {
-                 rankingContainer.innerHTML =
-                     '<p style="padding: 2rem; text-align: center; color: var(--text-secondary);">Không có dữ liệu xếp hạng</p>';
-                 // Clear podium too
-                 const podium = document.getElementById('podium');
-                 if (podium) podium.innerHTML = '';
-                 return;
-             }
+            // Save original data for search functionality
+            originalRankingsData = data;
+            lastRequestPage = data.current_page || 1;
+            lastRequestCategoryType = currentCategoryType;
 
-             // Update podium (top 3) - only on page 1
-             if (parseInt(data.current_page) === 1 || !data.current_page) {
-                 updatePodium(standings);
-             } else {
-                 const podium = document.getElementById('podium');
-                 if (podium) podium.innerHTML = '';
-             }
+            let standings = data.standings || data.rankings || [];
+
+            // Handle pagination metadata from both formats
+            if (!data.current_page && data.pagination) {
+                data.current_page = data.pagination.current_page;
+                data.per_page = data.pagination.per_page;
+                data.total = data.pagination.total;
+                data.last_page = data.pagination.total_pages;
+            }
+
+            if (!standings || standings.length === 0) {
+                rankingContainer.innerHTML =
+                    '<p style="padding: 2rem; text-align: center; color: var(--text-secondary);">Không có dữ liệu xếp hạng</p>';
+                // Clear podium too
+                const podium = document.getElementById('podium');
+                if (podium) podium.innerHTML = '';
+                return;
+            }
+
+            // Update podium (top 3) - only on page 1
+            if (parseInt(data.current_page) === 1 || !data.current_page) {
+                updatePodium(standings);
+            } else {
+                const podium = document.getElementById('podium');
+                if (podium) podium.innerHTML = '';
+            }
 
             // Update leaderboard header
             const now = new Date();
@@ -747,42 +961,42 @@
             document.getElementById('leaderboardSubtitle').textContent = `Cập nhật lần cuối: ${timeStr}`;
 
             let html = '';
-             standings.forEach((standing, index) => {
-                 // Handle both direct athlete object and nested athlete property
-                 const athlete = standing.athlete || standing;
-                 const matchesPlayed = standing.matches_played || 0;
-                 const matchesWon = standing.matches_won || 0;
-                 const winRate = standing.win_rate !== undefined ?
-                     Math.round(standing.win_rate) :
-                     (matchesPlayed > 0 ? Math.round((matchesWon / matchesPlayed) * 100) : 0);
+            standings.forEach((standing, index) => {
+                // Handle both direct athlete object and nested athlete property
+                const athlete = standing.athlete || standing;
+                const matchesPlayed = standing.matches_played || 0;
+                const matchesWon = standing.matches_won || 0;
+                const winRate = standing.win_rate !== undefined ?
+                    Math.round(standing.win_rate) :
+                    (matchesPlayed > 0 ? Math.round((matchesWon / matchesPlayed) * 100) : 0);
 
-                 // Calculate actual rank based on page and per_page (only if pagination data exists)
-                 let actualRank = index + 1;
-                 if (data.current_page && data.per_page) {
-                     actualRank = (data.current_page - 1) * data.per_page + index + 1;
-                 }
+                // Calculate actual rank based on page and per_page (only if pagination data exists)
+                let actualRank = index + 1;
+                if (data.current_page && data.per_page) {
+                    actualRank = (data.current_page - 1) * data.per_page + index + 1;
+                }
 
-                 // Determine rank change
-                 let rankChange = '';
-                 if (standing.rank_change > 0) {
-                     rankChange = `<span class="rank-change up">↑${standing.rank_change}</span>`;
-                 } else if (standing.rank_change < 0) {
-                     rankChange = `<span class="rank-change down">↓${Math.abs(standing.rank_change)}</span>`;
-                 } else {
-                     rankChange = `<span class="rank-change same">—</span>`;
-                 }
+                // Determine rank change
+                let rankChange = '';
+                if (standing.rank_change > 0) {
+                    rankChange = `<span class="rank-change up">↑${standing.rank_change}</span>`;
+                } else if (standing.rank_change < 0) {
+                    rankChange = `<span class="rank-change down">↓${Math.abs(standing.rank_change)}</span>`;
+                } else {
+                    rankChange = `<span class="rank-change same">—</span>`;
+                }
 
-                 // Get athlete name and email
-                 const athleteName = athlete.athlete_name || 'N/A';
-                 const athleteEmail = athlete.email || 'N/A';
-                 const athletePhone = athlete.phone || 'N/A';
+                // Get athlete name and email
+                const athleteName = athlete.athlete_name || 'N/A';
+                const athleteEmail = athlete.email || 'N/A';
+                const athletePhone = athlete.phone || 'N/A';
 
-                 // Get initials for avatar
-                 const initials = athleteName !== 'N/A' ?
-                     athleteName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) :
-                     'N/A';
+                // Get initials for avatar
+                const initials = athleteName !== 'N/A' ?
+                    athleteName.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) :
+                    'N/A';
 
-                 html += `
+                html += `
                       <div class="ranking-row">
                           <div>
                               <span class="rank-number">${actualRank}</span>
@@ -829,7 +1043,7 @@
             });
 
             rankingContainer.innerHTML = html;
-            
+
             // Update pagination
             const pagination = document.getElementById('pagination');
             if (pagination && data.last_page > 1) {
@@ -838,47 +1052,53 @@
                 const currentPage = parseInt(data.current_page) || 1;
                 let startPage = Math.max(1, currentPage - 2);
                 let endPage = Math.min(data.last_page, startPage + maxPages - 1);
-                
+
                 if (endPage - startPage < maxPages - 1) {
                     startPage = Math.max(1, endPage - maxPages + 1);
                 }
-                
+
                 // Previous button
                 if (currentPage > 1) {
                     if (currentTournamentFilter) {
-                        paginationHtml += `<button class="pagination-btn" onclick="loadRankingsByTournament('${currentTournamentFilter}', ${currentPage - 1}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">← Trước</button>`;
+                        paginationHtml +=
+                            `<button class="pagination-btn" onclick="loadRankingsByTournament('${currentTournamentFilter}', ${currentPage - 1}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">← Trước</button>`;
                     } else {
-                        paginationHtml += `<button class="pagination-btn" onclick="loadAllRankings(${currentPage - 1}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">← Trước</button>`;
+                        paginationHtml +=
+                            `<button class="pagination-btn" onclick="loadAllRankings(${currentPage - 1}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">← Trước</button>`;
                     }
                 }
-                
+
                 // Page buttons
                 for (let i = startPage; i <= endPage; i++) {
                     if (i === currentPage) {
                         paginationHtml += `<button class="pagination-btn active">${i}</button>`;
                     } else {
                         if (currentTournamentFilter) {
-                            paginationHtml += `<button class="pagination-btn" onclick="loadRankingsByTournament('${currentTournamentFilter}', ${i}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">${i}</button>`;
+                            paginationHtml +=
+                                `<button class="pagination-btn" onclick="loadRankingsByTournament('${currentTournamentFilter}', ${i}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">${i}</button>`;
                         } else {
-                            paginationHtml += `<button class="pagination-btn" onclick="loadAllRankings(${i}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">${i}</button>`;
+                            paginationHtml +=
+                                `<button class="pagination-btn" onclick="loadAllRankings(${i}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">${i}</button>`;
                         }
                     }
                 }
-                
+
                 // Next button
                 if (currentPage < data.last_page) {
                     if (currentTournamentFilter) {
-                        paginationHtml += `<button class="pagination-btn" onclick="loadRankingsByTournament('${currentTournamentFilter}', ${currentPage + 1}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">Sau →</button>`;
+                        paginationHtml +=
+                            `<button class="pagination-btn" onclick="loadRankingsByTournament('${currentTournamentFilter}', ${currentPage + 1}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">Sau →</button>`;
                     } else {
-                        paginationHtml += `<button class="pagination-btn" onclick="loadAllRankings(${currentPage + 1}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">Sau →</button>`;
+                        paginationHtml +=
+                            `<button class="pagination-btn" onclick="loadAllRankings(${currentPage + 1}, ${currentCategoryType ? `'${currentCategoryType}'` : 'null'})">Sau →</button>`;
                     }
                 }
-                
+
                 pagination.innerHTML = paginationHtml;
             } else if (pagination) {
                 pagination.innerHTML = '';
             }
-            }
+        }
 
         // Update podium (top 3)
         function updatePodium(standings) {
@@ -933,20 +1153,20 @@
         let allRankingsData = null;
         let currentCategory = 'all';
         let currentCategoryType = null;
-        
+
         // Filter ranking by category
         function filterRanking(category) {
             console.log('Filter clicked:', category);
-            
+
             currentCategory = category;
-            
+
             // Find the category type for the selected filter
             const filterConfig = rankingFilters.find(f => f.value === category);
             currentCategoryType = filterConfig ? filterConfig.categoryType : null;
-            
+
             console.log('Category config:', filterConfig);
             console.log('Current category type:', currentCategoryType);
-            
+
             // Load appropriate endpoint based on tournament selection
             if (currentTournamentFilter) {
                 // Load from specific tournament endpoint with category_id
@@ -958,63 +1178,63 @@
                 loadAllRankings(1, currentCategoryType);
             }
         }
-         
-         // Update loadAllRankings to accept category parameter
-         async function loadAllRankings(page = 1, categoryType = null) {
-             try {
-                 let url = `/homeyard/tournaments/rankings-all?page=${page}&per_page=10`;
-                 
-                 // Add category type filter if provided
-                 if (categoryType) {
-                     url += `&category_type=${categoryType}`;
-                 }
-                 
-                 const response = await fetch(url, {
-                     method: 'GET',
-                     headers: {
-                         'Accept': 'application/json',
-                         'X-Requested-With': 'XMLHttpRequest'
-                     }
-                 });
 
-                 if (response.ok) {
-                     const data = await response.json();
-                     allRankingsData = data;
-                     updateRankingsDisplay(data);
-                     loadStats(); // Load stats
-                 }
-             } catch (error) {
-                 console.error('Error loading all rankings:', error);
-             }
-         }
-         
-         // Update loadRankingsByTournament to accept category parameter
-         async function loadRankingsByTournament(tournamentId, page = 1, categoryType = null) {
-             try {
-                 let url = `/homeyard/tournaments/${tournamentId}/rankings?page=${page}&per_page=10`;
-                 
-                 // Convert category type to category ID if provided
-                 if (categoryType && categoryTypeToIdMap[categoryType]) {
-                     const categoryId = categoryTypeToIdMap[categoryType];
-                     url += `&category_id=${categoryId}`;
-                 }
-                 
-                 const response = await fetch(url, {
-                     method: 'GET',
-                     headers: {
-                         'Accept': 'application/json',
-                         'X-Requested-With': 'XMLHttpRequest'
-                     }
-                 });
+        // Update loadAllRankings to accept category parameter
+        async function loadAllRankings(page = 1, categoryType = null) {
+            try {
+                let url = `/homeyard/tournaments/rankings-all?page=${page}&per_page=10`;
 
-                 if (response.ok) {
-                     const data = await response.json();
-                     allRankingsData = data;
-                     updateRankingsDisplay(data);
-                 }
-             } catch (error) {
-                 console.error('Error loading rankings:', error);
-             }
-         }
+                // Add category type filter if provided
+                if (categoryType) {
+                    url += `&category_type=${categoryType}`;
+                }
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    allRankingsData = data;
+                    updateRankingsDisplay(data);
+                    loadStats(); // Load stats
+                }
+            } catch (error) {
+                console.error('Error loading all rankings:', error);
+            }
+        }
+
+        // Update loadRankingsByTournament to accept category parameter
+        async function loadRankingsByTournament(tournamentId, page = 1, categoryType = null) {
+            try {
+                let url = `/homeyard/tournaments/${tournamentId}/rankings?page=${page}&per_page=10`;
+
+                // Convert category type to category ID if provided
+                if (categoryType && categoryTypeToIdMap[categoryType]) {
+                    const categoryId = categoryTypeToIdMap[categoryType];
+                    url += `&category_id=${categoryId}`;
+                }
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    allRankingsData = data;
+                    updateRankingsDisplay(data);
+                }
+            } catch (error) {
+                console.error('Error loading rankings:', error);
+            }
+        }
     </script>
 @endsection
