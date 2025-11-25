@@ -714,7 +714,7 @@
          
          function loadTournaments() {
              // Fetch tournaments
-             fetch('/api/homeyard/tournaments')
+             fetch('homeyard/my-tournaments')
                  .then(res => res.json())
                  .then(data => {
                      const select = document.querySelector('select[name="tournament_id"]');
@@ -738,7 +738,7 @@
                  return;
              }
              
-             fetch(`/api/homeyard/tournaments/${tournamentId}/categories`)
+             fetch(`/tournament-categories/${tournamentId}`)
                  .then(res => res.json())
                  .then(data => {
                      const select = document.querySelector('select[name="category_id"]');
