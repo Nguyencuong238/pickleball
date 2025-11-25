@@ -584,7 +584,38 @@ class HomeYardTournamentController extends Controller
             ->limit(10)
             ->get();
 
-        return view('home-yard.tournaments.overview', compact('stats', 'recentTournaments', 'recentActivities'));
+        // 8. Thống kê giải đấu theo tháng (2 năm gần nhất)
+        $currentYear = now()->year;
+        $lastYear = $currentYear - 1;
+        
+        $tournamentsByMonth = [];
+        foreach ([$lastYear, $currentYear] as $year) {
+            $monthData = [];
+            for ($month = 1; $month <= 12; $month++) {
+                $count = Tournament::where('user_id', $userId)
+                    ->whereYear('start_date', $year)
+                    ->whereMonth('start_date', $month)
+                    ->count();
+                $monthData[] = $count;
+            }
+            $tournamentsByMonth[$year] = $monthData;
+        }
+
+        // 9. Phân bổ vận động viên theo nội dung thi đấu
+        $athletesByCategory = TournamentAthlete::whereHas('tournament', function ($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })
+            ->with('category')
+            ->get()
+            ->groupBy(function ($athlete) {
+                return $athlete->category ? $athlete->category->category_name : 'Không xác định';
+            })
+            ->map(function ($group) {
+                return count($group);
+            })
+            ->toArray();
+
+        return view('home-yard.tournaments.overview', compact('stats', 'recentTournaments', 'recentActivities', 'tournamentsByMonth', 'athletesByCategory'));
     }
 
     public function tournaments()

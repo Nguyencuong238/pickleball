@@ -206,6 +206,40 @@
         color: white;
         font-weight: 700;
     }
+
+    /* Charts responsive styles */
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 0;
+        padding-bottom: 75%;
+        overflow: hidden;
+    }
+
+    .chart-container canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .grid.grid-2 {
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    @media (max-width: 1200px) {
+        .grid.grid-2 {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .card-body canvas {
+        max-height: 300px;
+        width: 100% !important;
+        height: auto !important;
+    }
 </style>
 @section('content')
     <main class="main-content" id="mainContent">
@@ -225,7 +259,7 @@
                 </div>
                 <div class="header-right">
                     <div class="header-search">
-                        <input type="text" class="search-input" placeholder="Tìm kiếm...">
+                        {{-- <input type="text" class="search-input" placeholder="Tìm kiếm..."> --}}
                         <span class="search-icon">🔍</span>
                     </div>
                     <div class="header-notifications">
@@ -265,10 +299,10 @@
                     <div class="quick-action-icon">🎾</div>
                     <div class="quick-action-title">Cập Nhật Kết Quả</div>
                 </a>
-                <a href="#" class="quick-action-btn">
+                {{-- <a href="#" class="quick-action-btn">
                     <div class="quick-action-icon">📊</div>
                     <div class="quick-action-title">Xem Báo Cáo</div>
-                </a>
+                </a> --}}
             </div>
 
             <!-- Stats Grid -->
@@ -406,14 +440,15 @@
                 <div class="card fade-in">
                     <div class="card-header">
                         <h3 class="card-title">Thống Kê Giải Đấu Theo Tháng</h3>
-                        <select class="form-select" style="width: auto;">
-                            <option>2025</option>
-                            <option>2024</option>
+                        <select class="form-select" id="yearSelect" style="width: auto;">
+                            @php $currentYear = now()->year; $lastYear = $currentYear - 1; @endphp
+                            <option value="{{ $currentYear }}" selected>{{ $currentYear }}</option>
+                            <option value="{{ $lastYear }}">{{ $lastYear }}</option>
                         </select>
                     </div>
                     <div class="card-body">
-                        <div class="chart-placeholder">
-                            📊 Biểu đồ cột - Số lượng giải đấu theo tháng
+                        <div class="chart-wrapper" style="position: relative; height: 300px;">
+                            <canvas id="tournamentChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -423,8 +458,8 @@
                         <h3 class="card-title">Phân Bổ Vận Động Viên</h3>
                     </div>
                     <div class="card-body">
-                        <div class="chart-placeholder">
-                            🥧 Biểu đồ tròn - VĐV theo nội dung thi đấu
+                        <div class="chart-wrapper" style="position: relative; height: 300px;">
+                            <canvas id="athleteChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -435,7 +470,139 @@
     </main>
 @endsection
 @section('js')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <script>
+        // Chart.js context
+        let tournamentChartInstance = null;
+        let athleteChartInstance = null;
+
+        // Real data from database
+        const tournamentsData = {!! json_encode($tournamentsByMonth) !!};
+
+        // Real data for athletes by category
+        const athletesByContent = {!! json_encode($athletesByCategory) !!};
+
+        function initTournamentChart(year = new Date().getFullYear()) {
+            const ctx = document.getElementById('tournamentChart').getContext('2d');
+            
+            if (tournamentChartInstance) {
+                tournamentChartInstance.destroy();
+            }
+
+            // Get data for selected year, default to current year if not available
+            const yearKey = String(year);
+            const data = tournamentsData[yearKey] || Array(12).fill(0);
+
+            tournamentChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9', 'T10', 'T11', 'T12'],
+                    datasets: [{
+                        label: `Số lượng giải đấu ${year}`,
+                        data: data,
+                        backgroundColor: 'rgba(0, 217, 181, 0.8)',
+                        borderColor: 'rgba(0, 217, 181, 1)',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        hoverBackgroundColor: 'rgba(0, 217, 181, 1)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            padding: 12,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 13 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                drawBorder: false,
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                font: { size: 11 }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function initAthleteChart() {
+            const ctx = document.getElementById('athleteChart').getContext('2d');
+            
+            if (athleteChartInstance) {
+                athleteChartInstance.destroy();
+            }
+
+            const colors = [
+                'rgba(0, 217, 181, 0.8)',
+                'rgba(66, 153, 225, 0.8)',
+                'rgba(237, 137, 54, 0.8)',
+                'rgba(236, 112, 86, 0.8)',
+                'rgba(156, 89, 182, 0.8)'
+            ];
+
+            athleteChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(athletesByContent),
+                    datasets: [{
+                        data: Object.values(athletesByContent),
+                        backgroundColor: colors,
+                        borderColor: '#fff',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 12 },
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                            padding: 12,
+                            titleFont: { size: 14 },
+                            bodyFont: { size: 13 },
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                    return context.label + ': ' + context.parsed + ' (' + percentage + '%)';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         // Toggle sidebar
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
@@ -460,6 +627,16 @@
         // Animate stats on load
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Overview Dashboard Loaded');
+            
+            // Initialize charts with current year
+            const currentYear = new Date().getFullYear();
+            initTournamentChart(currentYear);
+            initAthleteChart();
+
+            // Year selector change event
+            document.getElementById('yearSelect').addEventListener('change', (e) => {
+                initTournamentChart(parseInt(e.target.value));
+            });
         });
     </script>
 @endsection
