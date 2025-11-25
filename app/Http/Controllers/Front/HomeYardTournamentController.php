@@ -733,6 +733,7 @@ class HomeYardTournamentController extends Controller
         try {
             $tournaments = Tournament::where('user_id', auth()->id())
                 ->select('id', 'name')
+                ->with('categories:id,tournament_id,category_type,category_name')
                 ->latest()
                 ->get();
 
@@ -829,6 +830,7 @@ class HomeYardTournamentController extends Controller
             $userId = auth()->id();
             $perPage = $request->get('per_page', 10);
             $page = $request->get('page', 1);
+            $categoryType = $request->get('category_type'); // Get category type filter (single_men, single_women, etc.)
             
             // Get all tournaments created by the user
             $tournaments = Tournament::where('user_id', $userId)
@@ -848,7 +850,7 @@ class HomeYardTournamentController extends Controller
             }
 
             // Get all GroupStandings for these tournaments
-            $standings = GroupStanding::select([
+            $query = GroupStanding::select([
                 'id', 'athlete_id', 'group_id', 'points', 'matches_played', 'matches_won',
                 'matches_lost', 'matches_drawn', 'win_rate', 'sets_won', 'sets_lost', 
                 'sets_differential', 'games_won', 'games_lost', 'games_differential', 'is_advanced'
@@ -858,13 +860,21 @@ class HomeYardTournamentController extends Controller
                     $q->select('id', 'athlete_name', 'email', 'phone', 'category_id');
                 },
                 'athlete.category' => function ($q) {
-                    $q->select('id', 'category_name');
+                    $q->select('id', 'category_type', 'category_name');
                 }
             ])
             ->whereHas('group', function ($q) use ($tournaments) {
                 $q->whereIn('tournament_id', $tournaments);
-            })
-            ->get();
+            });
+            
+            // Filter by category type if provided
+            if ($categoryType) {
+                $query->whereHas('athlete.category', function ($q) use ($categoryType) {
+                    $q->where('category_type', $categoryType);
+                });
+            }
+            
+            $standings = $query->get();
 
             // Group by athlete and sum their points across all tournaments
             $athleteStats = $standings->groupBy('athlete_id')->map(function ($standings, $athleteId) {
