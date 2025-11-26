@@ -101,6 +101,39 @@
             margin-bottom: 15px;
             border-radius: 6px;
         }
+
+        .form-group.checkbox-group {
+            flex-direction: row;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .checkbox-item input[type="radio"] {
+            cursor: pointer;
+            width: 18px;
+            height: 18px;
+            accent-color: #0AC5B9;
+        }
+
+        .checkbox-item label {
+            margin-bottom: 0;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .error-message {
+            color: #dc2626;
+            font-size: 14px;
+            margin-top: 6px;
+        }
     </style>
 </head>
 
@@ -135,6 +168,30 @@
                 <input type="password" name="password_confirmation" placeholder="Nhập lại mật khẩu">
             </div>
 
+            <div class="form-group checkbox-group">
+                <div class="checkbox-item">
+                    <input type="radio" id="role_user" name="role_type" value="user" checked>
+                    <label for="role_user">Người dùng</label>
+                </div>
+                <div class="checkbox-item">
+                    <input type="radio" id="role_court_owner" name="role_type" value="court_owner">
+                    <label for="role_court_owner">Chủ sân</label>
+                </div>
+            </div>
+            @error('role_type')
+                <div class="error-message">{{ $message }}</div>
+            @enderror
+
+            <div class="form-group checkbox-group" style="gap: 8px; flex-direction: row;">
+                <div class="checkbox-item" style="flex: 1;">
+                    <input type="checkbox" id="terms" name="terms" value="1">
+                    <label for="terms">Tôi đồng ý với Điều khoản dịch vụ</label>
+                </div>
+            </div>
+            @error('terms')
+                <div class="error-message">{{ $message }}</div>
+            @enderror
+
             <button class="btn-primary">Đăng ký</button>
 
             @if (session('success'))
@@ -144,8 +201,8 @@
 
                 <script>
                     setTimeout(() => {
-                        window.location.href = "{{ route('login') }}";
-                    }, 1000); // 2 giây
+                        window.location.href = "{{ url('/admin/users') }}";
+                    }, 2000);
                 </script>
             @endif
 

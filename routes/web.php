@@ -230,6 +230,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/users', [UserPermissionController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/edit', [UserPermissionController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserPermissionController::class, 'update'])->name('users.update');
+    Route::post('/users/{user}/approve', [UserPermissionController::class, 'approve'])->name('users.approve');
+    Route::post('/users/{user}/reject', [UserPermissionController::class, 'reject'])->name('users.reject');
     Route::resource('news', NewsController::class);
     Route::resource('pages', PageController::class);
     Route::resource('categories', AdminCategoryController::class);

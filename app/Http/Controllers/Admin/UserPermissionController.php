@@ -44,4 +44,31 @@ class UserPermissionController extends Controller
             ->route('admin.users.index')
             ->with('success', 'User permissions updated successfully');
     }
+
+    // Approve user registration
+    public function approve(User $user)
+    {
+        $user->update(['status' => 'approved']);
+
+        // Auto-assign role based on role_type
+        if ($user->role_type === 'court_owner') {
+            $user->assignRole('home_yard');
+        } else {
+            $user->assignRole('user');
+        }
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', "Tài khoản {$user->name} đã được duyệt thành công!");
+    }
+
+    // Reject user registration
+    public function reject(User $user)
+    {
+        $user->update(['status' => 'rejected']);
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', "Tài khoản {$user->name} đã bị từ chối!");
+    }
 }

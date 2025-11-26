@@ -204,6 +204,23 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="form-label">Bạn là:</label>
+                            <div style="display: flex; gap: 16px; margin-top: 8px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;">
+                                    <input type="radio" name="role_type" value="user" checked required style="cursor: pointer;">
+                                    <span>Người dùng</span>
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;">
+                                    <input type="radio" name="role_type" value="court_owner" required style="cursor: pointer;">
+                                    <span>Chủ sân</span>
+                                </label>
+                            </div>
+                            @error('role_type')
+                                <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label class="checkbox-label">
                                 <input type="checkbox" class="form-checkbox" name="terms" required>
                                 <span>Tôi đồng ý với <a href="#">Điều khoản dịch vụ</a> và <a href="#">Chính sách bảo mật</a></span>

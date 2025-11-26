@@ -25,15 +25,17 @@ class AuthController extends Controller
     public function register(Request $req)
     {
         $req->validate([
-            'name'     => 'required|min:3',
-            'email'    => 'required|email|unique:users,email',
-            'phone'    => 'nullable|regex:/^\d{10,11}$/',
-            'password' => 'required|min:6|confirmed',
-            'terms'    => 'required'
+            'name'      => 'required|min:3',
+            'email'     => 'required|email|unique:users,email',
+            'phone'     => 'nullable|regex:/^\d{10,11}$/',
+            'password'  => 'required|min:6|confirmed',
+            'role_type' => 'required|in:user,court_owner',
+            'terms'     => 'required'
         ], [
             'email.unique' => 'Email này đã được sử dụng. Vui lòng chọn email khác.',
             'phone.regex' => 'Số điện thoại phải gồm 10 hoặc 11 chữ số.',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'role_type.required' => 'Vui lòng chọn loại tài khoản.',
             'terms.required' => 'Bạn phải chấp nhận Điều khoản dịch vụ.'
         ]);
 
@@ -42,9 +44,11 @@ class AuthController extends Controller
             'email' => $req->email,
             'phone' => $req->phone,
             'password' => Hash::make($req->password),
+            'role_type' => $req->role_type,
+            'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Đăng ký thành công! Vui lòng đăng nhập với tài khoản của bạn.');
+        return redirect('/admin/users')->with('success', 'Đăng ký thành công! Tài khoản của bạn đang chờ duyệt.');
     }
 
 
@@ -141,6 +145,8 @@ class AuthController extends Controller
                 'email' => $googleUser->getEmail(),
                 'google_id' => $googleUser->getId(),
                 'password' => Hash::make(str()->random(24)), // Generate random password for OAuth users
+                'role_type' => 'user',
+                'status' => 'approved',
             ]);
         } else {
             // Update google_id if user exists but doesn't have it
@@ -187,6 +193,8 @@ class AuthController extends Controller
                 'email' => $facebookUser->getEmail(),
                 'facebook_id' => $facebookUser->getId(),
                 'password' => Hash::make(str()->random(24)), // Generate random password for OAuth users
+                'role_type' => 'user',
+                'status' => 'approved',
             ]);
         } else {
             // Update facebook_id if user exists but doesn't have it
