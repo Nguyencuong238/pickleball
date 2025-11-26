@@ -414,12 +414,14 @@ class HomeController extends Controller
         // Statistics
         $totalSocials = Social::count();
         $totalStadiums = $stadiums->count();
+        $totalParticipants = DB::table('social_participants')->distinct('user_id')->count('user_id');
 
         return view('front.social_play', [
             'socials' => $socials,
             'stadiums' => $stadiums,
             'totalSocials' => $totalSocials,
             'totalStadiums' => $totalStadiums,
+            'totalParticipants' => $totalParticipants,
             'filters' => [
                 'search' => $request->input('search'),
                 'stadium_id' => $request->input('stadium_id'),

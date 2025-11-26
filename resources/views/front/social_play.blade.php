@@ -44,8 +44,8 @@
                 <div class="stat-box">
                     <div class="stat-icon">👥</div>
                     <div class="stat-content">
-                        <div class="stat-number">{{ $totalSocials }}+</div>
-                        <div class="stat-label"></div>
+                        <div class="stat-number">{{ $totalParticipants }}+</div>
+                        <div class="stat-label">Thành viên</div>
                     </div>
                 </div>
                 <div class="stat-box">
