@@ -1707,8 +1707,8 @@ class HomeYardTournamentController extends Controller
             'customer_email' => 'nullable|email|max:255',
             'booking_date' => 'required|date|after_or_equal:today',
             'start_time' => 'required|date_format:H:i',
-            'duration_hours' => 'required|integer|min:1',
-            'hourly_rate' => 'required|integer|min:0',
+            'duration_hours' => 'required|numeric|min:1',
+            'hourly_rate' => 'required|numeric|min:0',
             'payment_method' => 'required|in:cash,card,transfer,wallet',
             'notes' => 'nullable|string',
         ]);
@@ -1727,7 +1727,7 @@ class HomeYardTournamentController extends Controller
         // Calculate duration in hours
         $startTime = \DateTime::createFromFormat('H:i', $request->start_time);
         
-        $durationHours = $request->duration_hours;
+        $durationHours = (int) $request->duration_hours;
         $endTime = $startTime->modify('+' . $durationHours . ' hours');
 
         // Recalculate total price on server side with multi-price support
@@ -1755,7 +1755,7 @@ class HomeYardTournamentController extends Controller
         // Create booking
         $booking = Booking::create([
             'court_id' => $request->court_id,
-            'user_id' => auth()->id(),
+            'user_id' => auth()->id() ?? null,
             'customer_name' => $request->customer_name,
             'customer_phone' => $request->customer_phone,
             'customer_email' => $request->customer_email,
@@ -1763,7 +1763,7 @@ class HomeYardTournamentController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $endTime->format('H:i'),
             'duration_hours' => $durationHours,
-            'hourly_rate' => $request->hourly_rate,
+            'hourly_rate' => (int) $request->hourly_rate,
             'total_price' => $totalPrice,
             'status' => $request->status ?? 'pending',
             'payment_method' => $request->payment_method,
@@ -1786,13 +1786,17 @@ class HomeYardTournamentController extends Controller
     {
         try {
             $date = $request->query('date');
-
-            // Default time slots (6:00 - 21:00)
-            $timeSlots = [];
-            for ($hour = 6; $hour < 21; $hour++) {
-                $time = sprintf('%02d:00', $hour);
-                $timeSlots[] = $time;
+            
+            if (!$date) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ngày không hợp lệ'
+                ]);
             }
+
+            // Parse the booking date
+            $bookingDate = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+            $dayOfWeek = $bookingDate->dayOfWeek;
 
             // Get booked slots for this date
             $bookings = Booking::where('court_id', $court->id)
@@ -1808,6 +1812,64 @@ class HomeYardTournamentController extends Controller
                 ];
             }
 
+            // Generate time slots with pricing from court_pricing table
+            $timeSlots = [];
+            for ($hour = 5; $hour < 21; $hour++) {
+                $slotTime = sprintf('%02d:00', $hour);
+                $slotDateTime = \DateTime::createFromFormat('H:i', $slotTime);
+
+                // Get pricing for this hour
+                $pricing = CourtPricing::where('court_id', $court->id)
+                    ->where('is_active', true)
+                    ->where(function ($query) use ($bookingDate) {
+                        $query->whereNull('valid_from')
+                              ->orWhere('valid_from', '<=', $bookingDate);
+                    })
+                    ->where(function ($query) use ($bookingDate) {
+                        $query->whereNull('valid_to')
+                              ->orWhere('valid_to', '>=', $bookingDate);
+                    })
+                    ->where(function ($query) use ($slotDateTime) {
+                        $query->whereRaw('TIME(start_time) <= ?', [$slotDateTime->format('H:i:s')])
+                              ->whereRaw('TIME(end_time) > ?', [$slotDateTime->format('H:i:s')]);
+                    })
+                    ->where(function ($query) use ($dayOfWeek) {
+                        $query->whereNull('days_of_week')
+                              ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                    })
+                    ->orderByRaw('TIME(start_time) DESC')
+                    ->first();
+
+                // Use pricing if found, otherwise use court's rental_price
+                $price = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 150000);
+
+                // Check if this slot is booked
+                $isBooked = false;
+                $nextHour = $hour + 1;
+                $nextSlotTime = sprintf('%02d:00', $nextHour);
+                
+                foreach ($bookedSlots as $booked) {
+                    $bookedStart = \DateTime::createFromFormat('H:i:s', $booked['start_time']);
+                    $bookedEnd = \DateTime::createFromFormat('H:i:s', $booked['end_time']);
+                    $currentSlotStart = $slotDateTime;
+                    $currentSlotEnd = \DateTime::createFromFormat('H:i', $nextSlotTime);
+                    
+                    // Check if there's any overlap
+                    if ($currentSlotStart < $bookedEnd && $currentSlotEnd > $bookedStart) {
+                        $isBooked = true;
+                        break;
+                    }
+                }
+
+                $timeSlots[] = [
+                    'time' => $slotTime,
+                    'hour' => $hour,
+                    'end_hour' => $nextHour,
+                    'price' => $price,
+                    'is_booked' => $isBooked,
+                ];
+            }
+
             return response()->json([
                 'success' => true,
                 'available_slots' => $timeSlots,
@@ -1817,7 +1879,7 @@ class HomeYardTournamentController extends Controller
             Log::error('Get slots error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Không thể lấy dữ liệu khoảng thời gian'
+                'message' => 'Không thể lấy dữ liệu khoảng thời gian: ' . $e->getMessage()
             ]);
         }
     }

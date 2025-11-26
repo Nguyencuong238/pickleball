@@ -52,7 +52,8 @@ class HomeController extends Controller
 
     public function booking()
     {
-        return view('front.booking');
+        $courts = Court::where('is_active', true)->get();
+        return view('front.booking', compact('courts'));
     }
 
     public function courts(Request $request)

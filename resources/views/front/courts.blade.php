@@ -6,6 +6,13 @@
         .price-input {
             width: 50%;
         }
+        .address-truncate {
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
     </style>
 @endsection
 
@@ -379,9 +386,9 @@
                                                 <span class="info-value">{{ $stadium->opening_hours ?? 'Liên hệ' }}</span>
                                             </div>
                                             <div class="info-row price-row">
-                                                <span class="info-label">Địa chỉ:</span>
-                                                <span class="price-value">{{ $stadium->address ?? 'Không có' }}</span>
-                                            </div>
+                                                 <span class="info-label">SĐT:</span>
+                                                 <span class="price-value address-truncate" title="{{ $stadium->phone ?? 'Không có' }}">{{ Str::limit($stadium->phone, 40, '...') ?? 'Không có' }}</span>
+                                             </div>
                                         </div>
 
                                         <button class="btn btn-primary btn-block"
