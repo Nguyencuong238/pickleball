@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('stadium_id');
             $table->time('start_time');
             $table->time('end_time');
-            $table->json('days_of_week')->nullable()->after('end_time');
+            $table->json('days_of_week')->nullable();
             $table->integer('fee')->nullable()->default(0);
             $table->integer('max_participants')->nullable();
             $table->unsignedBigInteger('user_id');
