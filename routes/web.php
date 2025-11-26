@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Api\MediaUploadController;
 use App\Http\Controllers\FavoriteController;
+use App\Http\Controllers\SocialController;
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +73,7 @@ Route::get('/booking', [HomeController::class, 'booking'])->name('booking');
 Route::get('/courts', [HomeController::class, 'courts'])->name('courts');
 Route::get('/tournaments', [HomeController::class, 'tournaments'])->name('tournaments');
 Route::get('/social', [HomeController::class, 'social'])->name('social');
+Route::post('/social/{social}/join', [HomeController::class, 'joinSocial'])->name('social.join')->middleware('auth');
 Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{slug}', [FrontNewsController::class, 'show'])->name('news.show');
 Route::get('/page/{page}', [PageController::class, 'show'])->name('page.show');
@@ -222,6 +224,9 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
             ])
         ]);
     })->name('athlete-management.debug');
+
+    // Social Events Routes
+    Route::resource('socials', SocialController::class);
 });
 
 // Admin routes

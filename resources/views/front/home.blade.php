@@ -25,7 +25,7 @@
                 <!-- Stats -->
                 <div class="hero-stats">
                     <div class="stat-item">
-                        <h3 class="stat-number">2,500+</h3>
+                        <h3 class="stat-number">{{ $totalMembers }}+</h3>
                         <p class="stat-label">Thành viên</p>
                     </div>
                     <div class="stat-item">
@@ -33,11 +33,11 @@
                         <p class="stat-label">Sân thi đấu</p>
                     </div>
                     <div class="stat-item">
-                        <h3 class="stat-number">{{ $totalCourts }}+</h3>
-                        <p class="stat-label">Sân đơn lẻ</p>
+                        <h3 class="stat-number">{{ $totalTournaments }}+</h3>
+                        <p class="stat-label">Giải đấu</p>
                     </div>
                     <div class="stat-item">
-                        <h3 class="stat-number">300+</h3>
+                        <h3 class="stat-number">{{ $totalSocial }}+</h3>
                         <p class="stat-label">Buổi Social</p>
                     </div>
                 </div>

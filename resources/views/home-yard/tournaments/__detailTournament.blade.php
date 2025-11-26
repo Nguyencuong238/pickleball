@@ -108,7 +108,7 @@
                 <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
                     <div style="padding: 0.75rem; border-radius: 4px;">
                         <img src="{{ $tournament->getFirstMediaUrl('banner') }}"
-                            style="width: 100%; height: auto; border-radius: 6px;" alt="Banner Giải Đấu">
+                            style="max-width: 100%; height: 200px; border-radius: 6px;" alt="Banner Giải Đấu">
                     </div>
                 </div>
             </div>
@@ -116,10 +116,10 @@
                 <h4 style="margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 700; font-size: 0.95rem;">
                     Hình ảnh</h4>
                 <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
-                    <div style="padding: 0.75rem; border-radius: 4px;">
+                    <div style="margin: 0.75rem; border-radius: 4px; display: flex; gap: 10px; overflow-x: auto;">
                         @foreach ($tournament->getMedia('gallery') as $media)
                             <img src="{{ $media->getUrl() }}"
-                                style="width: 100%; height: auto; border-radius: 6px; margin-bottom:15px;"
+                                style="max-width: 100%; height: 200px; border-radius: 6px; margin-bottom:15px;"
                                 alt="Hình ảnh Giải Đấu">
                         @endforeach
                     </div>

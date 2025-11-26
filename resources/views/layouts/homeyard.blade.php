@@ -739,6 +739,10 @@
                         <span class="nav-icon">📅</span>
                         <span class="nav-text">Đặt Sân</span>
                     </a>
+                    <a href="{{ route('homeyard.socials.index') }}" class="nav-item">
+                        <span class="nav-icon">🎾</span>
+                        <span class="nav-text">Quản lý thi đấu Social</span>
+                    </a>
                 </div>
 
                 <div class="nav-section">

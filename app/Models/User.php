@@ -58,6 +58,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's social event participations
+     */
+    public function socialParticipants()
+    {
+        return $this->belongsToMany(Social::class, 'social_participants', 'user_id', 'social_id');
+    }
+
+    /**
      * Check if user has favorited a stadium
      */
     public function hasFavorited(Stadium $stadium)
