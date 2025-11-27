@@ -331,6 +331,14 @@
                 <i class="fas fa-trophy"></i> Giải Đấu
             </a>
 
+            <a href="" class="nav-link {{ request()->routeIs('admin.instructors.*') ? 'active' : '' }}">
+                <i class="fas fa-chalkboard-user"></i> Giảng Viên
+            </a>
+
+            <a href="" class="nav-link {{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
+                <i class="fas fa-video"></i> Video Pickleball
+            </a>
+
             <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
 
             <a href="{{ route('home') }}" class="nav-link" target="blank">
