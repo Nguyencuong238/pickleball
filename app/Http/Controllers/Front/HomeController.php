@@ -461,4 +461,10 @@ class HomeController extends Controller
             ],
         ]);
     }
+
+    public function instructors()
+    {
+        return view('front.instructors');
+    }
+
 }

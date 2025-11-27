@@ -176,6 +176,61 @@
             min-width: 150px;
         }
     }
+
+    /* Dropdown menu styles */
+    .nav-item.dropdown {
+        position: relative;
+    }
+
+    .nav-item.dropdown::after {
+        content: '';
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        height: 10px;
+        z-index: 39;
+    }
+
+    .dropdown-toggle {
+        display: flex;
+        align-items: center;
+    }
+
+    .nav-link.dropdown-toggle::after {
+        display: none !important;
+    }
+
+    .dropdown-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 0;
+        background-color: #fff;
+        min-width: 180px;
+        list-style: none;
+        padding: 0.5rem 0;
+        margin: 0;
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: none;
+        z-index: 40;
+    }
+
+    .nav-item.dropdown:hover .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-item {
+        display: block;
+        padding: 0.75rem 1rem;
+        color: #1e293b;
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f1f5f9;
+    }
 </style>
 <body>
     <!-- Header -->
@@ -199,6 +254,13 @@
                 <li><a href="{{ route('courts') }}" class="nav-link @if(request()->routeIs('courts')) active @endif">Sân thi đấu</a></li>
                 <li><a href="{{ route('social') }}" class="nav-link @if(request()->routeIs('social')) active @endif">Thi đấu Social</a></li>
                 <li><a href="{{ route('news') }}" class="nav-link @if(request()->routeIs('news')) active @endif">Tin tức</a></li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Academy</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
+                        <li><a href="#" class="dropdown-item">Video Pickleball</a></li>
+                    </ul>
+                </li>
                 <li><a href="#contact" class="nav-link">Liên hệ</a></li>
             </ul>
             

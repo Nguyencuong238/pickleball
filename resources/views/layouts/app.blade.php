@@ -289,6 +289,66 @@
                 font-size: 1.3rem;
             }
         }
+
+        /* ====== PAGINATION STYLES ====== */
+        .pagination {
+            display: flex;
+            list-style: none;
+            padding: 20px 0;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .pagination li {
+            margin: 0;
+        }
+
+        .pagination a,
+        .pagination span {
+            display: inline-block;
+            padding: 8px 12px;
+            min-width: 40px;
+            text-align: center;
+            text-decoration: none;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            color: #1e293b;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
+
+        .pagination a:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .pagination .active span {
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+        }
+
+        .pagination .disabled span {
+            color: #94a3b8;
+            cursor: not-allowed;
+            background-color: #f1f5f9;
+        }
+
+        /* Responsive pagination */
+        @media (max-width: 768px) {
+            .pagination {
+                gap: 4px;
+            }
+
+            .pagination a,
+            .pagination span {
+                padding: 6px 10px;
+                min-width: 36px;
+                font-size: 0.85rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -331,11 +391,11 @@
                 <i class="fas fa-trophy"></i> Giải Đấu
             </a>
 
-            <a href="" class="nav-link {{ request()->routeIs('admin.instructors.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.instructors.index') }}" class="nav-link {{ request()->routeIs('admin.instructors.*') ? 'active' : '' }}">
                 <i class="fas fa-chalkboard-user"></i> Giảng Viên
             </a>
 
-            <a href="" class="nav-link {{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.videos.index') }}" class="nav-link {{ request()->routeIs('admin.videos.*') ? 'active' : '' }}">
                 <i class="fas fa-video"></i> Video Pickleball
             </a>
 

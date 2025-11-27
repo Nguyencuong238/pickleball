@@ -20,6 +20,8 @@ use App\Http\Controllers\Admin\StadiumController;
 use App\Http\Controllers\Admin\TournamentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
+use App\Http\Controllers\Admin\InstructorController;
+use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Api\MediaUploadController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SocialController;
@@ -79,6 +81,7 @@ Route::get('/news/{slug}', [FrontNewsController::class, 'show'])->name('news.sho
 Route::get('/page/{page}', [PageController::class, 'show'])->name('page.show');
 Route::get('/courts-detail/{court_id}', [HomeController::class, 'courtsDetail'])->name('courts-detail');
 Route::get('/tournaments-detail/{tournament_id}', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
+Route::get('/instructors', [HomeController::class, 'instructors'])->name('instructors');
 
 // Booking API for front-end
 Route::post('/api/bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('api.bookings.store');
@@ -248,6 +251,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('tournaments', TournamentController::class)->only(['index', 'destroy']);
     Route::post('tournaments/{tournament}/athletes', [TournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [TournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
+    Route::resource('instructors', InstructorController::class);
+    Route::resource('videos', VideoController::class);
 });
 
 

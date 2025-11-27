@@ -32,6 +32,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Call individual seeders
+        $this->call([
+            ProvinceSeeder::class,
+            PermissionSeeder::class,
+            InstructorSeeder::class,
+            VideoSeeder::class,
+        ]);
+
         // ============================================
         // 1. CREATE ROLES & PERMISSIONS
         // ============================================
