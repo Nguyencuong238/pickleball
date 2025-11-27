@@ -76,7 +76,7 @@ class AuthController extends Controller
             }
 
             // Redirect to user dashboard
-            return redirect('/dashboard');
+            return redirect('/user/dashboard');
         }
 
         return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng!']);
@@ -167,7 +167,7 @@ class AuthController extends Controller
             return redirect(route('homeyard.overview'));
         }
 
-        return redirect('/dashboard');
+        return redirect('/user/dashboard');
     }
 
     // ---------- FACEBOOK OAUTH ----------
@@ -215,6 +215,6 @@ class AuthController extends Controller
             return redirect(route('homeyard.overview'));
         }
 
-        return redirect('/dashboard');
+        return redirect('/user/dashboard');
     }
 }

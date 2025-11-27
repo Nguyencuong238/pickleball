@@ -1749,6 +1749,8 @@
                             setTimeout(() => {
                                 closeAddAthleteModal();
                                 addAthleteForm.reset();
+                                // Set active tab to athletes before reload
+                                localStorage.setItem('activeTab', 'athletes');
                                 location.reload();
                             }, 1500);
                         } else {

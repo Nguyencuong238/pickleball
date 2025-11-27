@@ -68,6 +68,8 @@ class HomeYardTournamentController extends Controller
             'rules',
             'competition_rules',
             'competition_format',
+            'registration_deadline',
+            'prizes',
         ]);
 
         $data['user_id'] = auth()->id();

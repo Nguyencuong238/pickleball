@@ -191,19 +191,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Registration Button
-    const registrationButtons = document.querySelectorAll('.hero-actions .btn-primary, .registration-card .btn-primary');
-
-    registrationButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // In a real app, this would open a registration modal or redirect to registration page
-            if (confirm('Bạn có muốn đăng ký tham gia giải đấu này không?')) {
-                showNotification('Đang chuyển đến trang đăng ký...', 'info');
-                // Redirect to registration page
-                // window.location.href = 'tournament-registration.html';
-            }
-        });
-    });
+    // Registration Button - Now handled by modal in blade template
+    // Code removed as modal functionality is now in the blade file
 
     // Save Tournament Button
     const saveButton = document.querySelector('.hero-actions .btn-secondary');

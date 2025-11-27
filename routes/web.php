@@ -90,6 +90,8 @@ Route::get('/reviews/stadium/{stadium}', [ReviewController::class, 'getStadiumRe
 Route::get('/reviews/summary/{stadium}', [ReviewController::class, 'getRatingSummary'])->name('reviews.summary');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard');
+    
     Route::post('/reviews/store', [ReviewController::class, 'store'])->name('reviews.store');
     Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
