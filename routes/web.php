@@ -227,6 +227,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
 
     // Social Events Routes
     Route::resource('socials', SocialController::class);
+    Route::post('socials/bulk-delete', [SocialController::class, 'bulkDelete'])->name('socials.bulkDelete');
 });
 
 // Admin routes

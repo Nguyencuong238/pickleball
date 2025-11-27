@@ -40,7 +40,7 @@ class SocialController extends Controller
             'end_time' => 'required',
             'fee' => 'nullable|numeric|min:0',
             'max_participants' => 'nullable|integer|min:1',
-            'days_of_week' => 'nullable|array'
+            'days_of_week' => 'required|array'
         ]);
 
         $validated['days_of_week'] = $validated['days_of_week'] ?? [];
@@ -48,7 +48,14 @@ class SocialController extends Controller
 
         Social::create($validated);
 
-        return redirect()->route('homeyard.socials.index')->with('success', 'Sự kiện xã hội đã được tạo thành công');
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Lịch đấu social đã được tạo thành công'
+            ]);
+        }
+
+        return redirect()->route('homeyard.socials.index')->with('success', 'Lịch đấu social đã được tạo thành công');
     }
 
     /**
@@ -94,7 +101,7 @@ class SocialController extends Controller
             'end_time' => 'required',
             'fee' => 'nullable|numeric|min:0',
             'max_participants' => 'nullable|integer|min:1',
-            'days_of_week' => 'nullable|array'
+            'days_of_week' => 'required|array'
         ]);
 
         $validated['days_of_week'] = $validated['days_of_week'] ?? [];
@@ -103,11 +110,11 @@ class SocialController extends Controller
         if (request()->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Sự kiện xã hội đã được cập nhật thành công'
+                'message' => 'Lịch đấu social đã được cập nhật thành công'
             ]);
         }
 
-        return redirect()->route('homeyard.socials.index')->with('success', 'Sự kiện xã hội đã được cập nhật thành công');
+        return redirect()->route('homeyard.socials.index')->with('success', 'Lịch đấu social đã được cập nhật thành công');
     }
 
     /**
@@ -120,11 +127,41 @@ class SocialController extends Controller
         if (request()->wantsJson()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Sự kiện xã hội đã được xóa thành công'
+                'message' => 'Lịch đấu social đã được xóa thành công'
             ]);
         }
 
         return redirect()->route('homeyard.socials.index')
-            ->with('success', 'Sự kiện xã hội đã được xóa thành công');
+            ->with('success', 'Lịch đấu social đã được xóa thành công');
+    }
+
+    /**
+     * Bulk delete socials
+     */
+    public function bulkDelete(Request $request)
+    {
+        $ids = $request->input('ids', []);
+
+        if (empty($ids)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không có lịch thi đấu nào để xóa'
+            ], 400);
+        }
+
+        // Delete socials and authorize for each
+        $deleted = 0;
+        foreach ($ids as $id) {
+            $social = Social::find($id);
+            if ($social && auth()->id() == $social->user_id) {
+                $social->delete();
+                $deleted++;
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Đã xóa $deleted lịch thi đấu thành công"
+        ]);
     }
 }

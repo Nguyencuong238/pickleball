@@ -393,6 +393,17 @@
                 </button>
             </div>
 
+            <!-- Bulk Actions -->
+            <div class="bulk-actions" id="bulkActions">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <div class="bulk-info">
+                    <span id="selectedCount">0</span> lịch thi đấu được chọn
+                </div>
+                <button class="btn btn-danger btn-sm" onclick="deleteSelected()">
+                    🗑️ Xóa
+                </button>
+            </div>
+
             <!-- Social Grid -->
             <div class="social-grid" id="socialGrid">
                 @forelse($socials as $item)
@@ -404,8 +415,9 @@
                         $itemDate = strtotime($item->date);
                     @endphp
 
-                    <div class="social-card fade-in" data-location="{{ $item->stadium->name ?? 'N/A' }}"
-                        data-name="{{ $item->name }}" data-date="{{ $itemDate }}">
+                    <div class="social-card fade-in" data-location="{{ $item->stadium->name ?? '--' }}"
+                        data-name="{{ $item->name }}" data-date="{{ $itemDate }}" data-social-id="{{ $item->id }}">
+                        <input type="checkbox" class="tournament-checkbox" onchange="updateBulkActions()">
                         <div class="social-header">
                             <h3 class="social-title">{{ $item->name }}</h3>
                             <div class="social-date">
@@ -435,7 +447,7 @@
                                 </div>
                                 <div class="meta-item">
                                     <div class="meta-label">Sân</div>
-                                    <div class="meta-value">{{ $item->stadium->name ?? 'N/A' }}</div>
+                                    <div class="meta-value">{{ $item->stadium->name ?? '--' }}</div>
                                 </div>
                                 <div class="meta-item">
                                     <div class="meta-label">Đối tượng</div>
@@ -446,7 +458,7 @@
                                             'advanced' => 'Nâng cao',
                                         ];
                                     @endphp
-                                    <div class="meta-value">{{ $levels[$item->object] ?? 'N/A' }}</div>
+                                    <div class="meta-value">{{ $levels[$item->object] ?? '--' }}</div>
                                 </div>
                                 <div class="meta-item">
                                     <div class="meta-label">Phí tham gia</div>
@@ -733,7 +745,147 @@
             modal.classList.remove('show');
         }
 
+        // Handle form submission with AJAX for create
+        document.getElementById('socialForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const actionUrl = this.getAttribute('action');
+            
+            fetch(actionUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message);
+                    closeCreateModal();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    toastr.error(data.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(error => {
+                toastr.error('Có lỗi xảy ra. Vui lòng thử lại.');
+            });
+        });
+
+        // Handle form submission with AJAX for edit modal
+        document.addEventListener('submit', function(e) {
+            if (e.target.id === 'editSocialForm') {
+                e.preventDefault();
+                
+                const form = e.target;
+                const formData = new FormData(form);
+                const actionUrl = form.getAttribute('action');
+                
+                fetch(actionUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message);
+                        closeEditModal();
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        toastr.error(data.message || 'Có lỗi xảy ra');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('Có lỗi xảy ra. Vui lòng thử lại.');
+                });
+            }
+        });
+
+
+        // Bulk actions
+        function updateBulkActions() {
+            const checkboxes = document.querySelectorAll('.tournament-checkbox:checked');
+            const bulkActions = document.getElementById('bulkActions');
+            const selectedCount = document.getElementById('selectedCount');
+
+            if (checkboxes.length > 0) {
+                bulkActions.classList.add('show');
+                selectedCount.textContent = checkboxes.length;
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            const checkboxes = document.querySelectorAll('.tournament-checkbox');
+
+            checkboxes.forEach(cb => {
+                cb.checked = selectAll.checked;
+            });
+
+            updateBulkActions();
+        }
+
+        function deleteSelected() {
+            const checkboxes = document.querySelectorAll('.tournament-checkbox:checked');
+            if (checkboxes.length === 0) {
+                toastr.warning('Vui lòng chọn ít nhất một lịch thi đấu để xóa');
+                return;
+            }
+
+            if (!confirm(`Bạn có chắc chắn muốn xóa ${checkboxes.length} lịch thi đấu này?`)) {
+                return;
+            }
+
+            const socialIds = Array.from(checkboxes).map(cb => {
+                return cb.closest('.social-card').dataset.socialId;
+            });
+
+            fetch('{{ route("homeyard.socials.bulkDelete") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    ids: socialIds
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message);
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+                } else {
+                    toastr.error(data.message || 'Có lỗi xảy ra');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('Có lỗi xảy ra. Vui lòng thử lại.');
+            });
+        }
+
         // Handle select all days for create modal (initial page load)
         attachSelectAllDaysListener();
-    </script>
-@endsection
+        </script>
+        @endsection
