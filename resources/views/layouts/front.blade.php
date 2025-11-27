@@ -7,7 +7,7 @@
     <title>OnePickleball - Cộng Đồng Pickleball Việt Nam</title>
     <meta name="description" content="Nền tảng hàng đầu về Pickleball tại Việt Nam - Tin tức, giải đấu, sân thi đấu và cộng đồng">
 
-    <link rel="icon" href="{{asset('assets/images/logo.jpeg')}}">
+    <link rel="icon" href="{{asset('assets/images/logo.png')}}">
 
     <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
@@ -183,7 +183,7 @@
         <nav class="nav container">
             <div class="nav-brand">
                 <a href="/" class="sidebar-brand">
-                    <img src="{{ asset('assets/images/logo.jpeg') }}" alt="OnePickleball" width="80px">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="80px">
                 </a>
             </div>
             
@@ -257,7 +257,7 @@
             <div class="footer-content">
                 <div class="footer-col footer-about">
                     <div class="footer-brand">
-                        <img src="{{ asset('assets/images/logo.jpeg') }}" alt="OnePickleball" width="80px">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="80px">
                     </div>
                     <p class="footer-description">
                         Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam. Tìm sân, đăng ký giải đấu và kết nối với hàng ngàn tay vợt.

@@ -52,8 +52,8 @@
                             <span class="status-dot status-open"></span>
                             @php
                                 $openingHours = explode('-', $stadium->opening_hours);
-                                $closingTime = trim($openingHours[1]);
-                                $startTime = trim($openingHours[0]);
+                                $closingTime = trim($openingHours[1] ?? '');
+                                $startTime = trim($openingHours[0] ?? '');
                                 $currentTime = now()->format('H:i');
                                 $isOpen = $currentTime >= $startTime && $currentTime <= $closingTime;
                             @endphp
