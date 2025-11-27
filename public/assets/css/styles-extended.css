@@ -305,6 +305,8 @@
     align-items: center;
     gap: var(--spacing-xs);
     margin-top: var(--spacing-xl);
+    width: 100%;
+    flex-wrap: wrap;
 }
 
 .pagination-btn {
@@ -330,7 +332,8 @@
     border-color: transparent;
 }
 
-.pagination-btn:disabled {
+.pagination-btn:disabled,
+.pagination-btn.disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }

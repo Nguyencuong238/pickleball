@@ -258,7 +258,7 @@
                     <a href="#" class="nav-link dropdown-toggle">Academy</a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
-                        <li><a href="#" class="dropdown-item">Video Pickleball</a></li>
+                        <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
                     </ul>
                 </li>
                 <li><a href="#contact" class="nav-link">Liên hệ</a></li>

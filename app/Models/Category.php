@@ -47,4 +47,10 @@ class Category extends Model
     {
         return $this->hasMany(News::class);
     }
+
+    // Relationship: Category has many Videos
+    public function videos()
+    {
+        return $this->hasMany(Video::class);
+    }
 }

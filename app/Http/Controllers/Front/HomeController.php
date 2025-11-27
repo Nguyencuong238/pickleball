@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Front;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Court;
+use App\Models\Instructor;
 use App\Models\News;
 use App\Models\Province;
 use App\Models\Social;
 use App\Models\Stadium;
 use App\Models\Tournament;
 use App\Models\User;
+use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -462,9 +464,115 @@ class HomeController extends Controller
         ]);
     }
 
-    public function instructors()
+    public function instructors(Request $request)
     {
-        return view('front.instructors');
+        $query = Instructor::with('province');
+
+        // Search by name or ward
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('ward', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by city (province)
+        if ($request->has('city') && $request->city) {
+            $query->where('province_id', $request->city);
+        }
+
+        // Filter by experience
+        if ($request->has('experience') && $request->experience) {
+            $experience = $request->experience;
+            if ($experience === '1-3') {
+                $query->whereBetween('experience', [1, 3]);
+            } elseif ($experience === '3-5') {
+                $query->whereBetween('experience', [3, 5]);
+            } elseif ($experience === '5+') {
+                $query->where('experience', '>=', 5);
+            }
+        }
+
+        // Sort
+        $sort = $request->get('sort', 'rating');
+        if ($sort === 'experience') {
+            $query->orderBy('experience', 'desc');
+        } elseif ($sort === 'newest') {
+            $query->orderBy('id', 'desc');
+        } else {
+            // Default: rating (you might need to add a rating column)
+            $query->orderBy('id', 'desc');
+        }
+
+        $instructors = $query->paginate(6);
+        return view('front.instructors', compact('instructors'));
+    }
+
+    public function instructorDetail($id)
+    {
+        $instructor = Instructor::with('province')->findOrFail($id);
+        
+        // Get similar instructors (same province, limit 3)
+        $similarInstructors = Instructor::with('province')
+            ->where('province_id', $instructor->province_id)
+            ->where('id', '!=', $instructor->id)
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
+        
+        return view('front.instructors.instructor_detail', [
+            'instructor' => $instructor,
+            'similarInstructors' => $similarInstructors,
+        ]);
+    }
+
+    public function course(Request $request)
+    {
+        $query = Video::query();
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('description', 'like', "%{$search}%");
+        }
+
+        // Category filter
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->input('category'));
+        }
+
+        $videos = $query->paginate(6)->appends($request->query());
+        
+        // Categories for filter
+        $categories = Category::has('videos')->get();
+
+        return view('front.course', [
+            'videos' => $videos,
+            'categories' => $categories,
+            'filters' => [
+                'search' => $request->input('search'),
+                'category' => $request->input('category'),
+            ],
+        ]);
+    }
+
+    public function courseDetail($id)
+    {
+        $video = Video::with('category')->findOrFail($id);
+        
+        // Get related videos (same category, limit 5)
+        $relatedVideos = Video::where('category_id', $video->category_id)
+            ->where('id', '!=', $video->id)
+            ->inRandomOrder()
+            ->limit(5)
+            ->get();
+        
+        return view('front.courses.courses_detail', [
+            'video' => $video,
+            'relatedVideos' => $relatedVideos,
+        ]);
     }
 
 }
