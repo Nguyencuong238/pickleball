@@ -486,21 +486,15 @@
             </div>
 
             <!-- Bulk Actions -->
-            {{-- <div class="bulk-actions" id="bulkActions">
+            <div class="bulk-actions" id="bulkActions">
                 <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                 <div class="bulk-info">
                     <span id="selectedCount">0</span> giải đấu được chọn
                 </div>
-                <button class="btn btn-secondary btn-sm">
-                    📋 Nhân bản
-                </button>
-                <button class="btn btn-secondary btn-sm">
-                    📦 Archive
-                </button>
                 <button class="btn btn-danger btn-sm">
                     🗑️ Xóa
                 </button>
-            </div> --}}
+            </div>
 
             <!-- View Tabs -->
             <div class="view-tabs fade-in">
@@ -564,6 +558,7 @@
                     <div class="tournament-card fade-in" data-status="{{ $statusText }}" data-format="{{ $formatText }}"
                         data-location="{{ $item->location ?? 'N/A' }}" data-name="{{ $item->name }}"
                         data-date="{{ strtotime($item->start_date) }}">
+                        <input type="checkbox" class="tournament-checkbox" onchange="updateBulkActions()">
                         <div class="tournament-header">
                             <span class="tournament-status">
                                 <span class="badge {{ $statusBadge }}">{{ $statusText }}</span>

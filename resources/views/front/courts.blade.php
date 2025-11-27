@@ -36,7 +36,7 @@
                         <path d="m21 21-4.35-4.35" />
                     </svg>
                     <input type="text" name="search" class="main-search-input"
-                        placeholder="Tìm kiếm sân theo tên, địa chỉ..." value="{{ $filters['search'] ?? '' }}">
+                        placeholder="Tìm kiếm sân theo tên, địa chỉ..." value="{{ request('search') }}">
                 </div>
                 <div class="search-location-group">
                     <svg class="location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -45,10 +45,10 @@
                     </svg>
                     <select name="location" class="location-select">
                         <option value="">Tất cả khu vực</option>
-                        @forelse($locations as $loc)
-                            <option value="{{ $loc }}"
-                                {{ ($filters['location'] ?? '') === $loc ? 'selected' : '' }}>
-                                {{ $loc }}
+                        @forelse($provinces as $p)
+                            <option value="{{ $p->id }}"
+                                {{ request('location') == $p->id ? 'selected' : '' }}>
+                                {{ $p->name }}
                             </option>
                         @empty
                         @endforelse
@@ -134,16 +134,6 @@
                 <div class="toggle-right">
                     <span class="result-text">
                         Tìm thấy <strong>{{ $totalStadiums }} sân</strong>
-                        @if (
-                            $filters['search'] ||
-                                $filters['price_min'] ||
-                                $filters['price_max'] ||
-                                $filters['location'] ||
-                                $filters['courts_range'] ||
-                                $filters['rating']
-                        )
-                            <span style="color: #999;">(với bộ lọc)</span>
-                        @endif
                     </span>
                     <button type="button" class="filter-mobile-btn btn btn-outline">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -183,10 +173,10 @@
                             <label class="filter-label">Giá thuê (nghìn VNĐ/giờ)</label>
                             <div class="price-range-inputs">
                                 <input type="number" name="price_min" class="price-input" placeholder="Từ"
-                                    min="0" value="{{ $filters['price_min'] ?? '' }}">
+                                    min="0" value="{{ request('price_min') }}">
                                 <span>-</span>
                                 <input type="number" name="price_max" class="price-input" placeholder="Đến"
-                                    min="0" value="{{ $filters['price_max'] ?? '' }}">
+                                    min="0" value="{{ request('price_max') }}">
                             </div>
                         </div>
 
@@ -196,25 +186,25 @@
                             <div class="filter-options">
                                 <label class="filter-radio">
                                     <input type="radio" name="rating" value=""
-                                        {{ !($filters['rating'] ?? null) ? 'checked' : '' }}>
+                                        {{ !request('rating') ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>Tất cả</span>
                                 </label>
                                 <label class="filter-radio">
                                     <input type="radio" name="rating" value="5"
-                                        {{ ($filters['rating'] ?? null) === '5' ? 'checked' : '' }}>
+                                        {{ request('rating') == '5' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span class="rating-stars">⭐⭐⭐⭐⭐ 5.0</span>
                                 </label>
                                 <label class="filter-radio">
                                     <input type="radio" name="rating" value="4"
-                                        {{ ($filters['rating'] ?? null) === '4' ? 'checked' : '' }}>
+                                        {{ request('rating') == '4' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span class="rating-stars">⭐⭐⭐⭐ 4.0+</span>
                                 </label>
                                 <label class="filter-radio">
                                     <input type="radio" name="rating" value="3"
-                                        {{ ($filters['rating'] ?? null) === '3' ? 'checked' : '' }}>
+                                        {{ request('rating') == '3' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span class="rating-stars">⭐⭐⭐ 3.0+</span>
                                 </label>
@@ -264,25 +254,25 @@
                             <div class="filter-options">
                                 <label class="filter-radio">
                                     <input type="radio" name="courts_range" value=""
-                                        {{ !($filters['courts_range'] ?? null) ? 'checked' : '' }}>
+                                        {{ !request('courts_range') ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>Tất cả</span>
                                 </label>
                                 <label class="filter-radio">
                                     <input type="radio" name="courts_range" value="1-3"
-                                        {{ ($filters['courts_range'] ?? null) === '1-3' ? 'checked' : '' }}>
+                                        {{ request('courts_range') == '1-3' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>1-3 sân</span>
                                 </label>
                                 <label class="filter-radio">
                                     <input type="radio" name="courts_range" value="4-6"
-                                        {{ ($filters['courts_range'] ?? null) === '4-6' ? 'checked' : '' }}>
+                                        {{ request('courts_range') == '4-6' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>4-6 sân</span>
                                 </label>
                                 <label class="filter-radio">
                                     <input type="radio" name="courts_range" value="7+"
-                                        {{ ($filters['courts_range'] ?? null) === '7+' ? 'checked' : '' }}>
+                                        {{ request('courts_range') == '7+' ? 'checked' : '' }}>
                                     <span class="radio-custom"></span>
                                     <span>7+ sân</span>
                                 </label>

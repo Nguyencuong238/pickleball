@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Court;
 use App\Models\News;
+use App\Models\Province;
+use App\Models\Social;
 use App\Models\Stadium;
 use App\Models\Tournament;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -37,16 +40,22 @@ class HomeController extends Controller
 
         // Statistics
         $totalStadiums = Stadium::where('status', 'active')->count();
-        $totalCourts = Court::whereIn('stadium_id', 
-            Stadium::where('status', 'active')->pluck('id')
-        )->count();
+        $totalTournaments = Tournament::where('status', 'active')->count();
+
+        $totalMembers = User::whereHas('roles', function ($query) {
+            $query->where('name', '<>', 'admin');
+        })->count();
+
+        $totalSocial = Social::count();
 
         return view('front.home', [
             'featuredStadiums' => $featuredStadiums,
             'latestNews' => $latestNews,
             'upcomingTournaments' => $upcomingTournaments,
             'totalStadiums' => $totalStadiums,
-            'totalCourts' => $totalCourts,
+            'totalTournaments' => $totalTournaments,
+            'totalMembers' => $totalMembers,
+            'totalSocial' => $totalSocial,
         ]);
     }
 
@@ -82,8 +91,7 @@ class HomeController extends Controller
 
         // Location filter - lọc theo địa điểm
         if ($request->filled('location')) {
-            $location = $request->input('location');
-            $query->where('address', 'like', "%{$location}%");
+            $query->where('province_id', $request->input('location'));
         }
 
         // Courts count filter - lọc theo số sân
@@ -110,18 +118,8 @@ class HomeController extends Controller
             $q->where('status', 'active');
         })->count();
 
-        // Get unique locations for filter dropdown
-        $locations = Stadium::where('status', 'active')
-            ->distinct()
-            ->pluck('address')
-            ->map(function ($address) {
-                // Extract city/province from address
-                $parts = explode(',', $address);
-                return trim(end($parts)); // Get last part (usually province)
-            })
-            ->unique()
-            ->sort()
-            ->values();
+        // Get provinces
+        $provinces = Province::all();
 
         // Paginate results
         $stadiums = $query->paginate(10)->appends($request->query());
@@ -138,7 +136,7 @@ class HomeController extends Controller
             'stadiums' => $stadiums,
             'totalStadiums' => $totalStadiums,
             'totalCourts' => $totalCourts,
-            'locations' => $locations,
+            'provinces' => $provinces,
             'userFavorites' => $userFavorites,
             'filters' => [
                 'search' => $request->input('search'),
@@ -325,9 +323,102 @@ class HomeController extends Controller
         ]);
     }
 
-    public function social()
+    public function joinSocial(Social $social)
     {
-        return view('front.social_play');
+        // Check if user is already a participant
+        if (auth()->user()->socialParticipants()->where('social_id', $social->id)->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Bạn đã tham gia lịch đấu này rồi'
+            ], 422);
+        }
+
+        // Check if social is full
+        $participantCount = $social->participants()->count();
+        if ($social->max_participants && $participantCount >= $social->max_participants) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lịch đấu đã đủ người tham gia'
+            ], 422);
+        }
+
+        // Add user as participant with timestamps
+        auth()->user()->socialParticipants()->attach($social->id, [
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Tham gia lịch đấu thành công'
+        ]);
+    }
+
+    public function social(Request $request)
+    {
+        $query = Social::query();
+
+        // Search filter
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('object', 'like', "%{$search}%");
+        }
+
+        // Stadium filter
+        if ($request->filled('stadium_id')) {
+            $query->where('stadium_id', $request->input('stadium_id'));
+        }
+
+        // Object filter
+        if ($request->filled('object')) {
+            $query->where('object', $request->input('object'));
+        }
+
+        // Days of week filter
+        if ($request->filled('date')) {
+            $day = $request->input('date');
+            $query->where('days_of_week', 'like', '%' . $day . '%');
+        }
+
+        $socials = $query->paginate(10)->appends($request->query());
+
+        // Add join status for each social event
+        if (auth()->check()) {
+            $socials->getCollection()->transform(function($social) {
+                $social->user_joined = auth()->user()->socialParticipants()
+                    ->where('social_id', $social->id)
+                    ->exists();
+                return $social;
+            });
+        } else {
+            $socials->getCollection()->transform(function($social) {
+                $social->user_joined = false;
+                return $social;
+            });
+        }
+
+        // Get unique stadiums for filter dropdown
+        $stadiums = Stadium::where('status', 'active')->whereIn('id', $query->get()->pluck('stadium_id'))->get();
+
+        // Statistics
+        $totalSocials = Social::count();
+        $totalStadiums = $stadiums->count();
+        $totalParticipants = DB::table('social_participants')->distinct('user_id')->count('user_id');
+
+        return view('front.social_play', [
+            'socials' => $socials,
+            'stadiums' => $stadiums,
+            'totalSocials' => $totalSocials,
+            'totalStadiums' => $totalStadiums,
+            'totalParticipants' => $totalParticipants,
+            'filters' => [
+                'search' => $request->input('search'),
+                'stadium_id' => $request->input('stadium_id'),
+                'object' => $request->input('object'),
+                'date' => $request->input('date'),
+            ],
+        ]);
     }
 
     public function news(Request $request)

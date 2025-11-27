@@ -18,6 +18,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <!-- jQuery (Required for Toastr) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
      @yield('css')
 </head>
 <style>
@@ -192,7 +197,7 @@
                 <li><a href="/" class="nav-link @if(request()->routeIs('home')) active @endif">Trang chủ</a></li>
                 <li><a href="{{ route('tournaments') }}" class="nav-link @if(request()->routeIs('tournaments')) active @endif">Giải đấu</a></li>
                 <li><a href="{{ route('courts') }}" class="nav-link @if(request()->routeIs('courts')) active @endif">Sân thi đấu</a></li>
-                <li><a href="{{ route('social') }}" class="nav-link @if(request()->routeIs('social')) active @endif">Giờ đi đấu</a></li>
+                <li><a href="{{ route('social') }}" class="nav-link @if(request()->routeIs('social')) active @endif">Thi đấu Social</a></li>
                 <li><a href="{{ route('news') }}" class="nav-link @if(request()->routeIs('news')) active @endif">Tin tức</a></li>
                 <li><a href="#contact" class="nav-link">Liên hệ</a></li>
             </ul>
@@ -286,7 +291,7 @@
                     <ul class="footer-links">
                         <li><a href="#tournaments">Giải đấu</a></li>
                         <li><a href="#courts">Sân thi đấu</a></li>
-                        <li><a href="#social">Giờ đi đấu Social</a></li>
+                        <li><a href="#social">Thi đấu Social</a></li>
                         <li><a href="#news">Tin tức</a></li>
                     </ul>
                 </div>
