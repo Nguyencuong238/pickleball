@@ -56,6 +56,9 @@
                                         @endif
                                     </td>
                                     <td class="d-flex" style="padding: 15px 20px; text-align: center;">
+                                        <a href="{{ route('admin.tournaments.edit', $tournament) }}" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-right: 5px; cursor: pointer;">
+                                            Sửa
+                                        </a>
                                         <form method="POST" action="{{ route('admin.tournaments.destroy', $tournament) }}" style="display: inline;">
                                             @csrf
                                             @method('DELETE')

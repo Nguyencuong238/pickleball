@@ -40,6 +40,9 @@
                                     @endif
                                 </td>
                                 <td style="padding: 15px 20px; text-align: center;">
+                                    <a href="{{ route('admin.stadiums.edit', $stadium) }}" class="btn btn-sm" style="background: #3b82f6; color: white; border: none; padding: 6px 12px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-block; margin-right: 5px;">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                     <form method="POST" action="{{ route('admin.stadiums.destroy', $stadium) }}" style="display: inline;">
                                         @csrf
                                         @method('DELETE')

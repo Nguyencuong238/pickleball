@@ -12,31 +12,7 @@ class Stadium extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, SyncMediaCollection;
 
-    protected $fillable = [
-        'user_id',
-        'name',
-        'description',
-        'address',
-        'province_id',
-        'phone',
-        'email',
-        'website',
-        'court_surface',
-        'image',
-        'latitude',
-        'longitude',
-        'opening_hours',
-        'amenities',
-        'utilities',
-        'regulations',
-        'status',
-        'featured_status',
-        'verified',
-        'rating',
-        'rating_count',
-        'is_featured',
-        'is_premium',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'amenities' => 'array',

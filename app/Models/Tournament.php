@@ -12,31 +12,7 @@ class Tournament extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, SyncMediaCollection;
 
-    protected $fillable = [
-        'user_id',
-        'name',
-        'description',
-        'start_date',
-        'end_date',
-        'registration_deadline',
-        'location',
-        'max_participants',
-        'price',
-        'rules',
-        'prizes',
-        'status',
-        'image',
-        'competition_format',
-        'tournament_rank',
-        'registration_benefits',
-        'competition_rules',
-        'event_timeline',
-        'social_information',
-        'organizer_email',
-        'organizer_hotline',
-        'competition_schedule',
-        'results',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'start_date' => 'date',

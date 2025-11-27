@@ -244,8 +244,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('pages', PageController::class);
     Route::resource('categories', AdminCategoryController::class);
 
-    Route::resource('stadiums', StadiumController::class)->only(['index', 'destroy']);
-    Route::resource('tournaments', TournamentController::class)->only(['index', 'destroy']);
+    Route::resource('stadiums', StadiumController::class)->except(['create', 'store']);
+    Route::resource('tournaments', TournamentController::class)->except(['create', 'store']);
     Route::post('tournaments/{tournament}/athletes', [TournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [TournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
 });
