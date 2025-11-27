@@ -39,7 +39,7 @@ class NewsController extends Controller
 
         $data = $request->only('title', 'content', 'category_id', 'is_featured');
         $data['author'] = Auth::user()->name;
-        $data['status'] = 'active';
+        // $data['status'] = 'active';
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('news_images', 'public');
