@@ -17,7 +17,7 @@
         <nav class="nav container">
             <div class="nav-brand">
                 <a href="/" class="sidebar-brand">
-                    <img src="{{ asset('assets/images/logo.jpeg') }}" alt="OnePickleball" width="80px">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="80px">
                 </a>
             </div>
         </nav>
