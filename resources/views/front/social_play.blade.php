@@ -37,7 +37,7 @@
     @endphp
     <section class="page-header">
         <div class="container">
-            <h1 class="page-title">Giờ Đi Đấu Social</h1>
+            <h1 class="page-title">Thi Đấu Social</h1>
             <p class="page-description">Tham gia cộng đồng, tìm đối thủ và nâng cao kỹ năng Pickleball</p>
 
             <div class="quick-stats">

@@ -210,10 +210,10 @@
     </section>
 
     <!-- Social Play Section -->
-    <section class="social section" id="social">
+    {{-- <section class="social section" id="social">
         <div class="container">
             <div class="section-header">
-                <span class="section-badge">Giờ đi đấu Social</span>
+                <span class="section-badge">Thi đấu Social</span>
                 <h2 class="section-title">Tham gia cộng đồng</h2>
                 <p class="section-description">Kết nối với các tay vợt cùng trình độ, giao lưu và phát triển kỹ năng</p>
             </div>
@@ -343,7 +343,7 @@
                 <button class="btn btn-secondary">Xem lịch đầy đủ</button>
             </div>
         </div>
-    </section>
+    </section> --}}
     <!-- News Section -->
     <section class="news section section-alt" id="news">
         <div class="container">

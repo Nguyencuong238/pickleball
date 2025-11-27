@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Court;
 use App\Models\News;
+use App\Models\Province;
 use App\Models\Social;
 use App\Models\Stadium;
 use App\Models\Tournament;
@@ -90,8 +91,7 @@ class HomeController extends Controller
 
         // Location filter - lọc theo địa điểm
         if ($request->filled('location')) {
-            $location = $request->input('location');
-            $query->where('address', 'like', "%{$location}%");
+            $query->where('province_id', $request->input('location'));
         }
 
         // Courts count filter - lọc theo số sân
@@ -118,18 +118,8 @@ class HomeController extends Controller
             $q->where('status', 'active');
         })->count();
 
-        // Get unique locations for filter dropdown
-        $locations = Stadium::where('status', 'active')
-            ->distinct()
-            ->pluck('address')
-            ->map(function ($address) {
-                // Extract city/province from address
-                $parts = explode(',', $address);
-                return trim(end($parts)); // Get last part (usually province)
-            })
-            ->unique()
-            ->sort()
-            ->values();
+        // Get provinces
+        $provinces = Province::all();
 
         // Paginate results
         $stadiums = $query->paginate(10)->appends($request->query());
@@ -146,7 +136,7 @@ class HomeController extends Controller
             'stadiums' => $stadiums,
             'totalStadiums' => $totalStadiums,
             'totalCourts' => $totalCourts,
-            'locations' => $locations,
+            'provinces' => $provinces,
             'userFavorites' => $userFavorites,
             'filters' => [
                 'search' => $request->input('search'),

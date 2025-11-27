@@ -36,23 +36,36 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Điện Thoại</label>
-                    <input type="tel" name="phone" class="form-input" value="{{ old('phone', $stadium->phone) }}">
+                    <label class="form-label">Tỉnh/Thành Phố</label>
+                    <select name="province_id" class="form-input">
+                        <option value="">-- Chọn Tỉnh/Thành Phố --</option>
+                        @forelse ($provinces as $province)
+                            <option value="{{ $province->id }}" {{ old('province_id', $stadium->province_id) == $province->id ? 'selected' : '' }}>
+                                {{ $province->name }}
+                            </option>
+                        @empty
+                            <option value="">Không có tỉnh/thành phố</option>
+                        @endforelse
+                    </select>
                 </div>
             </div>
 
             <div class="grid grid-2">
+                <div class="form-group">
+                    <label class="form-label">Điện Thoại</label>
+                    <input type="tel" name="phone" class="form-input" value="{{ old('phone', $stadium->phone) }}">
+                </div>
 
                 <div class="form-group">
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-input" value="{{ old('email', $stadium->email) }}">
                 </div>
 
-                <div class="form-group">
+                {{-- <div class="form-group">
                     <label class="form-label">Website</label>
                     <input type="text" name="website" class="form-input"
                         value="{{ old('website', $stadium->website) }}">
-                </div>
+                </div> --}}
             </div>
 
 

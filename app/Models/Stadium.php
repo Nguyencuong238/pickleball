@@ -17,6 +17,7 @@ class Stadium extends Model implements HasMedia
         'name',
         'description',
         'address',
+        'province_id',
         'phone',
         'email',
         'website',
@@ -60,6 +61,11 @@ class Stadium extends Model implements HasMedia
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
     }
 
     /**

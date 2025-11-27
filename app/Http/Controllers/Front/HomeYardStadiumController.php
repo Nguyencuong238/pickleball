@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Stadium;
+use App\Models\Province;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -24,7 +25,8 @@ class HomeYardStadiumController extends Controller
     public function create()
     {
         $stadium = new Stadium();
-        return view('home-yard.stadiums.create', compact('stadium'));
+        $provinces = Province::all();
+        return view('home-yard.stadiums.create', compact('stadium', 'provinces'));
     }
 
     public function store(Request $request)
@@ -33,6 +35,7 @@ class HomeYardStadiumController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'address' => 'required|string|max:255',
+            'province_id' => 'nullable|exists:provinces,id',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email',
             'court_surface' => 'nullable|string|max:255',
@@ -46,6 +49,7 @@ class HomeYardStadiumController extends Controller
             'name',
             'description',
             'address',
+            'province_id',
             'phone',
             'email',
             'website',
@@ -73,7 +77,8 @@ class HomeYardStadiumController extends Controller
     public function edit(Stadium $stadium)
     {
         $this->checkOwnership($stadium);
-        return view('home-yard.stadiums.edit', compact('stadium'));
+        $provinces = Province::all();
+        return view('home-yard.stadiums.edit', compact('stadium', 'provinces'));
     }
 
     public function update(Request $request, Stadium $stadium)
@@ -83,6 +88,7 @@ class HomeYardStadiumController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'address' => 'required|string|max:255',
+            'province_id' => 'nullable|exists:provinces,id',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email',
             'court_surface' => 'nullable|string|max:255',
@@ -95,6 +101,7 @@ class HomeYardStadiumController extends Controller
             'name',
             'description',
             'address',
+            'province_id',
             'phone',
             'email',
             'website',
