@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
 use App\Models\Category;
 use App\Models\Court;
+use App\Models\CourtPricing;
 use App\Models\Instructor;
 use App\Models\News;
 use App\Models\Province;
@@ -15,6 +17,8 @@ use App\Models\User;
 use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
 
 class HomeController extends Controller
 {
@@ -65,6 +69,247 @@ class HomeController extends Controller
     {
         $courts = Court::where('is_active', true)->get();
         return view('front.booking', compact('courts'));
+    }
+
+    public function getAvailableSlots(Court $court, Request $request)
+    {
+        try {
+            $date = $request->query('date');
+            
+            if (!$date) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ngày không hợp lệ'
+                ]);
+            }
+
+            // Parse the booking date
+            $bookingDate = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+            $dayOfWeek = $bookingDate->dayOfWeek;
+
+            // Get booked slots for this date
+            $bookings = Booking::where('court_id', $court->id)
+                ->where('booking_date', $date)
+                ->where('status', '!=', 'cancelled')
+                ->get(['start_time', 'end_time', 'status']);
+
+            $bookedSlots = [];
+            foreach ($bookings as $booking) {
+                $bookedSlots[] = [
+                    'start_time' => $booking->start_time,
+                    'end_time' => $booking->end_time,
+                    'status' => $booking->status
+                ];
+            }
+
+            // Generate time slots with pricing from court_pricing table
+            $timeSlots = [];
+            for ($hour = 5; $hour < 21; $hour++) {
+                $slotTime = sprintf('%02d:00', $hour);
+                $slotDateTime = \DateTime::createFromFormat('H:i', $slotTime);
+
+                // Get pricing for this hour
+                $pricing = CourtPricing::where('court_id', $court->id)
+                    ->where('is_active', true)
+                    ->where(function ($query) use ($bookingDate) {
+                        $query->whereNull('valid_from')
+                              ->orWhere('valid_from', '<=', $bookingDate);
+                    })
+                    ->where(function ($query) use ($bookingDate) {
+                        $query->whereNull('valid_to')
+                              ->orWhere('valid_to', '>=', $bookingDate);
+                    })
+                    ->where(function ($query) use ($slotDateTime) {
+                        $query->whereRaw('TIME(start_time) <= ?', [$slotDateTime->format('H:i:s')])
+                              ->whereRaw('TIME(end_time) > ?', [$slotDateTime->format('H:i:s')]);
+                    })
+                    ->where(function ($query) use ($dayOfWeek) {
+                        $query->whereNull('days_of_week')
+                              ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                    })
+                    ->orderByRaw('TIME(start_time) DESC')
+                    ->first();
+
+                // Use pricing if found, otherwise use court's rental_price
+                $price = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 0);
+
+                // Check if this slot is booked
+                $isBooked = false;
+                $isPending = false;
+                $nextHour = $hour + 1;
+                $nextSlotTime = sprintf('%02d:00', $nextHour);
+                
+                foreach ($bookedSlots as $booked) {
+                    $bookedStart = \DateTime::createFromFormat('H:i:s', $booked['start_time']);
+                    $bookedEnd = \DateTime::createFromFormat('H:i:s', $booked['end_time']);
+                    $currentSlotStart = $slotDateTime;
+                    $currentSlotEnd = \DateTime::createFromFormat('H:i', $nextSlotTime);
+                    
+                    // Check if there's any overlap
+                    if ($currentSlotStart < $bookedEnd && $currentSlotEnd > $bookedStart && $booked['status'] != 'cancelled') {
+                        if($booked['status'] == 'pending') {
+                            $isPending = true;
+                        } else {
+                            $isBooked = true;
+                        }
+                        break;
+                    }
+                }
+
+                $timeSlots[] = [
+                    'time' => $slotTime,
+                    'hour' => $hour,
+                    'end_hour' => $nextHour,
+                    'price' => $price,
+                    'is_booked' => $isBooked,
+                    'is_pending' => $isPending,
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'available_slots' => $timeSlots,
+                'booked_slots' => $bookedSlots,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get slots error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể lấy dữ liệu khoảng thời gian: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    public function bookingCourt(Request $request)
+    {
+        $validation = Validator::make($request->all(), [
+            'court_id' => 'required|exists:courts,id',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:20',
+            'customer_email' => 'nullable|email|max:255',
+            'booking_date' => 'required|date|after_or_equal:today',
+            'start_time' => 'required|date_format:H:i',
+            'duration_hours' => 'required|numeric|min:1',
+            'hourly_rate' => 'required|numeric|min:0',
+            'payment_method' => 'required|in:cash,card,transfer,wallet',
+            'notes' => 'nullable|string',
+        ]);
+
+        if($validation->fails())
+        {
+            return response()->json([
+                'success' => false,
+                'message' => $validation->errors()->first()
+            ]);
+        }
+
+        // Get court details
+        $court = Court::findOrFail($request->court_id);
+
+        // Calculate duration in hours
+        $startTime = \DateTime::createFromFormat('H:i', $request->start_time);
+        
+        $durationHours = (int) $request->duration_hours;
+        $endTime = $startTime->modify('+' . $durationHours . ' hours');
+
+        // Recalculate total price on server side with multi-price support
+        $totalPrice = $this->calculateBookingTotalPrice(
+            $court->id, 
+            $request->booking_date, 
+            $request->start_time, 
+            $durationHours
+        );
+
+        // Check if slot is already booked
+        $existingBooking = Booking::where('court_id', $request->court_id)
+            ->where('booking_date', $request->booking_date)
+            ->where('status', '!=', 'cancelled')
+            ->whereRaw("TIME(start_time) < ? AND TIME(end_time) > ?", [$endTime->format('H:i'), $request->start_time])
+            ->first();
+
+        if ($existingBooking) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Khoảng thời gian này đã được đặt. Vui lòng chọn thời gian khác.'
+            ]);
+        }
+
+        // Create booking
+        $booking = Booking::create([
+            'court_id' => $request->court_id,
+            'user_id' => auth()->id() ?? null,
+            'customer_name' => $request->customer_name,
+            'customer_phone' => $request->customer_phone,
+            'customer_email' => $request->customer_email,
+            'booking_date' => $request->booking_date,
+            'start_time' => $request->start_time,
+            'end_time' => $endTime->format('H:i'),
+            'duration_hours' => $durationHours,
+            'hourly_rate' => (int) $request->hourly_rate,
+            'total_price' => $totalPrice,
+            'status' => 'pending',
+            'payment_method' => $request->payment_method,
+            'notes' => $request->notes ?? null,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đặt sân thành công. Đơn đặt của bạn đang chờ xác nhận.',
+            'booking' => [
+                'id' => $booking->id,
+                'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                'status' => $booking->status,
+            ]
+        ]);
+        
+    }
+
+    /**
+     * Calculate total price for a booking with multi-price support
+     * This is used internally and by the API
+     */
+    private function calculateBookingTotalPrice($courtId, $bookingDate, $startTime, $durationHours)
+    {
+        $court = Court::findOrFail($courtId);
+        $bookingDate = \Carbon\Carbon::createFromFormat('Y-m-d', $bookingDate);
+        $dayOfWeek = $bookingDate->dayOfWeek;
+        
+        $startTimeObj = \DateTime::createFromFormat('H:i', $startTime);
+        $totalPrice = 0;
+        $currentTime = clone $startTimeObj;
+        
+        for ($i = 0; $i < $durationHours; $i++) {
+            $hourStart = clone $currentTime;
+            
+            // Find matching court pricing for this hour
+            $pricing = CourtPricing::where('court_id', $courtId)
+                ->where('is_active', true)
+                ->where(function ($query) use ($bookingDate) {
+                    $query->whereNull('valid_from')
+                          ->orWhere('valid_from', '<=', $bookingDate);
+                })
+                ->where(function ($query) use ($bookingDate) {
+                    $query->whereNull('valid_to')
+                          ->orWhere('valid_to', '>=', $bookingDate);
+                })
+                ->where(function ($query) use ($hourStart) {
+                    $query->whereRaw('TIME(start_time) <= ?', [$hourStart->format('H:i:s')])
+                          ->whereRaw('TIME(end_time) > ?', [$hourStart->format('H:i:s')]);
+                })
+                ->where(function ($query) use ($dayOfWeek) {
+                    $query->whereNull('days_of_week')
+                          ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                })
+                ->orderByRaw('TIME(start_time) DESC')
+                ->first();
+            
+            // Use court pricing if found, otherwise use court's rental_price
+            $hourlyRate = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 150000);
+            $totalPrice += $hourlyRate;
+            $currentTime->modify('+1 hour');
+        }
+        
+        return $totalPrice;
     }
 
     public function courts(Request $request)
