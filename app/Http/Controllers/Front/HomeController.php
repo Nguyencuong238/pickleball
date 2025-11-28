@@ -511,7 +511,15 @@ class HomeController extends Controller
 
     public function instructorDetail($id)
     {
-        $instructor = Instructor::with('province')->findOrFail($id);
+        $instructor = Instructor::with([
+            'province',
+            'experiences',
+            'certifications',
+            'teachingMethods',
+            'packages',
+            'schedules',
+            'reviews',
+        ])->findOrFail($id);
         
         // Get similar instructors (same province, limit 3)
         $similarInstructors = Instructor::with('province')

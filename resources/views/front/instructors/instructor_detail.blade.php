@@ -103,7 +103,7 @@
 
                     <div class="coach-specialty-tags">
                         @php
-                            $specialties = json_decode($instructor->specialties ?? '[]', true);
+                            $specialties = is_array($instructor->specialties) ? $instructor->specialties : json_decode($instructor->specialties ?? '[]', true);
                         @endphp
                         @forelse($specialties as $specialty)
                             <span class="specialty-tag">{{ $specialty }}</span>
@@ -211,163 +211,88 @@
                     </div>
 
                     <!-- Teaching Experience -->
-                    <div class="detail-card">
-                        <h2 class="detail-card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-                            </svg>
-                            Kinh nghiệm giảng dạy
-                        </h2>
-                        <div class="experience-timeline">
-                            <div class="timeline-item">
-                                <div class="timeline-marker"></div>
-                                <div class="timeline-content">
-                                    <h4>Huấn luyện viên chính - CLB Pickleball Saigon Elite</h4>
-                                    <span class="timeline-date">2021 - Hiện tại</span>
-                                    <p>Phụ trách đào tạo các lớp nâng cao và huấn luyện đội tuyển thi đấu của câu lạc bộ.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-marker"></div>
-                                <div class="timeline-content">
-                                    <h4>Giảng viên - Trung tâm Thể thao Rạch Chiếc</h4>
-                                    <span class="timeline-date">2018 - 2021</span>
-                                    <p>Giảng dạy các lớp Pickleball từ cơ bản đến nâng cao cho người lớn và thiếu niên.</p>
-                                </div>
-                            </div>
-                            <div class="timeline-item">
-                                <div class="timeline-marker"></div>
-                                <div class="timeline-content">
-                                    <h4>Trợ lý huấn luyện viên - CLB Pickleball District 2</h4>
-                                    <span class="timeline-date">2017 - 2018</span>
-                                    <p>Hỗ trợ huấn luyện viên chính trong các buổi tập và tổ chức các giải đấu nội bộ.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                     <div class="detail-card">
+                         <h2 class="detail-card-title">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                 <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                             </svg>
+                             Kinh nghiệm giảng dạy
+                         </h2>
+                         <div class="experience-timeline">
+                             @forelse($instructor->experiences as $experience)
+                                 <div class="timeline-item">
+                                     <div class="timeline-marker"></div>
+                                     <div class="timeline-content">
+                                         <h4>{{ $experience->title }}</h4>
+                                         <span class="timeline-date">{{ $experience->start_year }} - {{ $experience->end_year ?? 'Hiện tại' }}</span>
+                                         <p>{{ $experience->description }}</p>
+                                     </div>
+                                 </div>
+                             @empty
+                                 <p>Chưa có dữ liệu kinh nghiệm</p>
+                             @endforelse
+                         </div>
+                     </div>
 
                     <!-- Certifications -->
-                    <div class="detail-card">
-                        <h2 class="detail-card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="8" r="7" />
-                                <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
-                            </svg>
-                            Chứng chỉ & Thành tích
-                        </h2>
-                        <div class="certifications-grid">
-                            <div class="cert-item">
-                                <div class="cert-icon">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z" />
-                                    </svg>
-                                </div>
-                                <div class="cert-info">
-                                    <h4>IPTPA Certified Coach</h4>
-                                    <p>International Pickleball Teaching Professional Association</p>
-                                    <span class="cert-year">2020</span>
-                                </div>
-                            </div>
-                            <div class="cert-item">
-                                <div class="cert-icon">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91-1.01L12 2z" />
-                                    </svg>
-                                </div>
-                                <div class="cert-info">
-                                    <h4>Chứng chỉ HLV Pickleball Việt Nam</h4>
-                                    <p>Liên đoàn Pickleball Việt Nam</p>
-                                    <span class="cert-year">2019</span>
-                                </div>
-                            </div>
-                            <div class="cert-item">
-                                <div class="cert-icon trophy">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M8 21h8m-4-4v4M6 4h12m-6 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 0h2a2 2 0 0 0 2-2V4H2v6a2 2 0 0 0 2 2zm16 0h2a2 2 0 0 0 2-2V4h-4v6a2 2 0 0 0 2 2z" />
-                                    </svg>
-                                </div>
-                                <div class="cert-info">
-                                    <h4>Vô địch Doubles - HCM Open 2023</h4>
-                                    <p>Giải đấu Pickleball TP.HCM mở rộng</p>
-                                    <span class="cert-year">2023</span>
-                                </div>
-                            </div>
-                            <div class="cert-item">
-                                <div class="cert-icon trophy">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path
-                                            d="M8 21h8m-4-4v4M6 4h12m-6 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 0h2a2 2 0 0 0 2-2V4H2v6a2 2 0 0 0 2 2zm16 0h2a2 2 0 0 0 2-2V4h-4v6a2 2 0 0 0 2 2z" />
-                                    </svg>
-                                </div>
-                                <div class="cert-info">
-                                    <h4>Á quân Singles - Vietnam National 2022</h4>
-                                    <p>Giải Vô địch Quốc gia Pickleball</p>
-                                    <span class="cert-year">2022</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                     <div class="detail-card">
+                         <h2 class="detail-card-title">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                 <circle cx="12" cy="8" r="7" />
+                                 <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88" />
+                             </svg>
+                             Chứng chỉ & Thành tích
+                         </h2>
+                         <div class="certifications-grid">
+                             @forelse($instructor->certifications as $cert)
+                                 <div class="cert-item">
+                                     <div class="cert-icon {{ $cert->is_award ? 'trophy' : '' }}">
+                                         <svg viewBox="0 0 24 24" fill="currentColor">
+                                             @if($cert->is_award)
+                                                 <path d="M8 21h8m-4-4v4M6 4h12m-6 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm-8 0h2a2 2 0 0 0 2-2V4H2v6a2 2 0 0 0 2 2zm16 0h2a2 2 0 0 0 2-2V4h-4v6a2 2 0 0 0 2 2z" />
+                                             @else
+                                                 <path d="M12 2L15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2z" />
+                                             @endif
+                                         </svg>
+                                     </div>
+                                     <div class="cert-info">
+                                         <h4>{{ $cert->title }}</h4>
+                                         <p>{{ $cert->issuer }}</p>
+                                         <span class="cert-year">{{ $cert->year }}</span>
+                                     </div>
+                                 </div>
+                             @empty
+                                 <p>Chưa có dữ liệu chứng chỉ</p>
+                             @endforelse
+                         </div>
+                     </div>
 
                     <!-- Teaching Methods -->
-                    <div class="detail-card">
-                        <h2 class="detail-card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                            </svg>
-                            Phương pháp giảng dạy
-                        </h2>
-                        <div class="methods-grid">
-                            <div class="method-item">
-                                <div class="method-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <circle cx="12" cy="12" r="10" />
-                                        <path d="M12 16v-4M12 8h.01" />
-                                    </svg>
-                                </div>
-                                <h4>Cá nhân hóa</h4>
-                                <p>Thiết kế chương trình phù hợp với trình độ và mục tiêu của từng học viên</p>
-                            </div>
-                            <div class="method-item">
-                                <div class="method-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                                    </svg>
-                                </div>
-                                <h4>Thực hành nhiều</h4>
-                                <p>70% thời gian thực hành, 30% lý thuyết để tối đa hóa kỹ năng thực chiến</p>
-                            </div>
-                            <div class="method-item">
-                                <div class="method-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
-                                        <path d="M9 18h6" />
-                                        <path d="M10 22h4" />
-                                    </svg>
-                                </div>
-                                <h4>Phân tích video</h4>
-                                <p>Quay và phân tích kỹ thuật để học viên nhận ra điểm cần cải thiện</p>
-                            </div>
-                            <div class="method-item">
-                                <div class="method-icon">
-                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                        <circle cx="9" cy="7" r="4" />
-                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                    </svg>
-                                </div>
-                                <h4>Thi đấu thực tế</h4>
-                                <p>Tổ chức các trận đấu tập để học viên áp dụng kiến thức vào thực tế</p>
-                            </div>
-                        </div>
-                    </div>
+                     <div class="detail-card">
+                         <h2 class="detail-card-title">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                 <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                             </svg>
+                             Phương pháp giảng dạy
+                         </h2>
+                         <div class="methods-grid">
+                             @forelse($instructor->teachingMethods as $method)
+                                 <div class="method-item">
+                                     <div class="method-icon">
+                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                             <circle cx="12" cy="12" r="10" />
+                                             <path d="M12 16v-4M12 8h.01" />
+                                         </svg>
+                                     </div>
+                                     <h4>{{ $method->title }}</h4>
+                                     <p>{{ $method->description }}</p>
+                                 </div>
+                             @empty
+                                 <p>Chưa có dữ liệu phương pháp giảng dạy</p>
+                             @endforelse
+                         </div>
+                     </div>
 
                     <!-- Reviews -->
                     <div class="detail-card">
@@ -383,207 +308,78 @@
                         <!-- Rating Summary -->
                         <div class="rating-summary">
                             <div class="rating-overview">
-                                <div class="rating-big">4.9</div>
+                                <div class="rating-big">{{ number_format($instructor->rating ?? 5, 1) }}</div>
                                 <div class="rating-stars">
                                     <div class="stars">
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <svg viewBox="0 0 24 24" fill="currentColor">
+                                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                            </svg>
+                                        @endfor
                                     </div>
-                                    <span>89 đánh giá</span>
+                                    <span>{{ $instructor->reviews_count ?? 0 }} đánh giá</span>
                                 </div>
                             </div>
                             <div class="rating-bars">
-                                <div class="rating-bar-item">
-                                    <span>5 sao</span>
-                                    <div class="bar-track">
-                                        <div class="bar-fill" style="width: 85%"></div>
+                                @php
+                                    $ratingStats = $instructor->reviews->groupBy('rating')->map->count();
+                                    $totalReviews = $instructor->reviews_count ?? 1;
+                                @endphp
+                                @for($star = 5; $star >= 1; $star--)
+                                    @php
+                                        $count = $ratingStats[$star] ?? 0;
+                                        $percentage = $totalReviews > 0 ? ($count / $totalReviews) * 100 : 0;
+                                    @endphp
+                                    <div class="rating-bar-item">
+                                        <span>{{ $star }} sao</span>
+                                        <div class="bar-track">
+                                            <div class="bar-fill" style="width: {{ $percentage }}%"></div>
+                                        </div>
+                                        <span>{{ $count }}</span>
                                     </div>
-                                    <span>76</span>
-                                </div>
-                                <div class="rating-bar-item">
-                                    <span>4 sao</span>
-                                    <div class="bar-track">
-                                        <div class="bar-fill" style="width: 10%"></div>
-                                    </div>
-                                    <span>9</span>
-                                </div>
-                                <div class="rating-bar-item">
-                                    <span>3 sao</span>
-                                    <div class="bar-track">
-                                        <div class="bar-fill" style="width: 3%"></div>
-                                    </div>
-                                    <span>3</span>
-                                </div>
-                                <div class="rating-bar-item">
-                                    <span>2 sao</span>
-                                    <div class="bar-track">
-                                        <div class="bar-fill" style="width: 1%"></div>
-                                    </div>
-                                    <span>1</span>
-                                </div>
-                                <div class="rating-bar-item">
-                                    <span>1 sao</span>
-                                    <div class="bar-track">
-                                        <div class="bar-fill" style="width: 0%"></div>
-                                    </div>
-                                    <span>0</span>
-                                </div>
+                                @endfor
                             </div>
                         </div>
 
                         <!-- Reviews List -->
                         <div class="reviews-list">
-                            <div class="review-item">
-                                <div class="review-header">
-                                    <div class="reviewer-avatar">
-                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23FF8E53'/%3E%3Ctext x='50' y='55' font-size='40' text-anchor='middle' fill='white' dominant-baseline='middle'%3ETM%3C/text%3E%3C/svg%3E"
-                                            alt="Trần Minh">
-                                    </div>
-                                    <div class="reviewer-info">
-                                        <h4>Trần Minh</h4>
-                                        <div class="review-meta">
-                                            <div class="stars small">
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
+                            @forelse($instructor->reviews->take(3) as $review)
+                                <div class="review-item">
+                                    <div class="review-header">
+                                        <div class="reviewer-avatar">
+                                            @if($review->user && $review->user->avatar)
+                                                <img src="{{ asset('storage/' . $review->user->avatar) }}" alt="{{ $review->user->name }}">
+                                            @else
+                                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23FF8E53'/%3E%3Ctext x='50' y='55' font-size='40' text-anchor='middle' fill='white' dominant-baseline='middle'%3E{{ substr($review->user->name ?? 'U', 0, 2) }}%3C/text%3E%3C/svg%3E"
+                                                    alt="{{ $review->user->name ?? 'User' }}">
+                                            @endif
+                                        </div>
+                                        <div class="reviewer-info">
+                                            <h4>{{ $review->user->name ?? 'Ẩn danh' }}</h4>
+                                            <div class="review-meta">
+                                                <div class="stars small">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <svg viewBox="0 0 24 24" fill="currentColor" style="opacity: {{ $i <= $review->rating ? 1 : 0.3 }}">
+                                                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                                        </svg>
+                                                    @endfor
+                                                </div>
+                                                <span class="review-date">{{ $review->created_at->diffForHumans() }}</span>
                                             </div>
-                                            <span class="review-date">2 tuần trước</span>
                                         </div>
                                     </div>
-                                </div>
-                                <p class="review-content">Coach Hùng dạy rất tận tâm và dễ hiểu. Sau 3 tháng học, kỹ thuật
-                                    serve của tôi đã cải thiện rõ rệt. Rất recommend cho những ai muốn học Pickleball một
-                                    cách bài bản!</p>
-                                <div class="review-tags">
-                                    <span>Tận tâm</span>
-                                    <span>Dễ hiểu</span>
-                                    <span>Kiên nhẫn</span>
-                                </div>
-                            </div>
-
-                            <div class="review-item">
-                                <div class="review-header">
-                                    <div class="reviewer-avatar">
-                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%239D84B7'/%3E%3Ctext x='50' y='55' font-size='40' text-anchor='middle' fill='white' dominant-baseline='middle'%3ELH%3C/text%3E%3C/svg%3E"
-                                            alt="Lê Hoàng">
-                                    </div>
-                                    <div class="reviewer-info">
-                                        <h4>Lê Hoàng</h4>
-                                        <div class="review-meta">
-                                            <div class="stars small">
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                            </div>
-                                            <span class="review-date">1 tháng trước</span>
+                                    <p class="review-content">{{ $review->content }}</p>
+                                    @if($review->tags)
+                                        <div class="review-tags">
+                                            @foreach(explode(',', $review->tags) as $tag)
+                                                <span>{{ trim($tag) }}</span>
+                                            @endforeach
                                         </div>
-                                    </div>
+                                    @endif
                                 </div>
-                                <p class="review-content">Mình đã tham gia lớp nâng cao của coach Hùng được 6 tháng. Phương
-                                    pháp giảng dạy rất khoa học, có phân tích video giúp mình nhìn ra lỗi sai rất nhanh. Giờ
-                                    mình đã tự tin tham gia các giải đấu phong trào.</p>
-                                <div class="review-tags">
-                                    <span>Chuyên nghiệp</span>
-                                    <span>Khoa học</span>
-                                </div>
-                            </div>
-
-                            <div class="review-item">
-                                <div class="review-header">
-                                    <div class="reviewer-avatar">
-                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300D9B5'/%3E%3Ctext x='50' y='55' font-size='40' text-anchor='middle' fill='white' dominant-baseline='middle'%3ENL%3C/text%3E%3C/svg%3E"
-                                            alt="Ngọc Linh">
-                                    </div>
-                                    <div class="reviewer-info">
-                                        <h4>Ngọc Linh</h4>
-                                        <div class="review-meta">
-                                            <div class="stars small">
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                                    <path
-                                                        d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                                </svg>
-                                            </div>
-                                            <span class="review-date">2 tháng trước</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="review-content">Ban đầu em rất ngại vì chưa biết gì về Pickleball, nhưng coach
-                                    Hùng rất kiên nhẫn và tạo môi trường thoải mái. Giờ em đã có thể chơi cùng bạn bè và
-                                    thậm chí tham gia social hàng tuần!</p>
-                                <div class="review-tags">
-                                    <span>Kiên nhẫn</span>
-                                    <span>Thân thiện</span>
-                                    <span>Vui vẻ</span>
-                                </div>
-                            </div>
+                            @empty
+                                <p>Chưa có đánh giá nào</p>
+                            @endforelse
                         </div>
 
                         <button class="btn btn-outline btn-block">Xem tất cả đánh giá</button>
@@ -602,35 +398,20 @@
                             <span class="price-unit">/ buổi</span>
                         </div>
                         <div class="package-options">
-                            <label class="package-option">
-                                <input type="radio" name="package" value="single" checked>
-                                <div class="package-content">
-                                    <span class="package-name">Buổi lẻ</span>
-                                    <span class="package-price">500.000đ/buổi</span>
-                                </div>
-                            </label>
-                            <label class="package-option">
-                                <input type="radio" name="package" value="4sessions">
-                                <div class="package-content">
-                                    <span class="package-name">Gói 4 buổi</span>
-                                    <span class="package-price">1.800.000đ <small>(-10%)</small></span>
-                                </div>
-                            </label>
-                            <label class="package-option popular">
-                                <input type="radio" name="package" value="8sessions">
-                                <div class="package-content">
-                                    <span class="package-name">Gói 8 buổi</span>
-                                    <span class="package-price">3.200.000đ <small>(-20%)</small></span>
-                                </div>
-                                <span class="popular-badge">Phổ biến</span>
-                            </label>
-                            <label class="package-option">
-                                <input type="radio" name="package" value="group">
-                                <div class="package-content">
-                                    <span class="package-name">Lớp nhóm (4-6 người)</span>
-                                    <span class="package-price">250.000đ/buổi/người</span>
-                                </div>
-                            </label>
+                            @forelse($instructor->packages as $package)
+                                <label class="package-option {{ $loop->first ? 'popular' : '' }}">
+                                    <input type="radio" name="package" value="{{ $package->id }}" {{ $loop->first ? 'checked' : '' }}>
+                                    <div class="package-content">
+                                        <span class="package-name">{{ $package->name }}</span>
+                                        <span class="package-price">{{ number_format($package->price, 0, ',', '.') }}đ {{ $package->discount_percent ? "(-" . $package->discount_percent . "%)" : '' }}</span>
+                                    </div>
+                                    @if($loop->first)
+                                        <span class="popular-badge">Phổ biến</span>
+                                    @endif
+                                </label>
+                            @empty
+                                <p>Chưa có gói học</p>
+                            @endforelse
                         </div>
                         <button class="btn btn-primary btn-lg btn-block">Đặt lịch ngay</button>
                         <p class="booking-note">Liên hệ để được tư vấn và sắp xếp lịch phù hợp</p>
@@ -675,36 +456,20 @@
                     <div class="sidebar-card">
                         <h3 class="sidebar-card-title">Khu vực dạy</h3>
                         <div class="location-list">
-                            <div class="location-item">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                                <div class="location-info">
-                                    <strong>Quận 2, TP. HCM</strong>
-                                    <span>Sân Rạch Chiếc, Sân An Phú</span>
+                            @forelse($instructor->locations as $location)
+                                <div class="location-item">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                        <circle cx="12" cy="10" r="3" />
+                                    </svg>
+                                    <div class="location-info">
+                                        <strong>{{ $location->district }}, {{ $location->city }}</strong>
+                                        <span>{{ $location->venues }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="location-item">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                                <div class="location-info">
-                                    <strong>Thủ Đức, TP. HCM</strong>
-                                    <span>Sân Thủ Đức Sports</span>
-                                </div>
-                            </div>
-                            <div class="location-item">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                    <circle cx="12" cy="10" r="3" />
-                                </svg>
-                                <div class="location-info">
-                                    <strong>Quận 7, TP. HCM</strong>
-                                    <span>Sân Phú Mỹ Hưng</span>
-                                </div>
-                            </div>
+                            @empty
+                                <p>Chưa có khu vực dạy</p>
+                            @endforelse
                         </div>
                     </div>
 
@@ -712,14 +477,14 @@
                     <div class="sidebar-card">
                         <h3 class="sidebar-card-title">Lịch dạy</h3>
                         <div class="schedule-list">
-                            <div class="schedule-item">
-                                <span class="day">Thứ 2 - Thứ 6</span>
-                                <span class="time">06:00 - 08:00, 17:00 - 21:00</span>
-                            </div>
-                            <div class="schedule-item">
-                                <span class="day">Thứ 7 - Chủ nhật</span>
-                                <span class="time">06:00 - 21:00</span>
-                            </div>
+                            @forelse($instructor->schedules as $schedule)
+                                <div class="schedule-item">
+                                    <span class="day">{{ $schedule->days }}</span>
+                                    <span class="time">{{ $schedule->time_slots }}</span>
+                                </div>
+                            @empty
+                                <p>Chưa có lịch dạy</p>
+                            @endforelse
                         </div>
                         <p class="schedule-note">* Lịch có thể thay đổi, vui lòng liên hệ trước</p>
                     </div>
