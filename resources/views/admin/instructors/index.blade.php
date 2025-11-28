@@ -21,7 +21,6 @@
                             <tr>
                                 <th>Tên giảng viên</th>
                                 <th class="text-center">Ảnh</th>
-                                <th>Kinh nghiệm</th>
                                 <th>Phường</th>
                                 <th>Tỉnh, TP</th>
                                 <th>Hành động</th>
@@ -38,9 +37,6 @@
                                                     style="height:80px; width:120px; object-fit:cover;">
                                             </div>
                                         @endif
-                                    </td>
-                                    <td>
-                                        <small>{{ Str::limit($instructor->experience, 50) }}</small>
                                     </td>
                                     <td>{{ $instructor->ward }}</td>
                                     <td>{{ $instructor->province->name ?? 'N/A' }}</td>

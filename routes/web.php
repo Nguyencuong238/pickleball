@@ -255,16 +255,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::post('tournaments/{tournament}/athletes', [TournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [TournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
     
-    // Test route
-    Route::post('/instructors-test-log', function () {
-        \Log::info('=== TEST LOG REQUEST ===', request()->all());
-        return response()->json(['status' => 'logged']);
-    });
-    
     Route::resource('instructors', InstructorController::class);
-    
-    // Debug page
-    Route::get('instructors-test-debug', [InstructorController::class, 'testDebug'])->name('instructors.test-debug');
     Route::resource('videos', VideoController::class);
 });
 

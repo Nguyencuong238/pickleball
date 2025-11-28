@@ -9,16 +9,11 @@
 
                 @if ($errors->any())
                     <div class="alert alert-danger">
-                        <h5>Lỗi Validation:</h5>
                         <ul class="mb-0">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
-                    </div>
-                @else
-                    <div class="alert alert-info d-none" id="successMsg">
-                        Không có lỗi validation!
                     </div>
                 @endif
 
@@ -646,67 +641,6 @@
                 reader.readAsDataURL(file);
             }
         });
-
-        // Debug form data on submit
-        document.getElementById('instructorForm').addEventListener('submit', function(e) {
-            console.log('=== FORM SUBMIT EVENT FIRED ===');
-            console.log('Form action:', this.getAttribute('action'));
-            console.log('Form method:', this.getAttribute('method'));
-            
-            const formData = new FormData(this);
-            console.log('Form data keys:', Array.from(formData.keys()));
-            console.log('Name field value:', formData.get('name'));
-            console.log('Email field value:', formData.get('email'));
-            
-            // Check if there are any validation errors preventing submission
-            const name = document.getElementById('name').value;
-            console.log('Name input element value:', name);
-            
-            if (!name) {
-                console.error('Name is required but empty!');
-                e.preventDefault();
-                return false;
-            }
-            
-            console.log('Form will submit to:', this.getAttribute('action'));
-            // Form will submit naturally
-        });
-
-        // Test submit function
-        window.testSubmit = function() {
-            console.log('=== DEBUG FORM VALUES ===');
-            
-            // Check individual input values
-            console.log('name field value:', document.getElementById('name').value);
-            console.log('bio field value:', document.getElementById('bio').value);
-            console.log('email field value:', document.getElementById('email').value);
-            console.log('phone field value:', document.getElementById('phone').value);
-            
-            const formData = new FormData(document.getElementById('instructorForm'));
-            
-            // Log all form data entries
-            console.log('=== ALL FORM DATA ENTRIES ===');
-            for (let [key, value] of formData.entries()) {
-                console.log(`${key}: ${value}`);
-            }
-            
-            fetch('/admin/instructors-test-log', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Test response:', data);
-                alert('Request sent! Check browser console and server logs');
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error: ' + error.message);
-            });
-        };
 
         // Init
         attachRemoveHandlers();
