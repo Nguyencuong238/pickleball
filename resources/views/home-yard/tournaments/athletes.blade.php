@@ -494,27 +494,6 @@
         let totalPages = 1;
         let paginationData = null;
 
-        // Toggle sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('sidebar-collapsed');
-        }
-
-        // Mobile menu toggle
-        if (window.innerWidth <= 1024) {
-            toggleSidebar();
-        }
-
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 1024) {
-                document.getElementById('sidebar').classList.add('collapsed');
-                document.getElementById('mainContent').classList.add('sidebar-collapsed');
-            }
-        });
-
         // Get initials from athlete name
         function getInitials(name) {
             return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);

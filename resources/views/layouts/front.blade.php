@@ -267,6 +267,12 @@
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
                     </ul>
                 </li>
+                <li class="mobile-only login-register-btn">
+                    <a href="/login" class="btn btn-outline">Đăng nhập</a>
+                </li>
+                <li class="mobile-only login-register-btn">
+                    <a href="/register" class="btn btn-primary">Đăng ký</a>
+                </li>
             </ul>
             
             @auth

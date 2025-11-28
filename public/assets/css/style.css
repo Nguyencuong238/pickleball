@@ -1202,6 +1202,10 @@ ul {
         grid-column: span 2;
         max-width: 100%;
     }
+    
+    .mobile-menu-toggle {
+        display: flex;
+    }
 }
 
 /* Mobile */
@@ -1214,10 +1218,6 @@ ul {
     .nav-menu,
     .nav-actions {
         display: none;
-    }
-    
-    .mobile-menu-toggle {
-        display: flex;
     }
     
     .hero {

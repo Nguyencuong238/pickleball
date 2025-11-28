@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cấu Hình Giải Đấu - Hệ Thống Quản Lý Giải Đấu</title>
-    <link rel="icon" href="{{asset('assets/images/logo.png')}}">
+    <link rel="icon" href="{{ asset('assets/images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}">
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
@@ -614,12 +614,14 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
+
         .modal-content::-webkit-scrollbar {
-            display: none; /* Chrome, Safari, Opera */
+            display: none;
+            /* Chrome, Safari, Opera */
         }
 
         .sidebar-header {
-            justify-content: center;
+            justify-content: space-between;
             padding: 0.5rem;
         }
 
@@ -689,12 +691,12 @@
                 <a href="/" class="sidebar-brand">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="80px">
                 </a>
-                {{-- <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <button class="sidebar-toggle" onclick="toggleSidebar()">
                     <span>☰</span>
-                </button> --}}
+                </button>
             </div>
 
-            <nav class="sidebar-nav">
+            <nav class="sidebar-nav" id="sidebar-nav">
                 <div class="nav-section">
                     <div class="nav-section-title">Tổng Quan</div>
                     <a href="{{ route('homeyard.overview') }}" class="nav-item">
@@ -766,12 +768,12 @@
                         <span class="nav-icon">⚙️</span>
                         <span class="nav-text">Cài đặt</span>
                     </a>
-                    <form method="POST" action="{{route('logout')}}">
-                        @csrf                     
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
                         <a href="#" class="nav-item btn-logout"
                             onclick="event.preventDefault();this.closest('form').submit();">
                             <span class="nav-icon">↪️</span>
-                            <span class="nav-text">Đăng xuất</span> 
+                            <span class="nav-text">Đăng xuất</span>
                         </a>
                     </form>
                 </div>
@@ -785,11 +787,11 @@
     <script>
         // Toggle sidebar
         function toggleSidebar() {
+            const sidebarNav = document.getElementById('sidebar-nav');
             const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('sidebar-collapsed');
+            
+            sidebar.classList.toggle('active');
+            sidebarNav.classList.toggle('active');
         }
 
         // Show config tab
@@ -827,7 +829,7 @@
 
         // Initialize active tab from session
         function initializeActiveTab() {
-            @if(session('activeTab'))
+            @if (session('activeTab'))
                 showConfigTab('{{ session('activeTab') }}');
             @endif
         }
@@ -839,7 +841,7 @@
         function nextStep(stepNumber) {
             const steps = document.querySelectorAll('.step');
             const cards = document.querySelectorAll('#config .card');
-            
+
             steps.forEach((step, index) => {
                 step.classList.remove('active', 'completed');
                 if (index + 1 < stepNumber) {
@@ -876,7 +878,7 @@
         function prevStep(stepNumber) {
             const steps = document.querySelectorAll('.step');
             const cards = document.querySelectorAll('#config .card');
-            
+
             steps.forEach((step, index) => {
                 step.classList.remove('active', 'completed');
                 if (index + 1 < stepNumber) {
@@ -910,7 +912,7 @@
         }
 
 
-        @if(session('step')) 
+        @if (session('step'))
             setTimeout(function() {
                 nextStep({{ session('step') }});
             }, 500);
@@ -934,7 +936,7 @@
 
             // Create unique ID for the content
             const contentId = Date.now();
-            
+
             // Add to storage
             const newContentObj = {
                 id: contentId,
@@ -991,7 +993,7 @@
 
             // Keep the first option
             const firstOption = select.querySelector('option[value=""]');
-            
+
             // Remove all options except the first one
             const allOptions = select.querySelectorAll('option');
             allOptions.forEach((option, index) => {
@@ -1061,7 +1063,7 @@
 
             athleteRows.forEach(row => {
                 const rowCategoryId = row.getAttribute('data-category-id');
-                
+
                 // Show row if no category is selected or if the row matches the selected category
                 if (selectedCategoryId === '' || rowCategoryId === selectedCategoryId) {
                     row.style.display = '';
@@ -1149,17 +1151,11 @@
             });
         }
 
-        // Initialize
-        if (window.innerWidth <= 1024) {
-            toggleSidebar();
-        }
+        // Initialize on page load
+        initializeSidebar();
 
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 1024) {
-                document.getElementById('sidebar').classList.add('collapsed');
-                document.getElementById('mainContent').classList.add('sidebar-collapsed');
-            }
-        });
+        // Handle window resize
+        window.addEventListener('resize', initializeSidebar);
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', initializeSteps);
@@ -1191,26 +1187,26 @@
 
         // Display session messages when DOM is ready
         document.addEventListener('DOMContentLoaded', function() {
-            
-            @if(session('success'))
+
+            @if (session('success'))
                 toastr.success('{{ session('success') }}');
             @endif
 
-            @if(session('error'))
+            @if (session('error'))
                 toastr.error('{{ session('error') }}');
             @endif
 
-            @if(session('warning'))
+            @if (session('warning'))
                 toastr.warning('{{ session('warning') }}');
             @endif
 
-            @if(session('info'))
+            @if (session('info'))
                 toastr.info('{{ session('info') }}');
             @endif
 
             // Handle validation errors
-            @if($errors->any())
-                @foreach($errors->all() as $error)
+            @if ($errors->any())
+                @foreach ($errors->all() as $error)
                     toastr.error('{{ $error }}');
                 @endforeach
             @endif
