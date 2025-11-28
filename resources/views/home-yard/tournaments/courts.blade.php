@@ -553,7 +553,7 @@
                     <h1>Quản Lý Sân Thi Đấu</h1>
                     <div class="breadcrumb">
                         <span class="breadcrumb-item">
-                            <a href="overview.html" class="breadcrumb-link">Trang chủ</a>
+                            <a href="{{route('homeyard.overview')}}" class="breadcrumb-link">Dashboard</a>
                         </span>
                         <span class="breadcrumb-separator">›</span>
                         <span class="breadcrumb-item">Quản Lý Sân</span>

@@ -8,7 +8,7 @@
         <div class="page-header-background"></div>
         <div class="container">
             <div class="breadcrumb">
-                <a href="index.html">Trang chủ</a>
+                <a href="/">Trang chủ</a>
                 <span class="separator">/</span>
                 <span>Giải đấu</span>
             </div>
@@ -197,15 +197,6 @@
                         </button>
                     </form>
 
-                    <!-- Featured Banner -->
-                    <div class="sidebar-banner">
-                        <div class="banner-content">
-                            <span class="banner-badge">🎉 Đặc biệt</span>
-                            <h4 class="banner-title">Vietnam National Championship</h4>
-                            <p class="banner-text">Giải vô địch quốc gia - Đăng ký sớm để nhận ưu đãi!</p>
-                            <a href="tournament-detail.html" class="btn btn-white btn-sm">Xem chi tiết</a>
-                        </div>
-                    </div>
                 </aside>
 
                 <!-- Main Content Area -->

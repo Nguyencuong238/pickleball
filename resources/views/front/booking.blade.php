@@ -17,7 +17,7 @@
         }
 
         .slot-btn.active {
-            background-color: #007bff;
+            background-color: #007bff !important;
             color: white;
             border-color: #007bff;
         }
@@ -66,22 +66,13 @@
 
                     <form id="bookingForm">
                         @csrf
-                        @if ($errors->any())
-                            <div class="alert alert-danger">
-                                <ul>
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
                         <div class="booking-card">
                             <h2>Chọn ngày & giờ</h2>
 
                             <!-- Chọn Sân -->
                             <div class="form-group">
                                 <label>Chọn sân *</label>
-                                <select class="form-control" id="courtSelect" name="court_id" required>
+                                <select class="form-control bg-white" id="courtSelect" name="court_id" required>
                                     <option value="">-- Chọn sân --</option>
                                     @if (isset($courts) && count($courts) > 0)
                                         @foreach ($courts as $court)
@@ -103,13 +94,14 @@
                                 <h3>Chọn giờ *</h3>
                                 <div class="slots-grid" id="slotsGrid">
                                     <!-- Time slots will be generated dynamically -->
+                                    <p style="grid-column: 1/-1; text-align: center; color: #666;">Vui lòng chọn sân và ngày trước</p>
                                 </div>
                                 <input type="hidden" id="selectedSlot" name="start_time" required>
                             </div>
 
                             <div class="form-group">
                                 <label>Thời lượng (giờ) *</label>
-                                <select class="form-control" id="durationHours" name="duration_hours" required>
+                                <select class="form-control bg-white" id="durationHours" name="duration_hours" required>
                                     <option value="">-- Chọn thời lượng --</option>
                                     <option value="1">1 giờ</option>
                                     <option value="2">2 giờ</option>
@@ -143,7 +135,7 @@
 
                             <div class="form-group">
                                 <label>Phương thức thanh toán *</label>
-                                <select class="form-control" name="payment_method" required>
+                                <select class="form-control bg-white" name="payment_method" required>
                                     <option value="">-- Chọn phương thức --</option>
                                     <option value="cash">Tiền mặt</option>
                                     <option value="card">Thẻ tín dụng</option>
@@ -259,10 +251,10 @@
                 timeSlots.forEach(slot => {
                     const button = document.createElement('button');
                     button.type = 'button';
-                    button.className = 'slot-btn' + (slot.is_booked ? ' disabled' : '');
+                    button.className = 'slot-btn' + (slot.is_booked ||slot.is_pending ? ' disabled' : '');
 
                     const priceDisplay = slot.price ? (slot.price / 1000).toFixed(0) + 'k' : '0k';
-                    const statusText = slot.is_booked ? 'Đã đặt' : priceDisplay;
+                    const statusText = slot.is_booked ? 'Đã đặt' : (slot.is_pending ? 'Đang chờ' : priceDisplay);
 
                     button.innerHTML =
                         `${slot.time} - ${String(slot.end_hour).padStart(2, '0')}:00<span>${statusText}</span>`;
@@ -363,33 +355,33 @@
                 const durationHours = formData.get('duration_hours');
 
                 if (!courtId) {
-                    alert('Vui lòng chọn sân');
+                    toastr.warning('Vui lòng chọn sân');
                     return;
                 }
 
                 if (!bookingDate) {
-                    alert('Vui lòng chọn ngày đặt sân');
+                    toastr.warning('Vui lòng chọn ngày đặt sân');
                     return;
                 }
 
                 if (!startTime) {
-                    alert('Vui lòng chọn thời gian');
+                    toastr.warning('Vui lòng chọn thời gian');
                     return;
                 }
 
                 if (!durationHours || durationHours <= 0) {
-                    alert('Vui lòng chọn thời lượng');
+                    toastr.warning('Vui lòng chọn thời lượng');
                     return;
                 }
 
                 if (!customerName || !customerPhone) {
-                    alert('Vui lòng nhập đầy đủ thông tin người đặt');
+                    toastr.warning('Vui lòng nhập đầy đủ thông tin người đặt');
                     return;
                 }
 
                 const paymentMethod = formData.get('payment_method');
                 if (!paymentMethod) {
-                    alert('Vui lòng chọn phương thức thanh toán');
+                    toastr.warning('Vui lòng chọn phương thức thanh toán');
                     return;
                 }
 
@@ -420,22 +412,23 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        alert('Đặt sân thành công! Mã đơn đặt của bạn: ' + result.booking.booking_id +
-                            '\n\nTrạng thái: ' + result.booking.status);
+                        toastr.success('Đặt sân thành công! Mã đơn đặt của bạn: ' + result.booking.booking_id +
+                            '\n\nVui lòng chờ xác nhận.');
                         // Reset form
                         bookingForm.reset();
                         generateTimeSlots();
+                        slotsGrid.innerHTML =
+                        '<p style="grid-column: 1/-1; text-align: center; color: #666;">Vui lòng chọn sân và ngày trước</p>';
                         updateSummary();
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Đặt sân';
                     } else {
-                        alert('Lỗi: ' + (result.message || 'Đặt sân thất bại'));
+                        toastr.error('Lỗi: ' + (result.message || 'Đặt sân thất bại'));
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Đặt sân';
                     }
                 } catch (error) {
-                    console.error('Error:', error);
-                    alert('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.');
+                    toastr.error('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.');
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Đặt sân';
                 }

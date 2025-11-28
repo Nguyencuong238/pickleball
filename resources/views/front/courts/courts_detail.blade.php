@@ -524,7 +524,7 @@
                             </div>
                             <div class="booking-time">
                                 <label>Chọn giờ</label>
-                                <select class="booking-input">
+                                <select class="booking-input bg-white">
                                     <option value="">Chọn giờ</option>
                                     <option value="05:00">05:00 - 06:00</option>
                                     <option value="06:00">06:00 - 07:00</option>
@@ -536,13 +536,13 @@
                             </div>
                             <div class="booking-duration">
                                 <label>Thời gian</label>
-                                <select class="booking-input">
+                                <select class="booking-input bg-white">
                                     <option value="1">1 giờ</option>
                                     <option value="2">2 giờ</option>
                                     <option value="3">3 giờ</option>
                                 </select>
                             </div>
-                            <button class="btn btn-primary btn-block" onclick="window.location.href='booking.html'">
+                            <button class="btn btn-primary btn-block" onclick="window.location.href='{{route('booking')}}'">
                                 Tiếp tục đặt sân
                             </button>
                         </div>
