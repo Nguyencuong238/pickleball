@@ -399,6 +399,10 @@
                 <i class="fas fa-video"></i> Video Pickleball
             </a>
 
+            <a href="{{ route('admin.instructor-registrations.index') }}" class="nav-link {{ request()->routeIs('admin.instructor-registrations.*') ? 'active' : '' }}">
+                <i class="fas fa-clipboard-list"></i> Đăng Ký Học
+            </a>
+
             <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
 
             <a href="{{ route('home') }}" class="nav-link" target="blank">

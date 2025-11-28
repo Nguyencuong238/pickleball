@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\TournamentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\InstructorController;
+use App\Http\Controllers\Admin\InstructorRegistrationController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Api\MediaUploadController;
 use App\Http\Controllers\FavoriteController;
@@ -260,6 +261,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [TournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
     
     Route::resource('instructors', InstructorController::class);
+    Route::resource('instructor-registrations', InstructorRegistrationController::class)->only(['index', 'destroy']);
     Route::resource('videos', VideoController::class);
 });
 
