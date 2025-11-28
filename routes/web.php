@@ -11,6 +11,7 @@ use App\Http\Controllers\Front\TournamentRegistrationController;
 use App\Http\Controllers\Front\CategoryController;
 use App\Http\Controllers\Front\RoundController;
 use App\Http\Controllers\Front\GroupController;
+use App\Http\Controllers\Front\BookingInstructorController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\UserPermissionController;
@@ -89,6 +90,9 @@ Route::get('/course/{id}', [HomeController::class, 'courseDetail'])->name('cours
 // Booking API for front-end
 Route::post('/api/bookings', [HomeController::class, 'bookingCourt'])->name('api.bookings.store');
 Route::get('/api/courts/{court}/available-slots', [HomeController::class, 'getAvailableSlots'])->name('api.courts.available-slots');
+
+// Instructor Booking Routes
+Route::post('/api/instructor-booking', [BookingInstructorController::class, 'store'])->name('api.instructor-booking.store');
 
 // Tournament Registration
 Route::post('/tournament/{tournament}/register', [TournamentRegistrationController::class, 'register'])->name('tournament.register');

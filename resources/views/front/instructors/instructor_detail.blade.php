@@ -114,21 +114,12 @@
                     </div>
 
                     <div class="coach-actions-header">
-                        <button class="btn btn-primary btn-lg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                            </svg>
-                            Liên hệ ngay
-                        </button>
-                        <button class="btn btn-secondary btn-lg">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                                <line x1="16" y1="2" x2="16" y2="6" />
-                                <line x1="8" y1="2" x2="8" y2="6" />
-                                <line x1="3" y1="10" x2="21" y2="10" />
-                            </svg>
-                            Đặt lịch học
-                        </button>
+                         <button class="btn btn-primary btn-lg" id="contactBtn">
+                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                             </svg>
+                             Liên hệ ngay
+                         </button>
                         <button class="btn btn-outline btn-icon btn-favorite" title="Yêu thích">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path
@@ -413,7 +404,7 @@
                                 <p>Chưa có gói học</p>
                             @endforelse
                         </div>
-                        <button class="btn btn-primary btn-lg btn-block">Đặt lịch ngay</button>
+                        <button class="btn btn-primary btn-lg btn-block" id="bookingBtn" data-instructor-id="{{ $instructor->id }}">Đặt lịch ngay</button>
                         <p class="booking-note">Liên hệ để được tư vấn và sắp xếp lịch phù hợp</p>
                     </div>
 
@@ -546,6 +537,220 @@
             </div>
         </div>
     </section>
+    <!-- Booking Modal -->
+    <div id="bookingModal" class="modal" style="display: none;">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Đặt lịch học</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <form id="bookingForm" class="booking-form">
+                @csrf
+                <input type="hidden" name="instructor_id" id="instructorId" value="{{ $instructor->id }}">
+                
+                <div class="form-group">
+                    <label for="customerName">Tên của bạn *</label>
+                    <input type="text" id="customerName" name="customer_name" required class="form-control" placeholder="Nhập tên của bạn">
+                </div>
+
+                <div class="form-group">
+                    <label for="customerPhone">Số điện thoại *</label>
+                    <input type="tel" id="customerPhone" name="customer_phone" required class="form-control" placeholder="Nhập số điện thoại">
+                </div>
+
+                <div class="form-group">
+                    <label for="packageSelect">Chọn gói học *</label>
+                    <select id="packageSelect" name="package_id" required class="form-control">
+                        <option value="">-- Chọn gói học --</option>
+                        @forelse($instructor->packages as $package)
+                            <option value="{{ $package->id }}">{{ $package->name }} - {{ number_format($package->price, 0, ',', '.') }}đ</option>
+                        @empty
+                            <option value="" disabled>Không có gói học nào</option>
+                        @endforelse
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Ghi chú (tuỳ chọn)</label>
+                    <textarea id="notes" name="notes" class="form-control" placeholder="Nhập ghi chú hoặc yêu cầu đặc biệt..."></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg btn-block">Xác nhận đặt lịch</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Alert Message -->
+    <div id="alertMessage" class="alert-message" style="display: none;">
+        <div class="alert-content">
+            <p id="alertText"></p>
+            <button class="alert-close">&times;</button>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            position: relative;
+            background: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .booking-form {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #00D9B5;
+            box-shadow: 0 0 0 3px rgba(0, 217, 181, 0.1);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .alert-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 2000;
+            max-width: 400px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .alert-content {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .alert-content p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .alert-content.success {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+            color: #15803d;
+        }
+
+        .alert-content.error {
+            background-color: #fef2f2;
+            border-left: 4px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: inherit;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+    </style>
 @endsection
 @section('js')
     <script>
@@ -562,6 +767,99 @@
                 document.querySelectorAll('.package-option').forEach(p => p.classList.remove('selected'));
                 option.closest('.package-option').classList.add('selected');
             });
+        });
+
+        // Booking Modal Logic
+        const bookingBtn = document.getElementById('bookingBtn');
+        const bookingModal = document.getElementById('bookingModal');
+        const closeModal = document.getElementById('closeModal');
+        const bookingForm = document.getElementById('bookingForm');
+        const modalOverlay = bookingModal?.querySelector('.modal-overlay');
+        const alertMessage = document.getElementById('alertMessage');
+        const alertText = document.getElementById('alertText');
+
+        // Function to open booking modal
+        function openBookingModal() {
+            const instructorId = bookingBtn.getAttribute('data-instructor-id');
+            document.getElementById('instructorId').value = instructorId;
+            
+            // Set first package as selected
+            const selectedPackage = document.querySelector('.package-option input:checked');
+            if (selectedPackage) {
+                document.getElementById('packageSelect').value = selectedPackage.value;
+            }
+            
+            bookingModal.style.display = 'flex';
+        }
+
+        // Open modal with booking button
+        bookingBtn?.addEventListener('click', (e) => {
+            openBookingModal();
+        });
+
+        // Open modal with contact button
+        const contactBtn = document.getElementById('contactBtn');
+        contactBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            openBookingModal();
+        });
+
+        // Close modal
+        function closeBookingModal() {
+            bookingModal.style.display = 'none';
+            bookingForm.reset();
+        }
+
+        closeModal?.addEventListener('click', closeBookingModal);
+        modalOverlay?.addEventListener('click', closeBookingModal);
+
+        // Handle form submission
+        bookingForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(bookingForm);
+            const data = Object.fromEntries(formData);
+
+            try {
+                const response = await fetch('{{ route("api.instructor-booking.store") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content,
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    closeBookingModal();
+                    bookingForm.reset();
+                } else {
+                    showAlert(result.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+            }
+        });
+
+        // Show alert message
+        function showAlert(message, type = 'success') {
+            alertText.textContent = message;
+            alertMessage.classList.remove('success', 'error');
+            alertMessage.classList.add(type);
+            alertMessage.style.display = 'block';
+
+            setTimeout(() => {
+                alertMessage.style.display = 'none';
+            }, 4000);
+        }
+
+        // Close alert
+        document.getElementById('alertMessage')?.querySelector('.alert-close')?.addEventListener('click', () => {
+            alertMessage.style.display = 'none';
         });
     </script>
 @endsection
