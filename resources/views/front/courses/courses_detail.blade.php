@@ -58,13 +58,13 @@
                     <div class="video-detail-info">
                         <div class="video-badges-row">
                             <span class="video-category-badge">{{ $video->category->name }}</span>
-                            <span class="video-level-badge beginner">Người mới</span>
+                            <span class="video-level-badge beginner">{{ $video->level ?? 'Người mới' }}</span>
                             <span class="video-duration-badge">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                     <circle cx="12" cy="12" r="10" />
                                     <polyline points="12 6 12 12 16 14" />
                                 </svg>
-                                25:30
+                                {{ $video->duration ?? '25:30' }}
                             </span>
                         </div>
 
@@ -72,59 +72,89 @@
 
                         <div class="video-detail-meta">
                             <div class="meta-left">
-                                <div class="instructor-info">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='24' fill='%2300D9B5'/%3E%3Ctext x='24' y='30' font-size='18' text-anchor='middle' fill='white'%3ENH%3C/text%3E%3C/svg%3E"
-                                        alt="Coach">
-                                    <div class="instructor-text">
-                                        <span class="instructor-name">Coach Nguyễn Văn Hùng</span>
-                                        <span class="instructor-title">Huấn luyện viên chuyên nghiệp</span>
+                                @if ($video->instructor)
+                                    <div class="instructor-info">
+                                        @php
+                                            $name = $video->instructor->name ?? '';
+                                            $initials = '';
+                                            foreach (explode(' ', trim($name)) as $word) {
+                                                if (!empty($word)) {
+                                                    $initials .= strtoupper(mb_substr($word, 0, 1));
+                                                }
+                                            }
+                                            $initials = $initials ?: 'I';
+                                            $colors = ['#FF8E53', '#00D9B5', '#9D84B7', '#FFC93C', '#FF6B6B'];
+                                            $colorIndex = (ord($initials[0]) + strlen($initials)) % count($colors);
+                                            $bgColor = $colors[$colorIndex];
+                                        @endphp
+                                        @if ($video->instructor->image)
+                                            <img src="{{ asset('storage/' . $video->instructor->image) }}" alt="{{ $video->instructor->name }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                                        @else
+                                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='24' fill='{{ urlencode($bgColor) }}'/%3E%3Ctext x='24' y='30' font-size='18' text-anchor='middle' fill='white'%3E{{ $initials }}%3C/text%3E%3C/svg%3E"
+                                                alt="{{ $video->instructor->name }}">
+                                        @endif
+                                        <div class="instructor-text">
+                                            <span class="instructor-name">Coach {{ $video->instructor->name }}</span>
+                                            <span class="instructor-title">{{ $video->instructor->experience ?? 'Huấn luyện viên chuyên nghiệp' }}</span>
+                                        </div>
                                     </div>
-                                </div>
+                                @else
+                                    <div class="instructor-info">
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='24' fill='%23CCCCCC'/%3E%3Ctext x='24' y='30' font-size='18' text-anchor='middle' fill='white'%3E%3F%3C/text%3E%3C/svg%3E"
+                                            alt="Coach">
+                                        <div class="instructor-text">
+                                            <span class="instructor-name">Chưa có giảng viên</span>
+                                            <span class="instructor-title">Chưa cập nhật</span>
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="video-stats-detail">
-                                    <span class="stat">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                                            <circle cx="12" cy="12" r="3" />
-                                        </svg>
-                                        12,543 lượt xem
-                                    </span>
-                                    <span class="stat">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                                            <line x1="16" y1="2" x2="16" y2="6" />
-                                            <line x1="8" y1="2" x2="8" y2="6" />
-                                            <line x1="3" y1="10" x2="21" y2="10" />
-                                        </svg>
-                                        {{ $video->created_at->format('d/m/Y') }}
-                                    </span>
-                                </div>
+                                     <span class="stat">
+                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                             <circle cx="12" cy="12" r="3" />
+                                         </svg>
+                                         @php
+                                             $viewsCount = $video->views_count ?? 0;
+                                             if ($viewsCount >= 1000000) {
+                                                 $displayViews = number_format($viewsCount / 1000000, 1) . 'M';
+                                             } elseif ($viewsCount >= 1000) {
+                                                 $displayViews = number_format($viewsCount / 1000, 1) . 'K';
+                                             } else {
+                                                 $displayViews = $viewsCount;
+                                             }
+                                         @endphp
+                                         {{ $displayViews }} lượt xem
+                                     </span>
+                                     <span class="stat">
+                                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                             <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                                             <line x1="16" y1="2" x2="16" y2="6" />
+                                             <line x1="8" y1="2" x2="8" y2="6" />
+                                             <line x1="3" y1="10" x2="21" y2="10" />
+                                         </svg>
+                                         {{ $video->created_at->format('d/m/Y') }}
+                                     </span>
+                                 </div>
                             </div>
                             <div class="meta-right">
                                 <div class="rating-display">
-                                    <div class="stars">
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <path
-                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                                        </svg>
-                                    </div>
-                                    <span class="rating-text">4.9 (234 đánh giá)</span>
-                                </div>
+                                     @php
+                                         $rating = $video->rating ?? 5;
+                                         $ratingCount = $video->rating_count ?? 0;
+                                         $fullStars = floor($rating);
+                                         $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                                     @endphp
+                                     <div class="stars">
+                                         @for ($i = 1; $i <= 5; $i++)
+                                             <svg viewBox="0 0 24 24" fill="{{ $i <= $fullStars || ($i == ceil($rating) && $hasHalfStar) ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="1">
+                                                 <path
+                                                     d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                             </svg>
+                                         @endfor
+                                     </div>
+                                     <span class="rating-text">{{ number_format($rating, 1) }} ({{ $ratingCount }} đánh giá)</span>
+                                 </div>
                             </div>
                         </div>
 
@@ -178,56 +208,30 @@
                     </div>
 
                     <!-- Chapters -->
-                    <div class="video-chapters-card">
-                        <h3 class="card-title">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="8" y1="6" x2="21" y2="6" />
-                                <line x1="8" y1="12" x2="21" y2="12" />
-                                <line x1="8" y1="18" x2="21" y2="18" />
-                                <line x1="3" y1="6" x2="3.01" y2="6" />
-                                <line x1="3" y1="12" x2="3.01" y2="12" />
-                                <line x1="3" y1="18" x2="3.01" y2="18" />
-                            </svg>
-                            Chương trong video
-                        </h3>
-                        <div class="chapters-list">
-                            <button class="chapter-item active" data-time="0">
-                                <span class="chapter-time">00:00</span>
-                                <span class="chapter-title">Giới thiệu về Pickleball</span>
-                                <span class="chapter-duration">3:00</span>
-                            </button>
-                            <button class="chapter-item" data-time="180">
-                                <span class="chapter-time">03:00</span>
-                                <span class="chapter-title">Giới thiệu dụng cụ</span>
-                                <span class="chapter-duration">3:30</span>
-                            </button>
-                            <button class="chapter-item" data-time="390">
-                                <span class="chapter-time">06:30</span>
-                                <span class="chapter-title">Luật chơi cơ bản</span>
-                                <span class="chapter-duration">3:30</span>
-                            </button>
-                            <button class="chapter-item" data-time="600">
-                                <span class="chapter-time">10:00</span>
-                                <span class="chapter-title">Cách cầm vợt đúng chuẩn</span>
-                                <span class="chapter-duration">4:00</span>
-                            </button>
-                            <button class="chapter-item" data-time="840">
-                                <span class="chapter-time">14:00</span>
-                                <span class="chapter-title">Tư thế đứng và di chuyển</span>
-                                <span class="chapter-duration">4:00</span>
-                            </button>
-                            <button class="chapter-item" data-time="1080">
-                                <span class="chapter-time">18:00</span>
-                                <span class="chapter-title">Kỹ thuật giao bóng (Serve)</span>
-                                <span class="chapter-duration">4:00</span>
-                            </button>
-                            <button class="chapter-item" data-time="1320">
-                                <span class="chapter-time">22:00</span>
-                                <span class="chapter-title">Luyện tập và tổng kết</span>
-                                <span class="chapter-duration">3:30</span>
-                            </button>
+                    @if ($video->chapters && count($video->chapters) > 0)
+                        <div class="video-chapters-card">
+                            <h3 class="card-title">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="8" y1="6" x2="21" y2="6" />
+                                    <line x1="8" y1="12" x2="21" y2="12" />
+                                    <line x1="8" y1="18" x2="21" y2="18" />
+                                    <line x1="3" y1="6" x2="3.01" y2="6" />
+                                    <line x1="3" y1="12" x2="3.01" y2="12" />
+                                    <line x1="3" y1="18" x2="3.01" y2="18" />
+                                </svg>
+                                Chương trong video
+                            </h3>
+                            <div class="chapters-list">
+                                @foreach ($video->chapters as $index => $chapter)
+                                    <button class="chapter-item {{ $index === 0 ? 'active' : '' }}" data-time="{{ $chapter['time'] ?? 0 }}">
+                                        <span class="chapter-time">{{ $chapter['start_time'] ?? '00:00' }}</span>
+                                        <span class="chapter-title">{{ $chapter['title'] ?? '' }}</span>
+                                        <span class="chapter-duration">{{ $chapter['duration'] ?? '' }}</span>
+                                    </button>
+                                @endforeach
+                            </div>
                         </div>
-                    </div>
+                    @endif
 
                     <!-- Comments Section -->
                     <div class="comments-section">
@@ -360,28 +364,59 @@
                 <div class="video-sidebar">
                     <!-- Instructor Card -->
                     <div class="sidebar-card instructor-card">
-                        <h3 class="sidebar-card-title">Giảng viên</h3>
-                        <div class="instructor-profile">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%2300D9B5'/%3E%3Ctext x='40' y='48' font-size='28' text-anchor='middle' fill='white'%3ENH%3C/text%3E%3C/svg%3E"
-                                alt="Coach Nguyễn Hùng" class="instructor-avatar-lg">
-                            <div class="instructor-details">
-                                <h4>Coach Nguyễn Văn Hùng</h4>
-                                <p>8 năm kinh nghiệm</p>
-                                <div class="instructor-stats">
-                                    <span>
-                                        <svg viewBox="0 0 24 24" fill="currentColor">
-                                            <polygon
-                                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-                                        </svg>
-                                        4.9
-                                    </span>
-                                    <span>32 video</span>
-                                    <span>156 học viên</span>
-                                </div>
-                            </div>
-                        </div>
-                        <a href="coach-detail.html" class="btn btn-outline btn-sm btn-block">Xem hồ sơ</a>
-                    </div>
+                         <h3 class="sidebar-card-title">Giảng viên</h3>
+                         @if ($video->instructor)
+                             @php
+                                 $name = $video->instructor->name ?? '';
+                                 $initials = '';
+                                 foreach (explode(' ', trim($name)) as $word) {
+                                     if (!empty($word)) {
+                                         $initials .= strtoupper(mb_substr($word, 0, 1));
+                                     }
+                                 }
+                                 $initials = $initials ?: 'I';
+                                 $colors = ['#FF8E53', '#00D9B5', '#9D84B7', '#FFC93C', '#FF6B6B'];
+                                 $colorIndex = (ord($initials[0]) + strlen($initials)) % count($colors);
+                                 $bgColor = $colors[$colorIndex];
+                             @endphp
+                             <div class="instructor-profile">
+                                 @if ($video->instructor->image)
+                                     <img src="{{ asset('storage/' . $video->instructor->image) }}" alt="{{ $video->instructor->name }}" class="instructor-avatar-lg" style="object-fit: cover;">
+                                 @else
+                                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='{{ urlencode($bgColor) }}'/%3E%3Ctext x='40' y='48' font-size='28' text-anchor='middle' fill='white'%3E{{ $initials }}%3C/text%3E%3C/svg%3E"
+                                         alt="{{ $video->instructor->name }}" class="instructor-avatar-lg">
+                                 @endif
+                                 <div class="instructor-details">
+                                     <h4>Coach {{ $video->instructor->name }}</h4>
+                                     <p>{{ $video->instructor->experience ?? 'Huấn luyện viên chuyên nghiệp' }}</p>
+                                     <div class="instructor-stats">
+                                         <span>
+                                             <svg viewBox="0 0 24 24" fill="currentColor">
+                                                 <polygon
+                                                     points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                                             </svg>
+                                             {{ number_format($video->instructor->rating ?? 5, 1) }}
+                                         </span>
+                                         <span>{{ $video->instructor->student_count ?? 0 }} học viên</span>
+                                         <span>{{ $video->instructor->reviews_count ?? 0 }} đánh giá</span>
+                                     </div>
+                                 </div>
+                             </div>
+                             <a href="#" class="btn btn-outline btn-sm btn-block">Xem hồ sơ</a>
+                         @else
+                             <div class="instructor-profile">
+                                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23CCCCCC'/%3E%3Ctext x='40' y='48' font-size='28' text-anchor='middle' fill='white'%3E%3F%3C/text%3E%3C/svg%3E"
+                                     alt="Không có giảng viên" class="instructor-avatar-lg">
+                                 <div class="instructor-details">
+                                     <h4>Chưa có giảng viên</h4>
+                                     <p>Đang cập nhật thông tin</p>
+                                     <div class="instructor-stats">
+                                         <span>Chưa có dữ liệu</span>
+                                     </div>
+                                 </div>
+                             </div>
+                         @endif
+                     </div>
 
                     <!-- Related Videos -->
                     <div class="sidebar-card">

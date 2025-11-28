@@ -551,7 +551,8 @@ class HomeController extends Controller
             $query->where('category_id', $request->input('category'));
         }
 
-        $videos = $query->paginate(6)->appends($request->query());
+        // Sort by newest first
+        $videos = $query->latest()->paginate(6)->appends($request->query());
         
         // Categories for filter
         $categories = Category::has('videos')->get();

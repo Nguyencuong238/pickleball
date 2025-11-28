@@ -168,7 +168,7 @@
                             <svg viewBox="0 0 24 24" fill="currentColor">
                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
                             </svg>
-                            <span>4.9</span>
+                            <span>{{ $instructor->rating }}</span>
                         </div>
                     </div>
                     <div class="coach-content">
@@ -179,7 +179,7 @@
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
                             </svg>
-                            <span>{{ $instructor->experience }} năm kinh nghiệm</span>
+                            <span>{{ $instructor->experience_years }} năm kinh nghiệm</span>
                         </div>
                         <div class="coach-location">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -195,11 +195,11 @@
                         </div>
                         <div class="coach-stats">
                             <div class="stat">
-                                <strong>156</strong>
+                                <strong>{{ $instructor->student_count }}</strong>
                                 <span>Học viên</span>
                             </div>
                             <div class="stat">
-                                <strong>89</strong>
+                                <strong>{{ $instructor->reviews_count }}</strong>
                                 <span>Đánh giá</span>
                             </div>
                         </div>
