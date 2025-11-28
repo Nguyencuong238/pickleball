@@ -146,6 +146,12 @@
         margin-right: 0.5rem;
         vertical-align: middle;
     }
+    .color-white {
+        color: #fff;
+    }
+    .bg-white {
+        background-color: #fff;
+    }
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
@@ -261,7 +267,6 @@
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
                     </ul>
                 </li>
-                <li><a href="#contact" class="nav-link">Liên hệ</a></li>
             </ul>
             
             @auth

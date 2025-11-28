@@ -9,11 +9,11 @@
                     <h1>Cấu Hình Giải Đấu</h1>
                     <div class="breadcrumb">
                         <span class="breadcrumb-item">
-                            <a href="overview.html" class="breadcrumb-link">🏠 Dashboard</a>
+                            <a href="{{route('homeyard.overview')}}" class="breadcrumb-link">🏠 Dashboard</a>
                         </span>
                         <span class="breadcrumb-separator">/</span>
                         <span class="breadcrumb-item">
-                            <a href="tournaments.html" class="breadcrumb-link">Giải đấu</a>
+                            <a href="{{route('homeyard.tournaments')}}" class="breadcrumb-link">Giải đấu</a>
                         </span>
                         <span class="breadcrumb-separator">/</span>
                         <span class="breadcrumb-item">Cấu hình</span>

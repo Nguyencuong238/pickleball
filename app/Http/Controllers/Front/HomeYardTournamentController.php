@@ -1804,13 +1804,14 @@ class HomeYardTournamentController extends Controller
             $bookings = Booking::where('court_id', $court->id)
                 ->where('booking_date', $date)
                 ->where('status', '!=', 'cancelled')
-                ->get(['start_time', 'end_time']);
+                ->get(['start_time', 'end_time', 'status']);
 
             $bookedSlots = [];
             foreach ($bookings as $booking) {
                 $bookedSlots[] = [
                     'start_time' => $booking->start_time,
                     'end_time' => $booking->end_time,
+                    'status' => $booking->status
                 ];
             }
 
@@ -1843,10 +1844,11 @@ class HomeYardTournamentController extends Controller
                     ->first();
 
                 // Use pricing if found, otherwise use court's rental_price
-                $price = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 150000);
+                $price = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 0);
 
                 // Check if this slot is booked
                 $isBooked = false;
+                $isPending = false;
                 $nextHour = $hour + 1;
                 $nextSlotTime = sprintf('%02d:00', $nextHour);
                 
@@ -1857,8 +1859,12 @@ class HomeYardTournamentController extends Controller
                     $currentSlotEnd = \DateTime::createFromFormat('H:i', $nextSlotTime);
                     
                     // Check if there's any overlap
-                    if ($currentSlotStart < $bookedEnd && $currentSlotEnd > $bookedStart) {
-                        $isBooked = true;
+                    if ($currentSlotStart < $bookedEnd && $currentSlotEnd > $bookedStart && $booked['status'] != 'cancelled') {
+                        if($booked['status'] == 'pending') {
+                            $isPending = true;
+                        } else {
+                            $isBooked = true;
+                        }
                         break;
                     }
                 }
@@ -1869,6 +1875,7 @@ class HomeYardTournamentController extends Controller
                     'end_hour' => $nextHour,
                     'price' => $price,
                     'is_booked' => $isBooked,
+                    'is_pending' => $isPending,
                 ];
             }
 

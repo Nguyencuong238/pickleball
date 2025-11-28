@@ -21,7 +21,7 @@
         <div class="page-header-background"></div>
         <div class="container">
             <div class="breadcrumb">
-                <a href="index.html">Trang chủ</a>
+                <a href="/">Trang chủ</a>
                 <span class="separator">/</span>
                 <span>Sân thi đấu</span>
             </div>
