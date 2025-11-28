@@ -87,8 +87,8 @@ Route::get('/course', [HomeController::class, 'course'])->name('course');
 Route::get('/course/{id}', [HomeController::class, 'courseDetail'])->name('course.detail');
 
 // Booking API for front-end
-Route::post('/api/bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('api.bookings.store');
-Route::get('/api/courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('api.courts.available-slots');
+Route::post('/api/bookings', [HomeController::class, 'bookingCourt'])->name('api.bookings.store');
+Route::get('/api/courts/{court}/available-slots', [HomeController::class, 'getAvailableSlots'])->name('api.courts.available-slots');
 
 // Tournament Registration
 Route::post('/tournament/{tournament}/register', [TournamentRegistrationController::class, 'register'])->name('tournament.register');

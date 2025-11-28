@@ -116,17 +116,18 @@
                             <div class="form-group">
                                 <label>Họ tên *</label>
                                 <input type="text" class="form-control" name="customer_name" placeholder="Nguyễn Văn A"
-                                    required>
+                                    value="{{ auth()->check() ? auth()->user()->name : '' }}" required>
                             </div>
                             <div class="form-group">
                                 <label>Số điện thoại *</label>
                                 <input type="tel" class="form-control" name="customer_phone" placeholder="0901234567"
-                                    required>
+                                    value="{{ auth()->check() ? auth()->user()->phone : '' }}" required>
                             </div>
                             <div class="form-group">
                                 <label>Email</label>
                                 <input type="email" class="form-control" name="customer_email"
-                                    placeholder="email@example.com">
+                                    placeholder="email@example.com"
+                                    value="{{ auth()->check() ? auth()->user()->email : '' }}">
                             </div>
                             <div class="form-group">
                                 <label>Ghi chú</label>
