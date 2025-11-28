@@ -40,7 +40,7 @@
             <h1 class="page-title">Thi Đấu Social</h1>
             <p class="page-description">Tham gia cộng đồng, tìm đối thủ và nâng cao kỹ năng Pickleball</p>
 
-            <div class="quick-stats">
+            {{-- <div class="quick-stats">
                 <div class="stat-box">
                     <div class="stat-icon">👥</div>
                     <div class="stat-content">
@@ -69,7 +69,7 @@
                         <div class="stat-label">Đánh giá</div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
         </div>
     </section>
 
