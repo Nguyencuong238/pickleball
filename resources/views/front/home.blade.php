@@ -18,8 +18,8 @@
                     Tìm sân, đăng ký giải đấu, kết nối đối thủ và cập nhật tin tức mới nhất.
                 </p>
                 <div class="hero-actions">
-                    <button class="btn btn-primary btn-lg">Tham gia ngay</button>
-                    <button class="btn btn-secondary btn-lg">Tìm hiểu thêm</button>
+                    <a href="{{ route('register') }}" class="btn btn-primary btn-lg">Tham gia ngay</a>
+                    {{-- <button class="btn btn-secondary btn-lg">Tìm hiểu thêm</button> --}}
                 </div>
 
                 <!-- Stats -->
@@ -396,10 +396,45 @@
                     Đăng ký ngay để nhận thông tin về các giải đấu, sự kiện và ưu đãi đặc biệt dành riêng cho thành viên
                 </p>
                 <div class="cta-form">
-                    <input type="email" placeholder="Nhập email của bạn" class="cta-input">
-                    <button class="btn btn-primary btn-lg">Đăng ký ngay</button>
+                    <input type="email" id="ctaEmail" placeholder="Nhập email của bạn" class="cta-input">
+                    <button class="btn btn-primary btn-lg" onclick="handleCtaRegister()">Đăng ký ngay</button>
                 </div>
             </div>
         </div>
     </section>
+
+    <script>
+        const isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
+
+        function handleCtaRegister() {
+            if (isLoggedIn) {
+                alert('Bạn đã có tài khoản và đã đăng nhập rồi');
+                return;
+            }
+
+            const email = document.getElementById('ctaEmail').value.trim();
+            
+            if (!email) {
+                alert('Vui lòng nhập email của bạn');
+                return;
+            }
+            
+            // Validate email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                alert('Email không hợp lệ');
+                return;
+            }
+            
+            // Redirect to register page with email as query parameter
+            window.location.href = '{{ route("register") }}?email=' + encodeURIComponent(email);
+        }
+        
+        // Allow Enter key to trigger register
+        document.getElementById('ctaEmail')?.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleCtaRegister();
+            }
+        });
+    </script>
 @endsection

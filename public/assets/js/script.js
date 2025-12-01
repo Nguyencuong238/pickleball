@@ -112,36 +112,36 @@ cardsToObserve.forEach(card => {
     observer.observe(card);
 });
 
-// Form validation for CTA section
-const ctaForm = document.querySelector('.cta-form');
-const ctaInput = document.querySelector('.cta-input');
-const ctaButton = document.querySelector('.cta-form .btn');
+// Form validation for CTA section (disabled - using inline handler in home.blade.php)
+// const ctaForm = document.querySelector('.cta-form');
+// const ctaInput = document.querySelector('.cta-input');
+// const ctaButton = document.querySelector('.cta-form .btn');
 
-if (ctaForm) {
-    ctaButton.addEventListener('click', (e) => {
-        e.preventDefault();
+// if (ctaForm) {
+//     ctaButton.addEventListener('click', (e) => {
+//         e.preventDefault();
         
-        const email = ctaInput.value.trim();
+//         const email = ctaInput.value.trim();
         
-        if (!email) {
-            alert('Vui lòng nhập địa chỉ email của bạn');
-            ctaInput.focus();
-            return;
-        }
+//         if (!email) {
+//             alert('Vui lòng nhập địa chỉ email của bạn');
+//             ctaInput.focus();
+//             return;
+//         }
         
-        // Simple email validation
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            alert('Vui lòng nhập địa chỉ email hợp lệ');
-            ctaInput.focus();
-            return;
-        }
+//         // Simple email validation
+//         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//         if (!emailRegex.test(email)) {
+//             alert('Vui lòng nhập địa chỉ email hợp lệ');
+//             ctaInput.focus();
+//             return;
+//         }
         
-        // Success message
-        alert('Cảm ơn bạn đã đăng ký! Chúng tôi sẽ liên hệ với bạn sớm.');
-        ctaInput.value = '';
-    });
-}
+//         // Success - clear input and redirect to register
+//         ctaInput.value = '';
+//         window.location.href = '/register?email=' + encodeURIComponent(email);
+//     });
+// }
 
 // Lazy loading images
 if ('IntersectionObserver' in window) {

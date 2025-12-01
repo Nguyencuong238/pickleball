@@ -154,7 +154,7 @@
 
                         <div class="form-group">
                             <label class="form-label">Email</label>
-                            <input type="email" class="form-input" name="email" placeholder="Nhập địa chỉ email" value="{{ old('email') }}" required>
+                            <input type="email" class="form-input" name="email" placeholder="Nhập địa chỉ email" value="{{ old('email', request('email', '')) }}" required>
                             @error('email')
                                 <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
                             @enderror
@@ -335,21 +335,31 @@
         const loginForm = document.getElementById('login-form');
         const registerForm = document.getElementById('register-form');
 
+        function switchTab(tabName) {
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+
+            if (tabName === 'login') {
+                loginForm.style.display = 'block';
+                registerForm.style.display = 'none';
+            } else {
+                loginForm.style.display = 'none';
+                registerForm.style.display = 'block';
+            }
+        }
+
         tabs.forEach(tab => {
             tab.addEventListener('click', () => {
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-
                 const tabName = tab.getAttribute('data-tab');
-                if (tabName === 'login') {
-                    loginForm.style.display = 'block';
-                    registerForm.style.display = 'none';
-                } else {
-                    loginForm.style.display = 'none';
-                    registerForm.style.display = 'block';
-                }
+                switchTab(tabName);
             });
         });
+
+        // Auto-switch to register tab if email parameter exists
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('email')) {
+            switchTab('register');
+        }
 
         // Password Toggle
         const passwordToggles = document.querySelectorAll('.password-toggle');
