@@ -23,7 +23,7 @@
                 </div>
 
                 <!-- Stats -->
-                <div class="hero-stats">
+                {{-- <div class="hero-stats">
                     <div class="stat-item">
                         <h3 class="stat-number">{{ $totalMembers }}+</h3>
                         <p class="stat-label">Thành viên</p>
@@ -40,7 +40,7 @@
                         <h3 class="stat-number">{{ $totalSocial }}+</h3>
                         <p class="stat-label">Buổi Social</p>
                     </div>
-                </div>
+                </div> --}}
             </div>
         </div>
     </section>
