@@ -181,6 +181,58 @@ class HomeYardTournamentController extends Controller
         return redirect()->route('homeyard.tournaments.index')->with('success', 'Tournament deleted successfully.');
     }
 
+    public function bulkDelete(Request $request)
+    {
+        try {
+            $request->validate([
+                'ids' => 'required|array',
+                'ids.*' => 'required|integer|exists:tournaments,id'
+            ]);
+
+            $ids = $request->input('ids');
+            
+            // Get tournaments and verify authorization
+            $tournaments = Tournament::whereIn('id', $ids)
+                ->where('user_id', auth()->id())
+                ->get();
+
+            if ($tournaments->count() !== count($ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Một số giải đấu không tồn tại hoặc bạn không có quyền xóa'
+                ], 403);
+            }
+
+            // Delete each tournament
+            foreach ($tournaments as $tournament) {
+                // Delete all media collections
+                $tournament->clearMediaCollection('gallery');
+                $tournament->clearMediaCollection('banner');
+                $tournament->delete();
+                
+                // Log activity
+                ActivityLog::log("Giải đấu '{$tournament->name}' được xóa", 'Tournament', $tournament->id);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa ' . count($tournaments) . ' giải đấu thành công'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Bulk delete tournaments error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function addAthlete(Request $request, Tournament $tournament)
     {
         \Log::info('addAthlete called', [

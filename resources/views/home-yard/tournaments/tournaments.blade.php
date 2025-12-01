@@ -491,7 +491,7 @@
                 <div class="bulk-info">
                     <span id="selectedCount">0</span> giải đấu được chọn
                 </div>
-                <button class="btn btn-danger btn-sm">
+                <button class="btn btn-danger btn-sm" onclick="deleteBulkTournaments()">
                     🗑️ Xóa
                 </button>
             </div>
@@ -555,7 +555,7 @@
                         }
                     @endphp
 
-                    <div class="tournament-card fade-in" data-status="{{ $statusText }}" data-format="{{ $formatText }}"
+                    <div class="tournament-card fade-in" data-tournament-id="{{ $item->id }}" data-status="{{ $statusText }}" data-format="{{ $formatText }}"
                         data-location="{{ $item->location ?? 'N/A' }}" data-name="{{ $item->name }}"
                         data-date="{{ strtotime($item->start_date) }}">
                         <input type="checkbox" class="tournament-checkbox" onchange="updateBulkActions()">
@@ -1010,15 +1010,77 @@
         }
 
         function toggleSelectAll() {
-            const selectAll = document.getElementById('selectAll');
-            const checkboxes = document.querySelectorAll('.tournament-checkbox');
+             const selectAll = document.getElementById('selectAll');
+             const checkboxes = document.querySelectorAll('.tournament-checkbox');
 
-            checkboxes.forEach(cb => {
-                cb.checked = selectAll.checked;
-            });
+             checkboxes.forEach(cb => {
+                 cb.checked = selectAll.checked;
+             });
 
-            updateBulkActions();
-        }
+             updateBulkActions();
+         }
+
+         function deleteBulkTournaments() {
+             const checkboxes = document.querySelectorAll('.tournament-checkbox:checked');
+             if (checkboxes.length === 0) {
+                 alert('Vui lòng chọn ít nhất một giải đấu để xóa');
+                 return;
+             }
+
+             const tournamentIds = [];
+             checkboxes.forEach(checkbox => {
+                 const card = checkbox.closest('.tournament-card');
+                 if (card) {
+                     const tournamentId = card.getAttribute('data-tournament-id');
+                     if (tournamentId) {
+                         tournamentIds.push(tournamentId);
+                     }
+                 }
+             });
+
+             if (tournamentIds.length === 0) {
+                 alert('Không thể xác định ID của giải đấu');
+                 return;
+             }
+
+             // Confirm deletion
+             const message = `Bạn chắc chắn muốn xóa ${tournamentIds.length} giải đấu? Hành động này không thể được hoàn tác.`;
+             if (!confirm(message)) {
+                 return;
+             }
+
+             // Send delete request
+             fetch('{{ route('homeyard.tournaments.bulk-delete') }}', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                     'Accept': 'application/json'
+                 },
+                 body: JSON.stringify({
+                     ids: tournamentIds
+                 })
+             })
+             .then(response => {
+                 if (!response.ok) {
+                     throw new Error(`HTTP error! status: ${response.status}`);
+                 }
+                 return response.json();
+             })
+             .then(data => {
+                 if (data.success) {
+                     alert('Xóa giải đấu thành công!');
+                     // Reload page
+                     window.location.reload();
+                 } else {
+                     alert(data.message || 'Đã xảy ra lỗi khi xóa giải đấu');
+                 }
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                 alert('Đã xảy ra lỗi khi xóa giải đấu: ' + error.message);
+             });
+         }
 
         // Modal functions
         function openCreateModal() {

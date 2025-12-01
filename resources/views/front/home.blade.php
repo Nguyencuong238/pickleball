@@ -399,7 +399,6 @@
                     <input type="email" placeholder="Nhập email của bạn" class="cta-input">
                     <button class="btn btn-primary btn-lg">Đăng ký ngay</button>
                 </div>
-                <p class="cta-note">🎁 Tặng voucher 100.000đ cho 100 người đăng ký đầu tiên</p>
             </div>
         </div>
     </section>

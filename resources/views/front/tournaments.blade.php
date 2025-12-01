@@ -244,11 +244,11 @@
                            <div class="tournament-item" data-tournament-id="{{ $tournament->id }}">
                                <a href="{{ route('tournaments-detail', $tournament->id) }}" class="tournament-link">
                                     <div class="tournament-image">
-                                        @if($tournament->image)
-                                            <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}">
-                                        @else
-                                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 250'%3E%3Cdefs%3E%3ClinearGradient id='t{{ $tournament->id }}' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2300D9B5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230099CC;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23t{{ $tournament->id }})' width='400' height='250'/%3E%3Ctext x='200' y='125' font-family='Arial' font-size='24' fill='white' text-anchor='middle' dominant-baseline='middle' font-weight='bold'%3E{{ strtoupper(substr($tournament->name, 0, 20)) }}%3C/text%3E%3C/svg%3E" alt="{{ $tournament->name }}">
-                                        @endif
+                                         @php
+                                             $media = $tournament->getFirstMedia('banner');
+                                             $imageUrl = $media ? $media->getUrl() : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 250%22%3E%3Cdefs%3E%3ClinearGradient id=%22t' . $tournament->id . '%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 style=%22stop-color:%2300D9B5;stop-opacity:1%22 /%3E%3Cstop offset=%22100%25%22 style=%22stop-color:%230099CC;stop-opacity:1%22 /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill=%22url(%23t' . $tournament->id . ')%22 width=%22400%22 height=%22250%22/%3E%3Ctext x=%22200%22 y=%22125%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 font-weight=%22bold%22%3E' . strtoupper(substr($tournament->name, 0, 20)) . '%3C/text%3E%3C/svg%3E';
+                                         @endphp
+                                         <img src="{{ $imageUrl }}" alt="{{ $tournament->name }}">
                                         <div class="tournament-badges">
                                             <span class="badge badge-status status-open">Đang mở</span>
                                         </div>
