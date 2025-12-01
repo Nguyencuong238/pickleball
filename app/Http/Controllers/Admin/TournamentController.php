@@ -193,8 +193,16 @@ class TournamentController extends Controller
     {
         $this->authorize('delete', $tournament);
 
-        $tournament->deleteMediaCollection('gallery');
-        $tournament->deleteMediaCollection('banner');
+        // Delete media files if they exist
+        try {
+            $bannerMedia = $tournament->getMedia('banner');
+            foreach ($bannerMedia as $media) {
+                $media->delete();
+            }
+        } catch (\Exception $e) {
+            // Log error but continue with deletion
+            \Log::warning('Failed to delete tournament media: ' . $e->getMessage());
+        }
 
         $tournament->delete();
 
