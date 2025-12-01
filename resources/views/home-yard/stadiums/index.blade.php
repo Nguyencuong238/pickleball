@@ -1,5 +1,13 @@
 @extends('layouts.homeyard')
 
+@section('css')
+    <style>
+        .top-header {
+            margin-top: 100px;
+        }
+    </style>
+@endsection
+
 @section('content')
 <main class="main-content" id="mainContent">
     <div class="container">
@@ -16,11 +24,21 @@
                 </div>
             </div>
             <div class="header-right">
-                <a href="{{ route('homeyard.stadiums.create') }}" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; font-size: 0.95rem;">
-                    ➕ Thêm Sân Mới
-                </a>
+                <div class="header-search">
+                    <span class="search-icon">🔍</span>
+                    <input type="text" id="matchSearch" class="search-input" placeholder="Tìm kiếm cụm sân...">
+                </div>
+                <div class="header-user">
+                    <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
+                    <div class="user-info">
+                        <div class="user-name">{{auth()->user()->name}}</div>
+                        <div class="user-role">{{auth()->user()->getFirstRoleName()}}</div>
+                    </div>
+                </div>
             </div>
         </header>
+
+        <a href="{{ route('homeyard.stadiums.create') }}" class="btn-add mb-3">➕ Thêm Sân Mới</a>
 
         <!-- Stadium List Card -->
         <div class="card fade-in">

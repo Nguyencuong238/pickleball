@@ -297,6 +297,11 @@
     .badge-double-mixed {
         background: linear-gradient(135deg, #10B981, #059669);
     }
+    @media (max-width: 768px) {
+        .top-header {
+            margin-top: 100px;
+        }
+    }
 </style>
 @section('content')
     <main class="main-content" id="mainContent">
@@ -389,8 +394,8 @@
 
             <!-- Players Table -->
             <div class="card fade-in">
-                <div class="card-header">
-                    <h3 class="card-title">Danh Sách Vận Động Viên</h3>
+                <div class="card-header" style="flex-wrap: wrap;gap:1rem;">
+                    <h3 class="card-title" style="white-space: nowrap;">Danh Sách Vận Động Viên</h3>
                     <div class="card-actions">
                         <button class="btn btn-secondary btn-sm" onclick="exportToExcel()">📥 Xuất Excel</button>
                     </div>
@@ -419,9 +424,6 @@
                     </div>
                 </div>
                 <div class="card-footer">
-                    <div style="text-align: center; margin-bottom: 1rem; font-size: 0.875rem; color: var(--text-secondary);">
-                        <span id="paginationInfo">Hiển thị 0 / 0 vận động viên</span>
-                    </div>
                     <div class="pagination" id="paginationContainer">
                         <button class="pagination-btn" disabled>‹ Trước</button>
                         <button class="pagination-btn active">1</button>
@@ -523,19 +525,15 @@
         // Render pagination
         function renderPagination(pagination) {
             const container = document.getElementById('paginationContainer');
-            const infoSpan = document.getElementById('paginationInfo');
             
             if (!pagination) {
                 container.innerHTML = '<button class="pagination-btn" disabled>‹ Trước</button><button class="pagination-btn active">1</button><button class="pagination-btn" disabled>Sau ›</button>';
-                infoSpan.textContent = 'Không có dữ liệu';
                 return;
             }
             
             currentPage = pagination.current_page;
             totalPages = pagination.last_page;
             
-            // Update info text
-            infoSpan.textContent = `Hiển thị ${pagination.from || 0} - ${pagination.to || 0} / ${pagination.total} vận động viên`;
             
             let html = '';
             

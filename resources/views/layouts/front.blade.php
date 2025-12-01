@@ -242,17 +242,17 @@
     <!-- Header -->
     <header class="header">
         <nav class="nav container">
-            <div class="nav-brand">
-                <a href="/" class="sidebar-brand">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="80px">
-                </a>
-            </div>
-            
             <button class="mobile-menu-toggle" aria-label="Toggle menu">
                 <span></span>
                 <span></span>
                 <span></span>
             </button>
+            
+            <div class="nav-brand">
+                <a href="/" class="sidebar-brand">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="74px">
+                </a>
+            </div>
             
             <ul class="nav-menu">
                 <li><a href="/" class="nav-link @if(request()->routeIs('home')) active @endif">Trang chủ</a></li>
@@ -330,7 +330,7 @@
             <div class="footer-content">
                 <div class="footer-col footer-about">
                     <div class="footer-brand">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="80px">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="74px">
                     </div>
                     <p class="footer-description">
                         Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam. Tìm sân, đăng ký giải đấu và kết nối với hàng ngàn tay vợt.

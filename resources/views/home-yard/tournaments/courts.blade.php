@@ -542,6 +542,9 @@
         .pricing-display {
             grid-template-columns: 1fr;
         }
+        .top-header {
+            margin-top: 100px;
+        }
     }
 </style>
 @section('content')
@@ -563,12 +566,6 @@
                     <div class="header-search">
                         <span class="search-icon">🔍</span>
                         <input type="text" class="search-input" id="courtSearch" placeholder="Tìm kiếm sân...">
-                    </div>
-                    <div class="header-notifications">
-                        <button class="notification-btn">
-                            🔔
-                            <span class="notification-badge">5</span>
-                        </button>
                     </div>
                     <div class="header-user">
                         <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
