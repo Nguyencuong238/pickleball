@@ -666,7 +666,7 @@
 
 /* Breadcrumb */
 .breadcrumb-section {
-    padding: calc(80px + var(--spacing-md)) 0 var(--spacing-md);
+    padding: calc(100px + var(--spacing-md)) 0 var(--spacing-md);
     background: var(--bg-light);
 }
 
