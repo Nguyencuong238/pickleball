@@ -24,4 +24,31 @@ class Video extends Model
     {
         return $this->belongsTo(Instructor::class, 'instructor_id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(VideoComment::class)->whereNull('parent_id')->with('user', 'replies');
+    }
+
+    public function allComments()
+    {
+        return $this->hasMany(VideoComment::class);
+    }
+
+    public function likes()
+    {
+        return $this->hasMany(VideoLike::class);
+    }
+
+    public function likedByUsers()
+    {
+        return $this->belongsToMany(User::class, 'video_likes', 'video_id', 'user_id')
+            ->withTimestamps();
+    }
+
+    public function isLikedBy(User|null $user): bool
+    {
+        if (!$user) return false;
+        return $this->likedByUsers()->where('user_id', $user->id)->exists();
+    }
 }

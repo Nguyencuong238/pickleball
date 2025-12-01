@@ -5,7 +5,9 @@ namespace App\Providers;
 // use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use App\Models\Tournament;
+use App\Models\VideoComment;
 use App\Policies\TournamentPolicy;
+use App\Policies\VideoCommentPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -16,6 +18,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         Tournament::class => TournamentPolicy::class,
+        VideoComment::class => VideoCommentPolicy::class,
     ];
 
     /**

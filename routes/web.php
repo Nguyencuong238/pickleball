@@ -101,6 +101,14 @@ Route::put('/api/instructor-review/{review}', [\App\Http\Controllers\Api\Instruc
 Route::delete('/api/instructor-review/{review}', [\App\Http\Controllers\Api\InstructorReviewController::class, 'destroy'])->name('api.instructor-review.destroy')->middleware('auth');
 Route::get('/api/instructor/{instructorId}/reviews', [\App\Http\Controllers\Api\InstructorReviewController::class, 'getByInstructor'])->name('api.instructor-review.list');
 
+// Video Comment & Like Routes
+Route::post('/api/videos/{video}/comments', [\App\Http\Controllers\Front\VideoCommentController::class, 'store'])->name('api.video-comments.store')->middleware('auth');
+Route::delete('/api/comments/{comment}', [\App\Http\Controllers\Front\VideoCommentController::class, 'destroy'])->name('api.comments.destroy')->middleware('auth');
+Route::post('/api/comments/{comment}/like', [\App\Http\Controllers\Front\VideoCommentController::class, 'likeComment'])->name('api.comments.like')->middleware('auth');
+
+// Video Like Routes
+Route::post('/api/videos/{video}/like', [\App\Http\Controllers\Front\VideoLikeController::class, 'toggle'])->name('api.videos.like')->middleware('auth');
+
 // Tournament Registration
 Route::post('/tournament/{tournament}/register', [TournamentRegistrationController::class, 'register'])->name('tournament.register');
 

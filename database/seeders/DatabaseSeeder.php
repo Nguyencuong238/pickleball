@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Stadium;
 use App\Models\Court;
@@ -32,6 +33,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Xóa dữ liệu cũ trước
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('users')->truncate();
+        DB::table('stadiums')->truncate();
+        DB::table('courts')->truncate();
+        DB::table('tournaments')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
         // Call individual seeders
         $this->call([
             ProvinceSeeder::class,
@@ -115,10 +124,6 @@ class DatabaseSeeder extends Seeder
             'address' => '123 Đường Xuân Thủy, Phường Thảo Điền, Quận 2, TP.HCM',
             'phone' => '0287654321',
             'email' => 'contact@thaodien-pickleball.vn',
-            'courts_count' => 8,
-            'court_surface' => 'Acrylic chuyên dụng',
-            // 'latitude' => 10.803570,
-            // 'longitude' => 106.738640,
             'opening_hours' => '06:00 - 22:00',
             'amenities' => json_encode([
                 'Phòng thay đồ',
@@ -128,8 +133,6 @@ class DatabaseSeeder extends Seeder
                 'Cho thuê vợt và bóng'
             ]),
             'status' => 'active',
-            'rating' => 4.8,
-            'rating_count' => 156,
             'is_verified' => true,
             'is_featured' => true,
         ]);

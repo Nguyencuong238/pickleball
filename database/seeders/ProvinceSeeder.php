@@ -13,6 +13,11 @@ class ProvinceSeeder extends Seeder
      */
     public function run(): void
     {
+        // Xóa dữ liệu cũ
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        DB::table('provinces')->truncate();
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        
         $provinces = [
             'TP. Hà Nội',
             'TP. Hồ Chí Minh',
