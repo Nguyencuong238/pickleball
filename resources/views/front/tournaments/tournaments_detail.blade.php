@@ -289,7 +289,7 @@
                                     ->get();
                             @endphp
                             @forelse($relatedTournaments as $related)
-                                <a href="{{ route('tournament.detail', $related->id) }}" class="related-item">
+                                <a href="{{ route('tournaments-detail', $related->id) }}" class="related-item">
                                     <div class="related-image">
                                         @php
                                             $media = $related->getFirstMedia('banner');
