@@ -502,6 +502,12 @@
         padding: 1.5rem;
         flex-wrap: wrap;
     }
+
+    @media (max-width: 768px) {
+        .top-header {
+            margin-top: 100px;
+        }
+    }
 </style>
 @endsection
 
@@ -524,12 +530,6 @@
                     <div class="header-search">
                         <span class="search-icon">🔍</span>
                         <input type="text" class="search-input" placeholder="Tìm kiếm đơn đặt...">
-                    </div>
-                    <div class="header-notifications">
-                        <button class="notification-btn">
-                            🔔
-                            <span class="notification-badge">5</span>
-                        </button>
                     </div>
                     <div class="header-user">
                         <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
@@ -575,8 +575,8 @@
 
             <!-- Tabs -->
             <div class="card fade-in">
-                <div class="card-header">
-                    <h3 class="card-title">Quản Lý Đặt Sân</h3>
+                <div class="card-header" style="flex-wrap: wrap; gap: 1rem">
+                    <h3 class="card-title" style="white-space: nowrap">Quản Lý Đặt Sân</h3>
                     <div class="card-actions">
                         <button class="btn btn-secondary btn-sm">📥 Xuất Excel</button>
                         <button class="btn btn-primary btn-sm" onclick="openNewBookingModal()">

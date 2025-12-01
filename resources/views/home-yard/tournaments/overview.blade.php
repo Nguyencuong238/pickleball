@@ -229,6 +229,11 @@
         gap: 1.5rem;
     }
 
+    .recent-action {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+    }
     @media (max-width: 1200px) {
         .grid.grid-2 {
             grid-template-columns: 1fr;
@@ -239,6 +244,15 @@
         max-height: 300px;
         width: 100% !important;
         height: auto !important;
+    }
+
+    @media (max-width: 768px) {
+        .recent-action {
+            grid-template-columns: 1fr;
+        }
+        .top-header {
+            margin-top: 100px;
+        }
     }
 </style>
 @section('content')
@@ -258,32 +272,28 @@
                     </div>
                 </div>
                 <div class="header-right">
-                    <div class="header-search">
-                        {{-- <input type="text" class="search-input" placeholder="Tìm kiếm..."> --}}
-                        <span class="search-icon">🔍</span>
-                    </div>
-                    <div class="header-notifications">
+                    {{-- <div class="header-notifications">
                         <button class="notification-btn">
                             <span>🔔</span>
                             <span class="notification-badge">5</span>
                         </button>
-                    </div>
+                    </div> --}}
                     <div class="header-user">
-                        <div class="user-avatar">AD</div>
+                        <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
                         <div class="user-info">
-                            <div class="user-name">Admin User</div>
-                            <div class="user-role">Quản trị viên</div>
+                            <div class="user-name">{{auth()->user()->name}}</div>
+                            <div class="user-role">{{auth()->user()->getFirstRoleName()}}</div>
                         </div>
                     </div>
                 </div>
             </header>
 
             <!-- Welcome Banner -->
-            <div class="welcome-banner fade-in">
+            {{-- <div class="welcome-banner fade-in">
                 <h2>👋 Xin chào, Admin!</h2>
                 <p>Chào mừng trở lại với hệ thống quản lý giải đấu Pickleball. Hôm nay bạn có 3 giải đấu đang diễn ra và 45
                     trận đấu cần quản lý.</p>
-            </div>
+            </div> --}}
 
             <!-- Quick Actions -->
             <div class="quick-actions fade-in">
@@ -377,7 +387,7 @@
             </div>
 
             <!-- Main Content Grid -->
-            <div class="grid grid-3" style="grid-template-columns: 2fr 1fr;">
+            <div class="recent-action">
                 <!-- Recent Tournaments -->
                 <div class="card fade-in">
                     <div class="card-header">

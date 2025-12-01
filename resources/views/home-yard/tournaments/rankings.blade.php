@@ -12,7 +12,7 @@
     .filter-buttons {
         display: flex;
         gap: 0.5rem;
-        flex-wrap: wrap;
+        overflow: auto;
     }
 
     .filter-btn {
@@ -25,6 +25,7 @@
         font-weight: 600;
         font-size: 0.875rem;
         color: var(--text-secondary);
+        white-space: nowrap;
     }
 
     .filter-btn:hover {
@@ -287,13 +288,16 @@
         border-radius: var(--radius-lg);
         margin-bottom: 1.5rem;
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
+        gap: 1rem;
     }
 
     .leaderboard-title {
         font-size: 1.5rem;
         font-weight: 700;
+        white-space: nowrap;
     }
 
     .leaderboard-subtitle {
@@ -397,6 +401,11 @@
         color: white;
         border-color: transparent;
     }
+    @media (max-width: 768px) {
+        .top-header {
+            margin-top: 100px;
+        }
+    }
 </style>
 @section('content')
     <main class="main-content" id="mainContent">
@@ -418,17 +427,11 @@
                         <span class="search-icon">🔍</span>
                         <input type="text" class="search-input" placeholder="Tìm kiếm VĐV...">
                     </div>
-                    <div class="header-notifications">
-                        <button class="notification-btn">
-                            🔔
-                            <span class="notification-badge">5</span>
-                        </button>
-                    </div>
                     <div class="header-user">
-                        <div class="user-avatar">AD</div>
+                        <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
                         <div class="user-info">
-                            <div class="user-name">Admin User</div>
-                            <div class="user-role">Quản trị viên</div>
+                            <div class="user-name">{{auth()->user()->name}}</div>
+                            <div class="user-role">{{auth()->user()->getFirstRoleName()}}</div>
                         </div>
                     </div>
                 </div>
@@ -464,7 +467,7 @@
             <div class="card fade-in">
                 <div class="leaderboard-header">
                     <div>
-                        <div class="leaderboard-title" id="leaderboardTitle">🏆 Bảng Xếp Hạng Tổng Hợp</div>
+                        <div class="leaderboard-title" id="leaderboardTitle" >🏆 BXH Tổng Hợp</div>
                         <div class="leaderboard-subtitle" id="leaderboardSubtitle">Cập nhật lần cuối: --</div>
                     </div>
                     <div class="card-actions">

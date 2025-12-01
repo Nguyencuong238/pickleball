@@ -621,12 +621,52 @@
         }
 
         .sidebar-header {
-            justify-content: space-between;
+            justify-content: center;
             padding: 0.5rem;
         }
 
+        .sidebar-toggle {
+            display: none;
+        }
+
         /* Responsive */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .sidebar-brand img {
+                width: 60px;
+            }
+
+            .sidebar-brand-text,
+            .nav-text,
+            .nav-badge,
+            .nav-section-title {
+                display: none;
+            }
+        }
+
         @media (max-width: 768px) {
+            .top-header {
+                flex-direction: row;
+                margin-top: 100px;
+            }
+
+            .sidebar-nav.active {
+                max-height: calc(100vh - 115px);
+                overflow: auto;
+            }
+
+            .sidebar-brand img {
+                width: 74px;
+            }
+
+            .sidebar-header {
+                padding: 1rem 1.5rem;
+                justify-content: space-between;
+            }
+
+            .sidebar-toggle {
+                display: block;
+            }
+
             .tournament-header-title {
                 font-size: 1.5rem;
             }
@@ -664,6 +704,16 @@
             }
         }
 
+
+        @media (max-width: 480px) {
+            .top-header {
+                flex-direction: column;
+            }
+            .header-user {
+                display: none;
+            }
+        }
+
         @keyframes pulse {
 
             0%,
@@ -679,6 +729,19 @@
         .status-live {
             animation: pulse 1.5s infinite;
         }
+
+        .btn-add {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
     </style>
     @yield('css')
 </head>
@@ -689,7 +752,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="/" class="sidebar-brand">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="80px">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="74px">
                 </a>
                 <button class="sidebar-toggle" onclick="toggleSidebar()">
                     <span>☰</span>
@@ -789,7 +852,7 @@
         function toggleSidebar() {
             const sidebarNav = document.getElementById('sidebar-nav');
             const sidebar = document.getElementById('sidebar');
-            
+
             sidebar.classList.toggle('active');
             sidebarNav.classList.toggle('active');
         }
@@ -930,7 +993,7 @@
             const prize = document.getElementById('contentPrize').value;
 
             if (!name || !maxPlayers) {
-                alert('Vui lòng điền đầy đủ thông tin!');
+                toastr.error('Vui lòng điền đầy đủ thông tin!');
                 return;
             }
 
@@ -1028,11 +1091,11 @@
             const time = document.getElementById('roundTime').value;
 
             if (!name || !date || !time) {
-                alert('Vui lòng điền đầy đủ thông tin!');
+                toastr.error('Vui lòng điền đầy đủ thông tin!');
                 return;
             }
 
-            alert('Đã thêm vòng đấu: ' + name);
+            toastr.success('Đã thêm vòng đấu: ' + name);
 
             // Clear
             document.getElementById('roundName').value = '';
@@ -1045,11 +1108,11 @@
             const name = document.getElementById('courtName').value;
 
             if (!name) {
-                alert('Vui lòng nhập tên sân!');
+                toastr.error('Vui lòng nhập tên sân!');
                 return;
             }
 
-            alert('Đã thêm sân: ' + name);
+            toastr.success('Đã thêm sân: ' + name);
 
             // Clear
             document.getElementById('courtName').value = '';
@@ -1139,28 +1202,6 @@
 
         // Call on page load
         setActiveNavItem();
-
-        // Initialize step view
-        function initializeSteps() {
-            const cards = document.querySelectorAll('#config .card');
-            cards.forEach((card, index) => {
-                // Hide all cards except the first one
-                if (index > 0) {
-                    card.style.display = 'none';
-                }
-            });
-        }
-
-        // Initialize on page load
-        initializeSidebar();
-
-        // Handle window resize
-        window.addEventListener('resize', initializeSidebar);
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', initializeSteps);
-
-        console.log('Tournament Config Dashboard v2 Loaded');
     </script>
 
     <!-- Toastr JS -->

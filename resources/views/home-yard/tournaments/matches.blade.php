@@ -412,6 +412,12 @@
         cursor: not-allowed;
         opacity: 0.6;
     }
+
+    @media (max-width: 768px) {
+        .top-header {
+            margin-top: 100px;
+        }
+    }
 </style>
 @section('content')
     <main class="main-content" id="mainContent">
@@ -433,17 +439,11 @@
                         <span class="search-icon">🔍</span>
                         <input type="text" id="matchSearch" class="search-input" placeholder="Tìm kiếm theo tên VĐV...">
                     </div>
-                    <div class="header-notifications">
-                        <button class="notification-btn">
-                            🔔
-                            <span class="notification-badge">5</span>
-                        </button>
-                    </div>
                     <div class="header-user">
-                        <div class="user-avatar">AD</div>
+                        <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
                         <div class="user-info">
-                            <div class="user-name">Admin User</div>
-                            <div class="user-role">Quản trị viên</div>
+                            <div class="user-name">{{auth()->user()->name}}</div>
+                            <div class="user-role">{{auth()->user()->getFirstRoleName()}}</div>
                         </div>
                     </div>
                 </div>

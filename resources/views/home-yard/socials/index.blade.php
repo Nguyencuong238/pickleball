@@ -349,6 +349,12 @@
         gap: 1rem;
         justify-content: flex-end;
     }
+
+    @media (max-width: 768px) {
+        .top-header {
+            margin-top: 100px;
+        }
+    }
 </style>
 @section('content')
     <main class="main-content" id="mainContent">
@@ -370,17 +376,11 @@
                         <input type="text" class="search-input" placeholder="Tìm kiếm Lịch thi đấu..." id="searchInput">
                         <span class="search-icon">🔍</span>
                     </div>
-                    <div class="header-notifications">
-                        <button class="notification-btn">
-                            <span>🔔</span>
-                            <span class="notification-badge">5</span>
-                        </button>
-                    </div>
                     <div class="header-user">
-                        <div class="user-avatar">AD</div>
+                        <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
                         <div class="user-info">
-                            <div class="user-name">Admin User</div>
-                            <div class="user-role">Quản trị viên</div>
+                            <div class="user-name">{{auth()->user()->name}}</div>
+                            <div class="user-role">{{auth()->user()->getFirstRoleName()}}</div>
                         </div>
                     </div>
                 </div>
