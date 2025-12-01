@@ -546,27 +546,6 @@
             });
         }
 
-        // Toggle sidebar
-        function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-
-            sidebar.classList.toggle('collapsed');
-            mainContent.classList.toggle('sidebar-collapsed');
-        }
-
-        // Mobile menu toggle
-        if (window.innerWidth <= 1024) {
-            toggleSidebar();
-        }
-
-        window.addEventListener('resize', () => {
-            if (window.innerWidth <= 1024) {
-                document.getElementById('sidebar').classList.add('collapsed');
-                document.getElementById('mainContent').classList.add('sidebar-collapsed');
-            }
-        });
-
         // Load tournaments for filter and build category mapping
         async function loadTournaments() {
             try {

@@ -949,7 +949,7 @@ class HomeYardTournamentController extends Controller
                 
                 if (is_array($pricingTiers) && !empty($pricingTiers)) {
                     // Create pricing tiers for the new court
-                    foreach ($pricing-start-time as $tier) {
+                    foreach ($pricingTiers as $tier) {
                         if (!empty($tier['start_time']) && !empty($tier['end_time']) && !empty($tier['price_per_hour'])) {
                             CourtPricing::create([
                                 'court_id' => $court->id,
