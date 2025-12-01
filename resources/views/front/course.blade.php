@@ -11,6 +11,15 @@
             gap: 5px;
             margin-bottom: 0;
         }
+        
+        .stat-number {
+            background: linear-gradient(135deg, #ff6b6b, #ff8787) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            background-clip: text !important;
+            font-weight: 700 !important;
+            font-size: 2.5rem !important;
+        }
     </style>
 @endsection
 
@@ -39,7 +48,7 @@
                         </svg>
                     </div>
                     <div class="stat-content">
-                        <span class="stat-number">150+</span>
+                        <span class="stat-number">{{ $stats['totalVideos'] }}+</span>
                         <span class="stat-label">Video bài giảng</span>
                     </div>
                 </div>
@@ -51,7 +60,7 @@
                         </svg>
                     </div>
                     <div class="stat-content">
-                        <span class="stat-number">50+</span>
+                        <span class="stat-number">{{ $stats['totalHours'] }}+</span>
                         <span class="stat-label">Giờ nội dung</span>
                     </div>
                 </div>
@@ -65,7 +74,7 @@
                         </svg>
                     </div>
                     <div class="stat-content">
-                        <span class="stat-number">5,000+</span>
+                        <span class="stat-number">{{ number_format($stats['totalUsers']) }}+</span>
                         <span class="stat-label">Học viên</span>
                     </div>
                 </div>
@@ -77,7 +86,7 @@
                         </svg>
                     </div>
                     <div class="stat-content">
-                        <span class="stat-number">4.8</span>
+                        <span class="stat-number">{{ $stats['averageRating'] }}</span>
                         <span class="stat-label">Đánh giá trung bình</span>
                     </div>
                 </div>
@@ -88,62 +97,66 @@
     <!-- Filter Section -->
     <section class="courses-filter">
         <div class="container">
-            <div class="filter-wrapper">
-                <!-- Search -->
-                <div class="filter-search-box">
-                    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="M21 21l-4.35-4.35" />
-                    </svg>
-                    <input type="text" class="search-input" placeholder="Tìm kiếm video khóa học...">
-                </div>
+            <form action="{{ route('course') }}" method="GET" id="filter-form">
+                <div class="filter-wrapper">
+                    <!-- Search -->
+                    <div class="filter-search-box">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="M21 21l-4.35-4.35" />
+                        </svg>
+                        <input type="text" class="search-input" name="search" placeholder="Tìm kiếm video khóa học..." value="{{ $filters['search'] ?? '' }}">
+                    </div>
 
-                <!-- Category Filter -->
-                <div class="filter-group">
-                    <label class="filter-label">Danh mục</label>
-                    <select class="filter-select">
-                        <option value="">Tất cả</option>
-                        <option value="basic">Cơ bản</option>
-                        <option value="technique">Kỹ thuật</option>
-                        <option value="strategy">Chiến thuật</option>
-                        <option value="advanced">Nâng cao</option>
-                        <option value="pro">Chuyên nghiệp</option>
-                    </select>
-                </div>
+                    <!-- Category Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">Danh mục</label>
+                        <select class="filter-select" name="category">
+                            <option value="">Tất cả</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}" {{ $filters['category'] == $category->id ? 'selected' : '' }}>
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <!-- Level Filter -->
-                <div class="filter-group">
-                    <label class="filter-label">Trình độ</label>
-                    <select class="filter-select">
-                        <option value="">Tất cả</option>
-                        <option value="beginner">Người mới</option>
-                        <option value="intermediate">Trung cấp</option>
-                        <option value="advanced">Nâng cao</option>
-                    </select>
-                </div>
+                    <!-- Level Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">Trình độ</label>
+                        <select class="filter-select" name="level">
+                            <option value="">Tất cả</option>
+                            @forelse($levels as $level)
+                                <option value="{{ $level }}" {{ $filters['level'] == $level ? 'selected' : '' }}>{{ $level }}</option>
+                            @empty
+                                <option value="">Không có dữ liệu</option>
+                            @endforelse
+                        </select>
+                    </div>
 
-                <!-- Duration Filter -->
-                <div class="filter-group">
-                    <label class="filter-label">Thời lượng</label>
-                    <select class="filter-select">
-                        <option value="">Tất cả</option>
-                        <option value="short">Dưới 10 phút</option>
-                        <option value="medium">10-30 phút</option>
-                        <option value="long">Trên 30 phút</option>
-                    </select>
-                </div>
+                    <!-- Duration Filter -->
+                    <div class="filter-group">
+                        <label class="filter-label">Thời lượng</label>
+                        <select class="filter-select" name="duration">
+                            <option value="">Tất cả</option>
+                            <option value="short" {{ $filters['duration'] == 'short' ? 'selected' : '' }}>Dưới 10 phút</option>
+                            <option value="medium" {{ $filters['duration'] == 'medium' ? 'selected' : '' }}>10-30 phút</option>
+                            <option value="long" {{ $filters['duration'] == 'long' ? 'selected' : '' }}>Trên 30 phút</option>
+                        </select>
+                    </div>
 
-                <!-- Sort -->
-                <div class="filter-group">
-                    <label class="filter-label">Sắp xếp</label>
-                    <select class="filter-select">
-                        <option value="newest">Mới nhất</option>
-                        <option value="popular">Phổ biến nhất</option>
-                        <option value="rating">Đánh giá cao</option>
-                        <option value="views">Lượt xem</option>
-                    </select>
+                    <!-- Sort -->
+                    <div class="filter-group">
+                        <label class="filter-label">Sắp xếp</label>
+                        <select class="filter-select" name="sort">
+                            <option value="newest" {{ $filters['sort'] == 'newest' ? 'selected' : '' }}>Mới nhất</option>
+                            <option value="popular" {{ $filters['sort'] == 'popular' ? 'selected' : '' }}>Phổ biến nhất</option>
+                            <option value="rating" {{ $filters['sort'] == 'rating' ? 'selected' : '' }}>Đánh giá cao</option>
+                            <option value="views" {{ $filters['sort'] == 'views' ? 'selected' : '' }}>Lượt xem</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
+            </form>
 
             <!-- Category Tabs -->
             {{-- <div class="category-tabs">
@@ -476,13 +489,26 @@
             });
         });
 
-        // Auto-submit form when category changes
-        const categorySelect = document.querySelector('select[name="category"]');
-        const filterForm = document.querySelector('form');
+        // Filter form submission with debounce for search
+        const filterForm = document.getElementById('filter-form');
+        const searchInput = document.querySelector('.search-input');
+        const filterSelects = document.querySelectorAll('.filter-select');
+        let searchTimeout;
 
-        if (categorySelect && filterForm) {
-            categorySelect.addEventListener('change', () => {
-                filterForm.submit();
+        // Auto-submit on select change
+        filterSelects.forEach(select => {
+            select.addEventListener('change', () => {
+                if (filterForm) filterForm.submit();
+            });
+        });
+
+        // Debounce search input - submit after user stops typing
+        if (searchInput) {
+            searchInput.addEventListener('input', () => {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    if (filterForm) filterForm.submit();
+                }, 500); // Submit after 500ms of no typing
             });
         }
     </script>

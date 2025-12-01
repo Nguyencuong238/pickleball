@@ -796,18 +796,87 @@ class HomeController extends Controller
             $query->where('category_id', $request->input('category'));
         }
 
-        // Sort by newest first
-        $videos = $query->latest()->paginate(6)->appends($request->query());
+        // Level filter
+        if ($request->filled('level')) {
+            $query->where('level', $request->input('level'));
+        }
+
+        // Duration filter
+        if ($request->filled('duration')) {
+            $duration = $request->input('duration');
+            if ($duration === 'short') {
+                $query->whereRaw('CAST(SUBSTRING_INDEX(duration, ":", 1) AS UNSIGNED) * 60 + CAST(SUBSTRING_INDEX(duration, ":", -1) AS UNSIGNED) < 600');
+            } elseif ($duration === 'medium') {
+                $query->whereRaw('CAST(SUBSTRING_INDEX(duration, ":", 1) AS UNSIGNED) * 60 + CAST(SUBSTRING_INDEX(duration, ":", -1) AS UNSIGNED) BETWEEN 600 AND 1800');
+            } elseif ($duration === 'long') {
+                $query->whereRaw('CAST(SUBSTRING_INDEX(duration, ":", 1) AS UNSIGNED) * 60 + CAST(SUBSTRING_INDEX(duration, ":", -1) AS UNSIGNED) > 1800');
+            }
+        }
+
+        // Sort
+        $sort = $request->input('sort', 'newest');
+        switch ($sort) {
+            case 'popular':
+                $query->orderBy('views_count', 'desc');
+                break;
+            case 'rating':
+                $query->orderBy('rating', 'desc');
+                break;
+            case 'views':
+                $query->orderBy('views_count', 'desc');
+                break;
+            default:
+                $query->latest();
+        }
+
+        // Paginate with filters preserved
+        $videos = $query->paginate(6)->appends($request->query());
         
         // Categories for filter
         $categories = Category::has('videos')->get();
+        
+        // Get unique levels from videos
+        $levels = Video::distinct()->pluck('level')->filter()->values();
+        
+        // Get statistics
+        $totalVideos = Video::count();
+        
+        // Calculate total duration in hours
+        $allVideos = Video::all();
+        $totalSeconds = 0;
+        foreach ($allVideos as $video) {
+            if ($video->duration) {
+                $parts = explode(':', $video->duration);
+                $minutes = isset($parts[0]) ? (int)$parts[0] : 0;
+                $seconds = isset($parts[1]) ? (int)$parts[1] : 0;
+                $totalSeconds += $minutes * 60 + $seconds;
+            }
+        }
+        $totalHours = round($totalSeconds / 3600, 1);
+        
+        // Get average rating
+        $averageRating = Video::where('rating', '>', 0)->avg('rating') ?? 0;
+        $averageRating = round($averageRating, 1);
+        
+        // Get total users (assuming you have User model)
+        $totalUsers = User::count();
 
         return view('front.course', [
             'videos' => $videos,
             'categories' => $categories,
+            'levels' => $levels,
+            'stats' => [
+                'totalVideos' => $totalVideos,
+                'totalHours' => $totalHours,
+                'totalUsers' => $totalUsers,
+                'averageRating' => $averageRating,
+            ],
             'filters' => [
                 'search' => $request->input('search'),
                 'category' => $request->input('category'),
+                'level' => $request->input('level'),
+                'duration' => $request->input('duration'),
+                'sort' => $request->input('sort'),
             ],
         ]);
     }

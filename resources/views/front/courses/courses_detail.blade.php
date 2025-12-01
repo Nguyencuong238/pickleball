@@ -444,17 +444,12 @@
                             @forelse ($relatedVideos as $relatedVideo)
                                 <a href="{{ route('course.detail', $relatedVideo->id) }}" class="related-video-item">
                                     <div class="related-thumbnail">
-                                        @if ($relatedVideo->image)
-                                            <img src="{{ asset($relatedVideo->image) }}" alt="{{ $relatedVideo->name }}">
-                                        @else
-                                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 90'%3E%3Cdefs%3E%3ClinearGradient id='rv1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF8E53;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FE6B8B;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23rv1)' width='160' height='90'/%3E%3Cpolygon points='70,45 90,32 90,58' fill='rgba(255,255,255,0.9)'/%3E%3C/svg%3E"
-                                                alt="{{ $relatedVideo->name }}">
-                                        @endif
-                                        <span class="duration">18:45</span>
+                                        <img src="{{ $relatedVideo->image ? asset('storage/' . $relatedVideo->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 160 90%27%3E%3Cdefs%3E%3ClinearGradient id=%27rv1%27 x1=%270%25%27 y1=%270%25%27 x2=%27100%25%27 y2=%27100%25%27%3E%3Cstop offset=%270%25%27 style=%27stop-color:%23FF8E53;stop-opacity:1%27 /%3E%3Cstop offset=%27100%25%27 style=%27stop-color:%23FE6B8B;stop-opacity:1%27 /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill=%27url(%23rv1)%27 width=%27160%27 height=%2790%27/%3E%3Cpolygon points=%2770,45 90,32 90,58%27 fill=%27rgba(255,255,255,0.9)%27/%3E%3C/svg%3E' }}" alt="{{ $relatedVideo->name }}">
+                                        <span class="duration">{{ $relatedVideo->duration ?? '0:00' }}</span>
                                     </div>
                                     <div class="related-info">
                                         <h4>{{ $relatedVideo->name }}</h4>
-                                        <span class="related-meta">8.2K lượt xem • {{ $relatedVideo->created_at->diffForHumans() }}</span>
+                                        <span class="related-meta">{{ $relatedVideo->views_count ? number_format($relatedVideo->views_count) : '0' }} lượt xem • {{ $relatedVideo->created_at->diffForHumans() }}</span>
                                     </div>
                                 </a>
                             @empty
