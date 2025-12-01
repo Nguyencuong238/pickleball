@@ -281,24 +281,32 @@
                     <div class="sidebar-card related-card">
                         <h3 class="card-title">Giải đấu liên quan</h3>
                         <div class="related-list">
-                            <a href="#" class="related-item">
-                                <div class="related-image">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'%3E%3Crect fill='%23FF6B6B' width='100' height='80'/%3E%3C/svg%3E" alt="">
+                            @php
+                                $relatedTournaments = \App\Models\Tournament::where('id', '!=', $tournament->id)
+                                    ->where('status', true)
+                                    ->orderBy('start_date', 'asc')
+                                    ->limit(5)
+                                    ->get();
+                            @endphp
+                            @forelse($relatedTournaments as $related)
+                                <a href="{{ route('tournament.detail', $related->id) }}" class="related-item">
+                                    <div class="related-image">
+                                        @php
+                                            $media = $related->getFirstMedia('banner');
+                                            $imageUrl = $media ? $media->getUrl() : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 80%22%3E%3Crect fill=%2300D9B5%22 width=%22100%22 height=%2280%22/%3E%3C/svg%3E';
+                                        @endphp
+                                        <img src="{{ $imageUrl }}" alt="{{ $related->name }}">
+                                    </div>
+                                    <div class="related-content">
+                                        <h4>{{ $related->name }}</h4>
+                                        <p>{{ $related->start_date->format('d-m') }} - {{ $related->end_date->format('d-m') }}</p>
+                                    </div>
+                                </a>
+                            @empty
+                                <div style="padding: 20px; text-align: center; color: #9ca3af;">
+                                    <p>Hiện không có giải đấu nào khác</p>
                                 </div>
-                                <div class="related-content">
-                                    <h4>Hà Nội Masters</h4>
-                                    <p>22-24 Tháng 12</p>
-                                </div>
-                            </a>
-                            <a href="#" class="related-item">
-                                <div class="related-image">
-                                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 80'%3E%3Crect fill='%234ECDC4' width='100' height='80'/%3E%3C/svg%3E" alt="">
-                                </div>
-                                <div class="related-content">
-                                    <h4>Đà Nẵng Beach</h4>
-                                    <p>05-07 Tháng 1</p>
-                                </div>
-                            </a>
+                            @endforelse
                         </div>
                     </div>
                 </aside>
