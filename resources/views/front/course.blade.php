@@ -222,7 +222,6 @@
         <div class="container">
             <div class="section-header-inline">
                 <h2 class="section-title-sm">🔥 Video nổi bật</h2>
-                <a href="#" class="view-all-link">Xem tất cả →</a>
             </div>
 
             <div class="featured-grid">
@@ -318,7 +317,7 @@
         <div class="container">
             <!-- Results Info -->
             <div class="results-info">
-                <p class="results-count">Hiển thị <strong>{{ $videos->count() }}</strong> video khóa học</p>
+                <p class="results-count">Hiển thị <strong>{{ $videos->total() }}</strong> video khóa học</p>
                 <div class="view-toggle">
                     <button class="view-btn active" data-view="grid" title="Xem dạng lưới">
                         <svg viewBox="0 0 24 24" fill="currentColor">

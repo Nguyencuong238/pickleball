@@ -266,7 +266,7 @@
                                 @endif
                                 <div class="comment-input-wrapper">
                                     <textarea placeholder="Viết bình luận..." class="comment-input" id="commentInput" rows="2"></textarea>
-                                    <button class="btn btn-primary btn-sm" id="submitCommentBtn" data-video-id="{{ $video->id }}">Gửi</button>
+                                    <button class="btn btn-primary btn-sm" id="submitCommentBtn" data-video-id="{{ $video->id }}" style="height: 60px">Gửi</button>
                                 </div>
                             </div>
                         @endauth
@@ -421,7 +421,7 @@
                                      </div>
                                  </div>
                              </div>
-                             <a href="#" class="btn btn-outline btn-sm btn-block">Xem hồ sơ</a>
+                             <a href="{{ route('instructors.detail', $video->instructor->id) }}" class="btn btn-outline btn-sm btn-block">Xem hồ sơ</a>
                          @else
                              <div class="instructor-profile">
                                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23CCCCCC'/%3E%3Ctext x='40' y='48' font-size='28' text-anchor='middle' fill='white'%3E%3F%3C/text%3E%3C/svg%3E"

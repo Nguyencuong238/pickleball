@@ -402,13 +402,6 @@
                             </svg>
                             <span>hello@onepickleball.vn</span>
                         </li>
-                        <li>
-                            <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <circle cx="12" cy="12" r="10"/>
-                                <polyline points="12 6 12 12 16 14"/>
-                            </svg>
-                            <span>T2-CN: 05:00 - 23:00</span>
-                        </li>
                     </ul>
                 </div>
             </div>

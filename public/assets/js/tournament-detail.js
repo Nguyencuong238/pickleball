@@ -90,15 +90,15 @@ function handleSidebarSticky() {
     const footerRect = footer.getBoundingClientRect();
     
     // Stop sticky before footer
-    if (footerRect.top < window.innerHeight) {
-        sidebar.style.position = 'absolute';
-        sidebar.style.bottom = '0';
-        sidebar.style.top = 'auto';
-    } else {
-        sidebar.style.position = 'sticky';
-        sidebar.style.top = '100px';
-        sidebar.style.bottom = 'auto';
-    }
+    // if (footerRect.top < window.innerHeight) {
+    //     sidebar.style.position = 'absolute';
+    //     sidebar.style.bottom = '0';
+    //     sidebar.style.top = 'auto';
+    // } else {
+    //     sidebar.style.position = 'sticky';
+    //     sidebar.style.top = '100px';
+    //     sidebar.style.bottom = 'auto';
+    // }
 }
 
 function addMobileLabels() {
