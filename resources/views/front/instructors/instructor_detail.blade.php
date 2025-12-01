@@ -2,6 +2,7 @@
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/css/styles-extended.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/styles-coaches.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/instructor-review.css') }}">
 @endsection
 
 @section('content')
@@ -360,11 +361,31 @@
                                         </div>
                                     </div>
                                     <p class="review-content">{{ $review->content }}</p>
-                                    @if($review->tags)
+                                    @if($review->tags && count($review->tags) > 0)
                                         <div class="review-tags">
-                                            @foreach(explode(',', $review->tags) as $tag)
-                                                <span>{{ trim($tag) }}</span>
+                                            @foreach($review->tags as $tag)
+                                                <span class="review-tag">{{ $tag }}</span>
                                             @endforeach
+                                        </div>
+                                    @endif
+                                    
+                                    <!-- Edit/Delete buttons for own reviews -->
+                                    @if(auth()->check() && auth()->user()->id === $review->user_id)
+                                        <div class="review-actions" style="margin-top: 12px; display: flex; gap: 8px;">
+                                            <button class="btn-edit-review btn-sm" data-review-id="{{ $review->id }}" data-rating="{{ $review->rating }}" data-content="{{ $review->content }}" data-tags="{{ implode(',', $review->tags ?? []) }}" style="padding: 6px 12px; font-size: 13px; background-color: #00D9B5; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline; margin-right: 4px;">
+                                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                                </svg>
+                                                Sửa
+                                            </button>
+                                            <button class="btn-delete-review btn-sm" data-review-id="{{ $review->id }}" style="padding: 6px 12px; font-size: 13px; background-color: #ef4444; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline; margin-right: 4px;">
+                                                    <polyline points="3 6 5 6 21 6" />
+                                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                                </svg>
+                                                Xóa
+                                            </button>
                                         </div>
                                     @endif
                                 </div>
@@ -374,10 +395,166 @@
                         </div>
 
                         <button class="btn btn-outline btn-block">Xem tất cả đánh giá</button>
-                    </div>
-                </div>
 
-                <!-- Sidebar -->
+                        <!-- Add Review Form -->
+                        <div class="review-form-section" style="margin-top: 30px; padding-top: 30px; border-top: 1px solid #e5e5e5;">
+                            <h3 class="detail-card-title" style="margin-bottom: 20px;">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                                </svg>
+                                Để lại đánh giá của bạn
+                            </h3>
+
+                            <form id="reviewForm" class="review-form">
+                                @csrf
+                                <input type="hidden" name="instructor_id" value="{{ $instructor->id }}">
+
+                                <!-- Rating Stars -->
+                                <div class="form-group">
+                                    <label>Chất lượng giảng dạy *</label>
+                                    <div class="star-rating-input" id="starRating">
+                                        @for ($i = 5; $i >= 1; $i--)
+                                            <input type="radio" name="rating" value="{{ $i }}" id="star{{ $i }}">
+                                            <label for="star{{ $i }}">
+                                                <svg viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                                </svg>
+                                            </label>
+                                        @endfor
+                                    </div>
+                                    <span id="ratingText" style="margin-top: 10px; font-size: 14px; color: #666;"></span>
+                                </div>
+
+                                <!-- Review Content -->
+                                <div class="form-group">
+                                    <label for="reviewContent">Nội dung đánh giá (tùy chọn)</label>
+                                    <textarea id="reviewContent" name="content" class="form-control" 
+                                        placeholder="Chia sẻ trải nghiệm của bạn với giảng viên này..." 
+                                        rows="4" maxlength="1000"></textarea>
+                                    <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                                        <span id="charCount">0</span>/1000 ký tự
+                                    </div>
+                                </div>
+
+                                <!-- Tags/Keywords -->
+                                <div class="form-group">
+                                    <label>Điểm mạnh của giảng viên (tùy chọn)</label>
+                                    <div class="tags-checkbox">
+                                        <label class="tag-option">
+                                            <input type="checkbox" name="tags" value="Thân thiện">
+                                            <span>Thân thiện</span>
+                                        </label>
+                                        <label class="tag-option">
+                                            <input type="checkbox" name="tags" value="Chuyên nghiệp">
+                                            <span>Chuyên nghiệp</span>
+                                        </label>
+                                        <label class="tag-option">
+                                            <input type="checkbox" name="tags" value="Kiên nhẫn">
+                                            <span>Kiên nhẫn</span>
+                                        </label>
+                                        <label class="tag-option">
+                                            <input type="checkbox" name="tags" value="Dễ hiểu">
+                                            <span>Dễ hiểu</span>
+                                        </label>
+                                        <label class="tag-option">
+                                            <input type="checkbox" name="tags" value="Truyền cảm hứng">
+                                            <span>Truyền cảm hứng</span>
+                                        </label>
+                                        <label class="tag-option">
+                                            <input type="checkbox" name="tags" value="Linh hoạt">
+                                            <span>Linh hoạt</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;">
+                                    Gửi đánh giá
+                                </button>
+                            </form>
+                            </div>
+                            </div>
+                            </div>
+
+                            <!-- Edit Review Modal -->
+                            <div id="editReviewModal" class="modal" style="display: none;">
+                            <div class="modal-overlay"></div>
+                            <div class="modal-content" style="width: 95%; max-width: 600px;">
+                            <div class="modal-header">
+                             <h3>Sửa đánh giá</h3>
+                             <button class="modal-close" id="closeEditModal">&times;</button>
+                            </div>
+                            <form id="editReviewForm" class="review-form" style="padding: 30px;">
+                             @csrf
+                             <input type="hidden" name="review_id" id="editReviewId">
+                             <input type="hidden" name="_method" value="PUT">
+
+                             <!-- Rating Stars -->
+                             <div class="form-group">
+                                 <label>Chất lượng giảng dạy *</label>
+                                 <div class="star-rating-input" id="editStarRating">
+                                     @for ($i = 5; $i >= 1; $i--)
+                                         <input type="radio" name="rating" value="{{ $i }}" id="editStar{{ $i }}">
+                                         <label for="editStar{{ $i }}">
+                                             <svg viewBox="0 0 24 24" fill="currentColor">
+                                                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                             </svg>
+                                         </label>
+                                     @endfor
+                                 </div>
+                                 <span id="editRatingText" style="margin-top: 10px; font-size: 14px; color: #666;"></span>
+                             </div>
+
+                             <!-- Review Content -->
+                             <div class="form-group">
+                                 <label for="editReviewContent">Nội dung đánh giá</label>
+                                 <textarea id="editReviewContent" name="content" class="form-control" 
+                                     placeholder="Chia sẻ trải nghiệm của bạn..." 
+                                     rows="4" maxlength="1000"></textarea>
+                                 <div style="font-size: 12px; color: #999; margin-top: 5px;">
+                                     <span id="editCharCount">0</span>/1000 ký tự
+                                 </div>
+                             </div>
+
+                             <!-- Tags -->
+                             <div class="form-group">
+                                 <label>Điểm mạnh của giảng viên</label>
+                                 <div class="tags-checkbox">
+                                     <label class="tag-option">
+                                         <input type="checkbox" name="tags" value="Thân thiện">
+                                         <span>Thân thiện</span>
+                                     </label>
+                                     <label class="tag-option">
+                                         <input type="checkbox" name="tags" value="Chuyên nghiệp">
+                                         <span>Chuyên nghiệp</span>
+                                     </label>
+                                     <label class="tag-option">
+                                         <input type="checkbox" name="tags" value="Kiên nhẫn">
+                                         <span>Kiên nhẫn</span>
+                                     </label>
+                                     <label class="tag-option">
+                                         <input type="checkbox" name="tags" value="Dễ hiểu">
+                                         <span>Dễ hiểu</span>
+                                     </label>
+                                     <label class="tag-option">
+                                         <input type="checkbox" name="tags" value="Truyền cảm hứng">
+                                         <span>Truyền cảm hứng</span>
+                                     </label>
+                                     <label class="tag-option">
+                                         <input type="checkbox" name="tags" value="Linh hoạt">
+                                         <span>Linh hoạt</span>
+                                     </label>
+                                 </div>
+                             </div>
+
+                             <button type="submit" class="btn btn-primary btn-lg btn-block" style="margin-top: 20px;">
+                                 Cập nhật đánh giá
+                             </button>
+                            </form>
+                            </div>
+                            </div>
+
+                            <!-- Sidebar -->
                 <div class="detail-sidebar">
                     <!-- Booking Card -->
                     <div class="sidebar-card booking-card">
@@ -970,5 +1147,295 @@
         document.getElementById('alertMessage')?.querySelector('.alert-close')?.addEventListener('click', () => {
             alertMessage.style.display = 'none';
         });
-    </script>
-@endsection
+
+        // Review Form Handler
+        const reviewForm = document.getElementById('reviewForm');
+        const reviewContent = document.getElementById('reviewContent');
+        const charCount = document.getElementById('charCount');
+        const ratingText = document.getElementById('ratingText');
+        const starRatingInputs = document.querySelectorAll('.star-rating-input input[name="rating"]');
+
+        // Update character count
+        if (reviewContent) {
+            reviewContent.addEventListener('input', (e) => {
+                charCount.textContent = e.target.value.length;
+            });
+        }
+
+        // Update rating text
+        starRatingInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const rating = e.target.value;
+                const ratingLabels = {
+                    5: 'Tuyệt vời!',
+                    4: 'Rất tốt',
+                    3: 'Bình thường',
+                    2: 'Chưa tốt',
+                    1: 'Không hài lòng'
+                };
+                ratingText.textContent = ratingLabels[rating] || '';
+                ratingText.style.color = rating >= 4 ? '#22c55e' : rating >= 3 ? '#ffc107' : '#ef4444';
+            });
+        });
+
+        // Handle form submission
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                // Validate rating
+                const selectedRating = document.querySelector('.star-rating-input input[name="rating"]:checked');
+                if (!selectedRating) {
+                    showAlert('Vui lòng chọn số sao để đánh giá', 'error');
+                    return;
+                }
+
+                // Collect form data
+                const formData = new FormData(reviewForm);
+                const instructorId = formData.get('instructor_id');
+                const rating = formData.get('rating');
+                const content = formData.get('content');
+                const tagsArray = formData.getAll('tags');
+
+                const data = {
+                    instructor_id: instructorId,
+                    rating: rating,
+                    content: content || null,
+                    tags: tagsArray.length > 0 ? tagsArray.join(',') : null,
+                };
+
+                try {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                    const response = await fetch('{{ route("api.instructor-review.store") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify(data),
+                    });
+
+                    let result;
+                    const contentType = response.headers.get('content-type');
+                    
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json();
+                    } else {
+                        const text = await response.text();
+                        console.error('Unexpected response:', text);
+                        showAlert('Có lỗi xảy ra từ server. Vui lòng kiểm tra console.', 'error');
+                        return;
+                    }
+
+                    if (response.status === 401) {
+                        showAlert('Vui lòng đăng nhập để đánh giá giảng viên', 'error');
+                        return;
+                    }
+
+                    if (result.success) {
+                        showAlert(result.message || 'Đánh giá của bạn đã được gửi thành công!', 'success');
+                        reviewForm.reset();
+                        ratingText.textContent = '';
+                        charCount.textContent = '0';
+                        
+                        // Reload page after 2 seconds to show new review
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        showAlert(result.message || 'Có lỗi xảy ra', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showAlert('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+                }
+            });
+        }
+
+        // Edit Review Modal
+        const editReviewModal = document.getElementById('editReviewModal');
+        const closeEditModal = document.getElementById('closeEditModal');
+        const editReviewForm = document.getElementById('editReviewForm');
+        const editModalOverlay = editReviewModal?.querySelector('.modal-overlay');
+
+        // Close edit modal
+        closeEditModal?.addEventListener('click', () => {
+            editReviewModal.style.display = 'none';
+            editReviewForm.reset();
+        });
+        editModalOverlay?.addEventListener('click', () => {
+            editReviewModal.style.display = 'none';
+            editReviewForm.reset();
+        });
+
+        // Edit button handlers
+        document.querySelectorAll('.btn-edit-review').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const reviewId = btn.getAttribute('data-review-id');
+                const rating = btn.getAttribute('data-rating');
+                const content = btn.getAttribute('data-content');
+                const tags = btn.getAttribute('data-tags');
+
+                // Populate modal with current values
+                document.getElementById('editReviewId').value = reviewId;
+                document.getElementById('editReviewContent').value = content || '';
+                document.getElementById('editCharCount').textContent = (content || '').length;
+
+                // Set rating
+                document.querySelector(`#editStar${rating}`).checked = true;
+                const ratingLabels = {
+                    5: 'Tuyệt vời!',
+                    4: 'Rất tốt',
+                    3: 'Bình thường',
+                    2: 'Chưa tốt',
+                    1: 'Không hài lòng'
+                };
+                document.getElementById('editRatingText').textContent = ratingLabels[rating] || '';
+                document.getElementById('editRatingText').style.color = rating >= 4 ? '#22c55e' : rating >= 3 ? '#ffc107' : '#ef4444';
+
+                // Set tags
+                document.querySelectorAll('#editReviewForm input[name="tags"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                if (tags) {
+                    const tagArray = tags.split(',').map(t => t.trim());
+                    document.querySelectorAll('#editReviewForm input[name="tags"]').forEach(checkbox => {
+                        if (tagArray.includes(checkbox.value)) {
+                            checkbox.checked = true;
+                        }
+                    });
+                }
+
+                // Show modal
+                editReviewModal.style.display = 'flex';
+            });
+        });
+
+        // Edit form submission
+        editReviewForm?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const reviewId = document.getElementById('editReviewId').value;
+            const rating = document.querySelector('#editReviewForm input[name="rating"]:checked')?.value;
+            const content = document.getElementById('editReviewContent').value;
+            const tagsCheckboxes = document.querySelectorAll('#editReviewForm input[name="tags"]:checked');
+            const tags = Array.from(tagsCheckboxes).map(cb => cb.value).join(',');
+
+            if (!rating) {
+                showAlert('Vui lòng chọn số sao', 'error');
+                return;
+            }
+
+            const data = {
+                rating: rating,
+                content: content || null,
+                tags: tags || null,
+            };
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                const response = await fetch(`/api/instructor-review/${reviewId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                let result;
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    result = await response.json();
+                } else {
+                    const text = await response.text();
+                    console.error('Unexpected response:', text);
+                    showAlert('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+                    return;
+                }
+
+                if (result.success) {
+                    showAlert('Đánh giá của bạn đã được cập nhật!', 'success');
+                    editReviewModal.style.display = 'none';
+                    setTimeout(() => window.location.reload(), 2000);
+                } else {
+                    showAlert(result.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+            }
+        });
+
+        // Delete button handlers
+        document.querySelectorAll('.btn-delete-review').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                
+                if (!confirm('Bạn có chắc muốn xóa đánh giá này?')) {
+                    return;
+                }
+
+                const reviewId = btn.getAttribute('data-review-id');
+
+                try {
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+
+                    const response = await fetch(`/api/instructor-review/${reviewId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                    });
+
+                    let result;
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        result = await response.json();
+                    } else {
+                        const text = await response.text();
+                        console.error('Unexpected response:', text);
+                        showAlert('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+                        return;
+                    }
+
+                    if (result.success) {
+                        showAlert('Đánh giá đã được xóa!', 'success');
+                        setTimeout(() => window.location.reload(), 2000);
+                    } else {
+                        showAlert(result.message || 'Có lỗi xảy ra', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showAlert('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+                }
+            });
+        });
+
+        // Edit form character counter
+        document.getElementById('editReviewContent')?.addEventListener('input', (e) => {
+            document.getElementById('editCharCount').textContent = e.target.value.length;
+        });
+
+        // Edit form rating feedback
+        document.querySelectorAll('#editStarRating input[name="rating"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const rating = e.target.value;
+                const ratingLabels = {
+                    5: 'Tuyệt vời!',
+                    4: 'Rất tốt',
+                    3: 'Bình thường',
+                    2: 'Chưa tốt',
+                    1: 'Không hài lòng'
+                };
+                const editRatingText = document.getElementById('editRatingText');
+                editRatingText.textContent = ratingLabels[rating] || '';
+                editRatingText.style.color = rating >= 4 ? '#22c55e' : rating >= 3 ? '#ffc107' : '#ef4444';
+            });
+        });
+        </script>
+        @endsection

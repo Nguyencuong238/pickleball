@@ -95,6 +95,12 @@ Route::get('/api/courts/{court}/available-slots', [HomeController::class, 'getAv
 // Instructor Booking Routes
 Route::post('/api/instructor-booking', [BookingInstructorController::class, 'store'])->name('api.instructor-booking.store');
 
+// Instructor Review Routes
+Route::post('/api/instructor-review', [\App\Http\Controllers\Api\InstructorReviewController::class, 'store'])->name('api.instructor-review.store')->middleware('auth');
+Route::put('/api/instructor-review/{review}', [\App\Http\Controllers\Api\InstructorReviewController::class, 'update'])->name('api.instructor-review.update')->middleware('auth');
+Route::delete('/api/instructor-review/{review}', [\App\Http\Controllers\Api\InstructorReviewController::class, 'destroy'])->name('api.instructor-review.destroy')->middleware('auth');
+Route::get('/api/instructor/{instructorId}/reviews', [\App\Http\Controllers\Api\InstructorReviewController::class, 'getByInstructor'])->name('api.instructor-review.list');
+
 // Tournament Registration
 Route::post('/tournament/{tournament}/register', [TournamentRegistrationController::class, 'register'])->name('tournament.register');
 

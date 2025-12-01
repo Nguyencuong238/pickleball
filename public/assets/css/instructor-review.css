@@ -1,0 +1,105 @@
+/* Instructor Review Form Styles */
+
+.star-rating-input {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    width: fit-content;
+    gap: 5px;
+    margin: 10px 0;
+}
+
+.star-rating-input input {
+    display: none;
+}
+
+.star-rating-input label {
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+}
+
+.star-rating-input label svg {
+    width: 40px;
+    height: 40px;
+    fill: #ddd;
+    stroke: none;
+    transition: fill 0.2s ease;
+}
+
+.star-rating-input input:checked ~ label svg,
+.star-rating-input label:hover svg,
+.star-rating-input input:checked ~ label:hover svg {
+    fill: #ffc107;
+}
+
+.star-rating-input input ~ label:hover svg {
+    fill: #ffc107;
+}
+
+.tags-checkbox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.tag-option {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0;
+    font-weight: normal;
+}
+
+.tag-option input {
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.tag-option:hover {
+    border-color: #00D9B5;
+    background-color: rgba(0, 217, 181, 0.05);
+}
+
+.tag-option input:checked + span {
+    color: #00D9B5;
+}
+
+.review-form-section .form-group {
+    margin-bottom: 20px;
+}
+
+.review-form-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Review Tags Display */
+.review-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.review-tag {
+    display: inline-block;
+    background-color: rgba(0, 217, 181, 0.1);
+    color: #00D9B5;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
