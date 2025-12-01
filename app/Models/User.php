@@ -58,6 +58,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Get the user's favorite instructors
+     */
+    public function favoriteInstructors()
+    {
+        return $this->belongsToMany(Instructor::class, 'instructor_favorites', 'user_id', 'instructor_id')->withPivot('created_at');
+    }
+
+    /**
      * Get the user's social event participations
      */
     public function socialParticipants()

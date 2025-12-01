@@ -118,6 +118,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/api/delete-media/{mediaId}', [MediaUploadController::class, 'deleteMedia'])->name('api.delete-media');
 });
 
+// Instructor favorite routes (without auth middleware - controller checks auth internally)
+Route::middleware('web')->group(function () {
+    Route::post('/api/instructors/{instructor}/toggle-favorite', [FavoriteController::class, 'toggleInstructor'])->name('instructors.toggle-favorite');
+    Route::get('/api/instructors/{instructor}/is-favorited', [FavoriteController::class, 'isInstructorFavorited'])->name('instructors.is-favorited');
+});
+
 // HomeYard Routes
 Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyard.')->group(function () {
     Route::get('/dashboard/{tournament_id?}', [DashboardController::class, 'homeYardDashboard'])->name('dashboard');

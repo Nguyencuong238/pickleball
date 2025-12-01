@@ -114,19 +114,19 @@
                     </div>
 
                     <div class="coach-actions-header">
-                         <button class="btn btn-primary btn-lg" id="contactBtn">
+                        <button class="btn btn-primary btn-lg" id="contactBtn">
                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                              </svg>
                              Liên hệ ngay
-                         </button>
-                        <button class="btn btn-outline btn-icon btn-favorite" title="Yêu thích">
+                        </button>
+                        <button class="btn btn-outline btn-icon btn-favorite" title="Yêu thích" data-instructor-id="{{ $instructor->id }}">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path
                                     d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                             </svg>
                         </button>
-                        <button class="btn btn-outline btn-icon" title="Chia sẻ">
+                        <button class="btn btn-outline btn-icon btn-share" title="Chia sẻ">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <circle cx="18" cy="5" r="3" />
                                 <circle cx="6" cy="12" r="3" />
@@ -749,15 +749,124 @@
             justify-content: center;
         }
 
+        .btn-favorite.active {
+            background-color: #ff4458;
+            color: white;
+        }
+
+        .btn-favorite.active svg {
+            fill: currentColor;
+            stroke: none;
+        }
 
     </style>
 @endsection
 @section('js')
     <script>
-        // Favorite button toggle
+        // Favorite button toggle for instructor
         const favoriteBtn = document.querySelector('.btn-favorite');
-        favoriteBtn?.addEventListener('click', () => {
-            favoriteBtn.classList.toggle('active');
+        const instructorId = favoriteBtn?.getAttribute('data-instructor-id');
+        
+        if (!instructorId) {
+            console.error('Instructor ID not found');
+        }
+        
+        // Check if instructor is already favorited on page load
+        async function checkIsFavorited() {
+            if (!instructorId) return;
+            
+            try {
+                const response = await fetch(`/api/instructors/${instructorId}/is-favorited`);
+                const data = await response.json();
+                
+                console.log('Favorite check response:', data);
+                
+                if (data.authenticated && data.favorited) {
+                    favoriteBtn?.classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error checking favorite status:', error);
+            }
+        }
+        
+        // Initialize favorite status
+        checkIsFavorited();
+        
+        // Handle favorite button click
+        favoriteBtn?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            if (!instructorId) {
+                showAlert('Lỗi: Không tìm thấy ID giảng viên', 'error');
+                return;
+            }
+            
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content;
+                
+                if (!csrfToken) {
+                    showAlert('Lỗi: CSRF token không tìm thấy', 'error');
+                    return;
+                }
+                
+                const response = await fetch(`/api/instructors/${instructorId}/toggle-favorite`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                });
+                
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Toggle response:', data);
+                console.log('data.authenticated:', data.authenticated);
+                console.log('response.status === 401:', response.status === 401);
+                
+                if (response.status === 401 || !data.authenticated) {
+                    console.log('Auth failed - showing alert');
+                    showAlert('Vui lòng đăng nhập để lưu giảng viên yêu thích', 'error');
+                    return;
+                }
+                
+                if (data.success) {
+                    if (data.favorited) {
+                        favoriteBtn.classList.add('active');
+                    } else {
+                        favoriteBtn.classList.remove('active');
+                    }
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.message || 'Có lỗi xảy ra', 'error');
+                }
+            } catch (error) {
+                console.error('Error toggling favorite:', error);
+                showAlert('Có lỗi xảy ra. Vui lòng thử lại!', 'error');
+            }
+        });
+
+        // Share button - copy link
+        const shareBtn = document.querySelector('.btn-share');
+        shareBtn?.addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            try {
+                const url = window.location.href;
+                await navigator.clipboard.writeText(url);
+                showAlert('Đã copy link giảng viên vào clipboard', 'success');
+            } catch (error) {
+                console.error('Error copying link:', error);
+                
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = window.location.href;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                
+                showAlert('Đã copy link giảng viên vào clipboard', 'success');
+            }
         });
 
         // Package selection
