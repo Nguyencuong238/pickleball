@@ -162,7 +162,7 @@
                     <div class="mb-3">
                         <label for="chapters" class="form-label">Chương (Chapters)</label>
                         <div id="chaptersContainer">
-                            @if ($video->chapters && count($video->chapters) > 0)
+                            @if ($video->chapters && is_array($video->chapters) && count($video->chapters) > 0)
                                 @foreach ($video->chapters as $chapter)
                                     <div class="chapter-input-group mb-2">
                                         <div class="row">

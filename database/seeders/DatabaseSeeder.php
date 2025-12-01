@@ -45,6 +45,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             ProvinceSeeder::class,
             PermissionSeeder::class,
+            CategorySeeder::class,
             InstructorSeeder::class,
             VideoSeeder::class,
         ]);
