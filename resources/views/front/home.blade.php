@@ -11,7 +11,7 @@
                 <span class="hero-badge">Cộng đồng Pickleball #1 Việt Nam</span>
                 <h1 class="hero-title">
                     Chào mừng đến với<br>
-                    <span class="gradient-text">onePickleball</span>
+                    <span class="gradient-text">OnePickleball</span>
                 </h1>
                 <p class="hero-description">
                     Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam.
@@ -57,7 +57,7 @@
                 @forelse($upcomingTournaments as $tournament)
                     <div class="tournament-card">
                         <div class="tournament-image">
-                            <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}">
+                            <img src="{{ $tournament->getFirstMediaUrl('banner') }}" alt="{{ $tournament->name }}">
                             @php
                                 $now = now();
                                 $startDate = $tournament->start_date;

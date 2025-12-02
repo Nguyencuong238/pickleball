@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập / Đăng ký - onePickleball.vn</title>
-    <meta name="description" content="Đăng nhập hoặc đăng ký tài khoản onePickleball">
+    <title>Đăng nhập / Đăng ký - OnePickleball.vn</title>
+    <meta name="description" content="Đăng nhập hoặc đăng ký tài khoản OnePickleball">
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/styles-extended.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,7 +38,7 @@
                 <div class="auth-form-container" id="login-form">
                     <div class="auth-header">
                         <h1 class="auth-title">Chào mừng trở lại!</h1>
-                        <p class="auth-description">Đăng nhập để tiếp tục với onePickleball</p>
+                        <p class="auth-description">Đăng nhập để tiếp tục với OnePickleball</p>
                     </div>
 
                     @if ($errors->any())

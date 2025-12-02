@@ -416,7 +416,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p class="footer-copyright">© 2025 onePickleball.vn - All rights reserved</p>
+                <p class="footer-copyright">© 2025 OnePickleball.vn - All rights reserved</p>
                 <div class="footer-legal">
                     <a href="#">Chính sách bảo mật</a>
                     <span>•</span>

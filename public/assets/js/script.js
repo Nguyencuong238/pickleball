@@ -251,7 +251,7 @@ if (heroBackground) {
 }
 
 // Console message
-console.log('%c🎾 Welcome to onePickleball.vn! 🎾', 
+console.log('%c🎾 Welcome to OnePickleball.vn! 🎾', 
     'font-size: 20px; font-weight: bold; color: #00D9B5;');
 console.log('%cDeveloped with ❤️ for the Pickleball community', 
     'font-size: 12px; color: #666;');
