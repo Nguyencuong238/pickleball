@@ -4,7 +4,7 @@
 function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(() => {
-            showNotification('Đã sao chép link!', 'success');
+            toastr.success('Đã sao chép link!');
         }).catch(err => {
             console.error('Could not copy text: ', err);
             fallbackCopyTextToClipboard(text);
@@ -27,45 +27,13 @@ function fallbackCopyTextToClipboard(text) {
     
     try {
         document.execCommand('copy');
-        showNotification('Đã sao chép link!', 'success');
+        toastr.success('Đã sao chép link!');
     } catch (err) {
         console.error('Fallback: Could not copy text', err);
-        showNotification('Không thể sao chép link', 'error');
+        toastr.error('Không thể sao chép link');
     }
     
     document.body.removeChild(textArea);
-}
-
-function showNotification(message, type = 'info') {
-    // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.textContent = message;
-    
-    // Add styles
-    notification.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        padding: 1rem 1.5rem;
-        background: ${type === 'success' ? '#10B981' : type === 'error' ? '#EF4444' : '#3B82F6'};
-        color: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 10000;
-        animation: slideInRight 0.3s ease;
-        font-weight: 600;
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => {
-            document.body.removeChild(notification);
-        }, 300);
-    }, 3000);
 }
 
 function updateCountdown() {
@@ -210,7 +178,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </svg>
                     Đã lưu
                 `;
-                showNotification('Đã lưu giải đấu!', 'success');
+                toastr.success('Đã lưu giải đấu!');
             } else {
                 saveButton.innerHTML = `
                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -219,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </svg>
                     Lưu giải đấu
                 `;
-                showNotification('Đã bỏ lưu', 'info');
+                toastr.info('Đã bỏ lưu giải đấu!');
             }
         });
     }
@@ -228,7 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const contactButton = document.querySelector('.contact-card .btn-outline');
     if (contactButton) {
         contactButton.addEventListener('click', () => {
-            showNotification('Đang kết nối với BTC...', 'info');
+            toastr.info('Đang kết nối với BTC...');
             // In real app, open chat widget or redirect to contact page
         });
     }
@@ -326,7 +294,7 @@ document.addEventListener('DOMContentLoaded', function() {
         link.addEventListener('click', (e) => {
             // In real app, this would navigate to the tournament detail page
             e.preventDefault();
-            showNotification('Đang chuyển đến giải đấu...', 'info');
+            toastr.info('Đang chuyển đến giải đấu...');
         });
     });
 
@@ -337,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('.gallery-item').forEach(item => {
         item.addEventListener('click', () => {
             // In real app, open lightbox with full-size image
-            showNotification('Gallery đang được phát triển!', 'info');
+            toastr.info('Gallery đang được phát triển!');
         });
     });
 

@@ -7,8 +7,9 @@
         flex-wrap: wrap;
         background: white;
         padding: 0;
-        overflow-x: auto;
+        overflow: auto hidden;
         -webkit-overflow-scrolling: touch;
+
     }
 
     .tab-navigation::-webkit-scrollbar {
@@ -37,17 +38,6 @@
         position: relative;
         white-space: nowrap;
         min-width: max-content;
-    }
-
-    .tab-btn:hover {
-        color: #374151;
-        background: rgba(0, 0, 0, 0.02);
-    }
-
-    .tab-btn.active {
-        color: #ec4899;
-        border-bottom-color: #ec4899;
-        font-weight: 600;
     }
 
     .tab-btn .icon {
@@ -99,14 +89,11 @@
         border-bottom: 1px solid #e5e7eb;
         border: none;
         transition: all 0.3s ease;
+        box-shadow: none;
     }
 
     .content-card:last-child {
         border-bottom: none;
-    }
-
-    .content-card:hover {
-        background: #fafbfc;
     }
 
     .content-title {
@@ -141,15 +128,14 @@
     }
 
     .gradient-card {
-        background: linear-gradient(135deg, rgba(236, 72, 153, 0.05), rgba(59, 130, 246, 0.05));
-        border-left: 5px solid transparent;
-        border-image: linear-gradient(135deg, #ec4899, #3b82f6) 1;
+        background: rgba(0, 217, 181, 0.1);
+        border-left: 5px solid var(--primary-color);
         box-shadow: none;
     }
 
     .gradient-bg {
         padding: 16px 18px;
-        background: linear-gradient(135deg, rgba(236, 72, 153, 0.08), rgba(59, 130, 246, 0.08));
+        background: #fff;
         border-radius: 6px;
     }
 
@@ -246,17 +232,10 @@
     }
 
     .participant-stat {
-        background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(59, 130, 246, 0.1));
+        background: linear-gradient(135deg, rgb(2 211 177 / 10%), rgb(0 153 204 / 10%));
         padding: 20px;
         border-radius: 12px;
         text-align: center;
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        font-weight: 700;
-        color: #ec4899;
-        margin-bottom: 8px;
     }
 
     .stat-label {
