@@ -382,7 +382,7 @@
                                         </div>
 
                                         <button class="btn btn-primary btn-block"
-                                            onclick="event.preventDefault(); window.location.href='{{ route('booking') }}';">
+                                            onclick="event.preventDefault(); window.location.href='{{ route('booking', $stadium) }}';">
                                             Đặt sân ngay
                                         </button>
                                     </div>

@@ -29,6 +29,19 @@
             max-height: 100vh;
             scrollbar-width: none;
         }
+        #category_id {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+            appearance: none;
+            background: #fff;
+            padding-right: 40px;
+        }
 
         .modal-content::-webkit-scrollbar {
             display: none;
@@ -437,11 +450,7 @@
                             style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 10px; font-size: 0.95rem;">
                             Nội dung thi đấu <span style="color: #ef4444;">*</span>
                         </label>
-                        <select id="category_id" name="category_id" required
-                            style="width: 100%; padding: 12px 16px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 0.95rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box; appearance: none; background-image: url('data:image/svg+xml;charset=UTF-8,%3csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22currentColor%22 stroke-width=%222%22%3E%3cpolyline points=%226 9 12 15 18 9%22%3E%3c/polyline%3E%3c/svg%3E'); background-repeat: no-repeat; background-position: right 12px center; background-size: 20px; padding-right: 40px;"
-                            onmouseover="this.style.borderColor='#d1d5db'"
-                            onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
-                            onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                        <select id="category_id" name="category_id" required >
                             <option value="">-- Chọn nội dung thi đấu --</option>
                             @if ($tournament->categories)
                                 @foreach ($tournament->categories as $category)

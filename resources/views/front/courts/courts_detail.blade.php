@@ -68,7 +68,7 @@
                     </div>
 
                     <div class="court-hero-actions">
-                        <button class="btn btn-primary btn-lg" onclick="window.location.href='{{ route('booking') }}'">
+                        <button class="btn btn-primary btn-lg" onclick="window.location.href='{{ route('booking', $stadium) }}'">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                                 <line x1="16" y1="2" x2="16" y2="6" />
@@ -542,7 +542,7 @@
                                     <option value="3">3 giờ</option>
                                 </select>
                             </div>
-                            <button class="btn btn-primary btn-block" onclick="window.location.href='{{route('booking')}}'">
+                            <button class="btn btn-primary btn-block" onclick="window.location.href='{{route('booking', $stadium)}}'">
                                 Tiếp tục đặt sân
                             </button>
                         </div>

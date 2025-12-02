@@ -154,6 +154,10 @@
                     <div class="summary-card">
                         <h3>Chi tiết đặt sân</h3>
                         <div class="summary-item">
+                            <span>Cụm sân:</span>
+                            <strong>{{ $stadium->name }}</strong>
+                        </div>
+                        <div class="summary-item">
                             <span>Sân:</span>
                             <strong id="summaryCourtName">Chưa chọn</strong>
                         </div>

@@ -65,10 +65,10 @@ class HomeController extends Controller
         ]);
     }
 
-    public function booking()
+    public function booking(Stadium $stadium)
     {
-        $courts = Court::where('is_active', true)->get();
-        return view('front.booking', compact('courts'));
+        $courts = $stadium->courts()->where('is_active', 1)->get();
+        return view('front.booking', compact('courts', 'stadium'));
     }
 
     public function getAvailableSlots(Court $court, Request $request)
