@@ -101,7 +101,7 @@
     <section class="courts-section section">
         <div class="container">
             <!-- View Toggle Bar -->
-            <div class="view-toggle-bar">
+            {{-- <div class="view-toggle-bar">
                 <div class="toggle-left">
                     <button class="view-mode-btn active" data-view="grid">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -147,7 +147,7 @@
                         Bộ lọc
                     </button>
                 </div>
-            </div>
+            </div> --}}
 
             <div class="courts-layout">
                 <!-- Sidebar Filters -->
