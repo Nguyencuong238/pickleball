@@ -402,7 +402,7 @@
     </section>
 
     <!-- CTA Section -->
-    <section class="courses-cta">
+    {{-- <section class="courses-cta">
         <div class="container">
             <div class="cta-card gradient">
                 <div class="cta-content">
@@ -449,7 +449,7 @@
                 </div>
             </div>
         </div>
-    </section>
+    </section> --}}
 @endsection
 @section('js')
     <script>
