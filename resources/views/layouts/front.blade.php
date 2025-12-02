@@ -237,16 +237,15 @@
     .dropdown-item:hover {
         background-color: #f1f5f9;
     }
+    .nav-right {
+        display: flex;
+        gap: 1rem;
+    }
 </style>
 <body>
     <!-- Header -->
     <header class="header">
         <nav class="nav container">
-            <button class="mobile-menu-toggle" aria-label="Toggle menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
             
             <div class="nav-brand">
                 <a href="/" class="sidebar-brand">
@@ -267,57 +266,67 @@
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
                     </ul>
                 </li>
-                <li class="mobile-only login-register-btn">
-                    <a href="/login" class="btn btn-outline">Đăng nhập</a>
-                </li>
-                <li class="mobile-only login-register-btn">
-                    <a href="/register" class="btn btn-primary">Đăng ký</a>
-                </li>
+                
+                @guest
+                    <li class="mobile-only login-register-btn">
+                        <a href="/login" class="btn btn-outline">Đăng nhập</a>
+                    </li>
+                    <li class="mobile-only login-register-btn">
+                        <a href="/register" class="btn btn-primary">Đăng ký</a>
+                    </li>
+                @endguest
             </ul>
             
-            @auth
-                <div class="user-dropdown-container">
-                    <div class="user-profile" onclick="this.parentElement.classList.toggle('active')">
-                        @php
-                            $auth = auth()->user();
-                            $name = $auth->name;
-                            // Nếu bạn không dùng Spatie, lấy role từ cột 'type' hoặc 'role'
-                            $role = $auth->type ?? 'user';
-                            // Lấy ký tự đầu của tên trực tiếp
-                            $userAvatar = strtoupper(mb_substr(trim($name), 0, 1));
-                        @endphp
-                        <div class="user-avatar">{{ $userAvatar }}</div>
-                        <div class="user-info">
-                            <div class="user-name">{{ $name }}</div>
+            <div class="nav-right">
+                @auth
+                    <div class="user-dropdown-container">
+                        <div class="user-profile" onclick="this.parentElement.classList.toggle('active')">
+                            @php
+                                $auth = auth()->user();
+                                $name = $auth->name;
+                                // Nếu bạn không dùng Spatie, lấy role từ cột 'type' hoặc 'role'
+                                $role = $auth->type ?? 'user';
+                                // Lấy ký tự đầu của tên trực tiếp
+                                $userAvatar = strtoupper(mb_substr(trim($name), 0, 1));
+                            @endphp
+                            <div class="user-avatar">{{ $userAvatar }}</div>
+                            <div class="user-info">
+                                <div class="user-name">{{ $name }}</div>
+                            </div>
+                            <svg width="20" height="20" fill="#475569" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                    clip-rule="evenodd" />
+                            </svg>
                         </div>
-                        <svg width="20" height="20" fill="#475569" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
+                        <div class="dropdown-info">
+                            @if(auth()->check() && auth()->user()->hasRole('home_yard'))
+                                <a href="{{ route('homeyard.overview') }}" class="nav-link">
+                                    <i class="icon-home"></i> Bảng điều khiển
+                                </a>
+                            @endif
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <a href="{{ route('logout') }}" class="nav-link"
+                                    onclick="event.preventDefault();this.closest('form').submit();">
+                                    <i class="icon-switch2"></i> {{ __('Log Out') }}
+                                </a>
+                            </form>
+                        </div>
                     </div>
-                    <div class="dropdown-info">
-                        @if(auth()->check() && auth()->user()->hasRole('home_yard'))
-                            <a href="{{ route('homeyard.overview') }}" class="nav-link">
-                                <i class="icon-home"></i> Bảng điều khiển
-                            </a>
-                        @endif
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <a href="{{ route('logout') }}" class="nav-link"
-                                onclick="event.preventDefault();this.closest('form').submit();">
-                                <i class="icon-switch2"></i> {{ __('Log Out') }}
-                            </a>
-                        </form>
+                @else
+                    <div class="nav-actions">
+                        <a href="/login" class="btn btn-outline">Đăng nhập</a>
+                        <a href="/register" class="btn btn-primary">Đăng ký</a>
                     </div>
-                </div>
-            @else
-                <div class="nav-actions">
-                    <a href="/login" class="btn btn-outline">Đăng nhập</a>
-                    <a href="/register" class="btn btn-primary">Đăng ký</a>
-                </div>
-            @endauth
+                @endauth
 
+                <button class="mobile-menu-toggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
         </nav>
     </header>
 
@@ -407,7 +416,7 @@
             </div>
             
             <div class="footer-bottom">
-                <p class="footer-copyright">© 2025 onePickleball.vn - All rights reserved</p>
+                <p class="footer-copyright">© 2025 OnePickleball.vn - All rights reserved</p>
                 <div class="footer-legal">
                     <a href="#">Chính sách bảo mật</a>
                     <span>•</span>

@@ -38,10 +38,12 @@
                 <div class="simple-filter-wrapper">
                     <!-- Category Filter Tags -->
                     <div class="filter-tags">
+                        @if($news->count())
                         <button type="submit" name="category" value=""
                             class="filter-tag {{ !($filters['category'] ?? null) ? 'active' : '' }}">
                             Tất cả
                         </button>
+                        @endif
                         @foreach ($categories as $category)
                             <button type="submit" name="category" value="{{ $category->slug }}"
                                 class="filter-tag {{ ($filters['category'] ?? null) === $category->slug ? 'active' : '' }}">
@@ -92,7 +94,7 @@
                                 <a href="{{ route('news.show', $item->slug) }}">{{ $item->title }}</a>
                             </h3>
                             <p class="simple-news-excerpt">
-                                {{ Str::words(strip_tags($item->content), 20) }}
+                                {!! Str::words(strip_tags($item->content), 20) !!}
                             </p>
                             <a href="{{ route('news.show', $item->slug) }}" class="simple-read-more">Đọc thêm →</a>
                         </div>

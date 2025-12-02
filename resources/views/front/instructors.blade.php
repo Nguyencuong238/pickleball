@@ -267,7 +267,7 @@
             <div class="cta-card">
                 <div class="cta-content">
                     <h2 class="cta-title">Bạn là huấn luyện viên Pickleball?</h2>
-                    <p class="cta-description">Đăng ký trở thành giảng viên trên onePickleball.vn và kết nối với hàng ngàn học viên tiềm năng trên toàn quốc.</p>
+                    <p class="cta-description">Đăng ký trở thành giảng viên trên OnePickleball.vn và kết nối với hàng ngàn học viên tiềm năng trên toàn quốc.</p>
                     <div class="cta-features">
                         <div class="cta-feature">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

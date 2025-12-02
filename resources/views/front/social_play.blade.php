@@ -12,6 +12,10 @@
         select.form-control {
             background: #fff;
         }
+        .filter-group label {
+            margin-bottom: 0.5rem;
+            display: block;
+        }
 
         @media (max-width: 768px) {
             form.social-filter-bar {

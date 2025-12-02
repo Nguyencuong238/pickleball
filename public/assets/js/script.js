@@ -9,7 +9,7 @@ if (mobileMenuToggle) {
     mobileMenuToggle.addEventListener('click', () => {
         mobileMenuToggle.classList.toggle('active');
         navMenu.classList.toggle('active');
-        navActions.classList.toggle('active');
+        //navActions.classList.toggle('active');
         body.classList.toggle('menu-open');
     });
 }
@@ -20,7 +20,7 @@ navLinks.forEach(link => {
     link.addEventListener('click', () => {
         mobileMenuToggle.classList.remove('active');
         navMenu.classList.remove('active');
-        navActions.classList.remove('active');
+        //navActions.classList.remove('active');
         body.classList.remove('menu-open');
     });
 });
@@ -251,7 +251,7 @@ if (heroBackground) {
 }
 
 // Console message
-console.log('%c🎾 Welcome to onePickleball.vn! 🎾', 
+console.log('%c🎾 Welcome to OnePickleball.vn! 🎾', 
     'font-size: 20px; font-weight: bold; color: #00D9B5;');
 console.log('%cDeveloped with ❤️ for the Pickleball community', 
     'font-size: 12px; color: #666;');
