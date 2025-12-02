@@ -1818,6 +1818,7 @@ class HomeYardTournamentController extends Controller
             'duration_hours' => $durationHours,
             'hourly_rate' => (int) $request->hourly_rate,
             'total_price' => $totalPrice,
+            'service_fee' => $totalPrice * 0.05,
             'status' => $request->status ?? 'pending',
             'payment_method' => $request->payment_method,
             'notes' => $request->notes ?? null,
@@ -2047,6 +2048,7 @@ class HomeYardTournamentController extends Controller
                     'start_time' => $booking->start_time,
                     'end_time' => $booking->end_time,
                     'total_price' => $booking->total_price,
+                    'service_fee' => $booking->service_fee,
                     'status' => $booking->status,
                 ];
             });

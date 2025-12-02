@@ -282,15 +282,33 @@
                 'active'));
                 buttonElement.classList.add('active');
                 selectedSlot.value = slot.time;
-                hourlyRate.value = slot.price;
                 updateSummary();
+            }
+
+            function calculateAverageRate() {
+                const time = selectedSlot.value;
+                const duration = parseInt(document.getElementById('durationHours').value) || 0;
+
+                if (!time || duration <= 0) return 0;
+
+                const selectedSlotObj = timeSlots.find(s => s.time === time);
+                if (!selectedSlotObj) return 0;
+
+                let subtotal = 0;
+                for (let i = 0; i < duration; i++) {
+                    const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i);
+                    if (slotIndex !== -1) {
+                        subtotal += timeSlots[slotIndex].price || 0;
+                    }
+                }
+
+                return duration > 0 ? Math.round(subtotal / duration) : 0;
             }
 
             function updateSummary() {
                 const courtId = courtSelect.value;
                 const date = bookingDate.value;
                 const time = selectedSlot.value;
-                const rate = parseInt(hourlyRate.value) || 0;
                 const duration = parseInt(document.getElementById('durationHours').value) || 0;
 
                 // Update court name
@@ -316,13 +334,28 @@
                     }
                 }
 
-                // Calculate total
-                const subtotal = rate * duration;
+                // Calculate total with multi-hour pricing
+                let subtotal = 0;
+                const averageRate = calculateAverageRate();
+                
+                if (time && duration > 0) {
+                    const selectedSlotObj = timeSlots.find(s => s.time === time);
+                    if (selectedSlotObj) {
+                        for (let i = 0; i < duration; i++) {
+                            const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i);
+                            if (slotIndex !== -1) {
+                                subtotal += timeSlots[slotIndex].price || 0;
+                            }
+                        }
+                    }
+                }
+
+                hourlyRate.value = averageRate;
                 const fee = Math.round(subtotal * 0.05); // 5% service fee
                 const total = subtotal + fee;
 
                 document.getElementById('summaryDuration').textContent = `${duration} giờ`;
-                document.getElementById('summaryHourlyRate').textContent = (rate ? rate.toLocaleString('vi-VN') :
+                document.getElementById('summaryHourlyRate').textContent = (averageRate ? averageRate.toLocaleString('vi-VN') :
                     0) + 'đ';
                 document.getElementById('summarySubtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
                 document.getElementById('summaryFee').textContent = fee.toLocaleString('vi-VN') + 'đ';

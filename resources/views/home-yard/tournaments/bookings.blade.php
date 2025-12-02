@@ -803,11 +803,15 @@
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Thời gian</span>
-                        <span class="summary-value" id="durationDisplay">2 giờ</span>
+                        <span class="summary-value" id="durationDisplay">0 giờ</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">Phí dịch vụ</span>
+                        <span class="summary-value" id="serviceFeeDisplay">₫0</span>
                     </div>
                     <div class="summary-row">
                         <span class="summary-label">Tổng tiền</span>
-                        <span class="summary-value" id="totalPriceDisplay">₫300,000</span>
+                        <span class="summary-value" id="totalPriceDisplay">₫0</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -967,7 +971,7 @@
                      // Load calendar for today
                      loadCalendarData(currentSelectedDate);
                  } catch (e) {
-                     console.error('Error parsing courts data:', e);
+                     
                  }
              }
          }
@@ -1023,7 +1027,6 @@
                 renderCourtGrid(date);
             })
             .catch(error => {
-                console.error('Error loading bookings:', error);
                 renderCourtGrid(date);  // Render without bookings
             });
         }
@@ -1098,7 +1101,6 @@
             
             // Validate start_time format (H:i)
             if (!/^\d{2}:\d{2}$/.test(startTime)) {
-                console.error('Invalid start_time format. Expected H:i, got:', startTime);
                 return;
             }
             
@@ -1129,7 +1131,6 @@
                     // Update summary display
                     updateBookingSummaryDisplay(data);
                 } else {
-                    console.error('Price calculation error:', data.message);
                     // Fallback to simple calculation
                     const courtInfo = courtsData[courtId];
                     const rate = (courtInfo && courtInfo.hourly_rate) ? courtInfo.hourly_rate : 150000;
@@ -1139,7 +1140,6 @@
                 }
             })
             .catch(error => {
-                console.error('Error calculating price:', error);
                 // Fallback to simple calculation
                 const courtInfo = courtsData[courtId];
                 const rate = (courtInfo && courtInfo.hourly_rate) ? courtInfo.hourly_rate : 150000;
@@ -1174,8 +1174,12 @@
                 // Show total
                 html += `
                     <div class="summary-row">
+                        <span class="summary-label">Phí dịch vụ</span>
+                        <span class="summary-value">₫${(data.total_price * 0.05).toLocaleString('vi-VN')}</span>
+                    </div>
+                    <div class="summary-row">
                         <span class="summary-label">Tổng tiền (${data.duration_hours} giờ)</span>
-                        <span class="summary-value" style="font-size: 1.25rem; color: var(--primary-color);">₫${data.total_price.toLocaleString('vi-VN')}</span>
+                        <span class="summary-value" style="font-size: 1.25rem; color: var(--primary-color);">₫${(data.total_price*1.05).toLocaleString('vi-VN')}</span>
                     </div>
                 `;
             } else {
@@ -1191,8 +1195,12 @@
                         <span class="summary-value">${data.duration_hours} giờ</span>
                     </div>
                     <div class="summary-row">
+                        <span class="summary-label">Phí dịch vụ</span>
+                        <span class="summary-value">₫${(data.total_price*0.05).toLocaleString('vi-VN')}</span>
+                    </div>
+                    <div class="summary-row">
                         <span class="summary-label">Tổng tiền</span>
-                        <span class="summary-value">₫${data.total_price.toLocaleString('vi-VN')}</span>
+                        <span class="summary-value">₫${(data.total_price*1.05).toLocaleString('vi-VN')}</span>
                     </div>
                 `;
             }
@@ -1207,7 +1215,8 @@
             const total = Math.round(rate * duration);
             
             document.getElementById('durationDisplay').textContent = duration + ' giờ';
-            document.getElementById('totalPriceDisplay').textContent = '₫' + total.toLocaleString('vi-VN');
+            document.getElementById('serviceFeeDisplay').textContent = '₫' + (total * 0.05).toLocaleString('vi-VN');
+            document.getElementById('totalPriceDisplay').textContent = '₫' + (total * 1.05).toLocaleString('vi-VN');
         }
 
         // Submit booking
@@ -1216,7 +1225,7 @@
             const formData = new FormData(form);
             
             // Add hourly_rate (use average rate, or fallback to stored rate)
-            const hourlyRate = form.dataset.hourlyRate || 150000;
+            const hourlyRate = form.dataset.hourlyRate || 0;
             formData.append('hourly_rate', hourlyRate);
             
             // If we have a calculated total price from multi-price calculation, 
@@ -1234,7 +1243,6 @@
                 .then(response => {
                     if (!response.ok) {
                         return response.text().then(text => {
-                            console.error('Response Error:', response.status, text);
                             throw new Error(`HTTP ${response.status}: ${text}`);
                         });
                     }
@@ -1245,14 +1253,13 @@
                         toastr.success(data.message);
                         closeNewBookingModal();
                         form.reset();
-                        document.getElementById('bookingForm').dataset.hourlyRate = 150000;
+                        document.getElementById('bookingForm').dataset.hourlyRate = 0;
                         setTimeout(() => location.reload(), 1500);
                     } else {
                         toastr.error(data.message);
                     }
                 })
                 .catch(error => {
-                    console.error('Booking error:', error);
                     toastr.error(error.message || 'Lỗi khi đặt sân');
                 });
         }
@@ -1262,7 +1269,7 @@
             // Reset form
             const form = document.getElementById('bookingForm');
             form.reset();
-            document.getElementById('bookingForm').dataset.hourlyRate = 150000;
+            document.getElementById('bookingForm').dataset.hourlyRate = 0;
             calculateTotal();
             
             document.getElementById('newBookingModal').classList.add('active');
@@ -1297,7 +1304,6 @@
                 }
             })
             .catch(error => {
-                console.error('Error loading booking details:', error);
                 toastr.error('Lỗi khi tải chi tiết đơn đặt');
             });
         }
@@ -1346,13 +1352,6 @@
             document.getElementById('modalDuration').textContent = `${durationHours} giờ`;
             
             // Fetch detailed pricing breakdown (normalize start_time to H:i format)
-             console.log('Calling fetchAndUpdateBookingSummary with:', {
-                 court_id: booking.court_id,
-                 booking_date: booking.booking_date,
-                 start_time: booking.start_time.substring(0, 5),
-                 duration_hours: durationHours,
-                 total_price: booking.total_price
-             });
              fetchAndUpdateBookingSummary(booking.court_id, booking.booking_date, booking.start_time.substring(0, 5), durationHours, booking.total_price);
             
             // Update notes
@@ -1372,12 +1371,10 @@
              
              // Validate start_time format (H:i)
              if (!/^\d{2}:\d{2}$/.test(normalizedStartTime)) {
-                 console.error('Invalid start_time format. Expected H:i, got:', normalizedStartTime);
                  updateModalBookingSummarySimple(durationHours, totalPrice);
                  return;
              }
              
-             console.log('Fetching pricing for:', { courtId, bookingDate, startTime: normalizedStartTime, durationHours });
              
              fetch('{{ route('homeyard.bookings.calculate-price') }}', {
                  method: 'POST',
@@ -1394,22 +1391,17 @@
                  })
              })
              .then(response => {
-                 console.log('Pricing response status:', response.status);
                  return response.json();
              })
              .then(data => {
-                 console.log('Pricing data received:', data);
                  if (data.success) {
-                     console.log('Price breakdown:', data.price_breakdown);
                      updateModalBookingSummary(data);
                  } else {
-                     console.error('Pricing calculation failed:', data.message);
                      // Fallback to simple display
                      updateModalBookingSummarySimple(durationHours, totalPrice);
                  }
              })
              .catch(error => {
-                 console.error('Error fetching pricing:', error);
                  // Fallback to simple display
                  updateModalBookingSummarySimple(durationHours, totalPrice);
              });
@@ -1420,11 +1412,9 @@
              // Get the active booking details modal, not the new booking modal
              const bookingDetailsModal = document.getElementById('bookingDetailsModal');
              const summaryContainer = bookingDetailsModal.querySelector('.booking-summary');
-             console.log('summaryContainer found:', !!summaryContainer);
              let html = '';
              
              if (data.price_breakdown && data.price_breakdown.length > 0) {
-                 console.log('Showing detailed pricing breakdown with', data.price_breakdown.length, 'items');
                  // Show pricing breakdown (multi-price or single-price with details)
                  if (data.has_multi_price) {
                      html = '<h4 style="margin-bottom: 1rem; font-size: 0.95rem; color: var(--text-primary);">Chi tiết giá sân</h4>';
@@ -1447,13 +1437,16 @@
                  
                  // Show total
                  html += `
+                    <div class="summary-row">
+                         <span class="summary-label">Phí dịch vụ</span>
+                         <span class="summary-value" style="font-size: 1.25rem; color: var(--primary-color);">₫${(data.total_price*0.05).toLocaleString('vi-VN')}</span>
+                     </div>
                      <div class="summary-row">
                          <span class="summary-label">Tổng tiền (${data.duration_hours} giờ)</span>
-                         <span class="summary-value" style="font-size: 1.25rem; color: var(--primary-color);">₫${data.total_price.toLocaleString('vi-VN')}</span>
+                         <span class="summary-value" style="font-size: 1.25rem; color: var(--primary-color);">₫${(data.total_price*1.05).toLocaleString('vi-VN')}</span>
                      </div>
                  `;
              } else {
-                 console.log('Showing fallback simple pricing display');
                  // Simple single-price display (fallback)
                  const hourlyRate = data.average_hourly_rate;
                  html = `
@@ -1466,13 +1459,16 @@
                          <span class="summary-value">${data.duration_hours} giờ</span>
                      </div>
                      <div class="summary-row">
+                         <span class="summary-label">Phí dịch vụ</span>
+                         <span class="summary-value">₫${(data.total_price*0.05).toLocaleString('vi-VN')}</span>
+                     </div>
+                     <div class="summary-row">
                          <span class="summary-label">Tổng tiền</span>
-                         <span class="summary-value">₫${data.total_price.toLocaleString('vi-VN')}</span>
+                         <span class="summary-value">₫${(data.total_price*1.05).toLocaleString('vi-VN')}</span>
                      </div>
                  `;
              }
              
-             console.log('Setting innerHTML on summaryContainer');
              summaryContainer.innerHTML = html;
          }
 
@@ -1491,8 +1487,12 @@
                     <span class="summary-value">${durationHours} giờ</span>
                 </div>
                 <div class="summary-row">
+                    <span class="summary-label">Phí dịch vụ</span>
+                    <span class="summary-value">₫${parseInt(totalPrice*0.05).toLocaleString('vi-VN')}</span>
+                </div>
+                <div class="summary-row">
                     <span class="summary-label">Tổng tiền</span>
-                    <span class="summary-value">₫${parseInt(totalPrice).toLocaleString('vi-VN')}</span>
+                    <span class="summary-value">₫${parseInt(totalPrice*1.05).toLocaleString('vi-VN')}</span>
                 </div>
             `;
             
@@ -1540,7 +1540,7 @@
                 }
             })
             .catch(error => {
-                console.error('Error loading booking stats:', error);
+                
             });
         }
 
@@ -1578,7 +1578,7 @@
                     const startTime = booking.start_time.substring(0, 5);
                     const endTime = booking.end_time.substring(0, 5);
                     const bookingId = 'BK-' + String(booking.id).padStart(6, '0');
-                    const totalPrice = parseInt(booking.total_price).toLocaleString('vi-VN');
+                    const totalPrice = (parseInt(booking.total_price) + parseInt(booking.service_fee)).toLocaleString('vi-VN');
 
                     html += `
                         <div class="booking-row">
@@ -1674,7 +1674,6 @@
                 }
             })
             .catch(error => {
-                console.error('Error applying filters:', error);
                 renderBookingsListEmpty();
                 renderPaginationEmpty();
             });
@@ -1820,7 +1819,6 @@
                 }
             })
             .catch(error => {
-                console.error('Error cancelling booking:', error);
                 toastr.error('Lỗi khi hủy đơn đặt');
             });
         }
@@ -1857,7 +1855,6 @@
                 }
             })
             .catch(error => {
-                console.error('Error deleting booking:', error);
                 toastr.error('Lỗi khi xóa đơn đặt');
             });
         }
@@ -1889,14 +1886,12 @@
                 }
             })
             .catch(error => {
-                console.error('Error deleting booking:', error);
                 toastr.error('Lỗi khi xóa đơn đặt');
             });
         }
 
         // Load page
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('Booking Management Loaded');
             initCourtsData();
             loadBookingStats();
         });

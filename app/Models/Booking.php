@@ -22,6 +22,7 @@ class Booking extends Model
         'duration_hours',
         'hourly_rate',
         'total_price',
+        'service_fee',
         'status',
         'payment_method',
         'notes',
@@ -32,6 +33,7 @@ class Booking extends Model
         'duration_hours' => 'float',
         'hourly_rate' => 'integer',
         'total_price' => 'integer',
+        'service_fee' => 'integer',
     ];
 
     /**

@@ -220,6 +220,9 @@ class HomeController extends Controller
             $durationHours
         );
 
+        // Calculate service fee (5% of total price)
+        $serviceFee = (int) round($totalPrice * 0.05);
+
         // Check if slot is already booked
         $existingBooking = Booking::where('court_id', $request->court_id)
             ->where('booking_date', $request->booking_date)
@@ -247,6 +250,7 @@ class HomeController extends Controller
             'duration_hours' => $durationHours,
             'hourly_rate' => (int) $request->hourly_rate,
             'total_price' => $totalPrice,
+            'service_fee' => $serviceFee,
             'status' => 'pending',
             'payment_method' => $request->payment_method,
             'notes' => $request->notes ?? null,
