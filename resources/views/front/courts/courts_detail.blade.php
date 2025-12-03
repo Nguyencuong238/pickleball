@@ -118,10 +118,14 @@
                 <div class="court-hero-right">
                     <div class="price-card">
                         <div class="price-header">
-                            <span class="price-label">Giá thuê </span>
-                            <span class="price-range">{{ number_format($allPrices['min_price'], 0, ',', '.') }}đ - {{ number_format($allPrices['max_price'], 0, ',', '.') }}đ</span>
+                            <span class="price-label">Giá thuê mỗi giờ</span>
+                            @if($allPrices['min_price'] == 0 || $allPrices['max_price'] == 0)
+                            <div class="price-range">Liên hệ</div>
+                            @else
+                            <div class="price-range">{{ number_format($allPrices['min_price'], 0, ',', '.') }}đ - {{ number_format($allPrices['max_price'], 0, ',', '.') }}đ</div>
+                            @endif
                         </div>
-                        <div class="price-note">mỗi giờ</div>
+                        {{-- <div class="price-note">mỗi giờ</div> --}}
                         {{-- <div class="price-breakdown">
                             <div class="price-item">
                                 <span>Giờ sáng (5h-11h)</span>
