@@ -446,12 +446,12 @@
                 </div>
 
                 <!-- My Bookings -->
-                <div class="menu-card">
+                {{-- <div class="menu-card">
                     <div class="icon-box icon-box-amber">📅</div>
                     <h5>Đặt Sân Của Tôi</h5>
                     <p>Xem và quản lý các đặt sân giải đấu và sân của bạn.</p>
-                    <a href="{{ route('booking') }}" class="menu-btn">Xem Đặt Sân →</a>
-                </div>
+                    <a href="{{ route('user.bookings') }}" class="menu-btn">Xem Đặt Sân →</a>
+                </div> --}}
 
                 <!-- Courts -->
                 <div class="menu-card">

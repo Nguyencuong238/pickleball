@@ -299,10 +299,20 @@
                             <a href="{{ route('ocr.index') }}" class="nav-link">
                                 OCR
                             </a>
-                            @if(auth()->check() && auth()->user()->hasRole('home_yard'))
-                                <a href="{{ route('homeyard.overview') }}" class="nav-link">
-                                    <i class="icon-home"></i> Bảng điều khiển
-                                </a>
+                            @if(auth()->check())
+                                @if(auth()->user()->hasRole('admin'))
+                                    <a href="{{ route('admin.dashboard') }}" class="nav-link">
+                                        <i class="icon-admin"></i> Bảng điều khiển Admin
+                                    </a>
+                                @elseif(auth()->user()->hasRole('home_yard'))
+                                    <a href="{{ route('homeyard.overview') }}" class="nav-link">
+                                        <i class="icon-home"></i> Bảng điều khiển
+                                    </a>
+                                @elseif(auth()->user()->hasRole('user'))
+                                    <a href="{{ route('user.dashboard') }}" class="nav-link">
+                                        <i class="icon-user"></i> Bảng điều khiển Người dùng
+                                    </a>
+                                @endif
                             @endif
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf

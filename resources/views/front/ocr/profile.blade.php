@@ -4,7 +4,7 @@
 <style>
     .profile-header {
         background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
-        padding: 3rem 0;
+        padding: 9rem 0;
         color: white;
     }
 
@@ -363,7 +363,7 @@
                         <div class="badges-grid">
                             @foreach($user->badges as $badge)
                                 @php
-                                    $badgeInfo = \App\Models\UserBadge::getBadgeInfo($badge->badge_type);
+                                    $badgeInfo = \App\Models\UserBadge::getBadgeInfo($badge->badge_type) ?? [];
                                 @endphp
                                 <div class="badge-item" title="{{ $badgeInfo['description'] ?? '' }}">
                                     <div class="badge-icon">{{ $badgeInfo['icon'] ?? '[BADGE]' }}</div>
@@ -379,10 +379,10 @@
                                  Tiến Trình
                              </h4>
                             @foreach($badgeProgress as $type => $progress)
-                                @if($progress['current'] < $progress['target'])
+                                @if(isset($progress['current']) && isset($progress['target']) && $progress['current'] < $progress['target'])
                                     <div class="progress-item">
                                         <div class="progress-header">
-                                            <span class="progress-name">{{ $progress['name'] }}</span>
+                                            <span class="progress-name">{{ $progress['name'] ?? $type }}</span>
                                             <span class="progress-count">{{ $progress['current'] }}/{{ $progress['target'] }}</span>
                                         </div>
                                         <div class="progress-bar">
