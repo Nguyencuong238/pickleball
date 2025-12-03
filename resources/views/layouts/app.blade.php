@@ -35,15 +35,41 @@
         .sidebar {
             background-color: var(--sidebar-bg);
             color: #fff;
-            min-height: 100vh;
+            height: 100vh;
             padding: 20px 0;
             position: fixed;
             width: 250px;
             left: 0;
             top: 0;
             overflow-y: auto;
+            overflow-x: hidden;
             transition: transform 0.3s ease;
             z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar nav {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .sidebar nav::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar nav::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar nav::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar nav::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .sidebar.collapsed {
@@ -401,6 +427,18 @@
 
             <a href="{{ route('admin.instructor-registrations.index') }}" class="nav-link {{ request()->routeIs('admin.instructor-registrations.*') ? 'active' : '' }}">
                 <i class="fas fa-clipboard-list"></i> Đăng Ký Học
+            </a>
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+            
+            <p style="padding: 0 20px; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">OCR</p>
+
+            <a href="{{ route('admin.ocr.matches.index') }}" class="nav-link {{ request()->routeIs('admin.ocr.matches.*') ? 'active' : '' }}">
+                <i class="fas fa-gamepad"></i> Các Trận Đấu OCR
+            </a>
+
+            <a href="{{ route('admin.ocr.badges.index') }}" class="nav-link {{ request()->routeIs('admin.ocr.badges.*') ? 'active' : '' }}">
+                <i class="fas fa-medal"></i> Danh Hiệu OCR
             </a>
 
             <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">

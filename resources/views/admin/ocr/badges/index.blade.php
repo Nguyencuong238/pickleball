@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'OCR Badge Management')
+@section('title', 'Quản lý Huy hiệu OCR')
 
 @section('content')
 <div class="container">
     <div class="row">
         <div class="col-md-12">
-            <h2 class="mb-4">OCR Badge Management</h2>
+            <h2 class="mb-4">Quản lý Huy hiệu OCR</h2>
 
             @if(session('success'))
                 <div class="alert alert-success">{{ session('success') }}</div>
@@ -16,7 +16,7 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
-            {{-- Badge Grid --}}
+            {{-- Lưới Huy hiệu --}}
             <div class="row mb-4">
                 @foreach($badges as $badge)
                 <div class="col-md-4 mb-3">
@@ -29,13 +29,13 @@
                                 <div>
                                     <h5 class="card-title mb-1">{{ $badge['name'] }}</h5>
                                     <p class="card-text text-muted small mb-1">{{ $badge['description'] }}</p>
-                                    <span class="badge bg-secondary">{{ $badge['count'] }} users</span>
+                                    <span class="badge bg-secondary">{{ $badge['count'] }} người dùng</span>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer bg-transparent">
                             <a href="{{ route('admin.ocr.badges.show', $badge['type']) }}" class="btn btn-sm btn-outline-primary">
-                                View Users
+                                Xem Người dùng
                             </a>
                         </div>
                     </div>
@@ -43,20 +43,20 @@
                 @endforeach
             </div>
 
-            {{-- Award Badge Form --}}
+            {{-- Biểu mẫu Trao tặng Huy hiệu --}}
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Manually Award Badge</h5>
+                    <h5 class="mb-0">Trao tặng Huy hiệu Thủ công</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.ocr.badges.award') }}" method="POST" class="row g-3">
                         @csrf
                         <div class="col-md-4">
-                            <label for="user_id" class="form-label">User ID</label>
+                            <label for="user_id" class="form-label">Mã số Người dùng</label>
                             <input type="number" name="user_id" id="user_id" class="form-control" required>
                         </div>
                         <div class="col-md-4">
-                            <label for="badge_type" class="form-label">Badge Type</label>
+                            <label for="badge_type" class="form-label">Loại Huy hiệu</label>
                             <select name="badge_type" id="badge_type" class="form-select" required>
                                 @foreach($badges as $badge)
                                     <option value="{{ $badge['type'] }}">{{ $badge['name'] }}</option>
@@ -64,26 +64,26 @@
                             </select>
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary">Award Badge</button>
+                            <button type="submit" class="btn btn-primary">Trao tặng Huy hiệu</button>
                         </div>
                     </form>
                 </div>
             </div>
 
-            {{-- Revoke Badge Form --}}
+            {{-- Biểu mẫu Hủy Huy hiệu --}}
             <div class="card mt-4">
                 <div class="card-header">
-                    <h5 class="mb-0">Revoke Badge</h5>
+                    <h5 class="mb-0">Hủy Huy hiệu</h5>
                 </div>
                 <div class="card-body">
                     <form action="{{ route('admin.ocr.badges.revoke') }}" method="POST" class="row g-3">
                         @csrf
                         <div class="col-md-4">
-                            <label for="revoke_user_id" class="form-label">User ID</label>
+                            <label for="revoke_user_id" class="form-label">Mã số Người dùng</label>
                             <input type="number" name="user_id" id="revoke_user_id" class="form-control" required>
                         </div>
                         <div class="col-md-4">
-                            <label for="revoke_badge_type" class="form-label">Badge Type</label>
+                            <label for="revoke_badge_type" class="form-label">Loại Huy hiệu</label>
                             <select name="badge_type" id="revoke_badge_type" class="form-select" required>
                                 @foreach($badges as $badge)
                                     <option value="{{ $badge['type'] }}">{{ $badge['name'] }}</option>
@@ -91,7 +91,7 @@
                             </select>
                         </div>
                         <div class="col-md-4 d-flex align-items-end">
-                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to revoke this badge?')">Revoke Badge</button>
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Bạn có chắc chắn muốn hủy huy hiệu này không?')">Hủy Huy hiệu</button>
                         </div>
                     </form>
                 </div>

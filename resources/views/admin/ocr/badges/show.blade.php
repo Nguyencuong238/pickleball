@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $info['name'] . ' Badge - Users')
+@section('title', $info['name'] . ' Huy hiệu - Người dùng')
 
 @section('content')
 <div class="container">
@@ -17,7 +17,7 @@
                     </div>
                 </div>
                 <a href="{{ route('admin.ocr.badges.index') }}" class="btn btn-outline-secondary">
-                    Back to Badges
+                    Quay lại Huy hiệu
                 </a>
             </div>
 
@@ -31,21 +31,21 @@
 
             <div class="card">
                 <div class="card-header">
-                    <h5 class="mb-0">Users with this badge ({{ $users->count() }})</h5>
+                    <h5 class="mb-0">Người dùng có huy hiệu này ({{ $users->count() }})</h5>
                 </div>
                 <div class="card-body">
                     @if($users->isEmpty())
-                        <p class="text-muted">No users have earned this badge yet.</p>
+                        <p class="text-muted">Chưa có người dùng nào kiếm được huy hiệu này.</p>
                     @else
                         <table class="table table-striped">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
+                                    <th>Mã số</th>
+                                    <th>Tên</th>
                                     <th>Email</th>
-                                    <th>Elo Rating</th>
-                                    <th>Earned At</th>
-                                    <th>Actions</th>
+                                    <th>Xếp hạng Elo</th>
+                                    <th>Kiếm được lúc</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -69,8 +69,8 @@
                                                 @csrf
                                                 <input type="hidden" name="user_id" value="{{ $user->id }}">
                                                 <input type="hidden" name="badge_type" value="{{ $badgeType }}">
-                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Revoke badge from {{ $user->name }}?')">
-                                                    Revoke
+                                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Hủy huy hiệu từ {{ $user->name }}?')">
+                                                    Hủy
                                                 </button>
                                             </form>
                                         </td>
