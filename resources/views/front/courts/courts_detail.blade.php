@@ -187,35 +187,36 @@
                 <!-- Main Content -->
                 <div class="detail-main">
                     <!-- Gallery Section -->
-    @if($stadium->hasMedia('gallery'))
-    <section class="gallery-section">
-        <div class="container">
-            <div class="gallery-grid">
-                <div class="gallery-main">
-                    @php
-                        $imageUrl = $stadium->getFirstMediaUrl('gallery');
-                    @endphp
-                    <img src="{{ $imageUrl }}" alt="{{ $stadium->name }}">
-                    <button class="gallery-view-all" onclick="openGalleryLightbox()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                        Xem tất cả ảnh
-                    </button>
-                </div>
-                <div class="gallery-thumbnails hidden">
-                    @foreach($stadium->getMedia('gallery') as $image)
-                        @continue($loop->index == 0)
-                        <img src="{{ $image->getUrl() }}" alt="{{ $stadium->name }} - Gallery" 
-                            class="gallery-thumb" onclick="openGalleryLightbox({{ $loop->index }})">
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
-    @endif
+                    @if($stadium->hasMedia('gallery') || $stadium->hasMedia('banner'))
+                    <section class="gallery-section">
+                        <div class="container">
+                            <div class="gallery-grid">
+                                <div class="gallery-main">
+                                    @php
+                                        $imageUrl = $stadium->getFirstMediaUrl('banner');
+                                    @endphp
+                                    <img src="{{ $imageUrl }}" alt="{{ $stadium->name }}">
+                                    <button class="gallery-view-all" onclick="openGalleryLightbox()">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                                            <circle cx="8.5" cy="8.5" r="1.5" />
+                                            <polyline points="21 15 16 10 5 21" />
+                                        </svg>
+                                        Xem tất cả ảnh
+                                    </button>
+                                </div>
+                                <div class="gallery-thumbnails hidden">
+                                    @foreach($stadium->getMedia('gallery') as $image)
+                                        {{-- @continue($loop->index == 0) --}}
+                                        <img src="{{ $image->getUrl() }}" alt="{{ $stadium->name }} - Gallery" 
+                                            class="gallery-thumb" onclick="openGalleryLightbox({{ $loop->index }})">
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    @endif
+
                     <!-- Tab Navigation -->
                     <div class="tab-navigation">
                         <button class="tab-btn active" data-tab="overview">
