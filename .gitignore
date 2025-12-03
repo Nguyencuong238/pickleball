@@ -18,3 +18,7 @@ yarn-error.log
 /.idea
 /.vscode
 storage/media-library
+.claude
+CLAUDE.md
+README.md
+repomix-output.xml

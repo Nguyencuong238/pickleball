@@ -24,7 +24,10 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\InstructorController;
 use App\Http\Controllers\Admin\InstructorRegistrationController;
 use App\Http\Controllers\Admin\VideoController;
+use App\Http\Controllers\Admin\OcrDisputeController;
+use App\Http\Controllers\Admin\OcrBadgeController;
 use App\Http\Controllers\Api\MediaUploadController;
+use App\Http\Controllers\Front\OcrController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SocialController;
 
@@ -264,6 +267,32 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::post('socials/bulk-delete', [SocialController::class, 'bulkDelete'])->name('socials.bulkDelete');
 });
 
+// OCR Frontend Routes
+Route::prefix('ocr')->name('ocr.')->group(function () {
+    Route::get('/', [OcrController::class, 'index'])->name('index');
+    Route::get('/leaderboard', [OcrController::class, 'leaderboard'])->name('leaderboard');
+    Route::get('/profile/{user}', [OcrController::class, 'profile'])->name('profile');
+    Route::get('/search-users', [OcrController::class, 'searchUsers'])->name('search-users')->middleware('auth');
+
+    Route::middleware('auth')->group(function () {
+        Route::get('/matches', [OcrController::class, 'matchIndex'])->name('matches.index');
+        Route::get('/matches/create', [OcrController::class, 'matchCreate'])->name('matches.create');
+        Route::get('/matches/{match}', [OcrController::class, 'matchShow'])->name('matches.show');
+    });
+});
+
+// OCR Match Actions (Web Routes for forms)
+Route::prefix('api/ocr')->name('api.ocr.')->middleware('auth')->group(function () {
+    Route::post('matches', [\App\Http\Controllers\Api\OcrMatchController::class, 'store'])->name('matches.store');
+    Route::post('matches/{match}/accept', [\App\Http\Controllers\Api\OcrMatchController::class, 'accept'])->name('matches.accept');
+    Route::post('matches/{match}/reject', [\App\Http\Controllers\Api\OcrMatchController::class, 'reject'])->name('matches.reject');
+    Route::post('matches/{match}/start', [\App\Http\Controllers\Api\OcrMatchController::class, 'start'])->name('matches.start');
+    Route::post('matches/{match}/result', [\App\Http\Controllers\Api\OcrMatchController::class, 'submitResult'])->name('matches.result');
+    Route::post('matches/{match}/confirm', [\App\Http\Controllers\Api\OcrMatchController::class, 'confirmResult'])->name('matches.confirm');
+    Route::post('matches/{match}/dispute', [\App\Http\Controllers\Api\OcrMatchController::class, 'dispute'])->name('matches.dispute');
+    Route::post('matches/{match}/evidence', [\App\Http\Controllers\Api\OcrMatchController::class, 'uploadEvidence'])->name('matches.evidence');
+});
+
 // Admin routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -284,6 +313,22 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('instructors', InstructorController::class);
     Route::resource('instructor-registrations', InstructorRegistrationController::class)->only(['index', 'destroy']);
     Route::resource('videos', VideoController::class);
+
+    // OCR Dispute Management
+    Route::prefix('ocr')->name('ocr.')->group(function () {
+        Route::get('disputes', [OcrDisputeController::class, 'index'])->name('disputes.index');
+        Route::get('disputes/{match}', [OcrDisputeController::class, 'show'])->name('disputes.show');
+        Route::post('disputes/{match}/confirm', [OcrDisputeController::class, 'confirmResult'])->name('disputes.confirm');
+        Route::post('disputes/{match}/override', [OcrDisputeController::class, 'overrideResult'])->name('disputes.override');
+        Route::post('disputes/{match}/cancel', [OcrDisputeController::class, 'cancelMatch'])->name('disputes.cancel');
+        Route::get('matches', [OcrDisputeController::class, 'allMatches'])->name('matches.index');
+
+        // OCR Badge Management
+        Route::get('badges', [OcrBadgeController::class, 'index'])->name('badges.index');
+        Route::get('badges/{badgeType}', [OcrBadgeController::class, 'show'])->name('badges.show');
+        Route::post('badges/award', [OcrBadgeController::class, 'award'])->name('badges.award');
+        Route::post('badges/revoke', [OcrBadgeController::class, 'revoke'])->name('badges.revoke');
+    });
 });
 
 

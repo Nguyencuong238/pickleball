@@ -14,6 +14,9 @@ class Kernel extends ConsoleKernel
     {
         // Update match status to in_progress when match time arrives
         $schedule->command('match:update-status')->everyMinute();
+
+        // Auto-confirm OCR matches after 24h with no dispute
+        $schedule->command('ocr:auto-confirm')->hourly();
     }
 
     /**
