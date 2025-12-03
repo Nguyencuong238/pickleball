@@ -60,14 +60,7 @@
                     <label class="form-label">Email</label>
                     <input type="email" name="email" class="form-input" value="{{ old('email', $stadium->email) }}">
                 </div>
-
-                {{-- <div class="form-group">
-                    <label class="form-label">Website</label>
-                    <input type="text" name="website" class="form-input"
-                        value="{{ old('website', $stadium->website) }}">
-                </div> --}}
             </div>
-
 
             <!-- Mô Tả -->
             <div class="form-group">
@@ -159,6 +152,35 @@
                     'rules' => 'JPG, JPEG, SVG, PNG, WebP',
                 ])
             </div>
+
+
+            <div class="form-group">
+                <label class="form-label">Địa chỉ maps</label>
+                <input type="text" name="maps_address" id="maps_address" class="form-input"
+                    value="{{ old('maps_address', $stadium->maps_address) }}">
+            </div>
+            <div id="google-maps"></div>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const mapsAddressInput = document.getElementById('maps_address');
+                    const googleMapsDiv = document.getElementById('google-maps');
+
+                    mapsAddressInput.addEventListener('change', function() {
+                        const iframeCode = this.value.trim();
+                        if (iframeCode) {
+                            googleMapsDiv.innerHTML = iframeCode;
+                        } else {
+                            googleMapsDiv.innerHTML = '';
+                        }
+                    });
+
+                    // Trigger on initial page load if value exists
+                    if (mapsAddressInput.value.trim()) {
+                        mapsAddressInput.dispatchEvent(new Event('change'));
+                    }
+                });
+            </script>
 
             <!-- Buttons -->
             <div

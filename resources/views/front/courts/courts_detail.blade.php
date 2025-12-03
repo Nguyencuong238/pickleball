@@ -6,6 +6,24 @@
     <link rel="stylesheet" href="{{ asset('assets/css/courts.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/court-detail.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/gallery-lightbox.css') }}">
+    <style>
+        .hidden {
+            display: none;
+        }
+        .detail-main {
+            overflow-x: auto;
+        }
+        .tab-content {
+            min-height: auto;
+            overflow: hidden;
+        }
+        .gallery-main img {
+            border-radius: 10px;
+        }
+        .gallery-grid {
+            display: block;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -124,33 +142,7 @@
         </div>
     </section>
 
-    <!-- Gallery Section -->
-    <section class="gallery-section">
-        <div class="container">
-            <div class="gallery-grid">
-                <div class="gallery-main">
-                    @php
-                        $bannerUrl = $stadium->getFirstMediaUrl('banner') ?: asset('assets/images/court_default.svg');
-                    @endphp
-                    <img src="{{ $bannerUrl }}" alt="{{ $stadium->name }}">
-                    <button class="gallery-view-all" onclick="openGalleryLightbox()">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                            <circle cx="8.5" cy="8.5" r="1.5" />
-                            <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                        Xem tất cả ảnh
-                    </button>
-                </div>
-                <div class="gallery-thumbnails">
-                    @foreach($stadium->getMedia('images') as $image)
-                        <img src="{{ $image->getUrl() }}" alt="{{ $stadium->name }} - Gallery" class="gallery-thumb"
-                            onclick="openGalleryLightbox({{ $loop->index }})">
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
+    
 
     <!-- Gallery Lightbox Modal -->
     <div id="galleryLightbox" class="gallery-lightbox">
@@ -190,6 +182,36 @@
             <div class="detail-layout">
                 <!-- Main Content -->
                 <div class="detail-main">
+                    <!-- Gallery Section -->
+    @if($stadium->hasMedia('gallery'))
+    <section class="gallery-section">
+        <div class="container">
+            <div class="gallery-grid">
+                <div class="gallery-main">
+                    @php
+                        $imageUrl = $stadium->getFirstMediaUrl('gallery');
+                    @endphp
+                    <img src="{{ $imageUrl }}" alt="{{ $stadium->name }}">
+                    <button class="gallery-view-all" onclick="openGalleryLightbox()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                            <circle cx="8.5" cy="8.5" r="1.5" />
+                            <polyline points="21 15 16 10 5 21" />
+                        </svg>
+                        Xem tất cả ảnh
+                    </button>
+                </div>
+                <div class="gallery-thumbnails hidden">
+                    @foreach($stadium->getMedia('gallery') as $image)
+                        @continue($loop->index == 0)
+                        <img src="{{ $image->getUrl() }}" alt="{{ $stadium->name }} - Gallery" 
+                            class="gallery-thumb" onclick="openGalleryLightbox({{ $loop->index }})">
+                    @endforeach
+                </div>
+            </div>
+        </div>
+    </section>
+    @endif
                     <!-- Tab Navigation -->
                     <div class="tab-navigation">
                         <button class="tab-btn active" data-tab="overview">
@@ -271,24 +293,11 @@
                                 <h2 class="content-title">Vị trí</h2>
                                 <div class="location-map">
                                     <div class="map-placeholder">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                            <circle cx="12" cy="10" r="3" />
-                                        </svg>
-                                        <p>Bản đồ Google Maps sẽ hiển thị tại đây</p>
+                                        {!! $stadium->maps_address !!}
                                     </div>
                                     <div class="location-details">
                                         <h4>Địa chỉ chi tiết</h4>
                                         <p>{{ $stadium->address }}</p>
-                                        <button class="btn btn-outline">
-                                            <svg class="icon" viewBox="0 0 24 24" fill="none"
-                                                stroke="currentColor">
-                                                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-                                                <polyline points="15 3 21 3 21 9" />
-                                                <line x1="10" y1="14" x2="21" y2="3" />
-                                            </svg>
-                                            Chỉ đường
-                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -559,7 +568,7 @@
                                 </svg>
                                 <div>
                                     <div class="contact-label">Điện thoại</div>
-                                    <div class="contact-value">0901 234 567</div>
+                                    <div class="contact-value">{{ $stadium->phone }}</div>
                                 </div>
                             </div>
                             <div class="contact-item">
@@ -569,16 +578,16 @@
                                 </svg>
                                 <div>
                                     <div class="contact-label">Email</div>
-                                    <div class="contact-value">rachchieccourt@gmail.com</div>
+                                    <div class="contact-value">{{ $stadium->email }}</div>
                                 </div>
                             </div>
                         </div>
-                        <button class="btn btn-outline btn-block">
+                        <a href="https://zalo.me/{{ $stadium->phone }}" target="_blank" class="btn btn-outline btn-block" >
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                             </svg>
                             Chat ngay
-                        </button>
+                        </a>
                     </div>
 
                     <!-- Related Courts -->

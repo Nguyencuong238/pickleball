@@ -373,7 +373,7 @@ class HomeController extends Controller
         $provinces = Province::all();
 
         // Paginate results
-        $stadiums = $query->paginate(10)->appends($request->query());
+        $stadiums = $query->latest()->paginate(10)->appends($request->query());
 
         // Load user's favorites
         $userFavorites = [];

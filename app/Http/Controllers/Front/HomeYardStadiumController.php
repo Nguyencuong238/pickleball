@@ -43,6 +43,7 @@ class HomeYardStadiumController extends Controller
             'opening_hours' => 'nullable|string',
             'amenities' => 'nullable|array',
             'regulations' => 'nullable|string',
+            'maps_address' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -57,6 +58,7 @@ class HomeYardStadiumController extends Controller
             'opening_hours',
             'amenities',
             'regulations',
+            'maps_address',
         ]);
 
         $data['user_id'] = auth()->id();
@@ -95,6 +97,7 @@ class HomeYardStadiumController extends Controller
             'opening_hours' => 'nullable|string',
             'amenities' => 'nullable|array',
             'regulations' => 'nullable|string',
+            'maps_address' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -109,6 +112,7 @@ class HomeYardStadiumController extends Controller
             'opening_hours',
             'amenities',
             'regulations',
+            'maps_address',
         ]);
 
         $stadium->update($data);
