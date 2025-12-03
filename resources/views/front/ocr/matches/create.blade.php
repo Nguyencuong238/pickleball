@@ -278,10 +278,10 @@
     <div class="container">
         <p class="page-breadcrumb">
             <a href="{{ route('ocr.index') }}">OCR</a> /
-            <a href="{{ route('ocr.matches.index') }}">Tran Dau</a> /
-            Tao Moi
+            <a href="{{ route('ocr.matches.index') }}">Trận Đấu</a> /
+            Tạo Mới
         </p>
-        <h1 class="page-title">[PLUS] Tao Tran Dau Moi</h1>
+        <h1 class="page-title">[PLUS] Tạo Trận Đấu Mới</h1>
     </div>
 </section>
 
@@ -289,7 +289,7 @@
     <div class="container">
         <div class="create-card">
             <div class="create-card-header">
-                <h2>[GAME] Thach Dau Elo</h2>
+                <h2>[GAME] Thách Đấu Elo</h2>
             </div>
             <div class="create-card-body">
                 <form action="{{ route('api.ocr.matches.store') }}" method="POST" id="createMatchForm">
@@ -297,18 +297,18 @@
 
                     {{-- Match Type --}}
                     <div class="form-section">
-                        <h3 class="form-section-title">[TYPE] Loai Tran Dau</h3>
+                        <h3 class="form-section-title">[TYPE] Loại Trận Đấu</h3>
                         <div class="match-type-selector">
                             <label class="match-type-option selected" data-type="singles">
                                 <input type="radio" name="match_type" value="singles" checked>
                                 <div class="match-type-icon">[1v1]</div>
-                                <div class="match-type-label">Tran Don</div>
+                                <div class="match-type-label">Trận Đơn</div>
                                 <div class="match-type-desc">1 vs 1</div>
                             </label>
                             <label class="match-type-option" data-type="doubles">
                                 <input type="radio" name="match_type" value="doubles">
                                 <div class="match-type-icon">[2v2]</div>
-                                <div class="match-type-label">Tran Doi</div>
+                                <div class="match-type-label">Trận Đôi</div>
                                 <div class="match-type-desc">2 vs 2</div>
                             </label>
                         </div>
@@ -316,13 +316,13 @@
 
                     {{-- Opponent Selection --}}
                     <div class="form-section">
-                        <h3 class="form-section-title">[USERS] Chon Doi Thu</h3>
+                        <h3 class="form-section-title">[USERS] Chọn Đối Thủ</h3>
 
                         <div class="form-group">
-                            <label class="form-label">Doi Thu <span class="required">*</span></label>
+                            <label class="form-label">Đối Thủ <span class="required">*</span></label>
                             <div class="user-search-container">
                                 <input type="text" class="form-control" id="opponentSearch"
-                                       placeholder="Tim kiem theo ten hoac email..." autocomplete="off">
+                                       placeholder="Tìm kiếm theo tên hoặc email..." autocomplete="off">
                                 <div class="user-search-results" id="opponentResults"></div>
                             </div>
                             <input type="hidden" name="opponent_id" id="opponentId" required>
@@ -338,10 +338,10 @@
 
                         <div class="partner-fields" id="partnerFields">
                             <div class="form-group">
-                                <label class="form-label">Dong Doi Cua Ban</label>
+                                <label class="form-label">Đồng Đội Của Bạn</label>
                                 <div class="user-search-container">
                                     <input type="text" class="form-control" id="partnerSearch"
-                                           placeholder="Tim kiem dong doi..." autocomplete="off">
+                                           placeholder="Tìm kiếm đồng đội..." autocomplete="off">
                                     <div class="user-search-results" id="partnerResults"></div>
                                 </div>
                                 <input type="hidden" name="challenger_partner_id" id="partnerId">
@@ -356,10 +356,10 @@
                             </div>
 
                             <div class="form-group">
-                                <label class="form-label">Dong Doi Cua Doi Thu</label>
+                                <label class="form-label">Đồng Đội Của Đối Thủ</label>
                                 <div class="user-search-container">
                                     <input type="text" class="form-control" id="opponentPartnerSearch"
-                                           placeholder="Tim kiem dong doi doi thu..." autocomplete="off">
+                                           placeholder="Tìm kiếm đồng đội đối thủ..." autocomplete="off">
                                     <div class="user-search-results" id="opponentPartnerResults"></div>
                                 </div>
                                 <input type="hidden" name="opponent_partner_id" id="opponentPartnerId">
@@ -377,35 +377,35 @@
 
                     {{-- Match Details --}}
                     <div class="form-section">
-                        <h3 class="form-section-title">[INFO] Chi Tiet Tran Dau</h3>
+                        <h3 class="form-section-title">[INFO] Chi Tiết Trận Đấu</h3>
 
                         <div class="form-row">
                             <div class="form-group">
-                                <label class="form-label">Ngay Thi Dau</label>
+                                <label class="form-label">Ngày Thi Đấu</label>
                                 <input type="date" class="form-control" name="scheduled_date"
                                        min="{{ date('Y-m-d') }}">
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Gio Thi Dau</label>
+                                <label class="form-label">Giờ Thi Đấu</label>
                                 <input type="time" class="form-control" name="scheduled_time">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Dia Diem</label>
+                            <label class="form-label">Địa Điểm</label>
                             <input type="text" class="form-control" name="location"
-                                   placeholder="VD: San Pickleball ABC, Quan 1">
+                                   placeholder="VD: Sân Pickleball ABC, Quận 1">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Ghi Chu</label>
+                            <label class="form-label">Ghi Chú</label>
                             <textarea class="form-control" name="notes" rows="3"
-                                      placeholder="Thong tin them ve tran dau..."></textarea>
+                                      placeholder="Thông tin thêm về trận đấu..."></textarea>
                         </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary submit-btn">
-                        Gui Loi Thach Dau
+                        Gửi Lời Thách Đấu
                     </button>
                 </form>
             </div>
@@ -459,7 +459,7 @@
                     .then(res => res.json())
                     .then(users => {
                         if (users.length === 0) {
-                            results.innerHTML = '<div style="padding: 1rem; color: #94a3b8; text-align: center;">Khong tim thay</div>';
+                             results.innerHTML = '<div style="padding: 1rem; color: #94a3b8; text-align: center;">Không tìm thấy</div>';
                         } else {
                             results.innerHTML = users.map(user => `
                                 <div class="user-search-item" data-user='${JSON.stringify(user)}'>
@@ -532,7 +532,7 @@
         const opponentId = document.getElementById('opponentId').value;
         if (!opponentId) {
             e.preventDefault();
-            alert('Vui long chon doi thu');
+            alert('Vui lòng chọn đối thủ');
             return false;
         }
 
@@ -542,7 +542,7 @@
             const opponentPartnerId = document.getElementById('opponentPartnerId').value;
             if (!partnerId || !opponentPartnerId) {
                 e.preventDefault();
-                alert('Vui long chon dong doi cho ca hai doi');
+                alert('Vui lòng chọn đồng đội cho cả hai đội');
                 return false;
             }
         }

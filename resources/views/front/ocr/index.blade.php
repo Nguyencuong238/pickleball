@@ -303,19 +303,19 @@
 <section class="ocr-hero">
     <div class="container">
         <div class="ocr-hero-content">
-            <span class="ocr-hero-badge">[TROPHY] OnePickleball Championship Ranking</span>
-            <h1 class="ocr-hero-title">Xep Hang Elo Pickleball</h1>
-            <p class="ocr-hero-description">
-                Tu to chuc tran dau, tich luy diem Elo, nhan huy hieu va leo hang trong cong dong Pickleball Viet Nam
-            </p>
+            <span class="ocr-hero-badge">[TROPHY] Bảng Xếp Hạng Vô Địch OnePickleball</span>
+             <h1 class="ocr-hero-title">Xếp Hạng Elo Pickleball</h1>
+             <p class="ocr-hero-description">
+                 Từ tổ chức trận đấu, tích lũy điểm Elo, nhận huy hiệu và leo hạng trong cộng đồng Pickleball Việt Nam
+             </p>
             <div class="ocr-hero-actions">
                 @auth
-                    <a href="{{ route('ocr.matches.create') }}" class="btn btn-primary btn-lg">Tao Tran Dau Moi</a>
-                    <a href="{{ route('ocr.matches.index') }}" class="btn btn-secondary btn-lg">Quan Ly Tran Dau</a>
-                @else
-                    <a href="{{ route('login') }}" class="btn btn-primary btn-lg">Dang Nhap De Tham Gia</a>
-                @endauth
-                <a href="{{ route('ocr.leaderboard') }}" class="btn btn-outline color-white">Xem Bang Xep Hang</a>
+                    <a href="{{ route('ocr.matches.create') }}" class="btn btn-primary btn-lg">Tạo Trận Đấu Mới</a>
+                     <a href="{{ route('ocr.matches.index') }}" class="btn btn-secondary btn-lg">Quản Lý Trận Đấu</a>
+                    @else
+                     <a href="{{ route('login') }}" class="btn btn-primary btn-lg">Đăng Nhập Để Tham Gia</a>
+                    @endauth
+                    <a href="{{ route('ocr.leaderboard') }}" class="btn btn-outline color-white">Xem Bảng Xếp Hạng</a>
             </div>
         </div>
     </div>
@@ -331,21 +331,21 @@
                             [RANK]
                         </div>
                         <div class="stat-card-value">#{{ $userRank }}</div>
-                        <div class="stat-card-label">Thu Hang Cua Ban</div>
+                        <div class="stat-card-label">Thứ Hạng Của Bạn</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon" style="background: rgba(59, 130, 246, 0.1);">
                             [STAR]
                         </div>
                         <div class="stat-card-value">{{ auth()->user()->elo_rating }}</div>
-                        <div class="stat-card-label">Diem Elo</div>
+                        <div class="stat-card-label">Điểm Elo</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon" style="background: rgba(251, 191, 36, 0.1);">
                             [GAME]
                         </div>
                         <div class="stat-card-value">{{ auth()->user()->total_ocr_matches }}</div>
-                        <div class="stat-card-label">Tong So Tran</div>
+                        <div class="stat-card-label">Tổng Số Trận</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon" style="background: rgba(16, 185, 129, 0.1);">
@@ -354,7 +354,7 @@
                         <div class="stat-card-value">
                             {{ auth()->user()->total_ocr_matches > 0 ? round((auth()->user()->ocr_wins / auth()->user()->total_ocr_matches) * 100) : 0 }}%
                         </div>
-                        <div class="stat-card-label">Ti Le Thang</div>
+                        <div class="stat-card-label">Tỷ Lệ Thắng</div>
                     </div>
                 </div>
             @endif
@@ -364,19 +364,19 @@
             <div style="flex: 2; min-width: 300px;">
                 <div class="leaderboard-card">
                     <div class="leaderboard-header">
-                        <h3>[TROPHY] Top 10 Bang Xep Hang</h3>
-                        <a href="{{ route('ocr.leaderboard') }}" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white;">
-                            Xem Tat Ca
-                        </a>
-                    </div>
+                         <h3>[TROPHY] Top 10 Bảng Xếp Hạng</h3>
+                         <a href="{{ route('ocr.leaderboard') }}" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white;">
+                             Xem Tất Cả
+                         </a>
+                     </div>
                     <table class="leaderboard-table">
                         <thead>
                             <tr>
-                                <th>#</th>
-                                <th>Nguoi Choi</th>
-                                <th>Elo</th>
-                                <th>Ti Le Thang</th>
-                            </tr>
+                                 <th>#</th>
+                                 <th>Người Chơi</th>
+                                 <th>Elo</th>
+                                 <th>Tỷ Lệ Thắng</th>
+                             </tr>
                         </thead>
                         <tbody>
                             @forelse($topPlayers as $index => $player)
@@ -411,12 +411,12 @@
                                     </td>
                                 </tr>
                             @empty
-                                <tr>
-                                    <td colspan="4" style="text-align: center; padding: 2rem; color: #94a3b8;">
-                                        Chua co du lieu xep hang. Hay la nguoi dau tien!
-                                    </td>
-                                </tr>
-                            @endforelse
+                                 <tr>
+                                     <td colspan="4" style="text-align: center; padding: 2rem; color: #94a3b8;">
+                                         Chưa có dữ liệu xếp hạng. Hãy là người đầu tiên!
+                                     </td>
+                                 </tr>
+                             @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -425,8 +425,8 @@
             <div style="flex: 1; min-width: 280px;">
                 <div class="recent-matches-card">
                     <div class="recent-matches-header">
-                        <h3>[GAME] Tran Dau Gan Day</h3>
-                    </div>
+                         <h3>[GAME] Trận Đấu Gần Đây</h3>
+                     </div>
                     <div>
                         @forelse($recentMatches as $match)
                             <div class="match-item">
@@ -441,10 +441,10 @@
                                 </div>
                             </div>
                         @empty
-                            <div style="padding: 2rem; text-align: center; color: #94a3b8;">
-                                Chua co tran dau nao duoc hoan thanh
-                            </div>
-                        @endforelse
+                             <div style="padding: 2rem; text-align: center; color: #94a3b8;">
+                                 Chưa có trận đấu nào được hoàn thành
+                             </div>
+                         @endforelse
                     </div>
                 </div>
             </div>
@@ -452,10 +452,10 @@
 
         @guest
             <div class="cta-section" style="margin-top: 2rem;">
-                <h3>San Sang Tham Gia Cuoc Dua?</h3>
-                <p>Dang ky tai khoan de bat dau thi dau, tich luy diem Elo va chinh phuc bang xep hang!</p>
+                <h3>Sẵn Sàng Tham Gia Cuộc Đua?</h3>
+                <p>Đăng ký tài khoản để bắt đầu thi đấu, tích lũy điểm Elo và chinh phục bảng xếp hạng!</p>
                 <a href="{{ route('register') }}" class="btn btn-primary btn-lg" style="background: white; color: #0099CC;">
-                    Dang Ky Ngay
+                    Đăng Ký Ngay
                 </a>
             </div>
         @endguest

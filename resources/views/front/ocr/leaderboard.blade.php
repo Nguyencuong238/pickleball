@@ -323,13 +323,13 @@
         <div class="page-header-content">
             <div>
                 <p class="page-breadcrumb">
-                    <a href="{{ route('ocr.index') }}">OCR</a> / Bang Xep Hang
-                </p>
-                <h1 class="page-title">[TROPHY] Bang Xep Hang Elo</h1>
+                     <a href="{{ route('ocr.index') }}">OCR</a> / Bảng Xếp Hạng
+                 </p>
+                 <h1 class="page-title">[TROPHY] Bảng Xếp Hạng Elo</h1>
             </div>
             @auth
                 <a href="{{ route('ocr.matches.create') }}" class="btn btn-primary">
-                    + Tao Tran Dau
+                    + Tạo Trận Đấu
                 </a>
             @endauth
         </div>
@@ -342,38 +342,38 @@
             @if($userRank)
                 <div class="user-rank-banner">
                     <div class="user-rank-info">
-                        <div>
-                            <div class="user-rank-label">Thu Hang Cua Ban</div>
-                            <div class="user-rank-position">#{{ $userRank }}</div>
-                        </div>
-                    </div>
-                    <div class="user-rank-stats">
-                        <div class="user-stat">
-                            <div class="user-stat-value">{{ auth()->user()->elo_rating }}</div>
-                            <div class="user-stat-label">Diem Elo</div>
-                        </div>
-                        <div class="user-stat">
-                            <div class="user-stat-value">{{ auth()->user()->ocr_wins }}</div>
-                            <div class="user-stat-label">Thang</div>
-                        </div>
-                        <div class="user-stat">
-                            <div class="user-stat-value">{{ auth()->user()->ocr_losses }}</div>
-                            <div class="user-stat-label">Thua</div>
-                        </div>
-                        <div class="user-stat">
-                            <div class="user-stat-value">
-                                {{ auth()->user()->total_ocr_matches > 0 ? round((auth()->user()->ocr_wins / auth()->user()->total_ocr_matches) * 100) : 0 }}%
-                            </div>
-                            <div class="user-stat-label">Ti Le</div>
-                        </div>
-                    </div>
+                         <div>
+                             <div class="user-rank-label">Thứ Hạng Của Bạn</div>
+                             <div class="user-rank-position">#{{ $userRank }}</div>
+                         </div>
+                     </div>
+                     <div class="user-rank-stats">
+                         <div class="user-stat">
+                             <div class="user-stat-value">{{ auth()->user()->elo_rating }}</div>
+                             <div class="user-stat-label">Điểm Elo</div>
+                         </div>
+                         <div class="user-stat">
+                             <div class="user-stat-value">{{ auth()->user()->ocr_wins }}</div>
+                             <div class="user-stat-label">Thắng</div>
+                         </div>
+                         <div class="user-stat">
+                             <div class="user-stat-value">{{ auth()->user()->ocr_losses }}</div>
+                             <div class="user-stat-label">Thua</div>
+                         </div>
+                         <div class="user-stat">
+                             <div class="user-stat-value">
+                                 {{ auth()->user()->total_ocr_matches > 0 ? round((auth()->user()->ocr_wins / auth()->user()->total_ocr_matches) * 100) : 0 }}%
+                             </div>
+                             <div class="user-stat-label">Tỷ Lệ</div>
+                         </div>
+                     </div>
                 </div>
             @endif
         @endauth
 
         <div class="filter-section">
             <a href="{{ route('ocr.leaderboard') }}" class="filter-tab {{ !$rank ? 'active' : '' }}">
-                Tat Ca
+                Tất Cả
             </a>
             @foreach($ranks as $r)
                 <a href="{{ route('ocr.leaderboard', ['rank' => strtolower($r)]) }}"
@@ -387,11 +387,11 @@
             <table class="leaderboard-table">
                 <thead>
                     <tr>
-                        <th style="width: 80px;">Hang</th>
-                        <th>Nguoi Choi</th>
+                        <th style="width: 80px;">Hạng</th>
+                        <th>Người Chơi</th>
                         <th style="width: 100px;">Elo</th>
-                        <th style="width: 180px;">Thong Ke</th>
-                        <th style="width: 160px;">Ti Le Thang</th>
+                        <th style="width: 180px;">Thống Kê</th>
+                        <th style="width: 160px;">Tỷ Lệ Thắng</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -422,7 +422,7 @@
                                             <a href="{{ route('ocr.profile', $player) }}">
                                                 {{ $player->name }}
                                                 @if($isCurrentUser)
-                                                    (Ban)
+                                                    (Bạn)
                                                 @endif
                                             </a>
                                         </div>
@@ -441,11 +441,11 @@
                                 <div class="stats-cell">
                                     <div class="stat-item">
                                         <div class="stat-value">{{ $player->total_ocr_matches }}</div>
-                                        <div class="stat-label">Tran</div>
+                                        <div class="stat-label">Trận</div>
                                     </div>
                                     <div class="stat-item">
                                         <div class="stat-value wins">{{ $player->ocr_wins }}</div>
-                                        <div class="stat-label">Thang</div>
+                                        <div class="stat-label">Thắng</div>
                                     </div>
                                     <div class="stat-item">
                                         <div class="stat-value losses">{{ $player->ocr_losses }}</div>
@@ -464,14 +464,14 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" style="text-align: center; padding: 3rem; color: #94a3b8;">
-                                @if($rank)
-                                    Chua co nguoi choi nao o hang {{ ucfirst($rank) }}
-                                @else
-                                    Chua co du lieu xep hang
-                                @endif
-                            </td>
-                        </tr>
+                             <td colspan="5" style="text-align: center; padding: 3rem; color: #94a3b8;">
+                                 @if($rank)
+                                     Chưa có người chơi nào ở hạng {{ ucfirst($rank) }}
+                                 @else
+                                     Chưa có dữ liệu xếp hạng
+                                 @endif
+                             </td>
+                         </tr>
                     @endforelse
                 </tbody>
             </table>

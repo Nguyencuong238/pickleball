@@ -280,12 +280,12 @@
         <div class="page-header-content">
             <div>
                 <p class="page-breadcrumb">
-                    <a href="{{ route('ocr.index') }}">OCR</a> / Quan Ly Tran Dau
-                </p>
-                <h1 class="page-title">[GAME] Tran Dau Cua Toi</h1>
+                     <a href="{{ route('ocr.index') }}">OCR</a> / Quản Lý Trận Đấu
+                 </p>
+                 <h1 class="page-title">[GAME] Trận Đấu Của Tôi</h1>
             </div>
             <a href="{{ route('ocr.matches.create') }}" class="btn btn-primary">
-                + Tao Tran Dau Moi
+                + Tạo Trận Đấu Mới
             </a>
         </div>
     </div>
@@ -294,48 +294,48 @@
 <section class="matches-section">
     <div class="container">
         <div class="filter-tabs">
-            <a href="{{ route('ocr.matches.index') }}" class="filter-tab {{ !$status ? 'active' : '' }}">
-                Tat Ca
-            </a>
-            <a href="{{ route('ocr.matches.index', ['status' => 'pending']) }}"
-               class="filter-tab {{ $status === 'pending' ? 'active' : '' }}">
-                Cho Xac Nhan
-            </a>
-            <a href="{{ route('ocr.matches.index', ['status' => 'accepted']) }}"
-               class="filter-tab {{ $status === 'accepted' ? 'active' : '' }}">
-                Da Chap Nhan
-            </a>
-            <a href="{{ route('ocr.matches.index', ['status' => 'in_progress']) }}"
-               class="filter-tab {{ $status === 'in_progress' ? 'active' : '' }}">
-                Dang Dien Ra
-            </a>
-            <a href="{{ route('ocr.matches.index', ['status' => 'result_submitted']) }}"
-               class="filter-tab {{ $status === 'result_submitted' ? 'active' : '' }}">
-                Cho Xac Nhan Ket Qua
-            </a>
-            <a href="{{ route('ocr.matches.index', ['status' => 'confirmed']) }}"
-               class="filter-tab {{ $status === 'confirmed' ? 'active' : '' }}">
-                Hoan Thanh
-            </a>
-            <a href="{{ route('ocr.matches.index', ['status' => 'disputed']) }}"
-               class="filter-tab {{ $status === 'disputed' ? 'active' : '' }}">
-                Tranh Chap
-            </a>
-        </div>
+             <a href="{{ route('ocr.matches.index') }}" class="filter-tab {{ !$status ? 'active' : '' }}">
+                 Tất Cả
+             </a>
+             <a href="{{ route('ocr.matches.index', ['status' => 'pending']) }}"
+                class="filter-tab {{ $status === 'pending' ? 'active' : '' }}">
+                 Chờ Xác Nhận
+             </a>
+             <a href="{{ route('ocr.matches.index', ['status' => 'accepted']) }}"
+                class="filter-tab {{ $status === 'accepted' ? 'active' : '' }}">
+                 Đã Chấp Nhận
+             </a>
+             <a href="{{ route('ocr.matches.index', ['status' => 'in_progress']) }}"
+                class="filter-tab {{ $status === 'in_progress' ? 'active' : '' }}">
+                 Đang Diễn Ra
+             </a>
+             <a href="{{ route('ocr.matches.index', ['status' => 'result_submitted']) }}"
+                class="filter-tab {{ $status === 'result_submitted' ? 'active' : '' }}">
+                 Chờ Xác Nhận Kết Quả
+             </a>
+             <a href="{{ route('ocr.matches.index', ['status' => 'confirmed']) }}"
+                class="filter-tab {{ $status === 'confirmed' ? 'active' : '' }}">
+                 Hoàn Thành
+             </a>
+             <a href="{{ route('ocr.matches.index', ['status' => 'disputed']) }}"
+                class="filter-tab {{ $status === 'disputed' ? 'active' : '' }}">
+                 Tranh Chấp
+             </a>
+         </div>
 
         @if($matches->isEmpty())
             <div class="empty-state">
                 <div class="empty-state-icon">[GAME]</div>
-                <h3>Chua Co Tran Dau Nao</h3>
+                <h3>Chưa Có Trận Đấu Nào</h3>
                 <p>
                     @if($status)
-                        Khong co tran dau nao voi trang thai "{{ ucfirst(str_replace('_', ' ', $status)) }}"
+                        Không có trận đấu nào với trạng thái "{{ ucfirst(str_replace('_', ' ', $status)) }}"
                     @else
-                        Ban chua tham gia tran dau nao. Hay tao tran dau moi de bat dau!
+                        Bạn chưa tham gia trận đấu nào. Hãy tạo trận đấu mới để bắt đầu!
                     @endif
                 </p>
                 <a href="{{ route('ocr.matches.create') }}" class="btn btn-primary">
-                    Tao Tran Dau Dau Tien
+                    Tạo Trận Đấu Đầu Tiên
                 </a>
             </div>
         @else
@@ -349,16 +349,16 @@
                     <div class="match-card">
                         <div class="match-card-header">
                             <span class="match-type-badge">
-                                {{ $match->match_type === 'singles' ? '[1v1] Don' : '[2v2] Doi' }}
-                            </span>
+                                 {{ $match->match_type === 'singles' ? '[1v1] Đơn' : '[2v2] Đôi' }}
+                             </span>
                             <span class="match-status status-{{ $match->status }}">
                                 {{ ucfirst(str_replace('_', ' ', $match->status)) }}
                             </span>
                         </div>
                         <div class="match-card-body">
-                            <div class="match-teams">
-                                <div class="team">
-                                    <div class="team-label">Doi Thach Dau</div>
+                             <div class="match-teams">
+                                 <div class="team">
+                                     <div class="team-label">Đội Thách Đấu</div>
                                     <div class="team-players">
                                         <div class="team-player">
                                             <div class="player-avatar">
@@ -393,7 +393,7 @@
                                 </div>
 
                                 <div class="team">
-                                    <div class="team-label">Doi Doi Thu</div>
+                                     <div class="team-label">Đội Đối Thủ</div>
                                     <div class="team-players">
                                         <div class="team-player">
                                             <div class="player-avatar">

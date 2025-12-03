@@ -296,6 +296,9 @@
                             </svg>
                         </div>
                         <div class="dropdown-info">
+                            <a href="{{ route('ocr.index') }}" class="nav-link">
+                                OCR
+                            </a>
                             @if(auth()->check() && auth()->user()->hasRole('home_yard'))
                                 <a href="{{ route('homeyard.overview') }}" class="nav-link">
                                     <i class="icon-home"></i> Bảng điều khiển

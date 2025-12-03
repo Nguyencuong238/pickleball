@@ -381,13 +381,13 @@
     <div class="container">
         <p class="page-breadcrumb">
             <a href="{{ route('ocr.index') }}">OCR</a> /
-            <a href="{{ route('ocr.matches.index') }}">Tran Dau</a> /
-            Chi Tiet
+            <a href="{{ route('ocr.matches.index') }}">Trận Đấu</a> /
+            Chi Tiết
         </p>
         <h1 class="page-title">
-            [GAME] Tran Dau #{{ $match->id }}
+            [GAME] Trận Đấu #{{ $match->id }}
             <span class="match-type-badge">
-                {{ $match->match_type === 'singles' ? 'Don' : 'Doi' }}
+                {{ $match->match_type === 'singles' ? 'Đơn' : 'Đôi' }}
             </span>
         </h1>
     </div>
@@ -399,28 +399,28 @@
         <div class="match-status-banner status-{{ $match->status }}">
             <span class="status-text">
                 @switch($match->status)
-                    @case('pending')
-                        [CLOCK] Dang cho doi thu chap nhan loi thach dau
-                        @break
-                    @case('accepted')
-                        [CHECK] Tran dau da duoc chap nhan - San sang thi dau!
-                        @break
-                    @case('in_progress')
-                        [PLAY] Tran dau dang dien ra
-                        @break
-                    @case('result_submitted')
-                        [ALERT] Ket qua da duoc gui - Cho xac nhan tu doi thu
-                        @break
-                    @case('confirmed')
-                        [TROPHY] Tran dau da hoan thanh
-                        @break
-                    @case('disputed')
-                        [WARNING] Tran dau dang tranh chap - Cho xu ly tu admin
-                        @break
-                    @case('cancelled')
-                        [X] Tran dau da bi huy
-                        @break
-                @endswitch
+                        @case('pending')
+                            [CLOCK] Đang chờ đối thủ chấp nhận lời thách đấu
+                            @break
+                        @case('accepted')
+                            [CHECK] Trận đấu đã được chấp nhận - Sẵn sàng thi đấu!
+                            @break
+                        @case('in_progress')
+                            [PLAY] Trận đấu đang diễn ra
+                            @break
+                        @case('result_submitted')
+                            [ALERT] Kết quả đã được gửi - Chờ xác nhận từ đối thủ
+                            @break
+                        @case('confirmed')
+                            [TROPHY] Trận đấu đã hoàn thành
+                            @break
+                        @case('disputed')
+                            [WARNING] Trận đấu đang tranh chấp - Chờ xử lý từ admin
+                            @break
+                        @case('cancelled')
+                            [X] Trận đấu đã bị hủy
+                            @break
+                    @endswitch
             </span>
         </div>
 
@@ -429,23 +429,23 @@
                 {{-- Main Match Card --}}
                 <div class="match-main-card">
                     <div class="match-main-header">
-                        <span class="match-type-badge">
-                            {{ $match->match_type === 'singles' ? '[1v1] Tran Don' : '[2v2] Tran Doi' }}
-                        </span>
-                        <span style="font-size: 0.875rem; color: #64748b;">
-                            Tao luc: {{ $match->created_at->format('d/m/Y H:i') }}
-                        </span>
-                    </div>
+                         <span class="match-type-badge">
+                             {{ $match->match_type === 'singles' ? '[1v1] Trận Đơn' : '[2v2] Trận Đôi' }}
+                         </span>
+                         <span style="font-size: 0.875rem; color: #64748b;">
+                             Tạo lúc: {{ $match->created_at->format('d/m/Y H:i') }}
+                         </span>
+                     </div>
 
                     <div class="match-main-body">
                         <div class="match-versus">
                             <div class="team-card {{ $match->winner_team === 'challenger' ? 'winner' : '' }}">
-                                <div class="team-label">
-                                    Doi Thach Dau
-                                    @if($match->winner_team === 'challenger')
-                                        [TROPHY] THANG
-                                    @endif
-                                </div>
+                                 <div class="team-label">
+                                     Đội Thách Đấu
+                                     @if($match->winner_team === 'challenger')
+                                         [TROPHY] THẮNG
+                                     @endif
+                                 </div>
                                 <div class="team-players">
                                     <div class="player-card">
                                         <div class="player-avatar-lg">
@@ -493,26 +493,26 @@
                                     </div>
                                 @endif
                                 @if($winProbability)
-                                    <div class="win-probability">
-                                        <div>Xac suat thang</div>
-                                        <div class="win-prob-bar" style="width: 120px;">
-                                            <div class="win-prob-challenger" style="width: {{ $winProbability['challenger'] * 100 }}%"></div>
-                                            <div class="win-prob-opponent" style="width: {{ $winProbability['opponent'] * 100 }}%"></div>
-                                        </div>
-                                        <div style="font-size: 0.7rem; margin-top: 0.25rem;">
-                                            {{ round($winProbability['challenger'] * 100) }}% - {{ round($winProbability['opponent'] * 100) }}%
-                                        </div>
-                                    </div>
-                                @endif
+                                     <div class="win-probability">
+                                         <div>Xác suất thắng</div>
+                                         <div class="win-prob-bar" style="width: 120px;">
+                                             <div class="win-prob-challenger" style="width: {{ $winProbability['challenger'] * 100 }}%"></div>
+                                             <div class="win-prob-opponent" style="width: {{ $winProbability['opponent'] * 100 }}%"></div>
+                                         </div>
+                                         <div style="font-size: 0.7rem; margin-top: 0.25rem;">
+                                             {{ round($winProbability['challenger'] * 100) }}% - {{ round($winProbability['opponent'] * 100) }}%
+                                         </div>
+                                     </div>
+                                 @endif
                             </div>
 
                             <div class="team-card {{ $match->winner_team === 'opponent' ? 'winner' : '' }}">
-                                <div class="team-label">
-                                    Doi Doi Thu
-                                    @if($match->winner_team === 'opponent')
-                                        [TROPHY] THANG
-                                    @endif
-                                </div>
+                                 <div class="team-label">
+                                     Đội Đối Thủ
+                                     @if($match->winner_team === 'opponent')
+                                         [TROPHY] THẮNG
+                                     @endif
+                                 </div>
                                 <div class="team-players">
                                     <div class="player-card">
                                         <div class="player-avatar-lg">
@@ -556,42 +556,42 @@
 
                     <div class="match-info-grid">
                         <div class="info-item">
-                            <span class="info-icon">[CALENDAR]</span>
-                            <div>
-                                <div class="info-label">Ngay Thi Dau</div>
-                                <div class="info-value">{{ $match->scheduled_date?->format('d/m/Y') ?? 'Chua xac dinh' }}</div>
-                            </div>
+                             <span class="info-icon">[CALENDAR]</span>
+                             <div>
+                                 <div class="info-label">Ngày Thi Đấu</div>
+                                 <div class="info-value">{{ $match->scheduled_date?->format('d/m/Y') ?? 'Chưa xác định' }}</div>
+                             </div>
+                         </div>
+                         <div class="info-item">
+                             <span class="info-icon">[CLOCK]</span>
+                             <div>
+                                 <div class="info-label">Giờ</div>
+                                 <div class="info-value">{{ $match->scheduled_time ?? 'Chưa xác định' }}</div>
+                             </div>
+                         </div>
+                         <div class="info-item">
+                             <span class="info-icon">[LOCATION]</span>
+                             <div>
+                                 <div class="info-label">Địa Điểm</div>
+                                 <div class="info-value">{{ $match->location ?? 'Chưa xác định' }}</div>
+                             </div>
+                         </div>
+                         @if($match->elo_change && $match->status === 'confirmed')
+                             <div class="info-item">
+                                 <span class="info-icon">[CHART]</span>
+                                 <div>
+                                     <div class="info-label">Elo Thay Đổi</div>
+                                     <div class="info-value">+/- {{ $match->elo_change }}</div>
+                                 </div>
+                             </div>
+                         @endif
                         </div>
-                        <div class="info-item">
-                            <span class="info-icon">[CLOCK]</span>
-                            <div>
-                                <div class="info-label">Gio</div>
-                                <div class="info-value">{{ $match->scheduled_time ?? 'Chua xac dinh' }}</div>
-                            </div>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-icon">[LOCATION]</span>
-                            <div>
-                                <div class="info-label">Dia Diem</div>
-                                <div class="info-value">{{ $match->location ?? 'Chua xac dinh' }}</div>
-                            </div>
-                        </div>
-                        @if($match->elo_change && $match->status === 'confirmed')
-                            <div class="info-item">
-                                <span class="info-icon">[CHART]</span>
-                                <div>
-                                    <div class="info-label">Elo Thay Doi</div>
-                                    <div class="info-value">+/- {{ $match->elo_change }}</div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
                 </div>
 
                 {{-- Evidence --}}
                 @if($match->media->isNotEmpty())
                     <div class="action-card">
-                        <h3>[IMAGE] Bang Chung ({{ $match->media->count() }})</h3>
+                        <h3>[IMAGE] Bằng Chứng ({{ $match->media->count() }})</h3>
                         <div class="evidence-grid">
                             @foreach($match->media as $media)
                                 @if(Str::startsWith($media->mime_type, 'image'))
@@ -622,18 +622,18 @@
                 {{-- Pending: Opponent can accept/reject --}}
                 @if($match->status === 'pending' && $isOpponent)
                     <div class="action-card">
-                        <h3>[ACTION] Phan Hoi Thach Dau</h3>
+                        <h3>[ACTION] Phản Hồi Thách Đấu</h3>
                         <div class="action-buttons">
                             <form action="{{ route('api.ocr.matches.accept', $match) }}" method="POST" style="flex: 1;">
                                 @csrf
                                 <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                    Chap Nhan
+                                    Chấp Nhận
                                 </button>
                             </form>
                             <form action="{{ route('api.ocr.matches.reject', $match) }}" method="POST" style="flex: 1;">
                                 @csrf
                                 <button type="submit" class="btn btn-outline" style="width: 100%;">
-                                    Tu Choi
+                                    Từ Chối
                                 </button>
                             </form>
                         </div>
@@ -643,14 +643,14 @@
                 {{-- Accepted: Either can mark as in progress --}}
                 @if($match->status === 'accepted')
                     <div class="action-card">
-                        <h3>[PLAY] Bat Dau Tran Dau</h3>
+                        <h3>[PLAY] Bắt Đầu Trận Đấu</h3>
                         <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1rem;">
-                            Khi ca hai doi da san sang, nhan bat dau.
+                            Khi cả hai đội đã sẵn sàng, nhấn bắt đầu.
                         </p>
                         <form action="{{ route('api.ocr.matches.start', $match) }}" method="POST">
                             @csrf
                             <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                Bat Dau Tran Dau
+                                Bắt Đầu Trận Đấu
                             </button>
                         </form>
                     </div>
@@ -659,22 +659,22 @@
                 {{-- In Progress: Submit result --}}
                 @if($match->status === 'in_progress')
                     <div class="action-card">
-                        <h3>[SCORE] Gui Ket Qua</h3>
+                        <h3>[SCORE] Gửi Kết Quả</h3>
                         <form action="{{ route('api.ocr.matches.result', $match) }}" method="POST" class="result-form">
                             @csrf
                             <div class="score-inputs">
                                 <div class="score-input-group">
-                                    <label>Doi Thach Dau</label>
+                                    <label>Đội Thách Đấu</label>
                                     <input type="number" name="challenger_score" min="0" max="99" required>
                                 </div>
                                 <span style="font-weight: 700; color: #94a3b8;">-</span>
                                 <div class="score-input-group">
-                                    <label>Doi Doi Thu</label>
+                                    <label>Đội Đối Thủ</label>
                                     <input type="number" name="opponent_score" min="0" max="99" required>
                                 </div>
                             </div>
                             <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                Gui Ket Qua
+                                Gửi Kết Quả
                             </button>
                         </form>
                     </div>
@@ -685,37 +685,37 @@
                     @if(($isChallengerTeam && $match->result_submitted_by !== $user->id) ||
                         ($isOpponentTeam && $match->result_submitted_by !== $user->id))
                         <div class="action-card">
-                            <h3>[CHECK] Xac Nhan Ket Qua</h3>
+                            <h3>[CHECK] Xác Nhận Kết Quả</h3>
                             <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1rem;">
-                                Ket qua: <strong>{{ $match->challenger_score }} - {{ $match->opponent_score }}</strong>
+                                Kết quả: <strong>{{ $match->challenger_score }} - {{ $match->opponent_score }}</strong>
                             </p>
                             <div class="action-buttons">
                                 <form action="{{ route('api.ocr.matches.confirm', $match) }}" method="POST" style="flex: 1;">
                                     @csrf
                                     <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                        Xac Nhan
+                                        Xác Nhận
                                     </button>
                                 </form>
                             </div>
 
                             <hr style="margin: 1rem 0; border: none; border-top: 1px solid #e2e8f0;">
 
-                            <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">Ket qua sai?</h4>
+                            <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 0.5rem;">Kết quả sai?</h4>
                             <form action="{{ route('api.ocr.matches.dispute', $match) }}" method="POST" class="dispute-form">
                                 @csrf
-                                <textarea name="reason" placeholder="Nhap ly do tranh chap..." required></textarea>
+                                <textarea name="reason" placeholder="Nhập lý do tranh chấp..." required></textarea>
                                 <button type="submit" class="btn btn-outline" style="width: 100%; margin-top: 0.5rem;">
-                                    Tranh Chap
+                                    Tranh Chấp
                                 </button>
                             </form>
                         </div>
                     @else
                         <div class="action-card">
-                            <h3>[CLOCK] Dang Cho Xac Nhan</h3>
+                            <h3>[CLOCK] Đang Chờ Xác Nhận</h3>
                             <p style="font-size: 0.875rem; color: #64748b;">
-                                Ban da gui ket qua. Vui long cho doi thu xac nhan.
+                                Bạn đã gửi kết quả. Vui lòng chờ đối thủ xác nhận.
                                 <br><br>
-                                Ket qua se tu dong duoc xac nhan sau 24 gio neu khong co phan hoi.
+                                Kết quả sẽ tự động được xác nhận sau 24 giờ nếu không có phản hồi.
                             </p>
                         </div>
                     @endif
@@ -728,13 +728,13 @@
                                    ($isOpponentTeam && $match->winner_team === 'opponent');
                     @endphp
                     <div class="action-card">
-                        <h3>[CHART] Thay Doi Elo Cua Ban</h3>
+                        <h3>[CHART] Thay Đổi Elo Của Bạn</h3>
                         <div class="elo-change-display {{ $userWon ? 'positive' : 'negative' }}">
                             <div class="elo-change-value">
                                 {{ $userWon ? '+' : '-' }}{{ $match->elo_change }}
                             </div>
                             <div class="elo-change-label">
-                                {{ $userWon ? 'Tang diem Elo!' : 'Giam diem Elo' }}
+                                {{ $userWon ? 'Tăng điểm Elo!' : 'Giảm điểm Elo' }}
                             </div>
                         </div>
                     </div>
@@ -743,12 +743,12 @@
                 {{-- Disputed --}}
                 @if($match->status === 'disputed')
                     <div class="action-card">
-                        <h3>[WARNING] Tran Dau Dang Tranh Chap</h3>
+                        <h3>[WARNING] Trận Đấu Đang Tranh Chấp</h3>
                         <p style="font-size: 0.875rem; color: #64748b;">
-                            Ly do: <em>{{ $match->disputed_reason }}</em>
+                            Lý do: <em>{{ $match->disputed_reason }}</em>
                         </p>
                         <p style="font-size: 0.875rem; color: #64748b; margin-top: 1rem;">
-                            Admin se xem xet va giai quyet tranh chap nay. Vui long cho.
+                            Admin sẽ xem xét và giải quyết tranh chấp này. Vui lòng chờ.
                         </p>
                     </div>
                 @endif
@@ -756,12 +756,12 @@
                 {{-- Upload Evidence --}}
                 @if(in_array($match->status, ['in_progress', 'result_submitted']))
                     <div class="action-card">
-                        <h3>[UPLOAD] Tai Len Bang Chung</h3>
+                        <h3>[UPLOAD] Tải Lên Bằng Chứng</h3>
                         <form action="{{ route('api.ocr.matches.evidence', $match) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="file" name="evidence[]" multiple accept="image/*,video/*" style="margin-bottom: 1rem;">
                             <button type="submit" class="btn btn-outline" style="width: 100%;">
-                                Tai Len
+                                Tải Lên
                             </button>
                         </form>
                     </div>
@@ -769,7 +769,7 @@
 
                 {{-- Back button --}}
                 <a href="{{ route('ocr.matches.index') }}" class="btn btn-outline" style="width: 100%;">
-                    Quay Lai Danh Sach
+                    Quay Lại Danh Sách
                 </a>
             </div>
         </div>

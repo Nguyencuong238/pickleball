@@ -320,19 +320,19 @@
                 <div class="profile-stats">
                     <div class="profile-stat">
                         <div class="profile-stat-value">#{{ $globalRank }}</div>
-                        <div class="profile-stat-label">Thu Hang</div>
+                        <div class="profile-stat-label">Thứ Hạng</div>
                     </div>
                     <div class="profile-stat">
                         <div class="profile-stat-value">{{ $user->elo_rating }}</div>
-                        <div class="profile-stat-label">Diem Elo</div>
+                        <div class="profile-stat-label">Điểm Elo</div>
                     </div>
                     <div class="profile-stat">
                         <div class="profile-stat-value">{{ $user->total_ocr_matches }}</div>
-                        <div class="profile-stat-label">Tran Dau</div>
+                        <div class="profile-stat-label">Trận Đấu</div>
                     </div>
                     <div class="profile-stat">
                         <div class="profile-stat-value">{{ $user->ocr_wins }}</div>
-                        <div class="profile-stat-label">Thang</div>
+                        <div class="profile-stat-label">Thắng</div>
                     </div>
                     <div class="profile-stat">
                         <div class="profile-stat-value">{{ $user->ocr_losses }}</div>
@@ -342,7 +342,7 @@
                         <div class="profile-stat-value">
                             {{ $user->total_ocr_matches > 0 ? round(($user->ocr_wins / $user->total_ocr_matches) * 100) : 0 }}%
                         </div>
-                        <div class="profile-stat-label">Ti Le Thang</div>
+                        <div class="profile-stat-label">Tỷ Lệ Thắng</div>
                     </div>
                 </div>
             </div>
@@ -355,10 +355,10 @@
         <div class="content-grid">
             {{-- Badges --}}
             <div class="card">
-                <div class="card-header">[BADGE] Huy Hieu ({{ $user->badges->count() }})</div>
+                <div class="card-header">[BADGE] Huy Hiệu ({{ $user->badges->count() }})</div>
                 <div class="card-body">
                     @if($user->badges->isEmpty())
-                        <div class="empty-message">Chua co huy hieu nao</div>
+                        <div class="empty-message">Chưa có huy hiệu nào</div>
                     @else
                         <div class="badges-grid">
                             @foreach($user->badges as $badge)
@@ -374,10 +374,10 @@
                     @endif
 
                     @if(!empty($badgeProgress))
-                        <div class="badge-progress">
-                            <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; color: #64748b;">
-                                Tien Trinh
-                            </h4>
+                         <div class="badge-progress">
+                             <h4 style="font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; color: #64748b;">
+                                 Tiến Trình
+                             </h4>
                             @foreach($badgeProgress as $type => $progress)
                                 @if($progress['current'] < $progress['target'])
                                     <div class="progress-item">
@@ -398,10 +398,10 @@
 
             {{-- Elo History --}}
             <div class="card">
-                <div class="card-header">[CHART] Lich Su Elo</div>
+                <div class="card-header">[CHART] Lịch Sử Elo</div>
                 <div class="card-body">
                     @if($eloHistory->isEmpty())
-                        <div class="empty-message">Chua co lich su Elo</div>
+                        <div class="empty-message">Chưa có lịch sử Elo</div>
                     @else
                         <div class="elo-history-list">
                             @foreach($eloHistory as $history)
@@ -422,10 +422,10 @@
 
             {{-- Recent Matches --}}
             <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-header">[GAME] Tran Dau Gan Day</div>
+                <div class="card-header">[GAME] Trận Đấu Gần Đây</div>
                 <div class="card-body">
                     @if($recentMatches->isEmpty())
-                        <div class="empty-message">Chua co tran dau nao</div>
+                        <div class="empty-message">Chưa có trận đấu nào</div>
                     @else
                         @foreach($recentMatches as $match)
                             @php
@@ -442,7 +442,7 @@
                                 <div class="match-result">
                                     <span class="match-score">{{ $match->challenger_score }} - {{ $match->opponent_score }}</span>
                                     <span class="match-outcome {{ $userWon ? 'outcome-win' : 'outcome-loss' }}">
-                                        {{ $userWon ? 'Thang' : 'Thua' }}
+                                        {{ $userWon ? 'Thắng' : 'Thua' }}
                                     </span>
                                 </div>
                             </div>
@@ -454,12 +454,12 @@
 
         <div style="text-align: center; margin-top: 2rem;">
             <a href="{{ route('ocr.leaderboard') }}" class="btn btn-outline">
-                Xem Bang Xep Hang
+                Xem Bảng Xếp Hạng
             </a>
             @auth
                 @if(auth()->id() !== $user->id)
                     <a href="{{ route('ocr.matches.create') }}?opponent={{ $user->id }}" class="btn btn-primary">
-                        Thach Dau
+                        Thách Đấu
                     </a>
                 @endif
             @endauth
