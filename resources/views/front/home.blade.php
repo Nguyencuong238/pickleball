@@ -194,7 +194,7 @@
                                 <span>{{ $stadium->address }}</span>
                             </div>
                             <div class="court-features">
-                                <span class="feature-tag">🏟️ {{ $stadium->courts_count ?? 0 }} sân</span>
+                                <span class="feature-tag">🏟️ {{ $stadium->courts->count() }} sân</span>
                                 
                                 @if (is_array($stadium->amenities) || is_object($stadium->amenities))
                                     @foreach ($stadium->amenities as $amenity)
