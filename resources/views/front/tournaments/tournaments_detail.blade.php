@@ -4,6 +4,12 @@
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-detail.css') }}">
     <style>
+        .hero-title {
+            text-align: left
+        }
+        .hero-actions {
+            justify-content: flex-start;
+        }
         #registerModal {
             position: fixed;
             top: 0;

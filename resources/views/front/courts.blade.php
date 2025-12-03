@@ -363,7 +363,7 @@
                                         </div>
 
                                         <div class="court-features">
-                                             <span class="feature-tag">🏟️ {{ $stadium->courts_count }} sân</span>
+                                             <span class="feature-tag">🏟️ {{ $stadium->courts_count ?? 0 }} sân</span>
 
                                              @foreach ((is_array($stadium->amenities) ? $stadium->amenities : json_decode($stadium->amenities, true)??[]) as $amenity)
                                                  <span class="feature-tag">{{ $amenity }}</span>
