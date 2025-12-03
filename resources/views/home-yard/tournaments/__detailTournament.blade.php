@@ -83,8 +83,7 @@
                 <h4 style="margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 700; font-size: 0.95rem;">📝
                     Mô tả</h4>
                 <div
-                    style="padding: 1rem; background: var(--bg-light); border-radius: 6px; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;">
-                    {{ $tournament->description }}</div>
+                    style="padding: 1rem; background: var(--bg-light); border-radius: 6px; color: var(--text-primary); line-height: 1.6; white-space: pre-wrap;">{{ $tournament->description }}</div>
             </div>
 
             <div style="margin-bottom: 1.5rem;">
@@ -92,16 +91,49 @@
                     Quy định &amp; Quyền lợi</h4>
                 <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
                     <div
-                        style="padding: 0.75rem; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 4px;">
+                        style="padding: 0.75rem; background: #f8f9fa; border-radius: 4px;">
+                        <div
+                            style="color: var(--text-light); font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">Quy định thi đấu</div>
+                        <div style="color: var(--text-primary); line-height: 1.5; white-space: pre-wrap;">{{ $tournament->competition_rules }}</div>
+                    </div>
+                    <div
+                        style="padding: 0.75rem; background: #f8f9fa; border-radius: 4px;">
                         <div
                             style="color: var(--text-light); font-size: 0.75rem; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px;">
-                            Quy định thi đấu</div>
-                        <div style="color: var(--text-primary); line-height: 1.5; white-space: pre-wrap;">
-                            {{ $tournament->competition_rules }}</div>
+                            Quyền lợi khi tham gia</div>
+                        <div style="color: var(--text-primary); line-height: 1.5; white-space: pre-wrap;">{{ $tournament->registration_benefits }}</div>
                     </div>
 
                 </div>
             </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h4 style="margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 700; font-size: 0.95rem;">
+                    📮 Thông tin liên hệ</h4>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <div style="padding: 0.75rem; background: var(--bg-light); border-radius: 6px;">
+                        <div
+                            style="color: var(--text-light); font-size: 0.75rem; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Email liên hệ</div>
+                        <div style="color: var(--text-primary); font-weight: 600;">{{ $tournament->organizer_email }}</div>
+                    </div>
+                    <div style="padding: 0.75rem; background: var(--bg-light); border-radius: 6px;">
+                        <div
+                            style="color: var(--text-light); font-size: 0.75rem; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Số điện thoại</div>
+                        <div style="color: var(--text-primary); font-weight: 600;">{{ $tournament->organizer_hotline }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding: 0.75rem; background: var(--bg-light); border-radius: 6px; margin-bottom: 1.5rem;">
+                <div
+                    style="color: var(--text-light); font-size: 0.75rem; margin-bottom: 0.25rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Mạng xã hội</div>
+                <div style="color: var(--text-primary); font-weight: 600;">{{ $tournament->organizer_social }}</div>
+            </div>
+
+
             <div style="margin-bottom: 1.5rem;">
                 <h4 style="margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 700; font-size: 0.95rem;">
                     Banner</h4>

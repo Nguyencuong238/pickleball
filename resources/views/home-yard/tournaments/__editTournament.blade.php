@@ -81,6 +81,22 @@
                 <textarea class="form-input" name="registration_benefits" placeholder="Nhập quyền lợi khi tham gia..." rows="3">{{ $tournament->registration_benefits }}</textarea>
             </div>
 
+            <div class="grid grid-2">
+                <div class="form-group">
+                    <label class="form-label">Email liên hệ</label>
+                    <input type="text" class="form-input" name="organizer_email" placeholder="example@gmail.com" value="{{ $tournament->organizer_email }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Số điện thoại liên hệ</label>
+                    <input type="text" class="form-input" name="organizer_hotline" placeholder="0987654321" value="{{ $tournament->organizer_hotline }}">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Thông tin mạng xã hội</label>
+                <textarea class="form-input" name="social_information" placeholder="Nhập thông tin mạng xã hội..." rows="3">{{ $tournament->social_information }}</textarea>
+            </div>
+
             <div class="form-group">
                 <label class="form-label">Banner</label>
                 @include('components.media-uploader', [

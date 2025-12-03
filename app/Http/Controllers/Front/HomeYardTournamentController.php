@@ -69,6 +69,10 @@ class HomeYardTournamentController extends Controller
             'competition_format',
             'registration_deadline',
             'prizes',
+            'organizer_email',
+            'organizer_hotline',
+            'social_information',
+            'registration_benefits'
         ]);
 
         $data['user_id'] = auth()->id();
@@ -1070,6 +1074,57 @@ class HomeYardTournamentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Không thể tải dữ liệu sân'
+            ], 500);
+        }
+    }
+
+
+    public function deleteCourts(Request $request)
+    {
+        try {
+            $request->validate([
+                'ids' => 'required|array',
+                'ids.*' => 'required|integer|exists:courts,id'
+            ]);
+
+            $ids = $request->input('ids');
+            
+            $stadiumIds = Stadium::where('user_id', auth()->id())->pluck('id');
+            // Get tournaments and verify authorization
+            $courts = Court::whereIn('id', $ids)
+                ->whereIn('stadium_id', $stadiumIds)
+                ->get();
+
+            if ($courts->count() !== count($ids)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Một số sân không tồn tại hoặc bạn không có quyền xóa'
+                ], 403);
+            }
+
+            // Delete each tournament
+            foreach ($courts as $court) {
+                $court->delete();
+                
+                // Log activity
+                ActivityLog::log("Sân '{$court->name}' được xóa", 'Court', $court->id);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xóa ' . count($courts) . ' sân thành công'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            Log::error('Bulk delete courts error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
         }
     }

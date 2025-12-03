@@ -100,11 +100,11 @@
                 <div class="court-hero-right">
                     <div class="price-card">
                         <div class="price-header">
-                            <span class="price-label">Giá thuê</span>
-                            <span class="price-range">150.000đ - 300.000đ</span>
+                            <span class="price-label">Giá thuê </span>
+                            <span class="price-range">{{ number_format($allPrices['min_price'], 0, ',', '.') }}đ - {{ number_format($allPrices['max_price'], 0, ',', '.') }}đ</span>
                         </div>
                         <div class="price-note">mỗi giờ</div>
-                        <div class="price-breakdown">
+                        {{-- <div class="price-breakdown">
                             <div class="price-item">
                                 <span>Giờ sáng (5h-11h)</span>
                                 <span class="price">150.000đ</span>
@@ -117,7 +117,7 @@
                                 <span>Giờ tối (17h-23h)</span>
                                 <span class="price">300.000đ</span>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>

@@ -21,7 +21,7 @@
     .court-card:hover {
         border-color: var(--primary-color);
         box-shadow: var(--shadow-lg);
-        transform: translateY(-5px);
+        transform: translateY(-1px);
     }
 
     .court-card::before {
@@ -491,6 +491,41 @@
         transform: scale(1.05);
     }
 
+    .bulk-actions {
+        background: var(--bg-white);
+        padding: 1rem 1.5rem;
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-md);
+        margin-bottom: 2rem;
+        display: none;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .bulk-actions.show {
+        display: flex;
+    }
+
+    .bulk-info {
+        flex: 1;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    .court-checkbox {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        z-index: 2;
+        accent-color: var(--primary-color);
+        display: none;
+    }
+    .court-card:hover .court-checkbox {
+        display: block;
+    }
+
     @media (max-width: 768px) {
         .pricing-tier-grid {
             grid-template-columns: 1fr;
@@ -619,6 +654,17 @@
                 </div>
             </div>
 
+            <!-- Bulk Actions -->
+            <div class="bulk-actions" id="bulkActions">
+                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                <div class="bulk-info">
+                    <span id="selectedCount">0</span> sân được chọn
+                </div>
+                <button class="btn btn-danger btn-sm" onclick="deleteBulkCourts()">
+                    🗑️ Xóa
+                </button>
+            </div>
+
             <!-- Filter Tabs & Court List -->
             <div class="card fade-in">
                 <div class="card-header">
@@ -649,7 +695,9 @@
                     <!-- Court Grid -->
                     <div class="court-grid" id="courtGrid">
                         @forelse($courts as $court)
-                            <div class="court-card {{ $court->status }}">
+                            <div class="court-card {{ $court->status }}" data-court-id="{{ $court->id }}">
+                                <input type="checkbox" class="court-checkbox" onchange="updateBulkActions()">
+
                                 <div class="court-header">
                                     <div class="court-number">
                                         <div class="court-icon">{{ $court->court_number ?? $court->id }}</div>
@@ -1440,5 +1488,92 @@
         document.addEventListener('DOMContentLoaded', () => {
             console.log('Court Management Loaded');
         });
+
+        // Bulk actions
+        function updateBulkActions() {
+            const checkboxes = document.querySelectorAll('.court-checkbox:checked');
+            const bulkActions = document.getElementById('bulkActions');
+            const selectedCount = document.getElementById('selectedCount');
+
+            if (checkboxes.length > 0) {
+                bulkActions.classList.add('show');
+                selectedCount.textContent = checkboxes.length;
+            } else {
+                bulkActions.classList.remove('show');
+            }
+        }
+
+        function toggleSelectAll() {
+             const selectAll = document.getElementById('selectAll');
+             const checkboxes = document.querySelectorAll('.court-checkbox');
+
+             checkboxes.forEach(cb => {
+                 cb.checked = selectAll.checked;
+             });
+
+             updateBulkActions();
+         }
+
+         function deleteBulkCourts() {
+             const checkboxes = document.querySelectorAll('.court-checkbox:checked');
+             if (checkboxes.length === 0) {
+                 toastr.error('Vui lòng chọn ít nhất một sân để xóa');
+                 return;
+             }
+
+             const courtIds = [];
+             checkboxes.forEach(checkbox => {
+                 const card = checkbox.closest('.court-card');
+                 if (card) {
+                     const courtId = card.getAttribute('data-court-id');
+                     if (courtId) {
+                         courtIds.push(courtId);
+                     }
+                 }
+             });
+
+             if (courtIds.length === 0) {
+                 toastr.error('Không thể xác định ID của sân');
+                 return;
+             }
+
+             // Confirm deletion
+             const message = `Bạn chắc chắn muốn xóa ${courtIds.length} sân? Hành động này không thể được hoàn tác.`;
+             if (!confirm(message)) {
+                 return;
+             }
+
+             // Send delete request
+             fetch('{{ route('homeyard.courts.bulk-delete') }}', {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                     'Accept': 'application/json'
+                 },
+                 body: JSON.stringify({
+                     ids: courtIds
+                 })
+             })
+             .then(response => {
+                 if (!response.ok) {
+                     throw new Error(`HTTP error! status: ${response.status}`);
+                 }
+                 return response.json();
+             })
+             .then(data => {
+                 if (data.success) {
+                     toastr.success('Xóa sân thành công!');
+                     // Reload page
+                     window.location.reload();
+                 } else {
+                     toastr.error('Đã xảy ra lỗi khi xóa sân. Vui lòng thử lại sau.');
+                 }
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                 toastr.error('Đã xảy ra lỗi khi xóa sân. Vui lòng thử lại sau.');
+             });
+         }
     </script>
 @endsection

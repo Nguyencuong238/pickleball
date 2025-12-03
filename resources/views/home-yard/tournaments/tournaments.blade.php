@@ -39,7 +39,7 @@
     }
 
     .tournament-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-1px);
         box-shadow: var(--shadow-xl);
     }
 
@@ -744,6 +744,22 @@
                             rows="3"></textarea>
                     </div>
 
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Email liên hệ</label>
+                            <input type="text" class="form-input" name="organizer_email" placeholder="example@gmail.com">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại liên hệ</label>
+                            <input type="text" class="form-input" name="organizer_hotline" placeholder="0987654321">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Thông tin mạng xã hội</label>
+                        <textarea class="form-input" name="social_information" placeholder="Nhập thông tin mạng xã hội..." rows="3"></textarea>
+                    </div>
+
                     @php
                         $tournament = new \App\Models\Tournament();
                     @endphp
@@ -1031,7 +1047,7 @@
          function deleteBulkTournaments() {
              const checkboxes = document.querySelectorAll('.tournament-checkbox:checked');
              if (checkboxes.length === 0) {
-                 alert('Vui lòng chọn ít nhất một giải đấu để xóa');
+                 toastr.error('Vui lòng chọn ít nhất một giải đấu để xóa');
                  return;
              }
 
@@ -1047,7 +1063,7 @@
              });
 
              if (tournamentIds.length === 0) {
-                 alert('Không thể xác định ID của giải đấu');
+                 toastr.error('Không thể xác định ID của giải đấu');
                  return;
              }
 
@@ -1077,16 +1093,16 @@
              })
              .then(data => {
                  if (data.success) {
-                     alert('Xóa giải đấu thành công!');
+                     toastr.success('Xóa giải đấu thành công!');
                      // Reload page
                      window.location.reload();
                  } else {
-                     alert(data.message || 'Đã xảy ra lỗi khi xóa giải đấu');
+                     toastr.error('Đã xảy ra lỗi khi xóa giải đấu. Vui lòng thử lại sau.');
                  }
              })
              .catch(error => {
                  console.error('Error:', error);
-                 alert('Đã xảy ra lỗi khi xóa giải đấu: ' + error.message);
+                 toastr.error('Đã xảy ra lỗi khi xóa giải đấu. Vui lòng thử lại sau.');
              });
          }
 

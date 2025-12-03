@@ -39,7 +39,7 @@
     }
 
     .social-card:hover {
-        transform: translateY(-5px);
+        transform: translateY(-1px);
         box-shadow: var(--shadow-xl);
     }
 

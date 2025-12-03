@@ -400,10 +400,12 @@ class HomeController extends Controller
         ]);
     }
 
-    public function courtsDetail($court_id)
+    public function courtsDetail($stadium_id)
     {
-        $stadium = Stadium::findOrFail($court_id);
+        $stadium = Stadium::findOrFail($stadium_id);
 
+        $allPrices = $this->getStadiumPricing($stadium->id);
+        
         $relatedStadiums = Stadium::where('status', 'active')
             ->where('id', '!=', $stadium->id)
             ->inRandomOrder()
@@ -412,6 +414,7 @@ class HomeController extends Controller
 
         return view('front.courts.courts_detail', [
             'stadium' => $stadium,
+            'allPrices' => $allPrices,
             'relatedStadiums' => $relatedStadiums,
         ]);
     }
@@ -900,6 +903,32 @@ class HomeController extends Controller
             'video' => $video,
             'relatedVideos' => $relatedVideos,
         ]);
+    }
+
+    /**
+     * Get all rental prices and court pricing for a specific stadium
+     */
+    public function getStadiumPricing($stadiumId)
+    {
+        // Get all courts for this stadium
+        $courts = Court::where('stadium_id', $stadiumId)->get();
+
+        // Get all rental prices from courts
+        $rentalPrices = $courts->pluck('rental_price')->unique()->values();
+
+        // Get all court pricing records for courts in this stadium
+        $courtPricings = CourtPricing::whereIn('court_id', $courts->pluck('id'))
+            ->where('is_active', true)
+            ->pluck('price_per_hour')
+            ->unique()
+            ->values();
+
+        $allPrices = $rentalPrices->merge($courtPricings);
+        
+        return [
+            'min_price' => $allPrices->min(),
+            'max_price' => $allPrices->max(),
+        ];
     }
 
 }

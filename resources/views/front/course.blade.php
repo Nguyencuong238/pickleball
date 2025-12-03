@@ -13,7 +13,7 @@
         }
         
         .stat-number {
-            background: linear-gradient(135deg, #ff6b6b, #ff8787) !important;
+            background: #fff !important;
             -webkit-background-clip: text !important;
             -webkit-text-fill-color: transparent !important;
             background-clip: text !important;

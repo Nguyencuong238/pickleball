@@ -84,7 +84,7 @@ Route::post('/social/{social}/join', [HomeController::class, 'joinSocial'])->nam
 Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{slug}', [FrontNewsController::class, 'show'])->name('news.show');
 Route::get('/page/{page}', [PageController::class, 'show'])->name('page.show');
-Route::get('/courts-detail/{court_id}', [HomeController::class, 'courtsDetail'])->name('courts-detail');
+Route::get('/courts-detail/{stadium_id}', [HomeController::class, 'courtsDetail'])->name('courts-detail');
 Route::get('/tournaments-detail/{tournament_id}', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
 Route::get('/instructors', [HomeController::class, 'instructors'])->name('instructors');
 Route::get('/instructors/{id}', [HomeController::class, 'instructorDetail'])->name('instructors.detail');
@@ -177,6 +177,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('courts/{court}/pricing', [HomeYardTournamentController::class, 'getPricingTiers'])->name('courts.pricing');
     Route::put('courts/{court}', [HomeYardTournamentController::class, 'updateCourt'])->name('courts.update');
     Route::get('courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('courts.available-slots');
+    Route::post('courts/bulk-delete', [HomeYardTournamentController::class, 'deleteCourts'])->name('courts.bulk-delete');
     Route::get('bookings', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
     Route::post('bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('bookings.store');
     Route::post('bookings/calculate-price', [HomeYardTournamentController::class, 'calculateBookingPrice'])->name('bookings.calculate-price');
