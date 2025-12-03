@@ -1,6 +1,24 @@
 @extends('layouts.front')
 
 @section('css')
+    <style>
+        .hero {
+            background: linear-gradient(135deg, rgba(10 162 137 0.3) 0%, rgba(0, 168, 150, 0.3) 100%);
+        }
+        .hero-background {
+            background-image: url('{{ asset('assets/images/banner.jpeg') }}');
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-title {
+            color: #fff;
+            line-height: 1.5;
+        }
+        .hero-description {
+            color: #fff;
+        }
+    </style>
 @endsection
 
 @section('content')

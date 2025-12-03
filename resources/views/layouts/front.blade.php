@@ -155,10 +155,6 @@
 
     /* Responsive adjustments */
     @media (max-width: 768px) {
-        .user-info {
-            display: none;
-        }
-
         .user-profile {
             padding: 0.3rem;
         }
