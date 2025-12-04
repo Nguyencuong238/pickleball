@@ -15,7 +15,6 @@
         }
 
         .simple-filter-section {
-            padding-top: 1rem;
             background: #f8f9fa;
             border: 0;
             margin-top: 2rem;

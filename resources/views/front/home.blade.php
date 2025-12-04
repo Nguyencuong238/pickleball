@@ -104,7 +104,7 @@
                                 </span>
                             </div>
                             <h3 class="tournament-title">{{ $tournament->name }}</h3>
-                            <p class="tournament-description">{{ Str::limit($tournament->description, 100) }}</p>
+                            {{-- <p class="tournament-description">{{ Str::limit($tournament->description, 100) }}</p> --}}
                             <div class="tournament-meta">
                                 <div class="meta-item">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">

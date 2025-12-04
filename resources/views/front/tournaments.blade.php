@@ -338,7 +338,7 @@
                                             </div>
                                         </div>
                                         <h3 class="tournament-title">{{ $tournament->name }}</h3>
-                                        <p class="tournament-excerpt">{{ substr($tournament->description, 0, 80) }}...</p>
+                                        {{-- <p class="tournament-excerpt">{{ substr($tournament->description, 0, 80) }}...</p> --}}
 
                                         <div class="tournament-meta">
                                             <div class="meta-item">
