@@ -1,8 +1,10 @@
 /* Court Detail Page Styles */
 
 .court-hero {
-    padding: calc(80px + 2rem) 0 2rem;
-    background: linear-gradient(135deg, rgba(0, 217, 181, 0.05), rgba(0, 153, 204, 0.05));
+    position: relative;
+    padding: calc(80px + 4rem) 0 3rem;
+    background: radial-gradient(circle at 20% 50%, rgba(0, 217, 181, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 153, 204, 0.1) 0%, transparent 50%);
+    overflow: hidden;
 }
 
 .court-hero-content {
@@ -31,10 +33,13 @@
 }
 
 .court-hero-title {
-    font-size: 2.5rem;
+    font-size: 3rem;
     font-weight: 800;
-    margin-bottom: 1.5rem;
-    color: var(--text-primary);
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .court-hero-meta {
@@ -799,23 +804,6 @@ textarea.form-input {
     margin-top: 2rem;
 }
 
-/* Toast Notifications */
-.toast {
-    font-size: 0.95rem;
-    font-weight: 500;
-}
-
-.toast-success {
-    background: #4CAF50 !important;
-}
-
-.toast-error {
-    background: #f44336 !important;
-}
-
-.toast-info {
-    background: #2196F3 !important;
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {

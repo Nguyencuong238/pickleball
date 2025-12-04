@@ -10,24 +10,48 @@
         .hidden {
             display: none;
         }
+
         .detail-main {
             overflow-x: auto;
         }
+
         .tab-content {
             min-height: auto;
             overflow: hidden;
         }
+
         .gallery-main img {
             border-radius: 10px;
         }
+
         .gallery-grid {
             display: block;
+        }
+
+        .favorite-toggle.active svg {
+            color: red;
+            fill: red;
+        }
+
+        .page-header-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 217, 181, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 153, 204, 0.1) 0%, transparent 50%);
+            z-index: 0;
+        }
+        .container {
+            position: relative;
+            z-index: 1;
         }
     </style>
 @endsection
 
 @section('content')
     <section class="court-hero">
+        <div class="page-header-background"></div>
         <div class="container">
             <div class="breadcrumb">
                 <a href="/">Trang chủ</a>
@@ -86,7 +110,8 @@
                     </div>
 
                     <div class="court-hero-actions">
-                        <button class="btn btn-primary btn-lg" onclick="window.location.href='{{ route('booking', $stadium) }}'">
+                        <button class="btn btn-primary btn-lg"
+                            onclick="window.location.href='{{ route('booking', $stadium) }}'">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
                                 <line x1="16" y1="2" x2="16" y2="6" />
@@ -95,14 +120,23 @@
                             </svg>
                             Đặt sân ngay
                         </button>
-                        <button class="btn btn-secondary btn-lg favorite-toggle">
+                        <button
+                            class="btn btn-secondary btn-lg favorite-toggle @if ($stadium->is_favorited) active @endif"
+                            onclick="toggleFavoriteStadium({{ $stadium->id }})">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path
                                     d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                             </svg>
-                            Yêu thích
+                            <span class="favorite-text">
+                                @if ($stadium->is_favorited)
+                                    Đã yêu thích
+                                @else
+                                    Yêu thích
+                                @endif
+                            </span>
                         </button>
-                        <button class="btn btn-secondary btn-lg">
+                        <a target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg"
+                            href="https://www.facebook.com/sharer/sharer.php?u={{url()->current()}}">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <circle cx="18" cy="5" r="3" />
                                 <circle cx="6" cy="12" r="3" />
@@ -111,7 +145,7 @@
                                 <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
                             </svg>
                             Chia sẻ
-                        </button>
+                        </a>
                     </div>
                 </div>
 
@@ -119,10 +153,11 @@
                     <div class="price-card">
                         <div class="price-header">
                             <span class="price-label">Giá thuê mỗi giờ</span>
-                            @if($allPrices['min_price'] == 0 || $allPrices['max_price'] == 0)
-                            <div class="price-range">Liên hệ</div>
+                            @if ($allPrices['min_price'] == 0 || $allPrices['max_price'] == 0)
+                                <div class="price-range">Liên hệ</div>
                             @else
-                            <div class="price-range">{{ number_format($allPrices['min_price'], 0, ',', '.') }}đ - {{ number_format($allPrices['max_price'], 0, ',', '.') }}đ</div>
+                                <div class="price-range">{{ number_format($allPrices['min_price'], 0, ',', '.') }}đ -
+                                    {{ number_format($allPrices['max_price'], 0, ',', '.') }}đ</div>
                             @endif
                         </div>
                         {{-- <div class="price-note">mỗi giờ</div> --}}
@@ -146,7 +181,7 @@
         </div>
     </section>
 
-    
+
 
     <!-- Gallery Lightbox Modal -->
     <div id="galleryLightbox" class="gallery-lightbox">
@@ -187,34 +222,35 @@
                 <!-- Main Content -->
                 <div class="detail-main">
                     <!-- Gallery Section -->
-                    @if($stadium->hasMedia('gallery') || $stadium->hasMedia('banner'))
-                    <section class="gallery-section">
-                        <div class="container">
-                            <div class="gallery-grid">
-                                <div class="gallery-main">
-                                    @php
-                                        $imageUrl = $stadium->getFirstMediaUrl('banner');
-                                    @endphp
-                                    <img src="{{ $imageUrl }}" alt="{{ $stadium->name }}">
-                                    <button class="gallery-view-all" onclick="openGalleryLightbox()">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                            <circle cx="8.5" cy="8.5" r="1.5" />
-                                            <polyline points="21 15 16 10 5 21" />
-                                        </svg>
-                                        Xem tất cả ảnh
-                                    </button>
-                                </div>
-                                <div class="gallery-thumbnails hidden">
-                                    @foreach($stadium->getMedia('gallery') as $image)
-                                        {{-- @continue($loop->index == 0) --}}
-                                        <img src="{{ $image->getUrl() }}" alt="{{ $stadium->name }} - Gallery" 
-                                            class="gallery-thumb" onclick="openGalleryLightbox({{ $loop->index }})">
-                                    @endforeach
+                    @if ($stadium->hasMedia('gallery') || $stadium->hasMedia('banner'))
+                        <section class="gallery-section">
+                            <div class="container">
+                                <div class="gallery-grid">
+                                    <div class="gallery-main">
+                                        @php
+                                            $imageUrl = $stadium->getFirstMediaUrl('banner');
+                                        @endphp
+                                        <img src="{{ $imageUrl }}" alt="{{ $stadium->name }}">
+                                        <button class="gallery-view-all" onclick="openGalleryLightbox()">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                                <rect x="3" y="3" width="18" height="18" rx="2"
+                                                    ry="2" />
+                                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                                <polyline points="21 15 16 10 5 21" />
+                                            </svg>
+                                            Xem tất cả ảnh
+                                        </button>
+                                    </div>
+                                    <div class="gallery-thumbnails hidden">
+                                        @foreach ($stadium->getMedia('gallery') as $image)
+                                            {{-- @continue($loop->index == 0) --}}
+                                            <img src="{{ $image->getUrl() }}" alt="{{ $stadium->name }} - Gallery"
+                                                class="gallery-thumb" onclick="openGalleryLightbox({{ $loop->index }})">
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
                     @endif
 
                     <!-- Tab Navigation -->
@@ -425,13 +461,13 @@
 
                                 <!-- Filter/Sort Controls -->
                                 <!-- <div class="reviews-controls">
-                                    <select id="sortReviews" class="form-input">
-                                        <option value="recent">Mới nhất</option>
-                                        <option value="helpful">Hữu ích nhất</option>
-                                        <option value="rating_high">Đánh giá cao nhất</option>
-                                        <option value="rating_low">Đánh giá thấp nhất</option>
-                                    </select>
-                                </div> -->
+                                        <select id="sortReviews" class="form-input">
+                                            <option value="recent">Mới nhất</option>
+                                            <option value="helpful">Hữu ích nhất</option>
+                                            <option value="rating_high">Đánh giá cao nhất</option>
+                                            <option value="rating_low">Đánh giá thấp nhất</option>
+                                        </select>
+                                    </div> -->
 
                                 <!-- Reviews List -->
                                 <div class="reviews-list" id="reviewsList">
@@ -556,7 +592,8 @@
                                     <option value="3">3 giờ</option>
                                 </select>
                             </div>
-                            <button class="btn btn-primary btn-block" onclick="window.location.href='{{route('booking', $stadium)}}'">
+                            <button class="btn btn-primary btn-block"
+                                onclick="window.location.href='{{ route('booking', $stadium) }}'">
                                 Tiếp tục đặt sân
                             </button>
                         </div>
@@ -587,7 +624,8 @@
                                 </div>
                             </div>
                         </div>
-                        <a href="https://zalo.me/{{ $stadium->phone }}" target="_blank" class="btn btn-outline btn-block" >
+                        <a href="https://zalo.me/{{ $stadium->phone }}" target="_blank"
+                            class="btn btn-outline btn-block">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
                             </svg>
@@ -707,12 +745,12 @@
             const submitBtn = document.querySelector('#reviewForm button[type="submit"]');
 
             if (!rating) {
-                showToast('Vui lòng chọn mức đánh giá', 'error');
+                toastr.error('Vui lòng chọn mức đánh giá');
                 return;
             }
 
             if (comment.length > 1000) {
-                showToast('Nhận xét không được vượt quá 1000 ký tự', 'error');
+                toastr.error('Nhận xét không được vượt quá 1000 ký tự');
                 return;
             }
 
@@ -740,7 +778,7 @@
                     throw new Error(data.message || 'Lỗi khi gửi đánh giá');
                 }
 
-                showToast('Đánh giá của bạn đã được gửi thành công!', 'success');
+                toastr.success('Đánh giá của bạn đã được gửi thành công!');
 
                 // Reset form
                 document.getElementById('reviewForm').reset();
@@ -754,7 +792,7 @@
                 loadReviews();
 
             } catch (error) {
-                showToast(error.message, 'error');
+                toastr.error(error.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Gửi đánh giá';
@@ -878,9 +916,9 @@
             let formattedDate = 'vừa xong';
             try {
                 // Handle both ISO string and timestamp formats
-                const timestamp = review.created_at.match(/^\d+$/) 
-                    ? parseInt(review.created_at) * 1000 
-                    : new Date(review.created_at).getTime();
+                const timestamp = review.created_at.match(/^\d+$/) ?
+                    parseInt(review.created_at) * 1000 :
+                    new Date(review.created_at).getTime();
                 const date = new Date(timestamp);
                 formattedDate = formatTimeAgo(date);
             } catch (e) {
@@ -888,7 +926,7 @@
             }
 
             const stars = '⭐'.repeat(review.rating) + '☆'.repeat(5 - review.rating);
-            
+
             const nameParts = (review.user?.name || 'A').split(' ');
             const initials = nameParts.map(p => p[0]).join('').toUpperCase().substring(0, 2);
 
@@ -933,7 +971,9 @@
                     </div>
                 </div>
             `;
-        }        function escapeHtml(text) {
+        }
+
+        function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
             return div.innerHTML;
@@ -988,10 +1028,10 @@
                     }
                 }
 
-                showToast('Cảm ơn phản hồi của bạn!', 'success');
+                toastr.success('Cảm ơn phản hồi của bạn!');
 
             } catch (error) {
-                showToast(error.message, 'error');
+                toastr.error(error.message);
             }
         }
 
@@ -1017,7 +1057,7 @@
 
                 if (!response.ok) throw new Error(data.message);
 
-                showToast('Đánh giá đã được xóa', 'success');
+                toastr.success('Đánh giá đã được xóa');
 
                 const reviewItem = document.querySelector(`[data-review-id="${reviewId}"]`);
                 if (reviewItem) {
@@ -1029,7 +1069,7 @@
                 loadReviewsSummary();
 
             } catch (error) {
-                showToast(error.message, 'error');
+                toastr.error(error.message);
             }
         }
 
@@ -1043,34 +1083,6 @@
                 });
             }
         });
-
-        // ==================== Utilities ====================
-        function showToast(message, type = 'info') {
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type}`;
-            toast.textContent = message;
-            toast.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                padding: 15px 20px;
-                background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#f44336' : '#2196F3'};
-                color: white;
-                border-radius: 4px;
-                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                z-index: 10000;
-                animation: slideIn 0.3s ease;
-                max-width: 400px;
-                word-wrap: break-word;
-            `;
-
-            document.body.appendChild(toast);
-
-            setTimeout(() => {
-                toast.style.animation = 'slideOut 0.3s ease';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
-        }
 
         // Add animations
         if (!document.querySelector('style[data-review-animations]')) {
@@ -1191,6 +1203,46 @@
                 closeLightbox();
             }
         });
+
+        // Toggle favorite stadium
+        async function toggleFavoriteStadium(stadiumId) {
+            try {
+                const response = await fetch(`/stadiums/${stadiumId}/toggle-favorite`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content')
+                    }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
+                    throw new Error(data.message || 'Lỗi khi cập nhật yêu thích');
+                }
+
+                const button = document.querySelector('.favorite-toggle');
+                const isFavorited = data.favorited || false;
+
+                if (isFavorited) {
+                    button.classList.add('active');
+                    button.querySelector('.favorite-text').textContent = 'Đã yêu thích';
+                    toastr.success(data.message || 'Đã thêm vào yêu thích');
+                } else {
+                    button.classList.remove('active');
+                    button.querySelector('.favorite-text').textContent = 'Yêu thích';
+                    toastr.success(data.message || 'Đã xóa khỏi yêu thích');
+                }
+
+            } catch (error) {
+                toastr.error(error.message);
+            }
+        }
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {

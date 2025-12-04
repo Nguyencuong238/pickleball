@@ -1138,7 +1138,7 @@
 
 .social-login {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--spacing-sm);
 }
 
@@ -1291,6 +1291,7 @@
 .stat-box p {
     font-size: var(--font-size-sm);
     opacity: 0.9;
+    margin-bottom: 0;
 }
 
 .testimonial {

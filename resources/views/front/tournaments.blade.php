@@ -214,7 +214,7 @@
                             <!-- Date Range -->
                             <div class="filter-group">
                                 <label class="filter-label">Thời gian</label>
-                                <div class="date-range" style="display: block">
+                                <div class="date-range">
                                     <input type="date" name="start_date" class="filter-date"
                                         value="{{ $filters['start_date'] ?? '' }}">
                                     <input type="date" name="end_date" class="filter-date"
