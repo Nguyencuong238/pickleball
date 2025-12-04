@@ -165,7 +165,7 @@
                                 </svg>
                                 Bộ lọc
                             </h3>
-                            <button type="button" class="filter-reset">Xóa bộ lọc</button>
+                            <a href="{{ route('courts') }}" type="button" class="filter-reset">Xóa bộ lọc</a>
                         </div>
 
                         <!-- Price Range Filter -->
@@ -346,14 +346,7 @@
                                         <div class="court-header">
                                             <div>
                                                 <h3 class="court-name">{{ $stadium->name }}</h3>
-                                                <div class="court-location">
-                                                    <svg class="icon" viewBox="0 0 24 24" fill="none"
-                                                        stroke="currentColor">
-                                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                                        <circle cx="12" cy="10" r="3" />
-                                                    </svg>
-                                                    <span>{{ $stadium->address }}</span>
-                                                </div>
+                                                
                                             </div>
                                             <div class="court-rating">
                                                 <span class="rating-star">⭐</span>
@@ -361,6 +354,14 @@
                                                 <span class="rating-count">(128)</span>
                                             </div>
                                         </div>
+                                        <div class="court-location">
+                                                    <svg class="icon" viewBox="0 0 24 24" fill="none"
+                                                        stroke="currentColor">
+                                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                                        <circle cx="12" cy="10" r="3" />
+                                                    </svg>
+                                                    <span style="flex:1">{{ $stadium->address }}</span>
+                                                </div>
 
                                         <div class="court-features">
                                              <span class="feature-tag">🏟️ {{ $stadium->courts->count() }} sân</span>
@@ -409,49 +410,9 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="pagination">
-                        @if ($stadiums->onFirstPage())
-                            <button class="pagination-btn pagination-prev" disabled>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="15 18 9 12 15 6" />
-                                </svg>
-                                Trước
-                            </button>
-                        @else
-                            <a href="{{ $stadiums->previousPageUrl() }}" class="pagination-btn pagination-prev">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="15 18 9 12 15 6" />
-                                </svg>
-                                Trước
-                            </a>
-                        @endif
-
-                        <div class="pagination-numbers">
-                            @foreach ($stadiums->getUrlRange(1, $stadiums->lastPage()) as $page => $url)
-                                @if ($page == $stadiums->currentPage())
-                                    <button class="pagination-number active">{{ $page }}</button>
-                                @else
-                                    <a href="{{ $url }}" class="pagination-number">{{ $page }}</a>
-                                @endif
-                            @endforeach
-                        </div>
-
-                        @if ($stadiums->hasMorePages())
-                            <a href="{{ $stadiums->nextPageUrl() }}" class="pagination-btn pagination-next">
-                                Sau
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="9 18 15 12 9 6" />
-                                </svg>
-                            </a>
-                        @else
-                            <button class="pagination-btn pagination-next" disabled>
-                                Sau
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="9 18 15 12 9 6" />
-                                </svg>
-                            </button>
-                        @endif
-                    </div>
+                    @if ($stadiums->hasPages())
+                        {{ $stadiums->links('pagination.custom') }}
+                    @endif
                 </div>
             </div>
         </div>

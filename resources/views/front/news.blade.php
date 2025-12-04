@@ -107,54 +107,9 @@
             </div>
 
             <!-- Pagination -->
-            <div class="pagination">
-                @if ($news->onFirstPage())
-                    <button class="pagination-btn pagination-prev" disabled>
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                        Trước
-                    </button>
-                @else
-                    <a href="{{ $news->previousPageUrl() . '&' . http_build_query(array_filter($filters)) }}"
-                        class="pagination-btn pagination-prev">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="15 18 9 12 15 6" />
-                        </svg>
-                        Trước
-                    </a>
-                @endif
-
-                <div class="pagination-numbers">
-                    @for ($i = 1; $i <= $news->lastPage(); $i++)
-                        @if ($i == $news->currentPage())
-                            <button class="pagination-number active">{{ $i }}</button>
-                        @elseif($i <= 3 || $i > $news->lastPage() - 2)
-                            <a href="{{ $news->url($i) . '&' . http_build_query(array_filter($filters)) }}"
-                                class="pagination-number">{{ $i }}</a>
-                        @elseif($i == 4 && $news->lastPage() > 6)
-                            <span class="pagination-dots">...</span>
-                        @endif
-                    @endfor
-                </div>
-
-                @if ($news->hasMorePages())
-                    <a href="{{ $news->nextPageUrl() . '&' . http_build_query(array_filter($filters)) }}"
-                        class="pagination-btn pagination-next">
-                        Sau
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                    </a>
-                @else
-                    <button class="pagination-btn pagination-next" disabled>
-                        Sau
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                    </button>
-                @endif
-            </div>
+            @if ($news->hasPages())
+                {{ $news->links('pagination.custom') }}
+            @endif
         </div>
     </section>
 

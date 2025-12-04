@@ -289,15 +289,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update countdown on load
     updateCountdown();
 
-    // Smooth scroll for related tournament links
-    document.querySelectorAll('.related-item').forEach(link => {
-        link.addEventListener('click', (e) => {
-            // In real app, this would navigate to the tournament detail page
-            e.preventDefault();
-            toastr.info('Đang chuyển đến giải đấu...');
-        });
-    });
-
     // Add data labels for mobile schedule table
     addMobileLabels();
 

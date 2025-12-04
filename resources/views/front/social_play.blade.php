@@ -74,21 +74,17 @@
                     </div>
                 </div>
             </div> --}}
-        </div>
-    </section>
-
-    <section class="social-section section">
-        <div class="container">
+            
             <form method="GET" action="{{ route('social') }}" class="social-filter-bar">
                 <div class="filter-group">
-                    <label>Tìm kiếm</label>
-                    <input type="text" class="form-control" name="search" placeholder="Tên sự kiện..."
+                    {{-- <label>Tìm kiếm</label> --}}
+                    <input type="text" class="form-control" name="search" placeholder="Tìm kiếm..."
                         value="{{ $filters['search'] ?? '' }}">
                 </div>
                 <div class="filter-group">
-                    <label>Sân</label>
+                    {{-- <label>Sân</label> --}}
                     <select class="form-control" name="stadium_id">
-                        <option value="">Tất cả</option>
+                        <option value="">-- Sân --</option>
                         @foreach ($stadiums as $stadium)
                             <option value="{{ $stadium->id }}"
                                 {{ ($filters['stadium_id'] ?? '') == $stadium->id ? 'selected' : '' }}>
@@ -98,9 +94,9 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>Đối tượng</label>
+                    {{-- <label>Đối tượng</label> --}}
                     <select class="form-control" name="object">
-                        <option value="">Tất cả</option>
+                        <option value="">-- Đối tượng --</option>
                         @foreach ($levels as $key => $value)
                             <option value="{{ $key }}" {{ ($filters['object'] ?? '') == $key ? 'selected' : '' }}>
                                 {{ $value }}
@@ -109,7 +105,7 @@
                     </select>
                 </div>
                 <div class="filter-group">
-                    <label>Ngày</label>
+                    {{-- <label>Ngày</label> --}}
                     @php
                            $daysofweek = [
                             '2' => 'Thứ 2',
@@ -122,7 +118,7 @@
                         ]; 
                         @endphp
                     <select class="form-control" name="date">
-                        <option value="">Tất cả</option>
+                        <option value="">-- Ngày --</option>
                         @foreach ($daysofweek as $key => $value)
                             <option value="{{ $key }}" {{ ($filters['date'] ?? '') == $key ? 'selected' : '' }}>
                                 {{ $value }}
@@ -134,7 +130,11 @@
                     <button type="submit" class="form-control btn btn-primary">Tìm kiếm</button>
                 </div>
             </form>
+        </div>
+    </section>
 
+    <section class="social-section section">
+        <div class="container">
             <div class="social-grid">
                 @forelse ($socials as $social)
                     @php
@@ -208,28 +208,9 @@
                 @endforelse
             </div>
 
+            <!-- Pagination -->
             @if ($socials->hasPages())
-                <div style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem;">
-                    @if ($socials->onFirstPage())
-                        <button class="pagination-btn" disabled>←</button>
-                    @else
-                        <a href="{{ $socials->previousPageUrl() }}" class="pagination-btn">←</a>
-                    @endif
-
-                    @foreach ($socials->getUrlRange(1, $socials->lastPage()) as $page => $url)
-                        @if ($page == $socials->currentPage())
-                            <button class="pagination-btn active" disabled>{{ $page }}</button>
-                        @else
-                            <a href="{{ $url }}" class="pagination-btn">{{ $page }}</a>
-                        @endif
-                    @endforeach
-
-                    @if ($socials->hasMorePages())
-                        <a href="{{ $socials->nextPageUrl() }}" class="pagination-btn">→</a>
-                    @else
-                        <button class="pagination-btn" disabled>→</button>
-                    @endif
-                </div>
+                {{ $socials->links('pagination.custom') }}
             @endif
         </div>
     </section>

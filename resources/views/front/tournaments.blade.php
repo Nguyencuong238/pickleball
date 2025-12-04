@@ -391,54 +391,9 @@
                     </div>
 
                     <!-- Pagination -->
-                    <div class="pagination">
-                        @if ($tournaments->onFirstPage())
-                            <button class="pagination-btn pagination-prev" disabled>
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="15 18 9 12 15 6" />
-                                </svg>
-                                Trước
-                            </button>
-                        @else
-                            <a href="{{ $tournaments->previousPageUrl() . '&' . http_build_query(array_filter($filters)) }}"
-                                class="pagination-btn pagination-prev">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="15 18 9 12 15 6" />
-                                </svg>
-                                Trước
-                            </a>
-                        @endif
-
-                        <div class="pagination-numbers">
-                            @for ($i = 1; $i <= $tournaments->lastPage(); $i++)
-                                @if ($i == $tournaments->currentPage())
-                                    <button class="pagination-number active">{{ $i }}</button>
-                                @elseif($i <= 3 || $i > $tournaments->lastPage() - 2)
-                                    <a href="{{ $tournaments->url($i) . '&' . http_build_query(array_filter($filters)) }}"
-                                        class="pagination-number">{{ $i }}</a>
-                                @elseif($i == 4 && $tournaments->lastPage() > 6)
-                                    <span class="pagination-dots">...</span>
-                                @endif
-                            @endfor
-                        </div>
-
-                        @if ($tournaments->hasMorePages())
-                            <a href="{{ $tournaments->nextPageUrl() . '&' . http_build_query(array_filter($filters)) }}"
-                                class="pagination-btn pagination-next">
-                                Sau
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="9 18 15 12 9 6" />
-                                </svg>
-                            </a>
-                        @else
-                            <button class="pagination-btn pagination-next" disabled>
-                                Sau
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <polyline points="9 18 15 12 9 6" />
-                                </svg>
-                            </button>
-                        @endif
-                    </div>
+                    @if ($tournaments->hasPages())
+                        {{ $tournaments->links('pagination.custom') }}
+                    @endif
                 </div>
             </div>
         </div>

@@ -354,7 +354,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
 }
 
 .court-name {
@@ -366,7 +366,7 @@
 
 .court-location {
     display: flex;
-    align-items: center;
+    align-items: start;
     gap: 0.5rem;
     font-size: 0.875rem;
     color: var(--text-secondary);
@@ -375,6 +375,7 @@
 .court-location .icon {
     width: 16px;
     height: 16px;
+    margin-top: 4px;
 }
 
 .court-rating {

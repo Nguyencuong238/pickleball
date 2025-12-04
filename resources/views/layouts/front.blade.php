@@ -296,9 +296,9 @@
                             </svg>
                         </div>
                         <div class="dropdown-info">
-                            <a href="{{ route('ocr.index') }}" class="nav-link">
+                            {{-- <a href="{{ route('ocr.index') }}" class="nav-link">
                                 OCR
-                            </a>
+                            </a> --}}
                             @if(auth()->check())
                                 @if(auth()->user()->hasRole('admin'))
                                     <a href="{{ route('admin.dashboard') }}" class="nav-link">
@@ -458,31 +458,49 @@
             "hideMethod": "fadeOut"
         };
 
-        // Display session messages when DOM is ready
-        document.addEventListener('DOMContentLoaded', function() {
-            @if(session('success'))
-                toastr.success('{{ session('success') }}');
-            @endif
+        // Close user dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const userDropdownContainer = document.querySelector('.user-dropdown-container');
+            if (userDropdownContainer && userDropdownContainer.classList.contains('active')) {
+                if (!userDropdownContainer.contains(event.target)) {
+                    userDropdownContainer.classList.remove('active');
+                }
+            }
 
-            @if(session('error'))
-                toastr.error('{{ session('error') }}');
-            @endif
-
-            @if(session('warning'))
-                toastr.warning('{{ session('warning') }}');
-            @endif
-
-            @if(session('info'))
-                toastr.info('{{ session('info') }}');
-            @endif
-
-            // Handle validation errors
-            @if($errors->any())
-                @foreach($errors->all() as $error)
-                    toastr.error('{{ $error }}');
-                @endforeach
-            @endif
+            // Trigger click on mobile-menu-toggle when clicking outside
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            if (mobileMenuToggle && mobileMenuToggle.classList.contains('active')) {
+                if (event.target !== mobileMenuToggle && !mobileMenuToggle.contains(event.target)) {
+                    mobileMenuToggle.click();
+                }
+            }
         });
+
+        // Display session messages when DOM is ready
+         document.addEventListener('DOMContentLoaded', function() {
+             @if(session('success'))
+                 toastr.success('{{ session('success') }}');
+             @endif
+
+             @if(session('error'))
+                 toastr.error('{{ session('error') }}');
+             @endif
+
+             @if(session('warning'))
+                 toastr.warning('{{ session('warning') }}');
+             @endif
+
+             @if(session('info'))
+                 toastr.info('{{ session('info') }}');
+             @endif
+
+             // Handle validation errors
+             @if($errors->any())
+                 @foreach($errors->all() as $error)
+                     toastr.error('{{ $error }}');
+                 @endforeach
+             @endif
+         });
     </script>
     
     @yield('js')

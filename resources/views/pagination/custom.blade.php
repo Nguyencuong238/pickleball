@@ -26,9 +26,9 @@
             @if (is_array($element))
                 @foreach ($element as $page => $url)
                     @if ($page == $paginator->currentPage())
-                        <button class="pagination-btn active">{{ $page }}</button>
+                        <button class="pagination-btn pagination-number active">{{ $page }}</button>
                     @else
-                        <a href="{{ $url }}" class="pagination-btn">{{ $page }}</a>
+                        <a href="{{ $url }}" class="pagination-btn pagination-number">{{ $page }}</a>
                     @endif
                 @endforeach
             @endif

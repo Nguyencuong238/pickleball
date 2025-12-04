@@ -21,44 +21,6 @@ viewButtons.forEach(btn => {
     });
 });
 
-// Filter Reset
-const filterReset = document.querySelector('.filter-reset');
-if (filterReset) {
-    filterReset.addEventListener('click', () => {
-        // Reset all checkboxes
-        document.querySelectorAll('.filter-checkbox input[type="checkbox"]').forEach(cb => {
-            cb.checked = false;
-        });
-        
-        // Reset first two checkboxes (Đang mở, Sắp mở)
-        const statusCheckboxes = document.querySelectorAll('.filter-checkbox input[type="checkbox"]');
-        if (statusCheckboxes.length >= 2) {
-            statusCheckboxes[0].checked = true;
-            statusCheckboxes[1].checked = true;
-        }
-        
-        // Reset radio buttons
-        document.querySelectorAll('.filter-radio input[type="radio"]').forEach(radio => {
-            if (radio.value === '') {
-                radio.checked = true;
-            }
-        });
-        
-        // Reset selects
-        document.querySelectorAll('.filter-select').forEach(select => {
-            select.selectedIndex = 0;
-        });
-        
-        // Reset inputs
-        document.querySelectorAll('.filter-search, .filter-date').forEach(input => {
-            input.value = '';
-        });
-        
-        // Update active filters
-        updateActiveFilters();
-    });
-}
-
 // Search Filter
 const searchInput = document.querySelector('.filter-search');
 if (searchInput) {
