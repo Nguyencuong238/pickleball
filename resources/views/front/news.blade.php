@@ -18,6 +18,31 @@
             padding-top: 1rem;
             background: #f8f9fa;
             border: 0;
+            margin-top: 2rem;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        section.simple-page-header {
+            position: relative;
+            padding: calc(80px + 4rem) 0 3rem;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 217, 181, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 153, 204, 0.1) 0%, transparent 50%);
+            overflow: hidden;
+        }
+
+        .page-header-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 50%, rgba(0, 217, 181, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(0, 153, 204, 0.1) 0%, transparent 50%);
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
         }
     </style>
 @endsection
@@ -25,48 +50,56 @@
 @section('content')
     <!-- Simple Page Header -->
     <section class="simple-page-header">
+        <div class="page-header-background"></div>
         <div class="container">
-            <h1 class="simple-page-title">Tin tức Pickleball</h1>
+            <div class="breadcrumb">
+                <a href="/">Trang chủ</a>
+                <span class="separator">/</span>
+                <span>Tin tức</span>
+            </div>
+            <h1 class="simple-page-title">Tin Tức Pickleball</h1>
             <p class="simple-page-subtitle">Cập nhật tin tức và sự kiện mới nhất từ cộng đồng</p>
-        </div>
-    </section>
 
-    <!-- News Filter Simple -->
-    <section class="simple-filter-section">
-        <div class="container">
-            <form method="GET" action="{{ route('news') }}" id="newsFilterForm">
-                <div class="simple-filter-wrapper">
-                    <!-- Category Filter Tags -->
-                    <div class="filter-tags">
-                        @if($news->count())
-                        <button type="submit" name="category" value=""
-                            class="filter-tag {{ !($filters['category'] ?? null) ? 'active' : '' }}">
-                            Tất cả
-                        </button>
-                        @endif
-                        @foreach ($categories as $category)
-                            <button type="submit" name="category" value="{{ $category->slug }}"
-                                class="filter-tag {{ ($filters['category'] ?? null) === $category->slug ? 'active' : '' }}">
-                                {{ $category->name }}
-                            </button>
-                        @endforeach
-                    </div>
+            <!-- News Filter Simple -->
+            <section class="simple-filter-section">
+                <div class="container">
+                    <form method="GET" action="{{ route('news') }}" id="newsFilterForm">
+                        <div class="simple-filter-wrapper">
+                            <!-- Category Filter Tags -->
+                            <div class="filter-tags">
+                                @if ($news->count())
+                                    <button type="submit" name="category" value=""
+                                        class="filter-tag {{ !($filters['category'] ?? null) ? 'active' : '' }}">
+                                        Tất cả
+                                    </button>
+                                @endif
+                                @foreach ($categories as $category)
+                                    <button type="submit" name="category" value="{{ $category->slug }}"
+                                        class="filter-tag {{ ($filters['category'] ?? null) === $category->slug ? 'active' : '' }}">
+                                        {{ $category->name }}
+                                    </button>
+                                @endforeach
+                            </div>
 
-                    <!-- Search Box -->
-                    <div class="simple-search-box">
-                        <input type="text" placeholder="Tìm kiếm..." class="simple-search-input" name="search"
-                            value="{{ $filters['search'] ?? '' }}">
-                        <button type="submit" class="search-submit" title="Tìm kiếm">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20" height="20">
-                                <circle cx="11" cy="11" r="8" />
-                                <path d="m21 21-4.35-4.35" />
-                            </svg>
-                        </button>
-                    </div>
+                            <!-- Search Box -->
+                            <div class="simple-search-box">
+                                <input type="text" placeholder="Tìm kiếm..." class="simple-search-input" name="search"
+                                    value="{{ $filters['search'] ?? '' }}">
+                                <button type="submit" class="search-submit" title="Tìm kiếm">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="20"
+                                        height="20">
+                                        <circle cx="11" cy="11" r="8" />
+                                        <path d="m21 21-4.35-4.35" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </section>
         </div>
     </section>
+
 
     <!-- News Grid Simple -->
     <section class="section section-alt">

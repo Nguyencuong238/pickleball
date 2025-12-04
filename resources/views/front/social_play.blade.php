@@ -7,6 +7,11 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 0.5rem;
             margin-bottom: 2rem;
+            padding: 2rem;
+            background: white;
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-xl);
+            margin-top: 2rem;
         }
 
         select.form-control {
@@ -40,7 +45,13 @@
         ];
     @endphp
     <section class="page-header">
+        <div class="page-header-background"></div>
         <div class="container">
+            <div class="breadcrumb">
+                <a href="/">Trang chủ</a>
+                <span class="separator">/</span>
+                <span>Thi đấu Social</span>
+            </div>
             <h1 class="page-title">Thi Đấu Social</h1>
             <p class="page-description">Tham gia cộng đồng, tìm đối thủ và nâng cao kỹ năng Pickleball</p>
 
