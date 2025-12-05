@@ -279,6 +279,16 @@ Route::prefix('ocr')->name('ocr.')->group(function () {
         Route::get('/matches', [OcrController::class, 'matchIndex'])->name('matches.index');
         Route::get('/matches/create', [OcrController::class, 'matchCreate'])->name('matches.create');
         Route::get('/matches/{match}', [OcrController::class, 'matchShow'])->name('matches.show');
+
+        // Challenge System Routes
+        Route::get('/challenges', [OcrController::class, 'challenges'])->name('challenges.index');
+        Route::get('/challenges/{type}', [OcrController::class, 'challengeSubmit'])->name('challenges.submit');
+        Route::post('/challenges', [OcrController::class, 'challengeStore'])->name('challenges.store');
+
+        // Community Hub Routes
+        Route::get('/community', [OcrController::class, 'community'])->name('community.index');
+        Route::get('/community/checkin', [OcrController::class, 'checkin'])->name('community.checkin');
+        Route::post('/community/checkin', [OcrController::class, 'checkinStore'])->name('community.checkin.store');
     });
 });
 
@@ -329,6 +339,25 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::get('badges/{badgeType}', [OcrBadgeController::class, 'show'])->name('badges.show');
         Route::post('badges/award', [OcrBadgeController::class, 'award'])->name('badges.award');
         Route::post('badges/revoke', [OcrBadgeController::class, 'revoke'])->name('badges.revoke');
+    });
+
+    // OPRS Management Routes
+    Route::prefix('oprs')->name('oprs.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\OprsController::class, 'dashboard'])->name('dashboard');
+        Route::get('users', [\App\Http\Controllers\Admin\OprsController::class, 'users'])->name('users.index');
+        Route::get('users/{user}', [\App\Http\Controllers\Admin\OprsController::class, 'userDetail'])->name('users.detail');
+        Route::post('users/{user}/adjust', [\App\Http\Controllers\Admin\OprsController::class, 'adjustUser'])->name('users.adjust');
+        Route::post('users/{user}/recalculate', [\App\Http\Controllers\Admin\OprsController::class, 'recalculateUser'])->name('users.recalculate');
+        Route::get('reports/levels', [\App\Http\Controllers\Admin\OprsController::class, 'levelDistribution'])->name('reports.levels');
+
+        // Challenge Management
+        Route::get('challenges', [\App\Http\Controllers\Admin\OprsChallengeController::class, 'index'])->name('challenges.index');
+        Route::post('challenges/{challenge}/verify', [\App\Http\Controllers\Admin\OprsChallengeController::class, 'verify'])->name('challenges.verify');
+        Route::post('challenges/{challenge}/reject', [\App\Http\Controllers\Admin\OprsChallengeController::class, 'reject'])->name('challenges.reject');
+
+        // Activity Management
+        Route::get('activities', [\App\Http\Controllers\Admin\OprsActivityController::class, 'index'])->name('activities.index');
+        Route::delete('activities/{activity}', [\App\Http\Controllers\Admin\OprsActivityController::class, 'destroy'])->name('activities.destroy');
     });
 });
 

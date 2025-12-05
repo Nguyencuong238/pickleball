@@ -6,6 +6,11 @@ use App\Http\Controllers\Front\TournamentRegistrationController;
 use App\Http\Controllers\Api\OcrMatchController;
 use App\Http\Controllers\Api\OcrUserController;
 use App\Http\Controllers\Api\OcrLeaderboardController;
+use App\Http\Controllers\Api\ChallengeController;
+use App\Http\Controllers\Api\CommunityActivityController;
+use App\Http\Controllers\Api\OprsController;
+use App\Http\Controllers\Api\OprsLeaderboardController;
+use App\Http\Controllers\Api\MatchmakingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,4 +58,73 @@ Route::prefix('ocr')->group(function () {
     Route::get('leaderboard', [OcrLeaderboardController::class, 'index']);
     Route::get('leaderboard/distribution', [OcrLeaderboardController::class, 'distribution']);
     Route::get('leaderboard/{rank}', [OcrLeaderboardController::class, 'byRank']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| OPRS (OnePickleball Rating Score) Routes
+|--------------------------------------------------------------------------
+*/
+
+// Protected OPRS endpoints (auth required)
+Route::prefix('oprs')->middleware('auth:sanctum')->group(function () {
+    // User OPRS profile
+    Route::get('profile', [OprsController::class, 'profile']);
+    Route::get('breakdown', [OprsController::class, 'breakdown']);
+    Route::get('history', [OprsController::class, 'history']);
+});
+
+// Public OPRS endpoints
+Route::prefix('oprs')->group(function () {
+    Route::get('levels', [OprsController::class, 'levels']);
+    Route::get('leaderboard', [OprsLeaderboardController::class, 'index']);
+    Route::get('leaderboard/levels', [OprsLeaderboardController::class, 'levels']);
+    Route::get('leaderboard/level/{level}', [OprsLeaderboardController::class, 'byLevel']);
+    Route::get('leaderboard/distribution', [OprsLeaderboardController::class, 'distribution']);
+    Route::get('users/{user}', [OprsController::class, 'userProfile']);
+    Route::get('matchmaking/suggest/{user}', [MatchmakingController::class, 'suggest']);
+});
+
+// Protected OPRS matchmaking endpoints
+Route::prefix('oprs')->middleware('auth:sanctum')->group(function () {
+    Route::post('estimate', [MatchmakingController::class, 'estimateChange']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Challenge System Routes
+|--------------------------------------------------------------------------
+*/
+
+// Protected challenge endpoints (auth required)
+Route::prefix('challenges')->middleware('auth:sanctum')->group(function () {
+    Route::get('available', [ChallengeController::class, 'available']);
+    Route::post('submit', [ChallengeController::class, 'submit']);
+    Route::get('history', [ChallengeController::class, 'history']);
+    Route::get('stats', [ChallengeController::class, 'stats']);
+});
+
+// Public challenge types
+Route::prefix('challenges')->group(function () {
+    Route::get('types', [ChallengeController::class, 'types']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Community Activity Routes
+|--------------------------------------------------------------------------
+*/
+
+// Protected community activity endpoints (auth required)
+Route::prefix('community')->middleware('auth:sanctum')->group(function () {
+    Route::post('check-in', [CommunityActivityController::class, 'checkIn']);
+    Route::post('event', [CommunityActivityController::class, 'recordEvent']);
+    Route::post('referral', [CommunityActivityController::class, 'recordReferral']);
+    Route::get('history', [CommunityActivityController::class, 'history']);
+    Route::get('stats', [CommunityActivityController::class, 'stats']);
+});
+
+// Public community activity types
+Route::prefix('community')->group(function () {
+    Route::get('types', [CommunityActivityController::class, 'types']);
 });

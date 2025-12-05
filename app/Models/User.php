@@ -33,6 +33,10 @@ class User extends Authenticatable
         'total_ocr_matches',
         'ocr_wins',
         'ocr_losses',
+        'challenge_score',
+        'community_score',
+        'total_oprs',
+        'opr_level',
     ];
 
     /**
@@ -57,6 +61,9 @@ class User extends Authenticatable
         'total_ocr_matches' => 'integer',
         'ocr_wins' => 'integer',
         'ocr_losses' => 'integer',
+        'challenge_score' => 'decimal:2',
+        'community_score' => 'decimal:2',
+        'total_oprs' => 'decimal:2',
     ];
 
     /**
@@ -183,6 +190,30 @@ class User extends Authenticatable
         return $this->hasMany(UserBadge::class);
     }
 
+    /**
+     * Get user challenge results
+     */
+    public function challengeResults(): HasMany
+    {
+        return $this->hasMany(ChallengeResult::class);
+    }
+
+    /**
+     * Get user community activities
+     */
+    public function communityActivities(): HasMany
+    {
+        return $this->hasMany(CommunityActivity::class);
+    }
+
+    /**
+     * Get user OPRS history
+     */
+    public function oprsHistories(): HasMany
+    {
+        return $this->hasMany(OprsHistory::class);
+    }
+
     // ==================== OCR Methods ====================
 
     /**
@@ -294,5 +325,105 @@ class User extends Authenticatable
             'earned_at' => now(),
             'metadata' => $metadata,
         ]);
+    }
+
+    // ==================== OPRS Methods ====================
+
+    /**
+     * Get OPR level thresholds
+     *
+     * @return array<string, array{name: string, min: int, max: int}>
+     */
+    public static function getOprLevels(): array
+    {
+        return [
+            '1.0' => ['name' => 'Beginner', 'min' => 0, 'max' => 599],
+            '2.0' => ['name' => 'Novice', 'min' => 600, 'max' => 899],
+            '3.0' => ['name' => 'Intermediate', 'min' => 900, 'max' => 1099],
+            '3.5' => ['name' => 'Upper Intermediate', 'min' => 1100, 'max' => 1349],
+            '4.0' => ['name' => 'Advanced', 'min' => 1350, 'max' => 1599],
+            '4.5' => ['name' => 'Pro', 'min' => 1600, 'max' => 1849],
+            '5.0+' => ['name' => 'Elite', 'min' => 1850, 'max' => PHP_INT_MAX],
+        ];
+    }
+
+    /**
+     * Calculate OPR level based on total OPRS
+     */
+    public function calculateOprLevel(): string
+    {
+        foreach (self::getOprLevels() as $level => $range) {
+            if ($this->total_oprs >= $range['min'] && $this->total_oprs <= $range['max']) {
+                return $level;
+            }
+        }
+        return '1.0';
+    }
+
+    /**
+     * Update OPR level if changed
+     */
+    public function updateOprLevel(): void
+    {
+        $newLevel = $this->calculateOprLevel();
+        if ($this->opr_level !== $newLevel) {
+            $this->update(['opr_level' => $newLevel]);
+        }
+    }
+
+    /**
+     * Get OPR level info for display
+     *
+     * @return array{level: string, name: string, min: int, max: int}
+     */
+    public function getOprLevelInfo(): array
+    {
+        $levels = self::getOprLevels();
+        $level = $this->opr_level ?? '2.0';
+        $info = $levels[$level] ?? $levels['2.0'];
+
+        return [
+            'level' => $level,
+            'name' => $info['name'],
+            'min' => $info['min'],
+            'max' => $info['max'],
+        ];
+    }
+
+    /**
+     * Get total challenge points earned
+     */
+    public function getTotalChallengePoints(): float
+    {
+        return (float) $this->challengeResults()
+            ->where('passed', true)
+            ->sum('points_earned');
+    }
+
+    /**
+     * Get total community points earned
+     */
+    public function getTotalCommunityPoints(): float
+    {
+        return (float) $this->communityActivities()->sum('points_earned');
+    }
+
+    /**
+     * Get passed challenges count
+     */
+    public function getPassedChallengesCount(): int
+    {
+        return $this->challengeResults()->where('passed', true)->count();
+    }
+
+    /**
+     * Check if user has passed a specific challenge type
+     */
+    public function hasPassedChallenge(string $challengeType): bool
+    {
+        return $this->challengeResults()
+            ->where('challenge_type', $challengeType)
+            ->where('passed', true)
+            ->exists();
     }
 }

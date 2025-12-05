@@ -194,6 +194,9 @@ class EloService
             'change_amount' => $change,
             'change_reason' => $won ? EloHistory::REASON_MATCH_WIN : EloHistory::REASON_MATCH_LOSS,
         ]);
+
+        // Trigger OPRS recalculation
+        app(OprsService::class)->recalculateAfterMatch($user, $match->id);
     }
 
     /**

@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\OcrMatch;
 use App\Models\User;
 use App\Services\BadgeService;
+use App\Services\ChallengeService;
+use App\Services\CommunityService;
 use App\Services\EloService;
+use App\Services\OprsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,7 +18,10 @@ class OcrController extends Controller
 {
     public function __construct(
         private EloService $eloService,
-        private BadgeService $badgeService
+        private BadgeService $badgeService,
+        private OprsService $oprsService,
+        private ChallengeService $challengeService,
+        private CommunityService $communityService
     ) {
     }
 
@@ -179,6 +185,158 @@ class OcrController extends Controller
             ->where('total_ocr_matches', '>', 0)
             ->count() + 1;
 
-        return view('front.ocr.profile', compact('user', 'recentMatches', 'eloHistory', 'badgeProgress', 'globalRank'));
+        // OPRS data
+        $oprsBreakdown = $this->oprsService->getOprsBreakdown($user);
+        $oprsRank = $this->oprsService->getUserRank($user);
+
+        return view('front.ocr.profile', compact(
+            'user',
+            'recentMatches',
+            'eloHistory',
+            'badgeProgress',
+            'globalRank',
+            'oprsBreakdown',
+            'oprsRank'
+        ));
+    }
+
+    // ==================== Challenge Methods ====================
+
+    /**
+     * Challenge center index
+     */
+    public function challenges(): View
+    {
+        $user = auth()->user();
+
+        return view('front.ocr.challenges.index', [
+            'user' => $user,
+            'availableChallenges' => $this->challengeService->getAvailableChallenges($user),
+            'stats' => $this->challengeService->getChallengeStats($user),
+            'history' => $this->challengeService->getChallengeHistory($user, 10),
+        ]);
+    }
+
+    /**
+     * Challenge submit form
+     */
+    public function challengeSubmit(string $type): View
+    {
+        $challengeInfo = \App\Models\ChallengeResult::getChallengeInfo($type);
+
+        if (empty($challengeInfo)) {
+            abort(404, 'Challenge type not found');
+        }
+
+        return view('front.ocr.challenges.submit', [
+            'challengeType' => $type,
+            'challengeInfo' => $challengeInfo,
+        ]);
+    }
+
+    /**
+     * Store challenge result
+     */
+    public function challengeStore(Request $request)
+    {
+        $request->validate([
+            'challenge_type' => 'required|string',
+            'score' => 'required|integer|min:0|max:100',
+        ]);
+
+        $user = auth()->user();
+
+        try {
+            $result = $this->challengeService->submitChallenge(
+                $user,
+                $request->challenge_type,
+                $request->score
+            );
+
+            $message = $result->passed
+                ? 'Challenge passed! +' . $result->points_earned . ' points awarded.'
+                : 'Challenge not passed. Try again!';
+
+            return redirect()
+                ->route('ocr.challenges.index')
+                ->with($result->passed ? 'success' : 'info', $message);
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['score' => $e->getMessage()]);
+        }
+    }
+
+    // ==================== Community Methods ====================
+
+    /**
+     * Community hub index
+     */
+    public function community(): View
+    {
+        $user = auth()->user();
+        $startOfWeek = \Carbon\Carbon::now()->startOfWeek();
+
+        // Count matches this week
+        $weeklyMatchCount = OcrMatch::forUser($user->id)
+            ->where('status', OcrMatch::STATUS_CONFIRMED)
+            ->where('confirmed_at', '>=', $startOfWeek)
+            ->count();
+
+        return view('front.ocr.community.index', [
+            'user' => $user,
+            'stats' => $this->communityService->getActivityStats($user),
+            'history' => $this->communityService->getActivityHistory($user, 10),
+            'weeklyMatchCount' => $weeklyMatchCount,
+            'availableActivities' => $this->communityService->getAvailableActivities($user),
+        ]);
+    }
+
+    /**
+     * Check-in form
+     */
+    public function checkin(): View
+    {
+        $user = auth()->user();
+        $stadiums = \App\Models\Stadium::where('status', 'active')->get();
+
+        // Check which stadiums user can check in to today
+        $canCheckIn = [];
+        foreach ($stadiums as $stadium) {
+            $canCheckIn[$stadium->id] = $this->communityService->canCheckInToday($user, $stadium->id);
+        }
+
+        // Today's check-ins
+        $todayCheckIns = $user->communityActivities()
+            ->where('activity_type', \App\Models\CommunityActivity::TYPE_CHECK_IN)
+            ->whereDate('created_at', \Carbon\Carbon::today())
+            ->get();
+
+        return view('front.ocr.community.checkin', [
+            'stadiums' => $stadiums,
+            'canCheckIn' => $canCheckIn,
+            'todayCheckIns' => $todayCheckIns,
+        ]);
+    }
+
+    /**
+     * Store check-in
+     */
+    public function checkinStore(Request $request)
+    {
+        $request->validate([
+            'stadium_id' => 'required|exists:stadiums,id',
+        ]);
+
+        $user = auth()->user();
+        $stadium = \App\Models\Stadium::findOrFail($request->stadium_id);
+
+        try {
+            $activity = $this->communityService->checkIn($user, $stadium);
+
+            return redirect()
+                ->route('ocr.community.index')
+                ->with('success', 'Check-in successful! +' . $activity->points_earned . ' points awarded.');
+        } catch (\InvalidArgumentException $e) {
+            return back()->withErrors(['stadium_id' => $e->getMessage()]);
+        }
     }
 }

@@ -9,7 +9,7 @@ use Illuminate\Http\JsonResponse;
 class OcrUserController extends Controller
 {
     /**
-     * Get user's Elo rating
+     * Get user's Elo rating with OPRS data
      */
     public function elo(User $user): JsonResponse
     {
@@ -24,6 +24,13 @@ class OcrUserController extends Controller
                 'wins' => $user->ocr_wins,
                 'losses' => $user->ocr_losses,
                 'win_rate' => $user->win_rate,
+                // OPRS data
+                'oprs' => [
+                    'total' => $user->total_oprs,
+                    'level' => $user->opr_level,
+                    'challenge_score' => $user->challenge_score,
+                    'community_score' => $user->community_score,
+                ],
             ],
         ]);
     }
@@ -49,7 +56,7 @@ class OcrUserController extends Controller
     }
 
     /**
-     * Get user's OCR stats
+     * Get user's OCR stats with OPRS data
      */
     public function stats(User $user): JsonResponse
     {
@@ -72,7 +79,16 @@ class OcrUserController extends Controller
                 'win_rate' => $user->win_rate,
                 'badges_count' => $user->badges()->count(),
                 'current_streak' => $user->getCurrentWinStreak(),
-                'recent_history' => $recentHistory->map(fn($h) => [
+                // OPRS data
+                'oprs' => [
+                    'total' => $user->total_oprs,
+                    'level' => $user->opr_level,
+                    'level_info' => $user->getOprLevelInfo(),
+                    'challenge_score' => $user->challenge_score,
+                    'community_score' => $user->community_score,
+                    'passed_challenges' => $user->getPassedChallengesCount(),
+                ],
+                'recent_history' => $recentHistory->map(fn ($h) => [
                     'id' => $h->id,
                     'elo_before' => $h->elo_before,
                     'elo_after' => $h->elo_after,
