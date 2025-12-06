@@ -2,9 +2,7 @@
 
 @section('css')
     <style>
-        .top-header {
-            margin-top: 100px;
-        }
+        
     </style>
 @endsection
 

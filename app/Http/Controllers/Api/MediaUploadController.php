@@ -8,6 +8,26 @@ use Illuminate\Http\Request;
 class MediaUploadController extends Controller
 {
     /**
+     * Get identifier for current user/session
+     * Works for both Web and API
+     */
+    private function getSessionIdentifier(Request $request)
+    {
+        // If authenticated via JWT (API)
+        if (auth('api')->check()) {
+            return 'user_' . auth('api')->id();
+        }
+        
+        // If authenticated via session (Web)
+        if (auth()->check()) {
+            return 'user_' . auth()->id();
+        }
+        
+        // Guest user - use session ID
+        return session()->getId();
+    }
+
+    /**
      * Upload media to temp collection
      */
     public function uploadMedia(Request $request)
@@ -24,8 +44,10 @@ class MediaUploadController extends Controller
         ]);
 
         try {
+            $sessionId = $this->getSessionIdentifier($request);
+            
             $tempoModel = \App\Models\Tempo::firstOrCreate(
-                ['session_id' => session()->getId()]
+                ['session_id' => $sessionId]
             );
 
             $uploadedMedia = [];

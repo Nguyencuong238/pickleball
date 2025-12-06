@@ -11,6 +11,12 @@ use App\Http\Controllers\Api\CommunityActivityController;
 use App\Http\Controllers\Api\OprsController;
 use App\Http\Controllers\Api\OprsLeaderboardController;
 use App\Http\Controllers\Api\MatchmakingController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\StadiumController;
+use App\Http\Controllers\Api\TournamentController;
+use App\Http\Controllers\Api\SocialController;
+use App\Http\Controllers\Api\NewsController;
+use App\Http\Controllers\Api\MediaUploadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -23,7 +29,26 @@ use App\Http\Controllers\Api\MatchmakingController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+/*
+|--------------------------------------------------------------------------
+| Authentication Routes
+|--------------------------------------------------------------------------
+*/
+
+// Public auth endpoints (no auth required)
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthController::class, 'register']);
+    Route::post('login', [AuthController::class, 'login']);
+    Route::post('refresh-token', [AuthController::class, 'refreshToken']);
+});
+
+// Protected auth endpoints (auth required)
+Route::prefix('auth')->middleware('auth:api')->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
+    Route::get('me', [AuthController::class, 'me']);
+});
+
+Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
@@ -37,7 +62,7 @@ Route::get('/tournament/{tournament}/categories', [TournamentRegistrationControl
 */
 
 // Protected OCR endpoints (auth required)
-Route::prefix('ocr')->middleware('auth:sanctum')->group(function () {
+Route::prefix('ocr')->middleware('auth:api')->group(function () {
     // Match management
     Route::get('matches', [OcrMatchController::class, 'index']);
     Route::post('matches', [OcrMatchController::class, 'store']);
@@ -67,7 +92,7 @@ Route::prefix('ocr')->group(function () {
 */
 
 // Protected OPRS endpoints (auth required)
-Route::prefix('oprs')->middleware('auth:sanctum')->group(function () {
+Route::prefix('oprs')->middleware('auth:api')->group(function () {
     // User OPRS profile
     Route::get('profile', [OprsController::class, 'profile']);
     Route::get('breakdown', [OprsController::class, 'breakdown']);
@@ -86,7 +111,7 @@ Route::prefix('oprs')->group(function () {
 });
 
 // Protected OPRS matchmaking endpoints
-Route::prefix('oprs')->middleware('auth:sanctum')->group(function () {
+Route::prefix('oprs')->middleware('auth:api')->group(function () {
     Route::post('estimate', [MatchmakingController::class, 'estimateChange']);
 });
 
@@ -97,7 +122,7 @@ Route::prefix('oprs')->middleware('auth:sanctum')->group(function () {
 */
 
 // Protected challenge endpoints (auth required)
-Route::prefix('challenges')->middleware('auth:sanctum')->group(function () {
+Route::prefix('challenges')->middleware('auth:api')->group(function () {
     Route::get('available', [ChallengeController::class, 'available']);
     Route::post('submit', [ChallengeController::class, 'submit']);
     Route::get('history', [ChallengeController::class, 'history']);
@@ -116,7 +141,7 @@ Route::prefix('challenges')->group(function () {
 */
 
 // Protected community activity endpoints (auth required)
-Route::prefix('community')->middleware('auth:sanctum')->group(function () {
+Route::prefix('community')->middleware('auth:api')->group(function () {
     Route::post('check-in', [CommunityActivityController::class, 'checkIn']);
     Route::post('event', [CommunityActivityController::class, 'recordEvent']);
     Route::post('referral', [CommunityActivityController::class, 'recordReferral']);
@@ -127,4 +152,48 @@ Route::prefix('community')->middleware('auth:sanctum')->group(function () {
 // Public community activity types
 Route::prefix('community')->group(function () {
     Route::get('types', [CommunityActivityController::class, 'types']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Public API Routes (No Authentication Required)
+|--------------------------------------------------------------------------
+*/
+
+// Stadiums API
+Route::prefix('stadiums')->group(function () {
+    Route::get('', [StadiumController::class, 'index']);
+    Route::get('{id}', [StadiumController::class, 'show']);
+});
+
+// Tournaments API
+Route::prefix('tournaments')->group(function () {
+    Route::get('', [TournamentController::class, 'index']);
+    Route::get('{id}', [TournamentController::class, 'show']);
+    Route::get('{id}/standings', [TournamentController::class, 'standings']);
+});
+
+// Socials API
+Route::prefix('socials')->group(function () {
+    Route::get('', [SocialController::class, 'index']);
+    Route::get('{id}', [SocialController::class, 'show']);
+    Route::get('{id}/participants', [SocialController::class, 'participants']);
+});
+
+// News API
+Route::prefix('news')->group(function () {
+    Route::get('', [NewsController::class, 'index']);
+    Route::get('trending', [NewsController::class, 'trending']);
+    Route::get('{id}', [NewsController::class, 'show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Media Upload Routes (Works for both Web & API)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('media')->group(function () {
+    Route::post('upload', [MediaUploadController::class, 'uploadMedia']);
+    Route::delete('{mediaId}', [MediaUploadController::class, 'deleteMedia']);
 });
