@@ -183,8 +183,8 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        'JWTAuth' => Tymon\JWTAuth\Facades\JWTAuth::class,
-        'JWTFactory' => Tymon\JWTAuth\Facades\JWTFactory::class,
+        'JWTAuth' => PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth::class,
+        'JWTFactory' => PHPOpenSourceSaver\JWTAuth\Facades\JWTFactory::class,
     ])->toArray(),
 
 ];
