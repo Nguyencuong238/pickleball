@@ -303,7 +303,7 @@
 <section class="ocr-hero">
     <div class="container">
         <div class="ocr-hero-content">
-            <span class="ocr-hero-badge">[TROPHY] Bảng Xếp Hạng Vô Địch OnePickleball</span>
+            <span class="ocr-hero-badge">🏆 Bảng Xếp Hạng Vô Địch OnePickleball</span>
              <h1 class="ocr-hero-title">Xếp Hạng Elo Pickleball</h1>
              <p class="ocr-hero-description">
                  Từ tổ chức trận đấu, tích lũy điểm Elo, nhận huy hiệu và leo hạng trong cộng đồng Pickleball Việt Nam
@@ -328,28 +328,28 @@
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-card-icon" style="background: rgba(16, 185, 129, 0.1);">
-                            [RANK]
+                            🏅
                         </div>
                         <div class="stat-card-value">#{{ $userRank }}</div>
                         <div class="stat-card-label">Thứ Hạng Của Bạn</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon" style="background: rgba(59, 130, 246, 0.1);">
-                            [STAR]
+                            ⭐
                         </div>
                         <div class="stat-card-value">{{ auth()->user()->elo_rating }}</div>
                         <div class="stat-card-label">Điểm Elo</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon" style="background: rgba(251, 191, 36, 0.1);">
-                            [GAME]
+                            🏓
                         </div>
                         <div class="stat-card-value">{{ auth()->user()->total_ocr_matches }}</div>
                         <div class="stat-card-label">Tổng Số Trận</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-card-icon" style="background: rgba(16, 185, 129, 0.1);">
-                            [WIN]
+                            ✅
                         </div>
                         <div class="stat-card-value">
                             {{ auth()->user()->total_ocr_matches > 0 ? round((auth()->user()->ocr_wins / auth()->user()->total_ocr_matches) * 100) : 0 }}%
@@ -364,7 +364,7 @@
             <div style="flex: 2; min-width: 300px;">
                 <div class="leaderboard-card">
                     <div class="leaderboard-header">
-                         <h3>[TROPHY] Top 10 Bảng Xếp Hạng</h3>
+                         <h3>🏆 Top 10 Bảng Xếp Hạng</h3>
                          <a href="{{ route('ocr.leaderboard') }}" class="btn btn-sm" style="background: rgba(255,255,255,0.2); color: white;">
                              Xem Tất Cả
                          </a>
@@ -425,7 +425,7 @@
             <div style="flex: 1; min-width: 280px;">
                 <div class="recent-matches-card">
                     <div class="recent-matches-header">
-                         <h3>[GAME] Trận Đấu Gần Đây</h3>
+                         <h3>🏓 Trận Đấu Gần Đây</h3>
                      </div>
                     <div>
                         @forelse($recentMatches as $match)

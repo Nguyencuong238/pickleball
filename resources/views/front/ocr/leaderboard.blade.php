@@ -325,7 +325,7 @@
                 <p class="page-breadcrumb">
                      <a href="{{ route('ocr.index') }}">OCR</a> / Bảng Xếp Hạng
                  </p>
-                 <h1 class="page-title">[TROPHY] Bảng Xếp Hạng Elo</h1>
+                 <h1 class="page-title">🏆 Bảng Xếp Hạng Elo</h1>
             </div>
             @auth
                 <a href="{{ route('ocr.matches.create') }}" class="btn btn-primary">

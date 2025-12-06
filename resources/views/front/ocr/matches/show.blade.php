@@ -385,7 +385,7 @@
             Chi Tiết
         </p>
         <h1 class="page-title">
-            [GAME] Trận Đấu #{{ $match->id }}
+            🏓 Trận Đấu #{{ $match->id }}
             <span class="match-type-badge">
                 {{ $match->match_type === 'singles' ? 'Đơn' : 'Đôi' }}
             </span>
@@ -400,25 +400,25 @@
             <span class="status-text">
                 @switch($match->status)
                         @case('pending')
-                            [CLOCK] Đang chờ đối thủ chấp nhận lời thách đấu
+                            🕐 Đang chờ đối thủ chấp nhận lời thách đấu
                             @break
                         @case('accepted')
-                            [CHECK] Trận đấu đã được chấp nhận - Sẵn sàng thi đấu!
+                            ✅ Trận đấu đã được chấp nhận - Sẵn sàng thi đấu!
                             @break
                         @case('in_progress')
-                            [PLAY] Trận đấu đang diễn ra
+                            ▶️ Trận đấu đang diễn ra
                             @break
                         @case('result_submitted')
-                            [ALERT] Kết quả đã được gửi - Chờ xác nhận từ đối thủ
+                            ⚠️ Kết quả đã được gửi - Chờ xác nhận từ đối thủ
                             @break
                         @case('confirmed')
-                            [TROPHY] Trận đấu đã hoàn thành
+                            🏆 Trận đấu đã hoàn thành
                             @break
                         @case('disputed')
-                            [WARNING] Trận đấu đang tranh chấp - Chờ xử lý từ admin
+                            ⚠️ Trận đấu đang tranh chấp - Chờ xử lý từ admin
                             @break
                         @case('cancelled')
-                            [X] Trận đấu đã bị hủy
+                            ❌ Trận đấu đã bị hủy
                             @break
                     @endswitch
             </span>
@@ -430,7 +430,7 @@
                 <div class="match-main-card">
                     <div class="match-main-header">
                          <span class="match-type-badge">
-                             {{ $match->match_type === 'singles' ? '[1v1] Trận Đơn' : '[2v2] Trận Đôi' }}
+                             {{ $match->match_type === 'singles' ? '🎾 Trận Đơn' : '🎾🎾 Trận Đôi' }}
                          </span>
                          <span style="font-size: 0.875rem; color: #64748b;">
                              Tạo lúc: {{ $match->created_at->format('d/m/Y H:i') }}
@@ -443,7 +443,7 @@
                                  <div class="team-label">
                                      Đội Thách Đấu
                                      @if($match->winner_team === 'challenger')
-                                         [TROPHY] THẮNG
+                                         🏆 THẮNG
                                      @endif
                                  </div>
                                 <div class="team-players">
@@ -510,7 +510,7 @@
                                  <div class="team-label">
                                      Đội Đối Thủ
                                      @if($match->winner_team === 'opponent')
-                                         [TROPHY] THẮNG
+                                         🏆 THẮNG
                                      @endif
                                  </div>
                                 <div class="team-players">
@@ -556,21 +556,21 @@
 
                     <div class="match-info-grid">
                         <div class="info-item">
-                             <span class="info-icon">[CALENDAR]</span>
+                             <span class="info-icon">📅</span>
                              <div>
                                  <div class="info-label">Ngày Thi Đấu</div>
                                  <div class="info-value">{{ $match->scheduled_date?->format('d/m/Y') ?? 'Chưa xác định' }}</div>
                              </div>
                          </div>
                          <div class="info-item">
-                             <span class="info-icon">[CLOCK]</span>
+                             <span class="info-icon">🕐</span>
                              <div>
                                  <div class="info-label">Giờ</div>
                                  <div class="info-value">{{ $match->scheduled_time ?? 'Chưa xác định' }}</div>
                              </div>
                          </div>
                          <div class="info-item">
-                             <span class="info-icon">[LOCATION]</span>
+                             <span class="info-icon">📍</span>
                              <div>
                                  <div class="info-label">Địa Điểm</div>
                                  <div class="info-value">{{ $match->location ?? 'Chưa xác định' }}</div>
@@ -578,7 +578,7 @@
                          </div>
                          @if($match->elo_change && $match->status === 'confirmed')
                              <div class="info-item">
-                                 <span class="info-icon">[CHART]</span>
+                                 <span class="info-icon">📊</span>
                                  <div>
                                      <div class="info-label">Elo Thay Đổi</div>
                                      <div class="info-value">+/- {{ $match->elo_change }}</div>
@@ -591,7 +591,7 @@
                 {{-- Evidence --}}
                 @if($match->media->isNotEmpty())
                     <div class="action-card">
-                        <h3>[IMAGE] Bằng Chứng ({{ $match->media->count() }})</h3>
+                        <h3>🖼️ Bằng Chứng ({{ $match->media->count() }})</h3>
                         <div class="evidence-grid">
                             @foreach($match->media as $media)
                                 @if(Str::startsWith($media->mime_type, 'image'))
@@ -600,7 +600,7 @@
                                     </a>
                                 @else
                                     <a href="{{ $media->getUrl() }}" target="_blank" class="evidence-item video">
-                                        [VIDEO] Xem Video
+                                        🎬 Xem Video
                                     </a>
                                 @endif
                             @endforeach
@@ -622,7 +622,7 @@
                 {{-- Pending: Opponent can accept/reject --}}
                 @if($match->status === 'pending' && $isOpponent)
                     <div class="action-card">
-                        <h3>[ACTION] Phản Hồi Thách Đấu</h3>
+                        <h3>⚡ Phản Hồi Thách Đấu</h3>
                         <div class="action-buttons">
                             <form action="{{ route('api.ocr.matches.accept', $match) }}" method="POST" style="flex: 1;">
                                 @csrf
@@ -643,7 +643,7 @@
                 {{-- Accepted: Either can mark as in progress --}}
                 @if($match->status === 'accepted')
                     <div class="action-card">
-                        <h3>[PLAY] Bắt Đầu Trận Đấu</h3>
+                        <h3>▶️ Bắt Đầu Trận Đấu</h3>
                         <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1rem;">
                             Khi cả hai đội đã sẵn sàng, nhấn bắt đầu.
                         </p>
@@ -659,7 +659,7 @@
                 {{-- In Progress: Submit result --}}
                 @if($match->status === 'in_progress')
                     <div class="action-card">
-                        <h3>[SCORE] Gửi Kết Quả</h3>
+                        <h3>📝 Gửi Kết Quả</h3>
                         <form action="{{ route('api.ocr.matches.result', $match) }}" method="POST" class="result-form">
                             @csrf
                             <div class="score-inputs">
@@ -685,7 +685,7 @@
                     @if(($isChallengerTeam && $match->result_submitted_by !== $user->id) ||
                         ($isOpponentTeam && $match->result_submitted_by !== $user->id))
                         <div class="action-card">
-                            <h3>[CHECK] Xác Nhận Kết Quả</h3>
+                            <h3>✅ Xác Nhận Kết Quả</h3>
                             <p style="font-size: 0.875rem; color: #64748b; margin-bottom: 1rem;">
                                 Kết quả: <strong>{{ $match->challenger_score }} - {{ $match->opponent_score }}</strong>
                             </p>
@@ -711,7 +711,7 @@
                         </div>
                     @else
                         <div class="action-card">
-                            <h3>[CLOCK] Đang Chờ Xác Nhận</h3>
+                            <h3>🕐 Đang Chờ Xác Nhận</h3>
                             <p style="font-size: 0.875rem; color: #64748b;">
                                 Bạn đã gửi kết quả. Vui lòng chờ đối thủ xác nhận.
                                 <br><br>
@@ -728,7 +728,7 @@
                                    ($isOpponentTeam && $match->winner_team === 'opponent');
                     @endphp
                     <div class="action-card">
-                        <h3>[CHART] Thay Đổi Elo Của Bạn</h3>
+                        <h3>📊 Thay Đổi Elo Của Bạn</h3>
                         <div class="elo-change-display {{ $userWon ? 'positive' : 'negative' }}">
                             <div class="elo-change-value">
                                 {{ $userWon ? '+' : '-' }}{{ $match->elo_change }}
@@ -743,7 +743,7 @@
                 {{-- Disputed --}}
                 @if($match->status === 'disputed')
                     <div class="action-card">
-                        <h3>[WARNING] Trận Đấu Đang Tranh Chấp</h3>
+                        <h3>⚠️ Trận Đấu Đang Tranh Chấp</h3>
                         <p style="font-size: 0.875rem; color: #64748b;">
                             Lý do: <em>{{ $match->disputed_reason }}</em>
                         </p>
@@ -756,7 +756,7 @@
                 {{-- Upload Evidence --}}
                 @if(in_array($match->status, ['in_progress', 'result_submitted']))
                     <div class="action-card">
-                        <h3>[UPLOAD] Tải Lên Bằng Chứng</h3>
+                        <h3>📤 Tải Lên Bằng Chứng</h3>
                         <form action="{{ route('api.ocr.matches.evidence', $match) }}" method="POST" enctype="multipart/form-data">
                             @csrf
                             <input type="file" name="evidence[]" multiple accept="image/*,video/*" style="margin-bottom: 1rem;">

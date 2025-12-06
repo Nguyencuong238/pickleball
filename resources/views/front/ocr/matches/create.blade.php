@@ -281,7 +281,7 @@
             <a href="{{ route('ocr.matches.index') }}">Trận Đấu</a> /
             Tạo Mới
         </p>
-        <h1 class="page-title">[PLUS] Tạo Trận Đấu Mới</h1>
+        <h1 class="page-title">➕ Tạo Trận Đấu Mới</h1>
     </div>
 </section>
 
@@ -289,7 +289,7 @@
     <div class="container">
         <div class="create-card">
             <div class="create-card-header">
-                <h2>[GAME] Thách Đấu Elo</h2>
+                <h2>🏓 Thách Đấu Elo</h2>
             </div>
             <div class="create-card-body">
                 <form action="{{ route('api.ocr.matches.store') }}" method="POST" id="createMatchForm">
@@ -297,17 +297,17 @@
 
                     {{-- Match Type --}}
                     <div class="form-section">
-                        <h3 class="form-section-title">[TYPE] Loại Trận Đấu</h3>
+                        <h3 class="form-section-title">📋 Loại Trận Đấu</h3>
                         <div class="match-type-selector">
                             <label class="match-type-option selected" data-type="singles">
                                 <input type="radio" name="match_type" value="singles" checked>
-                                <div class="match-type-icon">[1v1]</div>
+                                <div class="match-type-icon">🎾</div>
                                 <div class="match-type-label">Trận Đơn</div>
                                 <div class="match-type-desc">1 vs 1</div>
                             </label>
                             <label class="match-type-option" data-type="doubles">
                                 <input type="radio" name="match_type" value="doubles">
-                                <div class="match-type-icon">[2v2]</div>
+                                <div class="match-type-icon">🎾🎾</div>
                                 <div class="match-type-label">Trận Đôi</div>
                                 <div class="match-type-desc">2 vs 2</div>
                             </label>
@@ -316,7 +316,7 @@
 
                     {{-- Opponent Selection --}}
                     <div class="form-section">
-                        <h3 class="form-section-title">[USERS] Chọn Đối Thủ</h3>
+                        <h3 class="form-section-title">👥 Chọn Đối Thủ</h3>
 
                         <div class="form-group">
                             <label class="form-label">Đối Thủ <span class="required">*</span></label>
@@ -332,7 +332,7 @@
                                     <div class="user-name-sm" id="opponentName"></div>
                                     <div class="user-meta-sm" id="opponentMeta"></div>
                                 </div>
-                                <span class="remove-btn" onclick="removeOpponent()">[X]</span>
+                                <span class="remove-btn" onclick="removeOpponent()">❌</span>
                             </div>
                         </div>
 
@@ -351,7 +351,7 @@
                                         <div class="user-name-sm" id="partnerName"></div>
                                         <div class="user-meta-sm" id="partnerMeta"></div>
                                     </div>
-                                    <span class="remove-btn" onclick="removePartner()">[X]</span>
+                                    <span class="remove-btn" onclick="removePartner()">❌</span>
                                 </div>
                             </div>
 
@@ -369,7 +369,7 @@
                                         <div class="user-name-sm" id="opponentPartnerName"></div>
                                         <div class="user-meta-sm" id="opponentPartnerMeta"></div>
                                     </div>
-                                    <span class="remove-btn" onclick="removeOpponentPartner()">[X]</span>
+                                    <span class="remove-btn" onclick="removeOpponentPartner()">❌</span>
                                 </div>
                             </div>
                         </div>
@@ -377,7 +377,7 @@
 
                     {{-- Match Details --}}
                     <div class="form-section">
-                        <h3 class="form-section-title">[INFO] Chi Tiết Trận Đấu</h3>
+                        <h3 class="form-section-title">ℹ️ Chi Tiết Trận Đấu</h3>
 
                         <div class="form-row">
                             <div class="form-group">

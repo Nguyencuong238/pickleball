@@ -282,7 +282,7 @@
                 <p class="page-breadcrumb">
                      <a href="{{ route('ocr.index') }}">OCR</a> / Quản Lý Trận Đấu
                  </p>
-                 <h1 class="page-title">[GAME] Trận Đấu Của Tôi</h1>
+                 <h1 class="page-title">🏓 Trận Đấu Của Tôi</h1>
             </div>
             <a href="{{ route('ocr.matches.create') }}" class="btn btn-primary">
                 + Tạo Trận Đấu Mới
@@ -325,7 +325,7 @@
 
         @if($matches->isEmpty())
             <div class="empty-state">
-                <div class="empty-state-icon">[GAME]</div>
+                <div class="empty-state-icon">🏓</div>
                 <h3>Chưa Có Trận Đấu Nào</h3>
                 <p>
                     @if($status)
@@ -422,16 +422,16 @@
                         <div class="match-card-footer">
                             <div class="match-meta">
                                 <span class="match-meta-item">
-                                    [CALENDAR] {{ $match->scheduled_date?->format('d/m/Y') ?? 'TBD' }}
+                                    📅 {{ $match->scheduled_date?->format('d/m/Y') ?? 'TBD' }}
                                 </span>
                                 @if($match->scheduled_time)
                                     <span class="match-meta-item">
-                                        [CLOCK] {{ $match->scheduled_time }}
+                                        🕐 {{ $match->scheduled_time }}
                                     </span>
                                 @endif
                                 @if($match->location)
                                     <span class="match-meta-item">
-                                        [LOCATION] {{ Str::limit($match->location, 30) }}
+                                        📍 {{ Str::limit($match->location, 30) }}
                                     </span>
                                 @endif
                             </div>

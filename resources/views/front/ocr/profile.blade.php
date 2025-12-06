@@ -319,6 +319,10 @@
                 @endif
                 <div class="profile-stats">
                     <div class="profile-stat">
+                        <div class="profile-stat-value">{{ number_format($user->total_oprs, 0) }}</div>
+                        <div class="profile-stat-label">OPRS</div>
+                    </div>
+                    <div class="profile-stat">
                         <div class="profile-stat-value">#{{ $globalRank }}</div>
                         <div class="profile-stat-label">Thứ Hạng</div>
                     </div>
@@ -352,10 +356,31 @@
 
 <section class="profile-section">
     <div class="container">
+        {{-- OPRS Section --}}
+        <div class="section-title">⭐ OnePickleball Rating Score</div>
+        <div class="content-grid" style="margin-bottom: 2rem;">
+            <x-oprs.score-card :user="$user" :breakdown="$oprsBreakdown" />
+            <x-oprs.breakdown-chart :breakdown="$oprsBreakdown" />
+        </div>
+
+        {{-- Quick Actions for OPRS --}}
+        @auth
+            @if(auth()->id() === $user->id)
+            <div class="oprs-actions" style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <a href="{{ route('ocr.challenges.index') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    🎯 Trung Tâm Thử Thách
+                </a>
+                <a href="{{ route('ocr.community.index') }}" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                    👥 Cộng Đồng
+                </a>
+            </div>
+            @endif
+        @endauth
+
         <div class="content-grid">
             {{-- Badges --}}
             <div class="card">
-                <div class="card-header">[BADGE] Huy Hiệu ({{ $user->badges->count() }})</div>
+                <div class="card-header">🏅 Huy Hiệu ({{ $user->badges->count() }})</div>
                 <div class="card-body">
                     @if($user->badges->isEmpty())
                         <div class="empty-message">Chưa có huy hiệu nào</div>
@@ -366,7 +391,7 @@
                                     $badgeInfo = \App\Models\UserBadge::getBadgeInfo($badge->badge_type) ?? [];
                                 @endphp
                                 <div class="badge-item" title="{{ $badgeInfo['description'] ?? '' }}">
-                                    <div class="badge-icon">{{ $badgeInfo['icon'] ?? '[BADGE]' }}</div>
+                                    <div class="badge-icon">{{ $badgeInfo['icon'] ?? '🏅' }}</div>
                                     <div class="badge-name">{{ $badgeInfo['name'] ?? $badge->badge_type }}</div>
                                 </div>
                             @endforeach
@@ -398,7 +423,7 @@
 
             {{-- Elo History --}}
             <div class="card">
-                <div class="card-header">[CHART] Lịch Sử Elo</div>
+                <div class="card-header">📊 Lịch Sử Elo</div>
                 <div class="card-body">
                     @if($eloHistory->isEmpty())
                         <div class="empty-message">Chưa có lịch sử Elo</div>
@@ -422,7 +447,7 @@
 
             {{-- Recent Matches --}}
             <div class="card" style="grid-column: 1 / -1;">
-                <div class="card-header">[GAME] Trận Đấu Gần Đây</div>
+                <div class="card-header">🏓 Trận Đấu Gần Đây</div>
                 <div class="card-body">
                     @if($recentMatches->isEmpty())
                         <div class="empty-message">Chưa có trận đấu nào</div>

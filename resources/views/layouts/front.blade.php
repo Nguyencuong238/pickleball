@@ -262,7 +262,20 @@
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
                     </ul>
                 </li>
-                
+                <li class="nav-item dropdown">
+                    <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*')) active @endif">OPRS</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ route('ocr.index') }}" class="dropdown-item">Tổng quan</a></li>
+                        <li><a href="{{ route('ocr.leaderboard') }}" class="dropdown-item">Bảng xếp hạng</a></li>
+                        @auth
+                            <li><a href="{{ route('ocr.profile', auth()->user()) }}" class="dropdown-item">Hồ sơ của tôi</a></li>
+                            <li><a href="{{ route('ocr.matches.index') }}" class="dropdown-item">Trận đấu</a></li>
+                            <!-- <li><a href="{{ route('ocr.challenges.index') }}" class="dropdown-item">Challenge Center</a></li> -->
+                            <li><a href="{{ route('ocr.community.index') }}" class="dropdown-item">Community Hub</a></li>
+                        @endauth
+                    </ul>
+                </li>
+
                 @guest
                     <li class="mobile-only login-register-btn">
                         <a href="/login" class="btn btn-outline">Đăng nhập</a>
@@ -296,9 +309,9 @@
                             </svg>
                         </div>
                         <div class="dropdown-info">
-                            {{-- <a href="{{ route('ocr.index') }}" class="nav-link">
-                                OCR
-                            </a> --}}
+                            <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
+                                [STAR] Hồ sơ OPRS
+                            </a>
                             @if(auth()->check())
                                 @if(auth()->user()->hasRole('admin'))
                                     <a href="{{ route('admin.dashboard') }}" class="nav-link">
