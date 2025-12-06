@@ -29,8 +29,34 @@ class HomeYardTournamentController extends Controller
 
     public function index()
     {
-        $tournaments = Tournament::where('user_id', auth()->id())->latest()->paginate(10);
-        return view('home-yard.tournaments.index', compact('tournaments'));
+        $tournaments = Tournament::where('user_id', auth()->id())
+            ->with(['athletes', 'categories'])
+            ->latest()
+            ->paginate(12);
+
+        // Calculate stats
+        $now = now();
+        $stats = [
+            'total' => Tournament::where('user_id', auth()->id())->count(),
+            'ongoing' => Tournament::where('user_id', auth()->id())
+                ->where('start_date', '<=', $now)
+                ->where(function ($q) {
+                    $q->where('end_date', '>=', now())
+                        ->orWhereNull('end_date');
+                })
+                ->count(),
+            'upcoming' => Tournament::where('user_id', auth()->id())
+                ->where('start_date', '>', $now)
+                ->count(),
+            'completed' => Tournament::where('user_id', auth()->id())
+                ->where(function ($q) use ($now) {
+                    $q->where('end_date', '<', $now)
+                        ->orWhere('status', 0);
+                })
+                ->count(),
+        ];
+
+        return view('home-yard.tournaments.tournaments', compact('tournaments', 'stats'));
     }
 
     public function create()
@@ -78,7 +104,7 @@ class HomeYardTournamentController extends Controller
         $data['user_id'] = auth()->id();
 
         $tournament = Tournament::create($data);
-        
+
         // Log activity
         ActivityLog::log("Giải đấu '{$tournament->name}' được tạo", 'Tournament', $tournament->id);
 
@@ -99,7 +125,7 @@ class HomeYardTournamentController extends Controller
         // Return JSON for AJAX requests
         if (request()->ajax()) {
             return response()->json([
-               'html' => view('home-yard.tournaments.__detailTournament', compact('tournament'))->render()
+                'html' => view('home-yard.tournaments.__detailTournament', compact('tournament'))->render()
             ]);
         }
 
@@ -114,7 +140,7 @@ class HomeYardTournamentController extends Controller
         // Return JSON for AJAX requests
         if (request()->ajax()) {
             return response()->json([
-               'html' => view('home-yard.tournaments.__editTournament', compact('tournament'))->render()
+                'html' => view('home-yard.tournaments.__editTournament', compact('tournament'))->render()
             ]);
         }
         return view('home-yard.tournaments.edit', compact('tournament'));
@@ -164,12 +190,7 @@ class HomeYardTournamentController extends Controller
 
         $tournament->update($data);
 
-        // Handle AJAX requests
-        if (request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
-            return response()->json(['success' => true, 'message' => 'Tournament updated successfully']);
-        }
-
-        return redirect()->route('homeyard.tournaments.index')->with('success', 'Tournament updated successfully.');
+        return redirect()->back()->with('success', 'Thông tin giải đấu đã được cập nhật thành công.');
     }
 
     public function destroy(Tournament $tournament)
@@ -194,7 +215,7 @@ class HomeYardTournamentController extends Controller
             ]);
 
             $ids = $request->input('ids');
-            
+
             // Get tournaments and verify authorization
             $tournaments = Tournament::whereIn('id', $ids)
                 ->where('user_id', auth()->id())
@@ -213,7 +234,7 @@ class HomeYardTournamentController extends Controller
                 $tournament->clearMediaCollection('gallery');
                 $tournament->clearMediaCollection('banner');
                 $tournament->delete();
-                
+
                 // Log activity
                 ActivityLog::log("Giải đấu '{$tournament->name}' được xóa", 'Tournament', $tournament->id);
             }
@@ -235,6 +256,31 @@ class HomeYardTournamentController extends Controller
                 'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    public function configTournament($tournament_id)
+    {
+        $user = auth()->user();
+
+        $tournament = Tournament::where('id', $tournament_id)
+            ->where('user_id', $user->id)
+            ->with(['categories', 'rounds', 'groups' => function ($query) {
+                $query->with('category', 'round');
+            }, 'matches' => function ($query) {
+                $query->with('athlete1', 'athlete2', 'category', 'round');
+            }, 'athletes'])
+            ->firstOrFail();
+
+        // Get courts for all stadiums owned by this user
+        $courts = Court::whereHas('stadium', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })->get() ?? collect();
+
+        $athletes = $tournament->athletes ?? collect();
+
+        $categories = $tournament->categories ?? collect();
+
+        return view('home-yard.config', compact('user', 'courts', 'tournament', 'athletes', 'categories'));
     }
 
     public function addAthlete(Request $request, Tournament $tournament)
@@ -278,7 +324,7 @@ class HomeYardTournamentController extends Controller
             ]);
 
             \Log::info('Athlete created', ['id' => $athlete->id]);
-            
+
             // Log activity
             ActivityLog::log("VĐV '{$athlete->athlete_name}' tham gia giải đấu '{$tournament->name}'", 'TournamentAthlete', $athlete->id);
 
@@ -345,14 +391,14 @@ class HomeYardTournamentController extends Controller
     {
         $this->authorize('update', $tournament);
         $athlete->delete();
-        
+
         if (request()->wantsJson() || request()->header('X-Requested-With') === 'XMLHttpRequest') {
             return response()->json([
                 'success' => true,
                 'message' => 'Vận động viên đã được xóa'
             ]);
         }
-        
+
         return redirect()->back()->with('success', 'Athlete removed successfully.');
     }
 
@@ -414,53 +460,6 @@ class HomeYardTournamentController extends Controller
         return view('home-yard.athletes.index', compact('athletes', 'status', 'stats'));
     }
 
-    public function updateTournament(Request $request, Tournament $tournament)
-    {
-        $this->authorize('update', $tournament);
-
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'registration_deadline' => 'nullable|date_format:Y-m-d\TH:i',
-            'location' => 'nullable|string|max:255',
-            'max_participants' => 'nullable|integer|min:1',
-            'price' => 'nullable|numeric|min:0',
-            'rules' => 'nullable|string',
-            'prizes' => 'nullable|numeric|min:0',
-            'competition_format' => 'nullable|string|in:single,double,mixed',
-            'registration_benefits' => 'nullable|string',
-            'competition_rules' => 'nullable|string',
-        ]);
-
-        $data = $request->only([
-            'name',
-            'description',
-            'start_date',
-            'end_date',
-            'registration_deadline',
-            'location',
-            'max_participants',
-            'price',
-            'rules',
-            'prizes',
-            'competition_format',
-            'registration_benefits',
-            'competition_rules',
-        ]);
-
-        // Sync gallery images
-        $tournament->syncMediaCollection('gallery', 'gallery', $request);
-
-        // Sync banner image
-        $tournament->syncMediaCollection('banner', 'banner', $request);
-
-        $tournament->update($data);
-
-        return redirect()->back()->with('success', 'Thông tin giải đấu đã được cập nhật thành công.');
-    }
-
     public function overview()
     {
         $userId = auth()->id();
@@ -475,7 +474,7 @@ class HomeYardTournamentController extends Controller
         $lastMonthTournaments = Tournament::where('user_id', $userId)
             ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
             ->count();
-        $tournamentChangePercent = $lastMonthTournaments > 0 
+        $tournamentChangePercent = $lastMonthTournaments > 0
             ? round((($totalTournaments - $lastMonthTournaments) / $lastMonthTournaments) * 100, 2)
             : 0;
 
@@ -519,7 +518,7 @@ class HomeYardTournamentController extends Controller
             ->whereBetween('created_at', [$lastMonthStart, $lastMonthEnd])
             ->count();
 
-        $athleteChangePercent = $newAthletesLastMonth > 0 
+        $athleteChangePercent = $newAthletesLastMonth > 0
             ? round((($newAthletesThisMonth - $newAthletesLastMonth) / $newAthletesLastMonth) * 100, 2)
             : 0;
 
@@ -565,12 +564,12 @@ class HomeYardTournamentController extends Controller
             ->map(function ($tournament) {
                 $athleteCount = $tournament->athletes()->count();
                 $matchCount = MatchModel::where('tournament_id', $tournament->id)->count();
-                
+
                 // Xác định trạng thái
                 $now = now();
                 $startDate = \Carbon\Carbon::parse($tournament->start_date);
                 $endDate = $tournament->end_date ? \Carbon\Carbon::parse($tournament->end_date) : null;
-                
+
                 if ($startDate > $now) {
                     $status = 'upcoming';
                 } elseif ($startDate <= $now && ($endDate === null || $endDate >= $now)) {
@@ -578,7 +577,7 @@ class HomeYardTournamentController extends Controller
                 } else {
                     $status = 'completed';
                 }
-                
+
                 return [
                     'id' => $tournament->id,
                     'name' => $tournament->name,
@@ -614,7 +613,7 @@ class HomeYardTournamentController extends Controller
         // 8. Thống kê giải đấu theo tháng (2 năm gần nhất)
         $currentYear = now()->year;
         $lastYear = $currentYear - 1;
-        
+
         $tournamentsByMonth = [];
         foreach ([$lastYear, $currentYear] as $year) {
             $monthData = [];
@@ -645,51 +644,19 @@ class HomeYardTournamentController extends Controller
         return view('home-yard.tournaments.overview', compact('stats', 'recentTournaments', 'recentActivities', 'tournamentsByMonth', 'athletesByCategory'));
     }
 
-    public function tournaments()
-    {
-        $tournaments = Tournament::where('user_id', auth()->id())
-            ->with(['athletes', 'categories'])
-            ->latest()
-            ->paginate(12);
-
-        // Calculate stats
-        $now = now();
-        $stats = [
-            'total' => Tournament::where('user_id', auth()->id())->count(),
-            'ongoing' => Tournament::where('user_id', auth()->id())
-                ->where('start_date', '<=', $now)
-                ->where(function ($q) {
-                    $q->where('end_date', '>=', now())
-                        ->orWhereNull('end_date');
-                })
-                ->count(),
-            'upcoming' => Tournament::where('user_id', auth()->id())
-                ->where('start_date', '>', $now)
-                ->count(),
-            'completed' => Tournament::where('user_id', auth()->id())
-                ->where(function ($q) use ($now) {
-                    $q->where('end_date', '<', $now)
-                        ->orWhere('status', 0);
-                })
-                ->count(),
-        ];
-
-        return view('home-yard.tournaments.tournaments', compact('tournaments', 'stats'));
-    }
-
     public function matches(Request $request)
     {
         // Get all tournaments for the user
         $tournaments = Tournament::where('user_id', auth()->id())->get();
-        
+
         $tournamentIds = $tournaments->pluck('id');
-        
+
         // Get total counts for statistics
         $totalMatches = MatchModel::whereIn('tournament_id', $tournamentIds)->count();
         $liveCount = MatchModel::whereIn('tournament_id', $tournamentIds)->where('status', 'in_progress')->count();
         $upcomingCount = MatchModel::whereIn('tournament_id', $tournamentIds)->where('status', 'scheduled')->count();
         $completedCount = MatchModel::whereIn('tournament_id', $tournamentIds)->where('status', 'completed')->count();
-        
+
         // Paginate matches by status
         // Live: status = 'in_progress'
         $liveMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
@@ -699,7 +666,7 @@ class HomeYardTournamentController extends Controller
             ->orderBy('match_date', 'desc')
             ->orderBy('match_time', 'desc')
             ->paginate(5, ['*'], 'live_page');
-        
+
         // Upcoming: status = 'scheduled'
         $upcomingMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
             ->where('status', 'scheduled')
@@ -708,7 +675,7 @@ class HomeYardTournamentController extends Controller
             ->orderBy('match_date', 'asc')
             ->orderBy('match_time', 'asc')
             ->paginate(5, ['*'], 'upcoming_page');
-        
+
         // Completed: status = 'completed'
         $completedMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
             ->where('status', 'completed')
@@ -716,7 +683,7 @@ class HomeYardTournamentController extends Controller
             ->orderBy('match_date', 'desc')
             ->orderBy('match_time', 'desc')
             ->paginate(5, ['*'], 'completed_page');
-        
+
         // Calculate statistics
         $stats = [
             'completed' => $completedCount,
@@ -724,21 +691,21 @@ class HomeYardTournamentController extends Controller
             'upcoming' => $upcomingCount,
             'total' => $totalMatches,
         ];
-        
+
         // Get matches grouped by date for calendar view
         $allMatches = MatchModel::whereIn('tournament_id', $tournamentIds)
             ->where('status', '!=', 'cancelled')
             ->select('match_date')
             ->groupBy('match_date')
             ->pluck('match_date');
-        
+
         // Count matches per date
         $matchesByDate = MatchModel::whereIn('tournament_id', $tournamentIds)
             ->where('status', '!=', 'cancelled')
             ->selectRaw('DATE(match_date) as date, COUNT(*) as count')
             ->groupBy('date')
             ->pluck('count', 'date');
-        
+
         return view('home-yard.tournaments.matches', compact('liveMatches', 'upcomingMatches', 'completedMatches', 'stats', 'matchesByDate'));
     }
 
@@ -788,7 +755,7 @@ class HomeYardTournamentController extends Controller
             $tournamentId = $request->get('tournament_id');
             $categoryId = $request->get('category_id');
             $groupId = $request->get('group_id');
-            
+
             if ($tournamentId) {
                 // Stats for specific tournament
                 $tournaments = [$tournamentId];
@@ -798,7 +765,7 @@ class HomeYardTournamentController extends Controller
                     ->pluck('id')
                     ->toArray();
             }
-            
+
             if (empty($tournaments)) {
                 return response()->json([
                     'total_athletes' => 0,
@@ -807,33 +774,33 @@ class HomeYardTournamentController extends Controller
                     'total_wins' => 0
                 ]);
             }
-            
+
             // Get standings - same source as rankings display with same filters
             $query = GroupStanding::whereHas('group', function ($q) use ($tournaments) {
                 $q->whereIn('tournament_id', $tournaments);
             });
-            
+
             // Filter by category if provided
             if ($categoryId) {
                 $query->whereHas('athlete', function ($q) use ($categoryId) {
                     $q->where('category_id', $categoryId);
                 });
             }
-            
+
             // Filter by group if provided
             if ($groupId) {
                 $query->where('group_id', $groupId);
             }
-            
+
             $standings = $query->get();
-            
+
             // Count unique athletes from standings
             $totalAthletes = $standings->pluck('athlete_id')->unique()->count();
-            
+
             $totalMatches = $standings->sum('matches_played');
             $totalWins = $standings->sum('matches_won');
             $avgWinRate = $totalMatches > 0 ? round(($totalWins / $totalMatches) * 100, 0) : 0;
-            
+
             return response()->json([
                 'total_athletes' => $totalAthletes,
                 'total_matches' => $totalMatches,
@@ -858,7 +825,7 @@ class HomeYardTournamentController extends Controller
             $perPage = $request->get('per_page', 10);
             $page = $request->get('page', 1);
             $categoryType = $request->get('category_type'); // Get category type filter (single_men, single_women, etc.)
-            
+
             // Get all tournaments created by the user
             $tournaments = Tournament::where('user_id', $userId)
                 ->pluck('id')
@@ -878,29 +845,42 @@ class HomeYardTournamentController extends Controller
 
             // Get all GroupStandings for these tournaments
             $query = GroupStanding::select([
-                'id', 'athlete_id', 'group_id', 'points', 'matches_played', 'matches_won',
-                'matches_lost', 'matches_drawn', 'win_rate', 'sets_won', 'sets_lost', 
-                'sets_differential', 'games_won', 'games_lost', 'games_differential', 'is_advanced'
+                'id',
+                'athlete_id',
+                'group_id',
+                'points',
+                'matches_played',
+                'matches_won',
+                'matches_lost',
+                'matches_drawn',
+                'win_rate',
+                'sets_won',
+                'sets_lost',
+                'sets_differential',
+                'games_won',
+                'games_lost',
+                'games_differential',
+                'is_advanced'
             ])
-            ->with([
-                'athlete' => function ($q) {
-                    $q->select('id', 'athlete_name', 'email', 'phone', 'category_id');
-                },
-                'athlete.category' => function ($q) {
-                    $q->select('id', 'category_type', 'category_name');
-                }
-            ])
-            ->whereHas('group', function ($q) use ($tournaments) {
-                $q->whereIn('tournament_id', $tournaments);
-            });
-            
+                ->with([
+                    'athlete' => function ($q) {
+                        $q->select('id', 'athlete_name', 'email', 'phone', 'category_id');
+                    },
+                    'athlete.category' => function ($q) {
+                        $q->select('id', 'category_type', 'category_name');
+                    }
+                ])
+                ->whereHas('group', function ($q) use ($tournaments) {
+                    $q->whereIn('tournament_id', $tournaments);
+                });
+
             // Filter by category type if provided
             if ($categoryType) {
                 $query->whereHas('athlete.category', function ($q) use ($categoryType) {
                     $q->where('category_type', $categoryType);
                 });
             }
-            
+
             $standings = $query->get();
 
             // Group by athlete and sum their points across all tournaments
@@ -909,7 +889,7 @@ class HomeYardTournamentController extends Controller
                 $totalMatches = $standings->sum('matches_played');
                 $totalWins = $standings->sum('matches_won');
                 $totalLosses = $standings->sum('matches_lost');
-                
+
                 $firstAthleteData = $standings->first();
                 $athlete = $firstAthleteData->athlete;
 
@@ -995,14 +975,14 @@ class HomeYardTournamentController extends Controller
                 'status' => 'available',
                 'is_active' => true,
             ]);
-            
+
             // Log activity
             ActivityLog::log("Sân '{$validated['court_name']}' được thêm", 'Court', $court->id);
 
             // Handle pricing tiers
             if ($request->has('pricing_tiers')) {
                 $pricingTiers = json_decode($request->pricing_tiers, true);
-                
+
                 if (is_array($pricingTiers) && !empty($pricingTiers)) {
                     // Create pricing tiers for the new court
                     foreach ($pricingTiers as $tier) {
@@ -1088,7 +1068,7 @@ class HomeYardTournamentController extends Controller
             ]);
 
             $ids = $request->input('ids');
-            
+
             $stadiumIds = Stadium::where('user_id', auth()->id())->pluck('id');
             // Get tournaments and verify authorization
             $courts = Court::whereIn('id', $ids)
@@ -1105,7 +1085,7 @@ class HomeYardTournamentController extends Controller
             // Delete each tournament
             foreach ($courts as $court) {
                 $court->delete();
-                
+
                 // Log activity
                 ActivityLog::log("Sân '{$court->name}' được xóa", 'Court', $court->id);
             }
@@ -1187,11 +1167,11 @@ class HomeYardTournamentController extends Controller
             // Handle pricing tiers
             if ($request->has('pricing_tiers')) {
                 $pricingTiers = json_decode($request->pricing_tiers, true);
-                
+
                 if (is_array($pricingTiers) && !empty($pricingTiers)) {
                     // Delete existing pricing tiers
                     CourtPricing::where('court_id', $court->id)->delete();
-                    
+
                     // Create new pricing tiers
                     foreach ($pricingTiers as $tier) {
                         if (!empty($tier['start_time']) && !empty($tier['end_time']) && !empty($tier['price_per_hour'])) {
@@ -1293,34 +1273,34 @@ class HomeYardTournamentController extends Controller
             }
 
             // Kiểm tra xem các bảng có tồn tại không
-             $existingGroups = Group::where('tournament_id', $tournament->id)
-                 ->where('category_id', $categoryId)
-                 ->get();
-            
-             if ($existingGroups->isEmpty()) {
-                 return response()->json([
-                     'success' => false,
-                     'message' => 'Vui lòng tạo bảng trước khi bốc thăm'
-                 ], 422);
-             }
+            $existingGroups = Group::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->get();
 
-             // ✅ VALIDATE: Kiểm tra tổng sức chứa của các bảng
-             $totalCapacity = $existingGroups->sum('max_participants');
-             $totalAthletes = $approvedAthletes->count();
+            if ($existingGroups->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vui lòng tạo bảng trước khi bốc thăm'
+                ], 422);
+            }
 
-             if ($totalAthletes > $totalCapacity) {
-                 return response()->json([
-                     'success' => false,
-                     'message' => "Không đủ chỗ trống. Bạn có {$totalAthletes} VĐV nhưng các bảng chỉ có sức chứa {$totalCapacity}. Vui lòng tạo thêm bảng hoặc tăng số VĐV tối đa của bảng."
-                 ], 422);
-             }
-            
-             // Xử lý bốc thăm
-             if ($drawMethod === 'auto') {
-                 $this->drawAthletesByRandom($approvedAthletes, $existingGroups);
-             } elseif ($drawMethod === 'seeded') {
-                 $this->drawAthletesBySeeding($approvedAthletes, $existingGroups);
-             }
+            // ✅ VALIDATE: Kiểm tra tổng sức chứa của các bảng
+            $totalCapacity = $existingGroups->sum('max_participants');
+            $totalAthletes = $approvedAthletes->count();
+
+            if ($totalAthletes > $totalCapacity) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Không đủ chỗ trống. Bạn có {$totalAthletes} VĐV nhưng các bảng chỉ có sức chứa {$totalCapacity}. Vui lòng tạo thêm bảng hoặc tăng số VĐV tối đa của bảng."
+                ], 422);
+            }
+
+            // Xử lý bốc thăm
+            if ($drawMethod === 'auto') {
+                $this->drawAthletesByRandom($approvedAthletes, $existingGroups);
+            } elseif ($drawMethod === 'seeded') {
+                $this->drawAthletesBySeeding($approvedAthletes, $existingGroups);
+            }
 
             // Refresh groups from DB để lấy dữ liệu mới nhất sau update
             $refreshedGroups = Group::where('tournament_id', $tournament->id)
@@ -1734,10 +1714,10 @@ class HomeYardTournamentController extends Controller
 
         // Tạo CSV content với proper formatting
         $output = fopen('php://temp', 'r+');
-        
+
         // BOM cho UTF-8
         fwrite($output, "\xEF\xBB\xBF");
-        
+
         // Header
         $headers = ['STT', 'Tên Vận Động Viên', 'Email', 'Số Điện Thoại', 'Nội Dung Thi Đấu', 'Trạng Thái', 'Trạng Thái Thanh Toán', 'Ngày Đăng Ký'];
         fputcsv($output, $headers);
@@ -1821,8 +1801,7 @@ class HomeYardTournamentController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        if($validation->fails())
-        {
+        if ($validation->fails()) {
             return response()->json([
                 'success' => false,
                 'message' => $validation->errors()->first()
@@ -1834,15 +1813,15 @@ class HomeYardTournamentController extends Controller
 
         // Calculate duration in hours
         $startTime = \DateTime::createFromFormat('H:i', $request->start_time);
-        
+
         $durationHours = (int) $request->duration_hours;
         $endTime = $startTime->modify('+' . $durationHours . ' hours');
 
         // Recalculate total price on server side with multi-price support
         $totalPrice = $this->calculateBookingTotalPrice(
-            $court->id, 
-            $request->booking_date, 
-            $request->start_time, 
+            $court->id,
+            $request->booking_date,
+            $request->start_time,
             $durationHours
         );
 
@@ -1888,7 +1867,6 @@ class HomeYardTournamentController extends Controller
                 'status' => $booking->status,
             ]
         ]);
-        
     }
 
     public function getBookingsByDate(Request $request)
@@ -1927,17 +1905,17 @@ class HomeYardTournamentController extends Controller
             'end_time',
             'status',
         ])
-        ->map(function ($booking) {
-            return [
-                'id' => $booking->id,
-                'court_id' => $booking->court_id,
-                'customer_name' => $booking->customer_name,
-                'booking_date' => $booking->booking_date,
-                'start_time' => substr($booking->start_time, 0, 5),
-                'end_time' => substr($booking->end_time, 0, 5),
-                'status' => $booking->status,
-            ];
-        });
+            ->map(function ($booking) {
+                return [
+                    'id' => $booking->id,
+                    'court_id' => $booking->court_id,
+                    'customer_name' => $booking->customer_name,
+                    'booking_date' => $booking->booking_date,
+                    'start_time' => substr($booking->start_time, 0, 5),
+                    'end_time' => substr($booking->end_time, 0, 5),
+                    'status' => $booking->status,
+                ];
+            });
 
         return response()->json([
             'success' => true,
@@ -1946,7 +1924,6 @@ class HomeYardTournamentController extends Controller
             'date_from' => $dateFrom,
             'date_to' => $dateTo,
         ]);
-        
     }
 
     public function getBookingStats(Request $request)
@@ -2268,10 +2245,10 @@ class HomeYardTournamentController extends Controller
     {
         try {
             $this->authorize('update', $tournament);
-            
+
             // Resolve match by ID
             $match = MatchModel::findOrFail($match);
-            
+
             // Verify match belongs to tournament
             if ($match->tournament_id != $tournament->id) {
                 return response()->json([
@@ -2300,10 +2277,10 @@ class HomeYardTournamentController extends Controller
     {
         try {
             $this->authorize('update', $tournament);
-            
+
             // Resolve match by ID
             $match = MatchModel::findOrFail($match);
-            
+
             // Verify match belongs to tournament
             if ($match->tournament_id != $tournament->id) {
                 return response()->json([
@@ -2428,7 +2405,7 @@ class HomeYardTournamentController extends Controller
         $match->athlete1_score = 0;
         $match->athlete2_score = 0;
         $match->save();
-        
+
         // Log activity
         $setNumber = count($setScores);
         ActivityLog::log("Set {$setNumber} của trận đấu kết thúc với tỉ số {$validated['athlete1_score']}-{$validated['athlete2_score']}", 'Match', $match->id);
@@ -2465,7 +2442,7 @@ class HomeYardTournamentController extends Controller
         // Parse final_score (ví dụ "11-9, 11-8" hoặc "11-9")
         $setsWonAthlete1 = 0;
         $setsWonAthlete2 = 0;
-        
+
         if ($validated['final_score']) {
             $sets = explode(',', $validated['final_score']);
             foreach ($sets as $set) {
@@ -2473,7 +2450,7 @@ class HomeYardTournamentController extends Controller
                 if (count($scores) === 2) {
                     $score1 = (int)trim($scores[0]);
                     $score2 = (int)trim($scores[1]);
-                    
+
                     if ($score1 > $score2) {
                         $setsWonAthlete1++;
                     } elseif ($score2 > $score1) {
@@ -2499,19 +2476,19 @@ class HomeYardTournamentController extends Controller
         }
 
         $match->save();
-        
+
         // Log activity
         $winnerName = $match->winner_id ? ($match->winner_id === $match->athlete1_id ? $match->athlete1->athlete_name : $match->athlete2->athlete_name) : 'Hòa';
         ActivityLog::log("Trận đấu kết thúc với kết quả {$validated['final_score']} - Người thắng: {$winnerName}", 'Match', $match->id);
 
-         // Cập nhật standings nếu trận này thuộc một group
-          if ($match->group_id && $match->athlete1_id && $match->athlete2_id) {
-              $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
-          }
+        // Cập nhật standings nếu trận này thuộc một group
+        if ($match->group_id && $match->athlete1_id && $match->athlete2_id) {
+            $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
+        }
 
-          // Cập nhật thống kê vào bảng tournament_athlete
-          $this->updateTournamentAthleteStats($match, $setsWonAthlete1, $setsWonAthlete2);
-         }
+        // Cập nhật thống kê vào bảng tournament_athlete
+        $this->updateTournamentAthleteStats($match, $setsWonAthlete1, $setsWonAthlete2);
+    }
 
     /**
      * Handle regular update - just update scores without ending match
@@ -2559,7 +2536,7 @@ class HomeYardTournamentController extends Controller
             // This assumes athlete1_score and athlete2_score are the final set scores
             $setsWonAthlete1 = $validated['athlete1_score'] > $validated['athlete2_score'] ? 1 : 0;
             $setsWonAthlete2 = $validated['athlete2_score'] > $validated['athlete1_score'] ? 1 : 0;
-            
+
             // If scores are equal, treat as draw
             if ($validated['athlete1_score'] === $validated['athlete2_score']) {
                 $setsWonAthlete1 = 0;
@@ -2856,10 +2833,10 @@ class HomeYardTournamentController extends Controller
     {
         try {
             $this->authorize('update', $tournament);
-            
+
             // Resolve match by ID
             $match = MatchModel::findOrFail($match);
-            
+
             // Verify match belongs to tournament
             if ($match->tournament_id != $tournament->id) {
                 return response()->json([
@@ -2962,23 +2939,18 @@ class HomeYardTournamentController extends Controller
             $groupId = $request->query('group_id');
 
             // Base query for group standings
-             // Join with groups and tournament_athletes to filter by tournament
-             $query = GroupStanding::select([
-                  'id', 'athlete_id', 'group_id', 'points', 'matches_played', 'matches_won',
-                  'matches_lost', 'matches_drawn', 'win_rate', 'sets_won', 'sets_lost', 
-                  'sets_differential', 'games_won', 'games_lost', 'games_differential', 'is_advanced'
-              ])
-             ->with([
-                 'athlete' => function ($q) {
-                     $q->select('id', 'athlete_name', 'category_id');
-                 },
-                 'athlete.category' => function ($q) {
-                     $q->select('id', 'category_name');
-                 }
-             ])
-             ->whereHas('group', function ($q) use ($tournament) {
-                 $q->where('tournament_id', $tournament->id);
-             });
+            // Join with groups and tournament_athletes to filter by tournament
+            $query = GroupStanding::with([
+                    'athlete' => function ($q) {
+                        $q->select('id', 'athlete_name', 'category_id');
+                    },
+                    'athlete.category' => function ($q) {
+                        $q->select('id', 'category_name');
+                    }
+                ])
+                ->whereHas('group', function ($q) use ($tournament) {
+                    $q->where('tournament_id', $tournament->id);
+                });
 
             // Filter by category if provided
             if ($categoryId) {
@@ -2993,26 +2965,26 @@ class HomeYardTournamentController extends Controller
             }
 
             // Get standings and sort by: Points (desc) > Wins (desc) > Games Differential (desc)
-             $standings = $query->get()
-                 ->sortByDesc('points')
-                 ->sortByDesc('matches_won')
-                 ->sortByDesc(function ($standing) {
-                     return ($standing->games_won ?? 0) - ($standing->games_lost ?? 0);
-                 })
-                 ->values();
+            $standings = $query->get()
+                ->sortByDesc('points')
+                ->sortByDesc('matches_won')
+                ->sortByDesc(function ($standing) {
+                    return ($standing->games_won ?? 0) - ($standing->games_lost ?? 0);
+                })
+                ->values();
 
             // Pagination
             $perPage = 10;
             $page = $request->query('page', 1);
             $totalCount = $standings->count();
             $totalPages = ceil($totalCount / $perPage);
-            
+
             // Adjust page if out of range
             if ($page > $totalPages && $totalPages > 0) {
                 $page = $totalPages;
             }
             $page = max(1, $page);
-            
+
             // Get paginated results
             $offset = ($page - 1) * $perPage;
             $paginatedStandings = $standings->slice($offset, $perPage)->values();
@@ -3021,11 +2993,11 @@ class HomeYardTournamentController extends Controller
             $rankings = $paginatedStandings->map(function ($standing, $index) use ($offset) {
                 $athlete = $standing->athlete;
                 $category = $athlete ? $athlete->category : null;
-                
+
                 // Calculate win rate correctly (max 100%)
                 $matchesPlayed = $standing->matches_played ?? 0;
                 $matchesWon = $standing->matches_won ?? 0;
-                $winRate = $matchesPlayed > 0 
+                $winRate = $matchesPlayed > 0
                     ? round(($matchesWon / $matchesPlayed) * 100, 2)
                     : 0;
 
@@ -3104,22 +3076,17 @@ class HomeYardTournamentController extends Controller
             $groupId = $request->query('group_id');
 
             // Get standings
-            $query = GroupStanding::select([
-                'id', 'athlete_id', 'group_id', 'points', 'matches_played', 'matches_won',
-                'matches_lost', 'matches_drawn', 'win_rate', 'sets_won', 'sets_lost',
-                'sets_differential', 'games_won', 'games_lost', 'games_differential', 'is_advanced'
-            ])
-            ->with([
-                'athlete' => function ($q) {
-                    $q->select('id', 'athlete_name', 'category_id');
-                },
-                'athlete.category' => function ($q) {
-                    $q->select('id', 'category_name');
-                }
-            ])
-            ->whereHas('group', function ($q) use ($tournament) {
-                $q->where('tournament_id', $tournament->id);
-            });
+            $query = GroupStanding::with([
+                    'athlete' => function ($q) {
+                        $q->select('id', 'athlete_name', 'category_id');
+                    },
+                    'athlete.category' => function ($q) {
+                        $q->select('id', 'category_name');
+                    }
+                ])
+                ->whereHas('group', function ($q) use ($tournament) {
+                    $q->where('tournament_id', $tournament->id);
+                });
 
             if ($categoryId) {
                 $query->whereHas('athlete', function ($q) use ($categoryId) {
@@ -3255,7 +3222,7 @@ class HomeYardTournamentController extends Controller
                 $now = now();
                 $startDate = \Carbon\Carbon::parse($tournament->start_date);
                 $endDate = $tournament->end_date ? \Carbon\Carbon::parse($tournament->end_date) : null;
-                
+
                 if ($startDate > $now) {
                     $status = 'Sắp tới';
                 } elseif ($startDate <= $now && ($endDate === null || $endDate >= $now)) {
@@ -3420,42 +3387,42 @@ class HomeYardTournamentController extends Controller
         $court = Court::findOrFail($courtId);
         $bookingDate = \Carbon\Carbon::createFromFormat('Y-m-d', $bookingDate);
         $dayOfWeek = $bookingDate->dayOfWeek;
-        
+
         $startTimeObj = \DateTime::createFromFormat('H:i', $startTime);
         $totalPrice = 0;
         $currentTime = clone $startTimeObj;
-        
+
         for ($i = 0; $i < $durationHours; $i++) {
             $hourStart = clone $currentTime;
-            
+
             // Find matching court pricing for this hour
             $pricing = CourtPricing::where('court_id', $courtId)
                 ->where('is_active', true)
                 ->where(function ($query) use ($bookingDate) {
                     $query->whereNull('valid_from')
-                          ->orWhere('valid_from', '<=', $bookingDate);
+                        ->orWhere('valid_from', '<=', $bookingDate);
                 })
                 ->where(function ($query) use ($bookingDate) {
                     $query->whereNull('valid_to')
-                          ->orWhere('valid_to', '>=', $bookingDate);
+                        ->orWhere('valid_to', '>=', $bookingDate);
                 })
                 ->where(function ($query) use ($hourStart) {
                     $query->whereRaw('TIME(start_time) <= ?', [$hourStart->format('H:i:s')])
-                          ->whereRaw('TIME(end_time) > ?', [$hourStart->format('H:i:s')]);
+                        ->whereRaw('TIME(end_time) > ?', [$hourStart->format('H:i:s')]);
                 })
                 ->where(function ($query) use ($dayOfWeek) {
                     $query->whereNull('days_of_week')
-                          ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                        ->orWhereJsonContains('days_of_week', $dayOfWeek);
                 })
                 ->orderByRaw('TIME(start_time) DESC')
                 ->first();
-            
+
             // Use court pricing if found, otherwise use court's rental_price
             $hourlyRate = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 150000);
             $totalPrice += $hourlyRate;
             $currentTime->modify('+1 hour');
         }
-        
+
         return $totalPrice;
     }
 
@@ -3468,7 +3435,7 @@ class HomeYardTournamentController extends Controller
         try {
             // Trim and validate input
             $startTimeInput = trim($request->input('start_time', ''));
-            
+
             $request->validate([
                 'court_id' => 'required|exists:courts,id',
                 'booking_date' => 'required|date',
@@ -3477,7 +3444,7 @@ class HomeYardTournamentController extends Controller
             ]);
 
             $court = Court::findOrFail($request->court_id);
-            
+
             $bookingDate = \Carbon\Carbon::parse($request->booking_date);
             $dayOfWeek = $bookingDate->dayOfWeek; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
 
@@ -3490,42 +3457,42 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
             $durationHours = $request->duration_hours;
-            
+
             // Calculate hourly breakdown
             $priceBreakdown = [];
             $totalPrice = 0;
             $currentTime = clone $startTime;
-            
+
             for ($i = 0; $i < $durationHours; $i++) {
                 $hourStart = clone $currentTime;
                 $hourEnd = clone $currentTime;
                 $hourEnd->modify('+1 hour');
-                
+
                 // Find matching court pricing for this hour
                 $pricing = CourtPricing::where('court_id', $court->id)
                     ->where('is_active', true)
                     ->where(function ($query) use ($bookingDate) {
                         $query->whereNull('valid_from')
-                              ->orWhere('valid_from', '<=', $bookingDate);
+                            ->orWhere('valid_from', '<=', $bookingDate);
                     })
                     ->where(function ($query) use ($bookingDate) {
                         $query->whereNull('valid_to')
-                              ->orWhere('valid_to', '>=', $bookingDate);
+                            ->orWhere('valid_to', '>=', $bookingDate);
                     })
                     ->where(function ($query) use ($hourStart) {
                         $query->whereRaw('TIME(start_time) <= ?', [$hourStart->format('H:i:s')])
-                              ->whereRaw('TIME(end_time) > ?', [$hourStart->format('H:i:s')]);
+                            ->whereRaw('TIME(end_time) > ?', [$hourStart->format('H:i:s')]);
                     })
                     ->where(function ($query) use ($dayOfWeek) {
                         $query->whereNull('days_of_week')
-                              ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                            ->orWhereJsonContains('days_of_week', $dayOfWeek);
                     })
                     ->orderByRaw('TIME(start_time) DESC')
                     ->first();
-                
+
                 // Use court pricing if found, otherwise use court's rental_price
                 $hourlyRate = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 150000);
-                
+
                 // Build pricing label - avoid calling getLabel() which may cause JSON serialization issues
                 $pricingLabel = 'Giá mặc định';
                 if ($pricing) {
@@ -3540,7 +3507,7 @@ class HomeYardTournamentController extends Controller
                         $pricingLabel = "{$startStr} - {$endStr}";
                     }
                 }
-                
+
                 $priceBreakdown[] = [
                     'hour' => $i + 1,
                     'start_time' => $hourStart->format('H:i'),
@@ -3548,17 +3515,17 @@ class HomeYardTournamentController extends Controller
                     'price_per_hour' => $hourlyRate,
                     'pricing_label' => $pricingLabel
                 ];
-                
+
                 $totalPrice += $hourlyRate;
                 $currentTime->modify('+1 hour');
             }
-            
+
             // Check if there are multiple different prices
             $hasMultiPrice = count(array_unique(array_column($priceBreakdown, 'price_per_hour'))) > 1;
-            
+
             // Calculate average hourly rate for fallback
             $averageHourlyRate = $durationHours > 0 ? round($totalPrice / $durationHours) : $totalPrice;
-            
+
             return response()->json([
                 'success' => true,
                 'total_price' => $totalPrice,

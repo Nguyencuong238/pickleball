@@ -120,7 +120,7 @@ Route::get('/reviews/stadium/{stadium}', [ReviewController::class, 'getStadiumRe
 Route::get('/reviews/summary/{stadium}', [ReviewController::class, 'getRatingSummary'])->name('reviews.summary');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard');
+    Route::get('/user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard')->middleware('role:user');
     
     Route::post('/reviews/store', [ReviewController::class, 'store'])->name('reviews.store');
     Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
@@ -143,7 +143,6 @@ Route::middleware('web')->group(function () {
 
 // HomeYard Routes
 Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyard.')->group(function () {
-    Route::get('/dashboard/{tournament_id?}', [DashboardController::class, 'homeYardDashboard'])->name('dashboard');
     Route::resource('stadiums', HomeYardStadiumController::class);
 
     // Tournament export routes (before resource route to take priority)
@@ -158,6 +157,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('tournaments/{tournament}/rankings/export', [HomeYardTournamentController::class, 'exportRankingsExcel'])->name('tournaments.rankings.export');
 
     Route::resource('tournaments', HomeYardTournamentController::class);
+    Route::get('/tournaments/{tournament_id}/config', [HomeYardTournamentController::class, 'configTournament'])->name('tournaments.config');
     Route::post('tournaments/bulk-delete', [HomeYardTournamentController::class, 'bulkDelete'])->name('tournaments.bulk-delete');
     Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
     Route::put('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'updateAthlete'])->name('tournaments.athletes.update');
@@ -167,7 +167,6 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::post('tournaments/{tournament}/athletes/{athlete}/reject', [HomeYardTournamentController::class, 'rejectAthlete'])->name('athletes.reject');
     Route::get('athletes', [HomeYardTournamentController::class, 'listAthletes'])->name('athletes.index');
     Route::get('overview', [HomeYardTournamentController::class, 'overview'])->name('overview');
-    Route::get('tournaments', [HomeYardTournamentController::class, 'tournaments'])->name('tournaments');
     Route::get('matches', [HomeYardTournamentController::class, 'matches'])->name('matches');
     Route::get('athletes', [HomeYardTournamentController::class, 'athletes'])->name('athletes');
     Route::get('rankings', [HomeYardTournamentController::class, 'rankings'])->name('rankings');
@@ -188,9 +187,6 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('bookings/{bookingId}', [HomeYardTournamentController::class, 'getBookingDetails'])->name('bookings.show');
     Route::put('bookings/{bookingId}/cancel', [HomeYardTournamentController::class, 'cancelBooking'])->name('bookings.cancel');
     Route::delete('bookings/{bookingId}', [HomeYardTournamentController::class, 'deleteBooking'])->name('bookings.delete');
-
-    // Tournament Basic Info
-    Route::put('tournaments/{tournament}', [HomeYardTournamentController::class, 'updateTournament'])->name('tournaments.update');
 
     // Tournament Categories, Rounds, and Groups
     Route::post('tournaments/{tournament}/categories', [CategoryController::class, 'store'])->name('tournaments.categories.store');

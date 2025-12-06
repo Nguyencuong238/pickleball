@@ -297,7 +297,7 @@
 
             <!-- Quick Actions -->
             <div class="quick-actions fade-in">
-                <a href="{{ route('homeyard.tournaments') }}" class="quick-action-btn">
+                <a href="{{ route('homeyard.tournaments.index') }}" class="quick-action-btn">
                     <div class="quick-action-icon">➕</div>
                     <div class="quick-action-title">Tạo Giải Mới</div>
                 </a>
@@ -393,7 +393,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Giải Đấu Gần Đây</h3>
                         <div class="card-actions">
-                            <a href="{{ route('homeyard.tournaments')}}" class="btn btn-ghost btn-sm">Xem tất cả →</a>
+                            <a href="{{ route('homeyard.tournaments.index') }}" class="btn btn-ghost btn-sm">Xem tất cả →</a>
                         </div>
                     </div>
                     <div class="card-body">

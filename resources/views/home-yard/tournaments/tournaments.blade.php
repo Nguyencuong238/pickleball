@@ -616,10 +616,9 @@
                                 <button class="btn btn-secondary btn-sm" onclick="openEditModal({{ $item->id }})">
                                     ✏️
                                 </button>
-                                <button class="btn btn-secondary btn-sm"
-                                    onclick="window.location.href='{{ route('homeyard.dashboard', $item->id) }}'">
+                                <a class="btn btn-secondary btn-sm" href="{{ route('homeyard.tournaments.config', $item->id) }}">
                                     ⚙️
-                                </button>
+                                </a>
                             </div>
                         </div>
                     </div>

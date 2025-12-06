@@ -17,6 +17,9 @@ class Kernel extends ConsoleKernel
 
         // Auto-confirm OCR matches after 24h with no dispute
         $schedule->command('ocr:auto-confirm')->hourly();
+
+        // Delete old temporary files from media library
+        $schedule->command('media:clean-temp')->daily();
     }
 
     /**

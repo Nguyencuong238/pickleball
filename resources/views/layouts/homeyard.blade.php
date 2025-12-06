@@ -772,16 +772,11 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Quản Lý Giải Đâu</div>
 
-                    <a href="{{ route('homeyard.tournaments') }}" class="nav-item">
+                    <a href="{{ route('homeyard.tournaments.index') }}" class="nav-item">
                         <span class="nav-icon">🏆</span>
                         <span class="nav-text">Giải đấu</span>
                         {{-- <span class="nav-badge">{{ $tournamentsCount ?? 0 }}</span> --}}
                     </a>
-
-                    {{-- <a href="{{ route('homeyard.dashboard') }}" class="nav-item">
-                        <span class="nav-icon">⚙️</span>
-                        <span class="nav-text">Cấu hình giải</span>
-                    </a> --}}
 
                     <a href="{{ route('homeyard.matches') }}" class="nav-item">
                         <span class="nav-icon">🎾</span>

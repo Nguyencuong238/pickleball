@@ -15,7 +15,7 @@
                 <h1>Quản Lý Sân Của Tôi</h1>
                 <div class="breadcrumb">
                     <span class="breadcrumb-item">
-                        <a href="{{ route('homeyard.dashboard') }}" class="breadcrumb-link">🏠 Dashboard</a>
+                        <a href="{{ route('homeyard.overview') }}" class="breadcrumb-link">🏠 Dashboard</a>
                     </span>
                     <span class="breadcrumb-separator">/</span>
                     <span class="breadcrumb-item">Sân</span>

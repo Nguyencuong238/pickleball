@@ -26,7 +26,7 @@ class RoundController extends Controller
             'category_id' => 'nullable|exists:tournament_categories,id',
             'round_name' => 'required|string|max:255',
             'round_number' => 'required|integer|min:1|max:20',
-            'round_type' => 'required|string|in:group_stage,custom,quarterfinal,semifinal,final,round_of_64,round_of_32,round_of_16,third_place',
+            'round_type' => 'required|string|in:group_stage,knockout,quarterfinal,semifinal,final,bronze',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'start_time' => 'nullable|date_format:H:i',
