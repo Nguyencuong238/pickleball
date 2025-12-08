@@ -726,6 +726,8 @@
                                             <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
                                                 Vòng</th>
                                             <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                                                Thời gian</th>
+                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
                                                 Trạng thái</th>
                                             <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
                                                 Hành động</th>
@@ -741,6 +743,10 @@
                                                 <td style="padding: 10px;">
                                                     {{ $match->category->category_name ?? 'N/A' }}</td>
                                                 <td style="padding: 10px;">{{ $match->round->round_name ?? 'N/A' }}
+                                                </td>
+                                                <td style="padding: 10px;">
+                                                    {{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('d/m/Y') : '' }}
+                                                    {{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}
                                                 </td>
                                                 <td style="padding: 10px;">
                                                     @if ($match->status === 'scheduled')
@@ -763,7 +769,7 @@
                                                 </td>
                                                 <td style="padding: 10px;">
                                                     <button class="btn btn-warning btn-sm"
-                                                        onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}', '{{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : '' }}', '{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}', '{{ $match->group_id }}')">✏️</button>
+                                                        onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}', '{{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : '' }}', '{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}', '{{ $match->group_id }}', '{{ $match->status }}')">✏️</button>
                                                     <form method="POST"
                                                         action="{{ route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id]) }}"
                                                         style="display: inline;">
@@ -1071,6 +1077,20 @@
                         </div>
                     </div>
 
+                    <!-- Trạng thái trận đấu -->
+                    <div class="form-group">
+                        <label class="form-label">📊 Trạng thái trận đấu</label>
+                        <select name="status" class="form-select">
+                            <option value="scheduled">⏳ Chờ thi đấu</option>
+                            <option value="ready">📋 Sẵn sàng</option>
+                            <option value="in_progress">🔴 Đang diễn ra</option>
+                            <option value="completed">✅ Hoàn thành</option>
+                            <option value="cancelled">❌ Hủy</option>
+                            <option value="postponed">⏸️ Hoãn lại</option>
+                            <option value="bye">🎯 Bye</option>
+                        </select>
+                    </div>
+
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
                         <button type="submit" class="btn btn-success" id="submitMatchBtn">✅ Tạo trận</button>
                         <button type="button" class="btn btn-secondary" onclick="closeCreateMatchModal()">❌ Hủy</button>
@@ -1170,6 +1190,20 @@
                                     <option value="{{ $group->id }}">{{ $group->group_name }}</option>
                                 @endforeach
                             @endif
+                        </select>
+                    </div>
+
+                    <!-- Trạng thái trận đấu -->
+                    <div class="form-group">
+                        <label class="form-label">📊 Trạng thái trận đấu</label>
+                        <select id="editStatus" name="status" class="form-select">
+                            <option value="scheduled">⏳ Chờ thi đấu</option>
+                            <option value="ready">📋 Sẵn sàng</option>
+                            <option value="in_progress">🔴 Đang diễn ra</option>
+                            <option value="completed">✅ Hoàn thành</option>
+                            <option value="cancelled">❌ Hủy</option>
+                            <option value="postponed">⏸️ Hoãn lại</option>
+                            <option value="bye">🎯 Bye</option>
                         </select>
                     </div>
 
@@ -1867,7 +1901,7 @@
          }
 
         // Open Edit Match Modal
-        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId) {
+        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId, status) {
             document.getElementById('editMatchId').value = matchId;
             document.getElementById('editAthlete1').value = athlete1Id;
             document.getElementById('editAthlete2').value = athlete2Id;
@@ -1876,6 +1910,7 @@
             document.getElementById('editMatchDate').value = matchDate || '';
             document.getElementById('editMatchTime').value = matchTime || '';
             document.getElementById('editMatchGroup').value = groupId || '';
+            document.getElementById('editStatus').value = status || 'scheduled';
 
             const modal = document.getElementById('editMatchModal');
             if (modal) {
@@ -1945,7 +1980,8 @@
                     match_date: matchDate || null,
                     match_time: matchTime || null,
                     group_id: groupId || null,
-                    tournament_id: tournamentId
+                    tournament_id: tournamentId,
+                    status: formData.get('status'),
                 };
 
                 console.log('Creating match with data:', data);
@@ -2022,6 +2058,7 @@
                 const matchTime = formData.get('match_time')?.trim();
                 const roundId = formData.get('round_id')?.trim();
                 const groupId = formData.get('group_id')?.trim();
+                const status = formData.get('status')?.trim();
 
                 const data = {
                     athlete1_id: formData.get('athlete1_id'),
@@ -2030,7 +2067,8 @@
                     round_id: roundId || null,
                     match_date: matchDate || null,
                     match_time: matchTime || null,
-                    group_id: groupId || null
+                    group_id: groupId || null,
+                    status: status || 'scheduled'
                 };
 
                 fetch(`/homeyard/tournaments/${tournamentId}/matches/${matchId}`, {

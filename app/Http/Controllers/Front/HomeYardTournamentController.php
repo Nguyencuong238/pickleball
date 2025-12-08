@@ -2156,6 +2156,9 @@ class HomeYardTournamentController extends Controller
                 'category_id' => 'required|exists:tournament_categories,id',
                 'round_id' => 'nullable|exists:rounds,id',
                 'group_id' => 'nullable|exists:groups,id',
+                'match_date' => 'nullable|date_format:Y-m-d',
+                'match_time' => 'nullable|date_format:H:i',
+                'status' => 'nullable|in:scheduled,ready,in_progress,completed,cancelled,postponed,bye',
             ]);
 
             // Ensure both athletes are from this tournament
@@ -2211,8 +2214,9 @@ class HomeYardTournamentController extends Controller
                 'round_id' => $validated['round_id'],
                 'group_id' => $validated['group_id'] ?? null,
                 'match_number' => $matchNumber,
-                'status' => 'scheduled',
-                'match_date' => now()->toDateString()
+                'status' => $validated['status'] ?? 'scheduled',
+                'match_date' => $validated['match_date'],
+                'match_time' => $validated['match_time'],
             ]);
 
             Log::info('Match created', ['match_id' => $match->id]);
@@ -2300,6 +2304,10 @@ class HomeYardTournamentController extends Controller
                 'athlete2_id' => 'required|exists:tournament_athletes,id',
                 'category_id' => 'required|exists:tournament_categories,id',
                 'round_id' => 'required|exists:rounds,id',
+                'match_date' => 'nullable|date_format:Y-m-d',
+                'match_time' => 'nullable|date_format:H:i',
+                'group_id' => 'nullable|exists:groups,id',
+                'status' => 'nullable|in:scheduled,ready,in_progress,completed,cancelled,postponed,bye',
             ]);
 
             $match->update($validated);
