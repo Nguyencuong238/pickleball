@@ -280,6 +280,7 @@ Route::prefix('ocr')->name('ocr.')->group(function () {
     Route::get('/leaderboard', [OcrController::class, 'leaderboard'])->name('leaderboard');
     Route::get('/profile/{user}', [OcrController::class, 'profile'])->name('profile');
     Route::get('/matches-list', [OcrController::class, 'matchesList'])->name('matches.list');
+    Route::get('/ocr-matches', [OcrController::class, 'ocrMatches'])->name('ocr-matches');
     Route::get('/search-users', [OcrController::class, 'searchUsers'])->name('search-users')->middleware('auth');
 
     Route::middleware('auth')->group(function () {

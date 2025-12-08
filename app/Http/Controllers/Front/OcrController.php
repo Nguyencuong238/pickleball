@@ -122,6 +122,59 @@ class OcrController extends Controller
     }
 
     /**
+     * OCR Matches list (from ocr_matches table)
+     */
+    public function ocrMatches(Request $request): View
+    {
+        $filter = $request->query('filter', 'all');
+
+        $query = OcrMatch::with([
+            'challenger',
+            'challengerPartner',
+            'opponent',
+            'opponentPartner'
+        ]);
+
+        // Filter by status
+        if ($filter === 'pending') {
+            $query->where('status', OcrMatch::STATUS_PENDING);
+        } elseif ($filter === 'accepted') {
+            $query->where('status', OcrMatch::STATUS_ACCEPTED);
+        } elseif ($filter === 'in_progress') {
+            $query->where('status', OcrMatch::STATUS_IN_PROGRESS);
+        } elseif ($filter === 'confirmed') {
+            $query->where('status', OcrMatch::STATUS_CONFIRMED);
+        } elseif ($filter === 'disputed') {
+            $query->where('status', OcrMatch::STATUS_DISPUTED);
+        } else {
+            // All matches
+            $query->whereIn('status', [
+                OcrMatch::STATUS_PENDING,
+                OcrMatch::STATUS_ACCEPTED,
+                OcrMatch::STATUS_IN_PROGRESS,
+                OcrMatch::STATUS_RESULT_SUBMITTED,
+                OcrMatch::STATUS_CONFIRMED,
+                OcrMatch::STATUS_DISPUTED,
+            ]);
+        }
+
+        $matches = $query->orderByRaw("CASE 
+                            WHEN status = '" . OcrMatch::STATUS_IN_PROGRESS . "' THEN 1
+                            WHEN status = '" . OcrMatch::STATUS_PENDING . "' THEN 2
+                            WHEN status = '" . OcrMatch::STATUS_ACCEPTED . "' THEN 3
+                            WHEN status = '" . OcrMatch::STATUS_RESULT_SUBMITTED . "' THEN 4
+                            WHEN status = '" . OcrMatch::STATUS_CONFIRMED . "' THEN 5
+                            WHEN status = '" . OcrMatch::STATUS_DISPUTED . "' THEN 6
+                            ELSE 7
+                        END")
+                        ->orderByDesc('scheduled_date')
+                        ->orderByDesc('scheduled_time')
+                        ->paginate(20);
+
+        return view('front.ocr.ocr-matches-list', compact('matches', 'filter'));
+    }
+
+    /**
      * Match detail
      */
     public function matchShow(OcrMatch $match): View

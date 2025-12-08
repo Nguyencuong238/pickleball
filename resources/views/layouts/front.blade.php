@@ -251,7 +251,6 @@
             
             <ul class="nav-menu">
                 <li><a href="/" class="nav-link @if(request()->routeIs('home')) active @endif">Trang chủ</a></li>
-                <li><a href="{{ route('tournaments') }}" class="nav-link @if(request()->routeIs('tournaments')) active @endif">Giải đấu</a></li>
                 <li class="nav-item dropdown">
                     <a href="{{ route('courts') }}" class="nav-link dropdown-toggle @if(request()->routeIs('courts') || request()->routeIs('social')) active @endif">Sân thi đấu</a>
                     <ul class="dropdown-menu">
@@ -259,20 +258,14 @@
                         <li><a href="{{ route('social') }}" class="dropdown-item">Lịch thi đấu Social</a></li>
                     </ul>
                 </li>
-                <li><a href="{{ route('news') }}" class="nav-link @if(request()->routeIs('news')) active @endif">Tin tức</a></li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">Academy</a>
-                    <ul class="dropdown-menu">
-                        <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
-                        <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
-                    </ul>
-                </li>
+                <li><a href="{{ route('tournaments') }}" class="nav-link @if(request()->routeIs('tournaments')) active @endif">Giải đấu</a></li>
                 <li><a href="{{ route('ocr.matches.list') }}" class="nav-link @if(request()->routeIs('ocr.matches.list')) active @endif">Trận đấu</a></li>
                 <li class="nav-item dropdown">
-                    <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*') && !request()->routeIs('ocr.matches.list')) active @endif">OPRS</a>
+                    <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*') && !request()->routeIs('ocr.matches.list') && !request()->routeIs('ocr.ocr-matches')) active @endif">OPRS</a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('ocr.index') }}" class="dropdown-item">Tổng quan OPRS</a></li>
                         <li><a href="{{ route('ocr.leaderboard') }}" class="dropdown-item">Bảng xếp hạng OPRS</a></li>
+                        <li><a href="{{ route('ocr.ocr-matches') }}" class="dropdown-item">Trận đấu OCR</a></li>
                         @auth
                             <li><a href="{{ route('ocr.profile', auth()->user()) }}" class="dropdown-item">Hồ sơ của tôi</a></li>
                             <li><a href="{{ route('ocr.matches.index') }}" class="dropdown-item">Trận đấu của tôi</a></li>
@@ -281,6 +274,14 @@
                         @endauth
                     </ul>
                 </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Academy</a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
+                        <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
+                    </ul>
+                </li>
+                <li><a href="{{ route('news') }}" class="nav-link @if(request()->routeIs('news')) active @endif">Tin tức</a></li>
 
                 @guest
                     <li class="mobile-only login-register-btn">

@@ -50,13 +50,13 @@
 
     .filter-btn:hover {
         background: white;
-        color: #667eea;
+        color: #00D9B5;
         transform: translateY(-2px);
     }
 
     .filter-btn.active {
         background: white;
-        color: #667eea;
+        color: #00D9B5;
     }
 
     .matches-wrapper {
@@ -77,6 +77,7 @@
         padding: 24px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
+        border-left: 5px solid #FFFFFF;
         position: relative;
         overflow: hidden;
     }
@@ -97,16 +98,24 @@
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
     }
 
-    .match-card.ongoing {
-        border-left-color: #FF6B6B;
-    }
-
-    .match-card.upcoming {
+    .match-card.pending {
         border-left-color: #FFD93D;
     }
 
-    .match-card.past {
+    .match-card.accepted {
+        border-left-color: #00D9B5;
+    }
+
+    .match-card.in_progress {
+        border-left-color: #FF6B6B;
+    }
+
+    .match-card.confirmed {
         border-left-color: #95E1D3;
+    }
+
+    .match-card.disputed {
+        border-left-color: #FF6B6B;
     }
 
     .match-status {
@@ -120,22 +129,32 @@
         letter-spacing: 0.5px;
     }
 
-    .status-ongoing {
-        background: rgba(255, 107, 107, 0.1);
-        color: #FF6B6B;
-    }
-
-    .status-upcoming {
+    .status-pending {
         background: rgba(255, 217, 61, 0.1);
         color: #FFD93D;
     }
 
-    .status-past {
+    .status-accepted {
+        background: rgba(0, 217, 181, 0.1);
+        color: #00D9B5;
+    }
+
+    .status-in_progress {
+        background: rgba(255, 107, 107, 0.1);
+        color: #FF6B6B;
+    }
+
+    .status-confirmed {
         background: rgba(149, 225, 211, 0.1);
         color: #95E1D3;
     }
 
-    .tournament-info {
+    .status-disputed {
+        background: rgba(255, 107, 107, 0.1);
+        color: #FF6B6B;
+    }
+
+    .match-info {
         position: relative;
         z-index: 1;
         margin-bottom: 16px;
@@ -143,23 +162,15 @@
         border-bottom: 1px solid #e2e8f0;
     }
 
-    .tournament-name {
-        font-size: 0.85rem;
-        color: #94a3b8;
-        text-transform: uppercase;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        margin-bottom: 4px;
-    }
-
-    .category-badge {
+    .match-type {
         display: inline-block;
         background: #f1f5f9;
-        color: #667eea;
+        color: #0099CC;
         padding: 4px 10px;
         border-radius: 12px;
         font-size: 0.75rem;
         font-weight: 600;
+        margin-bottom: 8px;
     }
 
     .match-players {
@@ -168,17 +179,7 @@
         margin-bottom: 20px;
     }
 
-    .match-vs {
-        text-align: center;
-        font-weight: 700;
-        color: #667eea;
-        font-size: 0.85rem;
-        margin: 12px 0;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-    }
-
-    .player-item {
+    .player-team {
         display: flex;
         align-items: center;
         gap: 12px;
@@ -189,7 +190,7 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
         color: white;
         display: flex;
         align-items: center;
@@ -209,6 +210,16 @@
         font-size: 0.95rem;
     }
 
+    .vs-separator {
+        text-align: center;
+        font-weight: 700;
+        color: #0099CC;
+        font-size: 0.85rem;
+        margin: 12px 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
     .match-score {
         display: flex;
         justify-content: space-around;
@@ -226,7 +237,7 @@
     .score-number {
         font-size: 1.8rem;
         font-weight: 800;
-        color: #667eea;
+        color: #0099CC;
     }
 
     .match-details {
@@ -291,19 +302,19 @@
         padding: 10px 14px;
         border-radius: 8px;
         background: white;
-        color: #667eea;
+        color: #0099CC;
         text-decoration: none;
         font-weight: 600;
         transition: all 0.3s ease;
     }
 
     .pagination a:hover {
-        background: #667eea;
+        background: #0099CC;
         color: white;
     }
 
     .pagination .active {
-        background: #667eea;
+        background: #0099CC;
         color: white;
     }
 
@@ -335,21 +346,24 @@
 @section('content')
 <div class="matches-container">
     <div class="matches-header">
-        <h1>🏸 Danh Sách Trận Đấu</h1>
-        <p>Xem tất cả trận đấu đang diễn ra, sắp diễn ra và đã diễn ra</p>
+        <h1>🏸 Trận Đấu OCR</h1>
+        <p>Xem tất cả trận đấu OCR, từ chờ xác nhận đến hoàn tất</p>
 
         <div class="filter-tabs">
-            <a href="{{ route('ocr.matches.list') }}" class="filter-btn {{ $filter === 'all' ? 'active' : '' }}">
-                📊 Tất cả
+            <a href="{{ route('ocr.ocr-matches') }}" class="filter-btn {{ $filter === 'all' ? 'active' : '' }}">
+                📊 Tất Cả
             </a>
-            <a href="{{ route('ocr.matches.list', ['filter' => 'ongoing']) }}" class="filter-btn {{ $filter === 'ongoing' ? 'active' : '' }}">
+            <a href="{{ route('ocr.ocr-matches', ['filter' => 'in_progress']) }}" class="filter-btn {{ $filter === 'in_progress' ? 'active' : '' }}">
                 🔥 Đang Diễn Ra
             </a>
-            <a href="{{ route('ocr.matches.list', ['filter' => 'upcoming']) }}" class="filter-btn {{ $filter === 'upcoming' ? 'active' : '' }}">
-                ⏰ Sắp Diễn Ra
+            <a href="{{ route('ocr.ocr-matches', ['filter' => 'pending']) }}" class="filter-btn {{ $filter === 'pending' ? 'active' : '' }}">
+                ⏳ Chờ Xác Nhận
             </a>
-            <a href="{{ route('ocr.matches.list', ['filter' => 'past']) }}" class="filter-btn {{ $filter === 'past' ? 'active' : '' }}">
-                ✅ Đã Diễn Ra
+            <a href="{{ route('ocr.ocr-matches', ['filter' => 'confirmed']) }}" class="filter-btn {{ $filter === 'confirmed' ? 'active' : '' }}">
+                ✅ Hoàn Tất
+            </a>
+            <a href="{{ route('ocr.ocr-matches', ['filter' => 'disputed']) }}" class="filter-btn {{ $filter === 'disputed' ? 'active' : '' }}">
+                ⚠️ Tranh Chấp
             </a>
         </div>
     </div>
@@ -361,53 +375,74 @@
                     <div class="match-card {{ $match->status }}">
                         <!-- Status Badge -->
                         @if($match->status === 'in_progress')
-                            <span class="match-status status-ongoing">⚡ Đang Diễn Ra</span>
-                        @elseif(in_array($match->status, ['scheduled', 'ready']))
-                            <span class="match-status status-upcoming">⏰ Sắp Diễn Ra</span>
-                        @elseif($match->status === 'completed')
-                            <span class="match-status status-past">✓ Đã Diễn Ra</span>
+                            <span class="match-status status-in_progress">⚡ Đang Diễn Ra</span>
+                        @elseif($match->status === 'pending')
+                            <span class="match-status status-pending">⏳ Chờ Xác Nhận</span>
+                        @elseif($match->status === 'accepted')
+                            <span class="match-status status-accepted">✓ Đã Chấp Nhận</span>
+                        @elseif($match->status === 'confirmed')
+                            <span class="match-status status-confirmed">✓ Hoàn Tất</span>
+                        @elseif($match->status === 'disputed')
+                            <span class="match-status status-disputed">⚠️ Tranh Chấp</span>
+                        @else
+                            <span class="match-status">{{ ucfirst($match->status) }}</span>
                         @endif
 
-                        <!-- Tournament & Category Info -->
-                        <div class="tournament-info">
-                            <div class="tournament-name">
-                                {{ $match->tournament?->name ?? 'Tournament' }}
-                            </div>
-                            <span class="category-badge">
-                                {{ $match->category?->name ?? 'Category' }}
+                        <!-- Match Type -->
+                        <div class="match-info">
+                            <span class="match-type">
+                                {{ $match->match_type === 'singles' ? '👤 Đơn' : '👥 Đôi' }}
                             </span>
                         </div>
 
                         <!-- Players -->
                         <div class="match-players">
-                            <!-- Athlete 1 -->
-                            <div class="player-item">
-                                <div class="player-avatar">{{ substr($match->athlete1?->player_name ?? 'A', 0, 1) }}</div>
+                            <!-- Challenger Team -->
+                            <div class="player-team">
+                                <div class="player-avatar">{{ substr($match->challenger?->name ?? 'A', 0, 1) }}</div>
                                 <div class="player-info">
-                                    <div class="player-name">{{ $match->athlete1?->player_name ?? 'Athlete 1' }}</div>
+                                    <div class="player-name">{{ $match->challenger?->name ?? 'Cầu thủ 1' }}</div>
                                 </div>
                             </div>
 
-                            <div class="match-vs">VS</div>
+                            @if($match->challenger_partner_id)
+                                <div class="player-team" style="margin-left: 20px;">
+                                    <div class="player-avatar">{{ substr($match->challengerPartner?->name ?? 'B', 0, 1) }}</div>
+                                    <div class="player-info">
+                                        <div class="player-name">{{ $match->challengerPartner?->name ?? 'Cầu thủ 2' }}</div>
+                                    </div>
+                                </div>
+                            @endif
 
-                            <!-- Athlete 2 -->
-                            <div class="player-item">
-                                <div class="player-avatar">{{ substr($match->athlete2?->player_name ?? 'A', 0, 1) }}</div>
+                            <div class="vs-separator">VS</div>
+
+                            <!-- Opponent Team -->
+                            <div class="player-team">
+                                <div class="player-avatar">{{ substr($match->opponent?->name ?? 'C', 0, 1) }}</div>
                                 <div class="player-info">
-                                    <div class="player-name">{{ $match->athlete2?->player_name ?? 'Athlete 2' }}</div>
+                                    <div class="player-name">{{ $match->opponent?->name ?? 'Cầu thủ 3' }}</div>
                                 </div>
                             </div>
+
+                            @if($match->opponent_partner_id)
+                                <div class="player-team" style="margin-left: 20px;">
+                                    <div class="player-avatar">{{ substr($match->opponentPartner?->name ?? 'D', 0, 1) }}</div>
+                                    <div class="player-info">
+                                        <div class="player-name">{{ $match->opponentPartner?->name ?? 'Cầu thủ 4' }}</div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
-                        <!-- Score for completed matches -->
-                        @if($match->status === 'completed' && $match->athlete1_score !== null)
+                        <!-- Score for confirmed matches -->
+                        @if($match->status === 'confirmed' && $match->challenger_score !== null)
                             <div class="match-score">
                                 <div class="score-item">
-                                    <div class="score-number">{{ $match->athlete1_score ?? 0 }}</div>
+                                    <div class="score-number">{{ $match->challenger_score }}</div>
                                 </div>
                                 <div style="color: #94a3b8; font-weight: bold;">-</div>
                                 <div class="score-item">
-                                    <div class="score-number">{{ $match->athlete2_score ?? 0 }}</div>
+                                    <div class="score-number">{{ $match->opponent_score }}</div>
                                 </div>
                             </div>
                         @endif
@@ -417,19 +452,19 @@
                             <div class="detail-item">
                                 <div class="detail-label">Ngày</div>
                                 <div class="detail-value">
-                                    {{ $match->match_date ? $match->match_date->format('d/m') : '-' }}
+                                    {{ $match->scheduled_date ? $match->scheduled_date->format('d/m/Y') : '-' }}
                                 </div>
                             </div>
                             <div class="detail-item">
                                 <div class="detail-label">Giờ</div>
                                 <div class="detail-value">
-                                    {{ $match->match_time ?? '-' }}
+                                    {{ $match->scheduled_time ?? '-' }}
                                 </div>
                             </div>
                             <div class="detail-item">
-                                <div class="detail-label">Sân</div>
+                                <div class="detail-label">Địa Điểm</div>
                                 <div class="detail-value">
-                                    {{ $match->court?->name ? substr($match->court->name, 0, 10) : '-' }}
+                                    {{ $match->location ? substr($match->location, 0, 10) : '-' }}
                                 </div>
                             </div>
                         </div>
@@ -441,19 +476,19 @@
                 <div style="display: flex; justify-content: center; gap: 8px; margin-top: 40px; flex-wrap: wrap;">
                     @if($matches->onFirstPage())
                     @else
-                        <a href="{{ $matches->previousPageUrl() }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #667eea; text-decoration: none; font-weight: 600;">← Trước</a>
+                        <a href="{{ $matches->previousPageUrl() }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #0099CC; text-decoration: none; font-weight: 600;">← Trước</a>
                     @endif
 
                     @foreach($matches->getUrlRange(1, $matches->lastPage()) as $page => $url)
                         @if($page == $matches->currentPage())
-                            <span style="padding: 10px 14px; border-radius: 8px; background: #667eea; color: white; font-weight: 600;">{{ $page }}</span>
+                            <span style="padding: 10px 14px; border-radius: 8px; background: white; color: #0099CC; font-weight: 600;">{{ $page }}</span>
                         @else
-                            <a href="{{ $url }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #667eea; text-decoration: none; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#667eea'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#667eea';">{{ $page }}</a>
+                            <a href="{{ $url }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #0099CC; text-decoration: none; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#0099CC'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#0099CC';">{{ $page }}</a>
                         @endif
                     @endforeach
 
                     @if($matches->hasMorePages())
-                        <a href="{{ $matches->nextPageUrl() }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #667eea; text-decoration: none; font-weight: 600;">Sau →</a>
+                        <a href="{{ $matches->nextPageUrl() }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #0099CC; text-decoration: none; font-weight: 600;">Sau →</a>
                     @endif
                 </div>
             @endif
@@ -462,28 +497,18 @@
                 <div class="empty-state-icon">📭</div>
                 <h3>Không Có Trận Đấu</h3>
                 <p>
-                    @if($filter === 'ongoing')
+                    @if($filter === 'in_progress')
                         Hiện không có trận đấu nào đang diễn ra.
-                    @elseif($filter === 'upcoming')
-                        Chưa có trận đấu nào được lên lịch.
-                    @elseif($filter === 'past')
+                    @elseif($filter === 'pending')
+                        Không có trận đấu nào đang chờ xác nhận.
+                    @elseif($filter === 'confirmed')
                         Chưa có trận đấu nào hoàn tất.
+                    @elseif($filter === 'disputed')
+                        Không có tranh chấp nào.
                     @else
-                        Chưa có trận đấu nào.
+                        Chưa có trận đấu OCR nào.
                     @endif
                 </p>
-                <a href="{{ route('tournaments') }}" style="
-                    display: inline-block;
-                    padding: 12px 32px;
-                    background: white;
-                    color: #667eea;
-                    border-radius: 30px;
-                    text-decoration: none;
-                    font-weight: 600;
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                    Xem Giải Đấu
-                </a>
             </div>
         @endif
     </div>
