@@ -1308,7 +1308,7 @@ class HomeYardTournamentController extends Controller
                 ->get();
 
             // Tạo matches tự động cho mỗi group (round-robin)
-            $this->createMatchesForGroups($tournament, $categoryId, $refreshedGroups);
+            //$this->createMatchesForGroups($tournament, $categoryId, $refreshedGroups);
 
             $results = $this->getGroupedAthletes($refreshedGroups);
 
