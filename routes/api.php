@@ -141,10 +141,11 @@ Route::prefix('challenges')->group(function () {
 */
 
 // Protected community activity endpoints (auth required)
-Route::prefix('community')->middleware('auth:api')->group(function () {
+Route::prefix('community')->middleware('auth')->group(function () {
     Route::post('check-in', [CommunityActivityController::class, 'checkIn']);
     Route::post('event', [CommunityActivityController::class, 'recordEvent']);
     Route::post('referral', [CommunityActivityController::class, 'recordReferral']);
+    Route::post('social-activity', [CommunityActivityController::class, 'recordSocialActivity']);
     Route::get('history', [CommunityActivityController::class, 'history']);
     Route::get('stats', [CommunityActivityController::class, 'stats']);
 });

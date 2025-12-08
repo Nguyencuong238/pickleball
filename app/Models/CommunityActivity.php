@@ -14,6 +14,10 @@ class CommunityActivity extends Model
     public const TYPE_REFERRAL = 'referral';
     public const TYPE_WEEKLY_MATCHES = 'weekly_matches';
     public const TYPE_MONTHLY_CHALLENGE = 'monthly_challenge';
+    public const TYPE_JOIN_GROUP = 'join_group';
+    public const TYPE_FOLLOW_FB = 'follow_fb';
+    public const TYPE_FOLLOW_YOUTUBE = 'follow_youtube';
+    public const TYPE_FOLLOW_TIKTOK = 'follow_tiktok';
 
     // Points per activity
     public const POINTS = [
@@ -22,6 +26,10 @@ class CommunityActivity extends Model
         self::TYPE_REFERRAL => 10,
         self::TYPE_WEEKLY_MATCHES => 5,
         self::TYPE_MONTHLY_CHALLENGE => 15,
+        self::TYPE_JOIN_GROUP => 5,
+        self::TYPE_FOLLOW_FB => 5,
+        self::TYPE_FOLLOW_YOUTUBE => 5,
+        self::TYPE_FOLLOW_TIKTOK => 5,
     ];
 
     protected $fillable = [
@@ -62,6 +70,10 @@ class CommunityActivity extends Model
             self::TYPE_REFERRAL,
             self::TYPE_WEEKLY_MATCHES,
             self::TYPE_MONTHLY_CHALLENGE,
+            self::TYPE_JOIN_GROUP,
+            self::TYPE_FOLLOW_FB,
+            self::TYPE_FOLLOW_YOUTUBE,
+            self::TYPE_FOLLOW_TIKTOK,
         ];
     }
 
@@ -108,6 +120,34 @@ class CommunityActivity extends Model
                 'points' => 15,
                 'limit' => 'monthly',
                 'icon' => '[TROPHY]',
+            ],
+            self::TYPE_JOIN_GROUP => [
+                'name' => 'Join Group OnePickleball',
+                'description' => 'Tham gia nhom cong dong OnePickleball',
+                'points' => 5,
+                'limit' => 'once',
+                'icon' => '👥',
+            ],
+            self::TYPE_FOLLOW_FB => [
+                'name' => 'Follow Kenh Facebook',
+                'description' => 'Theo doi trang Facebook chinh thuc',
+                'points' => 5,
+                'limit' => 'once',
+                'icon' => '📘',
+            ],
+            self::TYPE_FOLLOW_YOUTUBE => [
+                'name' => 'Follow Kenh Youtube',
+                'description' => 'Dang ky kenh Youtube OnePickleball',
+                'points' => 5,
+                'limit' => 'once',
+                'icon' => '▶️',
+            ],
+            self::TYPE_FOLLOW_TIKTOK => [
+                'name' => 'Follow Kenh TikTok',
+                'description' => 'Theo doi TikTok OnePickleball',
+                'points' => 5,
+                'limit' => 'once',
+                'icon' => '🎵',
             ],
         ];
 

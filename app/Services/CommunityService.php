@@ -220,6 +220,55 @@ class CommunityService
     }
 
     /**
+     * Record social activity (join group, follow social)
+     * Limited to once per day per activity type
+     *
+     * @throws InvalidArgumentException
+     */
+    public function recordSocialActivity(User $user, string $activityType): CommunityActivity
+    {
+        // Validate activity type is social
+        $socialTypes = [
+            CommunityActivity::TYPE_JOIN_GROUP,
+            CommunityActivity::TYPE_FOLLOW_FB,
+            CommunityActivity::TYPE_FOLLOW_YOUTUBE,
+            CommunityActivity::TYPE_FOLLOW_TIKTOK,
+        ];
+
+        if (!in_array($activityType, $socialTypes)) {
+            throw new InvalidArgumentException('Invalid social activity type');
+        }
+
+        // Check if already claimed today
+        $today = Carbon::today();
+        $alreadyClaimedToday = CommunityActivity::where('user_id', $user->id)
+            ->where('activity_type', $activityType)
+            ->whereDate('created_at', $today)
+            ->exists();
+
+        if ($alreadyClaimedToday) {
+            throw new InvalidArgumentException('Already claimed today. Come back tomorrow!');
+        }
+
+        return DB::transaction(function () use ($user, $activityType) {
+            $points = CommunityActivity::getPoints($activityType);
+
+            $activity = CommunityActivity::create([
+                'user_id' => $user->id,
+                'activity_type' => $activityType,
+                'points_earned' => $points,
+                'metadata' => [
+                    'claimed_at' => Carbon::now()->format('Y-m-d H:i:s'),
+                ],
+            ]);
+
+            $this->awardPoints($user, $activity);
+
+            return $activity;
+        });
+    }
+
+    /**
      * Award points and recalculate OPRS
      */
     private function awardPoints(User $user, CommunityActivity $activity): void
@@ -349,6 +398,12 @@ class CommunityService
     public function getAvailableActivities(User $user): array
     {
         $available = [];
+        $socialTypes = [
+            CommunityActivity::TYPE_JOIN_GROUP,
+            CommunityActivity::TYPE_FOLLOW_FB,
+            CommunityActivity::TYPE_FOLLOW_YOUTUBE,
+            CommunityActivity::TYPE_FOLLOW_TIKTOK,
+        ];
 
         foreach (CommunityActivity::getAllTypes() as $type) {
             $canSubmit = true;
@@ -381,6 +436,21 @@ class CommunityService
                         $nextAvailable = Carbon::now()->endOfMonth()->addSecond()->format('Y-m-d');
                     }
                     break;
+
+                default:
+                    // Check if it's a social activity (once per day)
+                    if (in_array($type, $socialTypes)) {
+                        $today = Carbon::today();
+                        $alreadyClaimedToday = CommunityActivity::where('user_id', $user->id)
+                            ->where('activity_type', $type)
+                            ->whereDate('created_at', $today)
+                            ->exists();
+                        if ($alreadyClaimedToday) {
+                            $canSubmit = false;
+                            $reason = 'Already claimed today';
+                            $nextAvailable = Carbon::tomorrow()->format('Y-m-d');
+                        }
+                    }
             }
 
             $available[$type] = [

@@ -430,6 +430,98 @@
                     </div>
                 </div>
             </div>
+
+            {{-- Social: Join Group OnePickleball --}}
+            <div class="activity-card {{ !$availableActivities['join_group']['available'] ? 'disabled' : '' }}">
+                <div class="activity-header">
+                    <span class="activity-icon">👥</span>
+                    <div>
+                        <h3 class="activity-name">Join Group OnePickleball</h3>
+                        <span class="activity-points">+5 điểm</span>
+                    </div>
+                </div>
+                <p class="activity-desc">Tham gia nhóm cộng đồng OnePickleball</p>
+                <div class="activity-action">
+                    @if($availableActivities['join_group']['available'])
+                        <button onclick="recordSocialActivity('join_group')" class="btn btn-purple">
+                            Tham Gia Nhóm
+                        </button>
+                    @else
+                        <div class="activity-unavailable">
+                            {{ $availableActivities['join_group']['reason'] ?? 'Sắp ra mắt' }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Social: Follow FB Channel --}}
+            <div class="activity-card {{ !$availableActivities['follow_fb']['available'] ? 'disabled' : '' }}">
+                <div class="activity-header">
+                    <span class="activity-icon">📘</span>
+                    <div>
+                        <h3 class="activity-name">Follow Kênh Facebook</h3>
+                        <span class="activity-points">+5 điểm</span>
+                    </div>
+                </div>
+                <p class="activity-desc">Theo dõi trang Facebook chính thức</p>
+                <div class="activity-action">
+                    @if($availableActivities['follow_fb']['available'])
+                        <button onclick="recordSocialActivity('follow_fb')" class="btn btn-purple">
+                            Follow Ngay
+                        </button>
+                    @else
+                        <div class="activity-unavailable">
+                            {{ $availableActivities['follow_fb']['reason'] ?? 'Sắp ra mắt' }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Social: Follow Youtube Channel --}}
+            <div class="activity-card {{ !$availableActivities['follow_youtube']['available'] ? 'disabled' : '' }}">
+                <div class="activity-header">
+                    <span class="activity-icon">▶️</span>
+                    <div>
+                        <h3 class="activity-name">Follow Kênh Youtube</h3>
+                        <span class="activity-points">+5 điểm</span>
+                    </div>
+                </div>
+                <p class="activity-desc">Đăng ký kênh Youtube OnePickleball</p>
+                <div class="activity-action">
+                    @if($availableActivities['follow_youtube']['available'])
+                        <button onclick="recordSocialActivity('follow_youtube')" class="btn btn-purple">
+                            Đăng Ký Kênh
+                        </button>
+                    @else
+                        <div class="activity-unavailable">
+                            {{ $availableActivities['follow_youtube']['reason'] ?? 'Sắp ra mắt' }}
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            {{-- Social: Follow TikTok Channel --}}
+            <div class="activity-card {{ !$availableActivities['follow_tiktok']['available'] ? 'disabled' : '' }}">
+                <div class="activity-header">
+                    <span class="activity-icon">🎵</span>
+                    <div>
+                        <h3 class="activity-name">Follow Kênh TikTok</h3>
+                        <span class="activity-points">+5 điểm</span>
+                    </div>
+                </div>
+                <p class="activity-desc">Theo dõi TikTok OnePickleball</p>
+                <div class="activity-action">
+                    @if($availableActivities['follow_tiktok']['available'])
+                        <button onclick="recordSocialActivity('follow_tiktok')" class="btn btn-purple">
+                            Follow TikTok
+                        </button>
+                    @else
+                        <div class="activity-unavailable">
+                            {{ $availableActivities['follow_tiktok']['reason'] ?? 'Sắp ra mắt' }}
+                        </div>
+                    @endif
+                </div>
+            </div>
         </div>
 
         {{-- Recent Activities --}}
@@ -481,6 +573,62 @@ function copyReferralLink() {
         document.execCommand('copy');
         document.body.removeChild(textarea);
         toastr.success('Đã sao chép link giới thiệu!');
+    });
+}
+
+function recordSocialActivity(activityType) {
+    // Open social link in new tab
+    const socialLinks = {
+        'join_group': 'https://www.facebook.com/groups/onepickleball',
+        'follow_fb': 'https://www.facebook.com/search/top?q=onepickleball',
+        'follow_youtube': 'https://www.youtube.com/@OnePickleballvn',
+        'follow_tiktok': 'https://www.tiktok.com/@onepickleball1',
+    };
+
+    if (socialLinks[activityType]) {
+        window.open(socialLinks[activityType], '_blank');
+    }
+
+    // Record the activity via API
+    fetch('{{ route("ocr.community.social-activity") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'Accept': 'application/json',
+        },
+        body: JSON.stringify({
+            activity_type: activityType,
+        }),
+    })
+    .then(response => {
+        // Log response for debugging
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.text().then(text => {
+            console.log('Response text:', text);
+            return text ? JSON.parse(text) : {};
+        });
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        if (data.success) {
+            toastr.success(data.message);
+            // Reload page to update available activities
+            setTimeout(() => {
+                location.reload();
+            }, 1000);
+        } else {
+            toastr.error(data.error || 'Có lỗi xảy ra');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        toastr.error('Có lỗi xảy ra: ' + error.message);
     });
 }
 </script>

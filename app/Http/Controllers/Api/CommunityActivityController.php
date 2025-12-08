@@ -164,4 +164,35 @@ class CommunityActivityController extends Controller
             ],
         ]);
     }
+
+    /**
+     * Record social activity (join group, follow social)
+     */
+    public function recordSocialActivity(Request $request): JsonResponse
+    {
+        $request->validate([
+            'activity_type' => 'required|in:join_group,follow_fb,follow_youtube,follow_tiktok',
+        ]);
+
+        $user = $request->user();
+        $activityType = $request->activity_type;
+
+        try {
+            $activity = $this->communityService->recordSocialActivity($user, $activityType);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'activity' => $activity,
+                    'new_community_score' => $user->fresh()->community_score,
+                ],
+                'message' => 'Social activity recorded! +' . $activity->points_earned . ' points',
+            ]);
+        } catch (InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 422);
+        }
+    }
 }

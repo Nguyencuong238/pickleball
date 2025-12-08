@@ -286,6 +286,7 @@ Route::prefix('ocr')->name('ocr.')->group(function () {
         Route::get('/community', [OcrController::class, 'community'])->name('community.index');
         Route::get('/community/checkin', [OcrController::class, 'checkin'])->name('community.checkin');
         Route::post('/community/checkin', [OcrController::class, 'checkinStore'])->name('community.checkin.store');
+        Route::post('/community/social-activity', [\App\Http\Controllers\Api\CommunityActivityController::class, 'recordSocialActivity'])->name('community.social-activity');
     });
 });
 
