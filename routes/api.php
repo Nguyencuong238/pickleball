@@ -194,7 +194,3 @@ Route::prefix('news')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('media')->group(function () {
-    Route::post('upload', [MediaUploadController::class, 'uploadMedia']);
-    Route::delete('{mediaId}', [MediaUploadController::class, 'deleteMedia']);
-});

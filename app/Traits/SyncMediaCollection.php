@@ -20,16 +20,12 @@ trait SyncMediaCollection
     {
         $mediaIds = $request->input($fieldName);
         
-        Log::info("SyncMediaCollection: fieldName=$fieldName, collectionName=$collectionName, mediaIds=$mediaIds");
-        
         if (empty($mediaIds)) {
-            Log::info("No media IDs provided, deleting all media in collection: $collectionName");
             $this->deleteAllMediaInCollection($collectionName);
             return;
         }
 
         $newMediaIds = $this->parseMediaIds($mediaIds);
-        Log::info("Parsed media IDs: " . json_encode($newMediaIds));
         
         // Delete media not in the new list
         $this->deleteOldMedia($collectionName, $newMediaIds);
@@ -67,16 +63,16 @@ trait SyncMediaCollection
      */
     private function moveTempoMedia(array $newMediaIds, $collectionName): void
     {
-        Log::info("moveTempoMedia: newMediaIds=" . json_encode($newMediaIds));
+        $tempoMediaIds = $this->getTempoMediaIds();
         
-        if (empty($newMediaIds)) {
-            Log::warning("No new media IDs provided!");
+        if (empty($tempoMediaIds)) {
             return;
         }
 
-        // Try to move all provided media IDs directly
-        foreach ($newMediaIds as $mediaId) {
-            Log::info("Moving media $mediaId to collection $collectionName");
+        // Find newly uploaded media (intersection of new IDs and Tempo IDs)
+        $mediaToMove = array_intersect($newMediaIds, $tempoMediaIds);
+        
+        foreach ($mediaToMove as $mediaId) {
             $this->safelyMoveMedia($mediaId, $collectionName);
         }
     }
@@ -86,20 +82,11 @@ trait SyncMediaCollection
      */
     private function getTempoMediaIds(): array
     {
-        $sessionId = session()->getId();
-        Log::info("getTempoMediaIds: Looking for Tempo model with session_id=$sessionId");
+        $tempoModel = \App\Models\Tempo::where('session_id', session()->getId())->first();
         
-        $tempoModel = \App\Models\Tempo::where('session_id', $sessionId)->first();
-        
-        if (!$tempoModel) {
-            Log::warning("No Tempo model found for session_id=$sessionId");
-            return [];
-        }
-        
-        $mediaIds = $tempoModel->getMedia('default')->pluck('id')->toArray();
-        Log::info("Found Tempo model ID={$tempoModel->id} with media IDs: " . json_encode($mediaIds));
-        
-        return $mediaIds;
+        return $tempoModel 
+            ? $tempoModel->getMedia('default')->pluck('id')->toArray()
+            : [];
     }
 
     /**
