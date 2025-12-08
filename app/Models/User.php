@@ -24,6 +24,9 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'email',
         'phone',
+        'avatar',
+        'location',
+        'province_id',
         'password',
         'google_id',
         'facebook_id',
@@ -66,6 +69,14 @@ class User extends Authenticatable implements JWTSubject
         'community_score' => 'decimal:2',
         'total_oprs' => 'decimal:2',
     ];
+
+    /**
+     * Get the user's location province
+     */
+    public function province()
+    {
+        return $this->belongsTo(Province::class);
+    }
 
     /**
      * Get the user's favorite stadiums
@@ -133,6 +144,21 @@ class User extends Authenticatable implements JWTSubject
         }
         
         return $initials ?: 'U'; // Default to 'U' for 'User' if name is empty
+    }
+
+    /**
+     * Get avatar URL or null
+     * Returns full URL to avatar image stored in public disk
+     *
+     * @return string|null
+     */
+    public function getAvatarUrl(): ?string
+    {
+        if (empty($this->avatar)) {
+            return null;
+        }
+
+        return asset('storage/' . $this->avatar);
     }
 
     /**

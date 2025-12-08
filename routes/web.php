@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\MediaUploadController;
 use App\Http\Controllers\Front\OcrController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SocialController;
+use App\Http\Controllers\Front\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -133,6 +134,15 @@ Route::middleware('auth')->group(function () {
     // Media Upload API Routes
     Route::post('/api/upload-media', [MediaUploadController::class, 'uploadMedia'])->name('api.upload-media');
     Route::delete('/api/delete-media/{mediaId}', [MediaUploadController::class, 'deleteMedia'])->name('api.delete-media');
+
+    // User Profile Routes
+    Route::prefix('user/profile')->name('user.profile.')->group(function () {
+        Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/', [ProfileController::class, 'updateProfile'])->name('update');
+        Route::put('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar');
+        Route::put('/email', [ProfileController::class, 'updateEmail'])->name('email');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
+    });
 });
 
 // Instructor favorite routes (without auth middleware - controller checks auth internally)

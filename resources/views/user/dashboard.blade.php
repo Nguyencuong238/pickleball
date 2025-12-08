@@ -406,12 +406,18 @@
     <div class="sidebar">
         <div class="profile-section">
             <div class="profile-card">
-                <div class="profile-avatar">{{ strtoupper(substr($user->name, 0, 1)) }}</div>
+                <div class="profile-avatar">
+                    @if($user->getAvatarUrl())
+                        <img src="{{ $user->getAvatarUrl() }}" alt="Avatar" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                    @else
+                        {{ $user->getInitials() }}
+                    @endif
+                </div>
                 <h4>{{ $user->name }}</h4>
                 <p>{{ $user->email }}</p>
                 <span class="role-badge">👤 Người Dùng Thường</span>
                 <hr>
-                <a href="#" class="edit-profile-btn">Chỉnh Sửa Hồ Sơ</a>
+                <a href="{{ route('user.profile.edit') }}" class="edit-profile-btn">Chinh Sua Ho So</a>
             </div>
 
             <div class="stats-card">
@@ -439,10 +445,10 @@
 
                 <!-- My Profile -->
                 <div class="menu-card">
-                    <div class="icon-box icon-box-blue">👤</div>
-                    <h5>Hồ Sơ Của Tôi</h5>
-                    <p>Xem và quản lý thông tin hồ sơ và cài đặt của bạn.</p>
-                    <a href="#" class="menu-btn">Xem Hồ Sơ →</a>
+                    <div class="icon-box icon-box-blue">[USER]</div>
+                    <h5>Ho So Cua Toi</h5>
+                    <p>Xem va quan ly thong tin ho so va cai dat cua ban.</p>
+                    <a href="{{ route('user.profile.edit') }}" class="menu-btn">Chinh Sua Ho So</a>
                 </div>
 
                 <!-- My Bookings -->

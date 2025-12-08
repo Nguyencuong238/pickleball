@@ -316,7 +316,10 @@
                         </div>
                         <div class="dropdown-info">
                             <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
-                                [STAR] Hồ sơ OPRS
+                                Hồ sơ OPRS
+                            </a>
+                            <a href="{{ route('user.profile.edit') }}" class="nav-link">
+                                Chỉnh sửa hồ sơ
                             </a>
                             @if(auth()->check())
                                 @if(auth()->user()->hasRole('admin'))
