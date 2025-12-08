@@ -894,25 +894,27 @@
                         </div>
 
                         <!-- Statistics Cards -->
-                        <div
-                            style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                            <div
-                                style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem;">🥇 VĐV Hạng 1</div>
-                                <div style="font-size: 1.5rem; font-weight: 700;" id="topAthlete">-</div>
-                            </div>
-                            <div
-                                style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem;">📊 Tổng Trận Đấu
-                                </div>
-                                <div style="font-size: 1.5rem; font-weight: 700;" id="totalMatches">0</div>
-                            </div>
-                            <div
-                                style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                <div style="font-size: 0.85rem; opacity: 0.9; margin-bottom: 0.5rem;">👥 Tổng VĐV</div>
-                                <div style="font-size: 1.5rem; font-weight: 700;" id="totalAthletes">0</div>
-                            </div>
-                        </div>
+                         <div class="statistics-cards"
+                             style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                             <div
+                                 style="background: linear-gradient(135deg, #2FE8C4 0%, #1FDDAF 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(47, 232, 196, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
+                                 <div style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+                                 <div style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">🥇 VĐV Hạng 1</div>
+                                 <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;" id="topAthlete">-</div>
+                             </div>
+                             <div
+                                 style="background: linear-gradient(135deg, #35E5C2 0%, #1DD9B5 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(53, 229, 194, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
+                                 <div style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+                                 <div style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">📊 Tổng Trận Đấu</div>
+                                 <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;" id="totalMatches">0</div>
+                             </div>
+                             <div
+                                 style="background: linear-gradient(135deg, #28E0BC 0%, #10D4A3 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(40, 224, 188, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
+                                 <div style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;"></div>
+                                 <div style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">👥 Tổng VĐV</div>
+                                 <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;" id="totalAthletes">0</div>
+                             </div>
+                         </div>
                     </div>
                 </div>
             </div>
