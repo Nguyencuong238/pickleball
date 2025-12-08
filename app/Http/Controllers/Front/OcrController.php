@@ -76,6 +76,52 @@ class OcrController extends Controller
     }
 
     /**
+     * Matches list for guests (public view) - Tournament Matches
+     */
+    public function matchesList(Request $request): View
+    {
+        $filter = $request->query('filter', 'all');
+        $now = \Carbon\Carbon::now();
+
+        $query = \App\Models\MatchModel::with([
+            'tournament',
+            'category',
+            'round',
+            'athlete1',
+            'athlete2',
+            'winner',
+            'court'
+        ]);
+
+        if ($filter === 'ongoing') {
+            // Matches currently in progress
+            $query->where('status', 'in_progress');
+        } elseif ($filter === 'upcoming') {
+            // Scheduled matches not yet started
+            $query->whereIn('status', ['scheduled', 'ready'])
+                  ->where('match_date', '>=', $now->toDateString());
+        } elseif ($filter === 'past') {
+            // Completed matches
+            $query->where('status', 'completed');
+        } else {
+            // All matches
+            $query->whereIn('status', ['scheduled', 'ready', 'in_progress', 'completed']);
+        }
+
+        $matches = $query->orderByRaw("CASE 
+                            WHEN status = 'in_progress' THEN 1
+                            WHEN status IN ('scheduled', 'ready') THEN 2
+                            WHEN status = 'completed' THEN 3
+                            ELSE 4
+                        END")
+                        ->orderBy('match_date', 'desc')
+                        ->orderBy('match_time', 'desc')
+                        ->paginate(20);
+
+        return view('front.ocr.matches-list', compact('matches', 'filter'));
+    }
+
+    /**
      * Match detail
      */
     public function matchShow(OcrMatch $match): View

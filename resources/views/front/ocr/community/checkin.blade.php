@@ -8,6 +8,7 @@
         background: linear-gradient(135deg, #1e3a5f 0%, #0d1b2a 100%);
         padding: 3rem 0;
         color: white;
+        margin-top: 100px;
     }
 
     .page-header-content {
@@ -215,7 +216,7 @@
                 </p>
                 <h1 class="page-title">Check-in</h1>
             </div>
-            <a href="{{ route('ocr.community.index') }}" class="btn btn-outline">
+            <a href="{{ route('ocr.community.index') }}" class="btn btn-outline" style="color: white">
                 ← Quay Lại Cộng Đồng
             </a>
         </div>
