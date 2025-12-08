@@ -139,8 +139,17 @@
                     Banner</h4>
                 <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
                     <div style="padding: 0.75rem; border-radius: 4px;">
-                        <img src="{{ $tournament->getFirstMediaUrl('banner') }}"
-                            style="max-width: 100%; height: 200px; border-radius: 6px;" alt="Banner Giải Đấu">
+                        @php
+                            $bannerUrl = $tournament->getFirstMediaUrl('banner');
+                        @endphp
+                        @if($bannerUrl)
+                            <img src="{{ $bannerUrl }}"
+                                style="max-width: 100%; height: 200px; border-radius: 6px; object-fit: cover;" alt="Banner Giải Đấu">
+                        @else
+                            <div style="max-width: 100%; height: 200px; border-radius: 6px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1rem;">
+                                Chưa có hình ảnh Banner
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -148,13 +157,19 @@
                 <h4 style="margin: 0 0 0.75rem 0; color: var(--text-primary); font-weight: 700; font-size: 0.95rem;">
                     Hình ảnh</h4>
                 <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
-                    <div style="margin: 0.75rem; border-radius: 4px; display: flex; gap: 10px; overflow-x: auto;">
-                        @foreach ($tournament->getMedia('gallery') as $media)
-                            <img src="{{ $media->getUrl() }}"
-                                style="max-width: 100%; height: 200px; border-radius: 6px; margin-bottom:15px;"
-                                alt="Hình ảnh Giải Đấu">
-                        @endforeach
-                    </div>
+                    @if($tournament->getMedia('gallery')->count() > 0)
+                        <div style="margin: 0.75rem; border-radius: 4px; display: flex; gap: 10px; overflow-x: auto;">
+                            @foreach ($tournament->getMedia('gallery') as $media)
+                                <img src="{{ $media->getUrl() }}"
+                                    style="max-width: 100%; height: 200px; border-radius: 6px; margin-bottom:15px; object-fit: cover;"
+                                    alt="Hình ảnh Giải Đấu">
+                            @endforeach
+                        </div>
+                    @else
+                        <div style="padding: 1rem; text-align: center; background: var(--bg-light); border-radius: 6px; color: var(--text-light);">
+                            Chưa có hình ảnh
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

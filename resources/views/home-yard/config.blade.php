@@ -20,14 +20,14 @@
                     </div>
                 </div>
                 <div class="header-right">
-                    <button class="btn btn-success">💾 Lưu thay đổi</button>
+                    {{-- <button class="btn btn-success">💾 Lưu thay đổi</button>
                     <button class="btn btn-secondary">👁️ Xem trước</button>
                     <div class="header-notifications">
                         <button class="notification-btn">
                             <span>🔔</span>
                             <span class="notification-badge">5</span>
                         </button>
-                    </div>
+                    </div> --}}
                     <div class="header-user">
                         <div class="user-avatar">AD</div>
                         <div class="user-info">
@@ -1751,120 +1751,120 @@
         }
 
         // Handle category selection in match modal
-        document.addEventListener('DOMContentLoaded', function() {
-            const categorySelect = document.getElementById('matchCategoryId');
-            const athlete1Select = document.getElementById('athlete1Select');
-            const athlete2Select = document.getElementById('athlete2Select');
-            const groupSelect = document.getElementById('matchGroupSelect');
-            const tournamentId = {!! $tournament->id ?? 0 !!};
+        function setupCategorySelectListener() {
+             const categorySelect = document.getElementById('matchCategoryId');
+             const athlete1Select = document.getElementById('athlete1Select');
+             const athlete2Select = document.getElementById('athlete2Select');
+             const groupSelect = document.getElementById('matchGroupSelect');
+             const tournamentId = {!! $tournament->id ?? 0 !!};
 
-            if (categorySelect) {
-                categorySelect.addEventListener('change', function() {
-                    if (!this.value) {
-                        // Reset nếu không chọn category
-                        athlete1Select.innerHTML =
-                            '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
-                        athlete2Select.innerHTML =
-                            '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
-                        athlete1Select.disabled = true;
-                        athlete2Select.disabled = true;
+             if (categorySelect) {
+                 // Remove old listeners
+                 categorySelect.removeEventListener('change', handleCategoryChange);
+                 // Add new listener
+                 categorySelect.addEventListener('change', handleCategoryChange);
+             }
+         }
 
-                        groupSelect.innerHTML =
-                            '<option value="">-- Chọn nội dung thi đấu trước --</option>';
-                        groupSelect.disabled = true;
-                        return;
-                    }
+         function handleCategoryChange() {
+             const categorySelect = document.getElementById('matchCategoryId');
+             const athlete1Select = document.getElementById('athlete1Select');
+             const athlete2Select = document.getElementById('athlete2Select');
+             const groupSelect = document.getElementById('matchGroupSelect');
+             const tournamentId = {!! $tournament->id ?? 0 !!};
 
-                    const categoryId = this.value;
+             if (!categorySelect.value) {
+                 // Reset nếu không chọn category
+                 athlete1Select.innerHTML =
+                     '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                 athlete2Select.innerHTML =
+                     '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                 athlete1Select.disabled = true;
+                 athlete2Select.disabled = true;
 
-                    // Fetch danh sách VĐV của category từ server
-                    fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/athletes`, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success && data.athletes) {
-                                const athletes = data.athletes;
-                                const athleteOptions = athletes.map(athlete =>
-                                    `<option value="${athlete.id}">${athlete.athlete_name}</option>`
-                                ).join('');
+                 groupSelect.innerHTML =
+                     '<option value="">-- Chọn nội dung thi đấu trước --</option>';
+                 groupSelect.disabled = true;
+                 return;
+             }
 
-                                athlete1Select.innerHTML =
-                                    `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
-                                athlete2Select.innerHTML =
-                                    `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
+             const categoryId = categorySelect.value;
 
-                                athlete1Select.disabled = false;
-                                athlete2Select.disabled = false;
-                            } else {
-                                athlete1Select.innerHTML =
-                                    '<option value="">Không có VĐV nào</option>';
-                                athlete2Select.innerHTML =
-                                    '<option value="">Không có VĐV nào</option>';
-                                athlete1Select.disabled = true;
-                                athlete2Select.disabled = true;
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching athletes:', error);
-                            athlete1Select.innerHTML =
-                                '<option value="">Lỗi tải dữ liệu</option>';
-                            athlete2Select.innerHTML =
-                                '<option value="">Lỗi tải dữ liệu</option>';
-                            athlete1Select.disabled = true;
-                            athlete2Select.disabled = true;
-                        });
+             // Fetch danh sách VĐV của category từ server
+             fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/athletes`, {
+                     headers: {
+                         'X-Requested-With': 'XMLHttpRequest'
+                     }
+                 })
+                 .then(response => response.json())
+                 .then(data => {
+                     if (data.success && data.athletes) {
+                         const athletes = data.athletes;
+                         const athleteOptions = athletes.map(athlete =>
+                             `<option value="${athlete.id}">${athlete.athlete_name}</option>`
+                         ).join('');
 
-                    // Fetch danh sách groups của category từ server
-                    console.log('Fetching groups for categoryId:', categoryId);
-                    fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/groups`, {
-                            headers: {
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => {
-                            console.log('Groups fetch response status:', response.status);
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log('Groups fetch response data:', data);
-                            console.log('Groups array:', data.groups);
-                            console.log('Groups length:', data.groups ? data.groups.length :
-                                'undefined');
-                            console.log('Each group:', data.groups ? data.groups.map(g => ({
-                                id: g.id,
-                                name: g.group_name
-                            })) : 'no groups');
-                            if (data.success && data.groups && data.groups.length > 0) {
-                                const groups = data.groups;
-                                console.log('Processing groups, count:', groups.length);
-                                const groupOptions = groups.map(group => {
-                                    console.log('Group item:', group);
-                                    return `<option value="${group.id}">${group.group_name}</option>`;
-                                }).join('');
+                         athlete1Select.innerHTML =
+                             `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
+                         athlete2Select.innerHTML =
+                             `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
 
-                                groupSelect.innerHTML =
-                                    `<option value="">-- Chọn bảng/nhóm (tuỳ chọn) --</option>${groupOptions}`;
-                                groupSelect.disabled = false;
-                                console.log('Groups loaded successfully, count:', groups.length);
-                            } else {
-                                groupSelect.innerHTML =
-                                    '<option value="">-- Không có bảng/nhóm nào (Tạo bảng trước) --</option>';
-                                groupSelect.disabled = true;
-                                console.log('No groups found for this category');
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error fetching groups:', error);
-                            groupSelect.innerHTML =
-                                '<option value="">Lỗi tải dữ liệu</option>';
-                            groupSelect.disabled = true;
-                        });
-                });
-            }
-        });
+                         athlete1Select.disabled = false;
+                         athlete2Select.disabled = false;
+                     } else {
+                         athlete1Select.innerHTML =
+                             '<option value="">Không có VĐV nào</option>';
+                         athlete2Select.innerHTML =
+                             '<option value="">Không có VĐV nào</option>';
+                         athlete1Select.disabled = true;
+                         athlete2Select.disabled = true;
+                     }
+                 })
+                 .catch(error => {
+                     console.error('Error fetching athletes:', error);
+                     athlete1Select.innerHTML =
+                         '<option value="">Lỗi tải dữ liệu</option>';
+                     athlete2Select.innerHTML =
+                         '<option value="">Lỗi tải dữ liệu</option>';
+                     athlete1Select.disabled = true;
+                     athlete2Select.disabled = true;
+                 });
+
+             // Fetch danh sách groups của category từ server
+             console.log('Fetching groups for categoryId:', categoryId);
+             fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/groups`, {
+                     headers: {
+                         'X-Requested-With': 'XMLHttpRequest'
+                     }
+                 })
+                 .then(response => {
+                     console.log('Groups fetch response status:', response.status);
+                     return response.json();
+                 })
+                 .then(data => {
+                     console.log('Groups fetch response data:', data);
+                     if (data.success && data.groups && data.groups.length > 0) {
+                         const groups = data.groups;
+                         const groupOptions = groups.map(group => {
+                             return `<option value="${group.id}">${group.group_name}</option>`;
+                         }).join('');
+
+                         groupSelect.innerHTML =
+                             `<option value="">-- Chọn bảng/nhóm (tuỳ chọn) --</option>${groupOptions}`;
+                         groupSelect.disabled = false;
+                     } else {
+                         groupSelect.innerHTML =
+                             '<option value="">-- Không có bảng/nhóm nào (Tạo bảng trước) --</option>';
+                         groupSelect.disabled = true;
+                     }
+                 })
+                 .catch(error => {
+                     console.error('Error fetching groups:', error);
+                     groupSelect.innerHTML =
+                         '<option value="">Lỗi tải dữ liệu</option>';
+                     groupSelect.disabled = true;
+                 });
+         }
 
         // Open Edit Match Modal
         function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId) {
@@ -1913,15 +1913,23 @@
                 return;
             }
 
-            createMatchForm.addEventListener('submit', function(e) {
+            // Remove existing listeners to prevent duplicates
+            const newForm = createMatchForm.cloneNode(true);
+            createMatchForm.parentNode.replaceChild(newForm, createMatchForm);
+            const form = document.getElementById('createMatchForm');
+
+            // Setup category select listener
+            setupCategorySelectListener();
+
+            form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                const submitBtn = document.getElementById('submitMatchBtn');
+                const submitBtn = form.querySelector('#submitMatchBtn');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '⏳ Đang xử lý...';
 
-                const formData = new FormData(this);
+                const formData = new FormData(form);
                 const tournamentId = {!! $tournament->id ?? 0 !!};
 
                 const matchDate = formData.get('match_date')?.trim();
@@ -1992,18 +2000,23 @@
                 return;
             }
 
-            editMatchForm.addEventListener('submit', function(e) {
+            // Remove existing listeners to prevent duplicates
+            const newForm = editMatchForm.cloneNode(true);
+            editMatchForm.parentNode.replaceChild(newForm, editMatchForm);
+            const form = document.getElementById('editMatchForm');
+
+            form.addEventListener('submit', function(e) {
                 e.preventDefault();
 
-                const submitBtn = document.getElementById('submitEditMatchBtn');
+                const submitBtn = form.querySelector('#submitEditMatchBtn');
                 const originalText = submitBtn.innerHTML;
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '⏳ Đang cập nhật...';
 
-                const matchId = document.getElementById('editMatchId').value;
+                const matchId = form.querySelector('#editMatchId').value;
                 const tournamentId = {!! $tournament->id ?? 0 !!};
 
-                const formData = new FormData(this);
+                const formData = new FormData(form);
 
                 const matchDate = formData.get('match_date')?.trim();
                 const matchTime = formData.get('match_time')?.trim();
@@ -2058,6 +2071,7 @@
 
         // Initialize match forms when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            setupCategorySelectListener();
             initializeCreateMatchForm();
             initializeEditMatchForm();
             updateGroupFilter();

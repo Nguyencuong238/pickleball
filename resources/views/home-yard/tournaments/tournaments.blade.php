@@ -999,11 +999,13 @@
 
         // Reset filters
         function resetFilters() {
-            document.getElementById('statusFilter').value = '';
-            document.getElementById('typeFilter').value = '';
-            document.getElementById('locationFilter').value = '';
-            document.getElementById('sortFilter').value = 'newest';
-            document.getElementById('searchInput').value = '';
+            const statusFilter = document.getElementById('statusFilter');
+            const sortFilter = document.getElementById('sortFilter');
+            const searchInput = document.getElementById('searchInput');
+            
+            if (statusFilter) statusFilter.value = '';
+            if (sortFilter) sortFilter.value = 'newest';
+            if (searchInput) searchInput.value = '';
 
             const tabs = document.querySelectorAll('.view-tab');
             tabs.forEach(tab => tab.classList.remove('active'));

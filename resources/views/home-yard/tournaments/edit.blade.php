@@ -297,7 +297,9 @@
 </div>
 
 <script>
-    let currentStep = 3; // Start at step 3
+    // Get step from URL query parameter, default to 3
+    const urlParams = new URLSearchParams(window.location.search);
+    let currentStep = parseInt(urlParams.get('step')) || 3;
 
     const steps = [2, 3, 4];
 
