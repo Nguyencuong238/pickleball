@@ -19,9 +19,9 @@ class MediaUploadController extends Controller
         }
         
         // If authenticated via session (Web)
-        if (auth()->check()) {
-            return 'user_' . auth()->id();
-        }
+        // if (auth()->check()) {
+        //     return 'user_' . auth()->id();
+        // }
         
         // Guest user - use session ID
         return session()->getId();
