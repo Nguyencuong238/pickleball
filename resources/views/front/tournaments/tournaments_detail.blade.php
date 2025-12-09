@@ -25,6 +25,7 @@
             }
         }
 
+        #detailModal,
         #registerModal {
             position: fixed;
             top: 0;
@@ -132,21 +133,31 @@
                 </div>
 
                 <div class="hero-actions">
-                    @if (!$registered)
-                        <button class="btn btn-primary btn-lg tournament-detail-register-btn" onclick="openRegisterModal()">
+                    @if ($tournament->is_watch == 1)
+                        <button class="btn btn-primary btn-lg tournament-detail-register-btn" onclick="openDetailModal()">
                             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                <circle cx="8.5" cy="7" r="4" />
-                                <line x1="20" y1="8" x2="20" y2="14" />
-                                <line x1="23" y1="11" x2="17" y2="11" />
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                                <circle cx="12" cy="12" r="3" />
                             </svg>
-                            Đăng ký tham gia
+                            Xem chi tiết
                         </button>
                     @else
-                        <button class="btn btn-secondary btn-lg tournament-detail-register-btn" disabled
-                            style="opacity: 0.6; cursor: not-allowed;">
-                            Chờ xét duyệt
-                        </button>
+                        @if (!$registered)
+                            <button class="btn btn-primary btn-lg tournament-detail-register-btn" onclick="openRegisterModal()">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                    <circle cx="8.5" cy="7" r="4" />
+                                    <line x1="20" y1="8" x2="20" y2="14" />
+                                    <line x1="23" y1="11" x2="17" y2="11" />
+                                </svg>
+                                Đăng ký tham gia
+                            </button>
+                        @else
+                            <button class="btn btn-secondary btn-lg tournament-detail-register-btn" disabled
+                                style="opacity: 0.6; cursor: not-allowed;">
+                                Chờ xét duyệt
+                            </button>
+                        @endif
                     @endif
                     <button class="btn btn-secondary btn-lg">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -257,16 +268,22 @@
                                 <span>{{ $percentage }}%</span>
                             </div>
                         </div>
-                        @if (!$registered)
-                            <button class="btn btn-primary btn-block btn-lg tournament-detail-register-btn"
-                                onclick="openRegisterModal()">
-                                Đăng ký ngay
+                        @if ($tournament->is_watch == 1)
+                            <button class="btn btn-primary btn-block btn-lg tournament-detail-register-btn" onclick="openDetailModal()">
+                                Xem chi tiết
                             </button>
                         @else
-                            <button class="btn btn-secondary btn-lg btn-block tournament-detail-register-btn" disabled
-                                style="opacity: 0.6; cursor: not-allowed;">
-                                Chờ xét duyệt
-                            </button>
+                            @if (!$registered)
+                                <button class="btn btn-primary btn-block btn-lg tournament-detail-register-btn"
+                                    onclick="openRegisterModal()">
+                                    Đăng ký ngay
+                                </button>
+                            @else
+                                <button class="btn btn-secondary btn-lg btn-block tournament-detail-register-btn" disabled
+                                    style="opacity: 0.6; cursor: not-allowed;">
+                                    Chờ xét duyệt
+                                </button>
+                            @endif
                         @endif
 
                         @if ($tournament->registration_benefits)
@@ -394,6 +411,139 @@
             </div>
         </div>
     </section>
+
+    <!-- Detail Modal -->
+    <div id="detailModal">
+        <div class="modal-content" style="max-width: 700px;">
+            <!-- Tournament Image -->
+            @php
+                $media = $tournament->getFirstMedia('banner');
+                $imageUrl = $media
+                    ? $media->getUrl()
+                    : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 700 400%22%3E%3Crect fill=%2200D9B5%22 width=%22700%22 height=%22400%22/%3E%3Ctext x=%22350%22 y=%22200%22 font-family=%22Arial%22 font-size=%2248%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22%3E{{ $tournament->name }}%3C/text%3E%3C/svg%3E';
+            @endphp
+            <div style="width: 100%; height: 300px; overflow: hidden; border-radius: 20px 20px 0 0;">
+                <img src="{{ $imageUrl }}" alt="{{ $tournament->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+
+            <!-- Modal Header -->
+            <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 30px 30px 40px; color: white; position: relative;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">Chi tiết giải đấu</h2>
+                <button onclick="closeDetailModal()"
+                    style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.5rem; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.3)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div style="padding: 40px 30px; overflow-y: auto; max-height: 70vh;">
+                <div style="display: grid; gap: 25px;">
+                    <!-- Thông tin cơ bản -->
+                    <div>
+                        <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Thông tin cơ bản</h3>
+                        <div style="display: grid; gap: 12px;">
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Tên giải:</span>
+                                <span style="color: #1f2937;">{{ $tournament->name }}</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Địa điểm:</span>
+                                <span style="color: #1f2937;">{{ $tournament->location }}</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Thời gian:</span>
+                                <span style="color: #1f2937;">{{ $tournament->start_date->format('d/m/Y') }} - {{ $tournament->end_date->format('d/m/Y') }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin tham gia -->
+                    <div style="border-top: 1px solid #e5e7eb; padding-top: 25px;">
+                        <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Thông tin tham gia</h3>
+                        <div style="display: grid; gap: 12px;">
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Số VĐV tối đa:</span>
+                                <span style="color: #1f2937;">{{ $tournament->max_participants }} người</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Lệ phí đăng ký:</span>
+                                <span style="color: #1f2937;">{{ number_format($tournament->price, 0, ',', '.') }} VNĐ</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Hạn đăng ký:</span>
+                                <span style="color: #1f2937;">{{ $tournament->registration_deadline->format('d/m/Y H:i') }}</span>
+                            </div>
+                            @php
+                                $currentAthletes = $tournament->athletes()->count();
+                                $percentage = $tournament->max_participants > 0 
+                                    ? round(($currentAthletes / $tournament->max_participants) * 100)
+                                    : 0;
+                            @endphp
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Đã đăng ký:</span>
+                                <div>
+                                    <div style="margin-bottom: 8px; color: #1f2937;">{{ $currentAthletes }}/{{ $tournament->max_participants }} ({{ $percentage }}%)</div>
+                                    <div style="width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; width: {{ $percentage }}%; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin giải thưởng -->
+                    <div style="border-top: 1px solid #e5e7eb; padding-top: 25px;">
+                        <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Giải thưởng</h3>
+                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                            <span style="font-weight: 600; color: #6b7280;">Tổng giải:</span>
+                            <span style="color: #1f2937; font-size: 1.1rem; font-weight: 600;">{{ number_format($tournament->prizes, 0, ',', '.') }} VNĐ</span>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin liên hệ -->
+                    @if ($tournament->organizer_email || $tournament->organizer_hotline)
+                        <div style="border-top: 1px solid #e5e7eb; padding-top: 25px;">
+                            <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Liên hệ</h3>
+                            <div style="display: grid; gap: 12px;">
+                                @if ($tournament->organizer_email)
+                                    <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                        <span style="font-weight: 600; color: #6b7280;">Email:</span>
+                                        <span style="color: #1f2937;">{{ $tournament->organizer_email }}</span>
+                                    </div>
+                                @endif
+                                @if ($tournament->organizer_hotline)
+                                    <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                        <span style="font-weight: 600; color: #6b7280;">Hotline:</span>
+                                        <span style="color: #1f2937;">{{ $tournament->organizer_hotline }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Mô tả -->
+                    @if ($tournament->description)
+                        <div style="border-top: 1px solid #e5e7eb; padding-top: 25px;">
+                            <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Mô tả</h3>
+                            <p style="margin: 0; color: #1f2937; line-height: 1.6;">{{ $tournament->description }}</p>
+                        </div>
+                    @endif
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div style="padding: 0 30px 30px; display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" onclick="closeDetailModal()"
+                    style="padding: 12px 28px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem;"
+                    onmouseover="this.style.borderColor='#d1d5db'; this.style.background='#f9fafb'"
+                    onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white'">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
 
     <!-- Registration Modal -->
     <div id="registerModal">
@@ -570,6 +720,18 @@
 @section('js')
     <script src="{{ asset('assets/js/tournament-detail.js') }}"></script>
     <script>
+        function openDetailModal() {
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
         function openRegisterModal() {
             const modal = document.getElementById('registerModal');
             modal.style.display = 'flex';
@@ -734,7 +896,14 @@
                 });
         }
 
-        // Close modal when clicking outside
+        // Close detail modal when clicking outside
+        document.getElementById('detailModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeDetailModal();
+            }
+        });
+
+        // Close register modal when clicking outside
         document.getElementById('registerModal').addEventListener('click', function(event) {
             if (event.target === this) {
                 closeRegisterModal();
@@ -744,7 +913,13 @@
         // Close modal on Escape key
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                closeRegisterModal();
+                const detailModal = document.getElementById('detailModal');
+                const registerModal = document.getElementById('registerModal');
+                if (detailModal.style.display === 'flex') {
+                    closeDetailModal();
+                } else if (registerModal.style.display === 'flex') {
+                    closeRegisterModal();
+                }
             }
         });
     </script>
