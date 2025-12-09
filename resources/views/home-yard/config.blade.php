@@ -769,7 +769,7 @@
                                                 </td>
                                                 <td style="padding: 10px;">
                                                     <button class="btn btn-warning btn-sm"
-                                                        onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}', '{{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : '' }}', '{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}', '{{ $match->group_id }}', '{{ $match->status }}')">✏️</button>
+                                                        onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}', '{{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : '' }}', '{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}', '{{ $match->group_id }}', '{{ $match->status }}', '{{ $match->referee_id }}')">✏️</button>
                                                     <form method="POST"
                                                         action="{{ route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id]) }}"
                                                         style="display: inline;">
@@ -1093,6 +1093,20 @@
                         </select>
                     </div>
 
+                    <!-- Assign Referee -->
+                    <div class="form-group">
+                        <label class="form-label">Trọng tài (Referee)</label>
+                        <select name="referee_id" id="matchRefereeId" class="form-select">
+                            <option value="">--Không chỉ định trọng tài --</option>
+                            @if (isset($referees) && $referees->count() > 0)
+                                @foreach ($referees as $referee)
+                                    <option value="{{ $referee->id }}">{{ $referee->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">Chi co the chon trong tai da duoc gan vao giai dau nay</small>
+                    </div>
+
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
                         <button type="submit" class="btn btn-success" id="submitMatchBtn">✅ Tạo trận</button>
                         <button type="button" class="btn btn-secondary" onclick="closeCreateMatchModal()">❌ Hủy</button>
@@ -1207,6 +1221,20 @@
                             <option value="postponed">⏸️ Hoãn lại</option>
                             <option value="bye">🎯 Bye</option>
                         </select>
+                    </div>
+
+                    <!-- Assign Referee -->
+                    <div class="form-group">
+                        <label class="form-label">Trọng tài (Referee)</label>
+                        <select name="referee_id" id="editRefereeId" class="form-select">
+                            <option value="">-- không chỉ định trọng tài --</option>
+                            @if (isset($referees) && $referees->count() > 0)
+                                @foreach ($referees as $referee)
+                                    <option value="{{ $referee->id }}">{{ $referee->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">Chỉ có thể chọn trọng tài đã được chỉ định trong giải đấu</small>
                     </div>
 
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1903,7 +1931,7 @@
          }
 
         // Open Edit Match Modal
-        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId, status) {
+        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId, status, refereeId) {
             document.getElementById('editMatchId').value = matchId;
             document.getElementById('editAthlete1').value = athlete1Id;
             document.getElementById('editAthlete2').value = athlete2Id;
@@ -1913,6 +1941,7 @@
             document.getElementById('editMatchTime').value = matchTime || '';
             document.getElementById('editMatchGroup').value = groupId || '';
             document.getElementById('editStatus').value = status || 'scheduled';
+            document.getElementById('editRefereeId').value = refereeId || '';
 
             const modal = document.getElementById('editMatchModal');
             if (modal) {
@@ -1973,6 +2002,7 @@
                 const matchTime = formData.get('match_time')?.trim();
                 const roundId = formData.get('round_id')?.trim();
                 const groupId = formData.get('group_id')?.trim();
+                const refereeId = formData.get('referee_id')?.trim();
 
                 const data = {
                     athlete1_id: formData.get('athlete1_id'),
@@ -1984,6 +2014,7 @@
                     group_id: groupId || null,
                     tournament_id: tournamentId,
                     status: formData.get('status'),
+                    referee_id: refereeId || null,
                 };
 
                 console.log('Creating match with data:', data);
@@ -2061,6 +2092,7 @@
                 const roundId = formData.get('round_id')?.trim();
                 const groupId = formData.get('group_id')?.trim();
                 const status = formData.get('status')?.trim();
+                const refereeId = formData.get('referee_id')?.trim();
 
                 const data = {
                     athlete1_id: formData.get('athlete1_id'),
@@ -2070,7 +2102,8 @@
                     match_date: matchDate || null,
                     match_time: matchTime || null,
                     group_id: groupId || null,
-                    status: status || 'scheduled'
+                    status: status || 'scheduled',
+                    referee_id: refereeId || null,
                 };
 
                 fetch(`/homeyard/tournaments/${tournamentId}/matches/${matchId}`, {
