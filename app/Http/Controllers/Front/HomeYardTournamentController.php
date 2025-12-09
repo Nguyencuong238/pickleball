@@ -278,8 +278,8 @@ class HomeYardTournamentController extends Controller
             ->with(['categories', 'rounds', 'groups' => function ($query) {
                 $query->with('category', 'round');
             }, 'matches' => function ($query) {
-                $query->with('athlete1', 'athlete2', 'category', 'round');
-            }, 'athletes'])
+                $query->with('athlete1', 'athlete2', 'category', 'round', 'referee');
+            }, 'athletes', 'referees'])
             ->firstOrFail();
 
         // Get courts for all stadiums owned by this user
@@ -291,7 +291,10 @@ class HomeYardTournamentController extends Controller
 
         $categories = $tournament->categories ?? collect();
 
-        return view('home-yard.config', compact('user', 'courts', 'tournament', 'athletes', 'categories'));
+        // Get referees assigned to this tournament
+        $referees = $tournament->referees ?? collect();
+
+        return view('home-yard.config', compact('user', 'courts', 'tournament', 'athletes', 'categories', 'referees'));
     }
 
     public function addAthlete(Request $request, Tournament $tournament)
@@ -2170,6 +2173,7 @@ class HomeYardTournamentController extends Controller
                 'match_date' => 'nullable|date_format:Y-m-d',
                 'match_time' => 'nullable|date_format:H:i',
                 'status' => 'nullable|in:scheduled,ready,in_progress,completed,cancelled,postponed,bye',
+                'referee_id' => 'nullable|exists:users,id',
             ]);
 
             // Ensure both athletes are from this tournament
@@ -2185,14 +2189,14 @@ class HomeYardTournamentController extends Controller
             if ($athlete1->category_id != $validated['category_id']) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'VĐV 1 không thuộc nội dung thi đấu đã chọn'
+                    'message' => 'VDV 1 khong thuoc noi dung thi dau da chon'
                 ], 422);
             }
 
             if ($athlete2->category_id != $validated['category_id']) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'VĐV 2 không thuộc nội dung thi đấu đã chọn'
+                    'message' => 'VDV 2 khong thuoc noi dung thi dau da chon'
                 ], 422);
             }
 
@@ -2200,8 +2204,22 @@ class HomeYardTournamentController extends Controller
             if ($validated['athlete1_id'] == $validated['athlete2_id']) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'VĐV 1 và VĐV 2 phải khác nhau'
+                    'message' => 'VDV 1 va VDV 2 phai khac nhau'
                 ], 422);
+            }
+
+            // Validate referee is in tournament referee pool (if provided)
+            $refereeId = $validated['referee_id'] ?? null;
+            $refereeName = null;
+            if ($refereeId) {
+                $referee = User::find($refereeId);
+                if (!$referee || !$tournament->hasReferee($referee)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Trong tai phai duoc gan vao giai dau nay truoc'
+                    ], 422);
+                }
+                $refereeName = $referee->name;
             }
 
             // Generate match number
@@ -2228,27 +2246,29 @@ class HomeYardTournamentController extends Controller
                 'status' => $validated['status'] ?? 'scheduled',
                 'match_date' => $validated['match_date'],
                 'match_time' => $validated['match_time'],
+                'referee_id' => $refereeId,
+                'referee_name' => $refereeName,
             ]);
 
-            Log::info('Match created', ['match_id' => $match->id]);
+            Log::info('Match created', ['match_id' => $match->id, 'referee_id' => $refereeId]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Trận đấu đã được tạo thành công',
+                'message' => 'Tran dau da duoc tao thanh cong',
                 'match' => $match
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation error: ' . json_encode($e->errors()));
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi validate: ' . collect($e->errors())->flatten()->join(', '),
+                'message' => 'Loi validate: ' . collect($e->errors())->flatten()->join(', '),
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
             Log::error('Create match error: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi: ' . $e->getMessage()
+                'message' => 'Loi: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -2261,14 +2281,14 @@ class HomeYardTournamentController extends Controller
         try {
             $this->authorize('update', $tournament);
 
-            // Resolve match by ID
-            $match = MatchModel::findOrFail($match);
+            // Resolve match by ID with referee relationship
+            $match = MatchModel::with(['referee', 'round', 'category'])->findOrFail($match);
 
             // Verify match belongs to tournament
             if ($match->tournament_id != $tournament->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Trận đấu không thuộc giải đấu này'
+                    'message' => 'Tran dau khong thuoc giai dau nay'
                 ], 403);
             }
 
@@ -2280,7 +2300,7 @@ class HomeYardTournamentController extends Controller
             Log::error('Get match error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi: ' . $e->getMessage()
+                'message' => 'Loi: ' . $e->getMessage()
             ], 500);
         }
     }
@@ -2300,7 +2320,7 @@ class HomeYardTournamentController extends Controller
             if ($match->tournament_id != $tournament->id) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Trận đấu không thuộc giải đấu này'
+                    'message' => 'Tran dau khong thuoc giai dau nay'
                 ], 403);
             }
 
@@ -2319,29 +2339,47 @@ class HomeYardTournamentController extends Controller
                 'match_time' => 'nullable|date_format:H:i',
                 'group_id' => 'nullable|exists:groups,id',
                 'status' => 'nullable|in:scheduled,ready,in_progress,completed,cancelled,postponed,bye',
+                'referee_id' => 'nullable|exists:users,id',
             ]);
+
+            // Validate referee is in tournament referee pool (if provided)
+            $refereeId = $validated['referee_id'] ?? null;
+            $refereeName = null;
+            if ($refereeId) {
+                $referee = User::find($refereeId);
+                if (!$referee || !$tournament->hasReferee($referee)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Trong tai phai duoc gan vao giai dau nay truoc'
+                    ], 422);
+                }
+                $refereeName = $referee->name;
+            }
+
+            // Update validated data with referee name
+            $validated['referee_name'] = $refereeName;
 
             $match->update($validated);
 
-            Log::info('Match updated', ['match_id' => $match->id]);
+            Log::info('Match updated', ['match_id' => $match->id, 'referee_id' => $refereeId]);
 
             return response()->json([
                 'success' => true,
-                'message' => 'Trận đấu đã được cập nhật thành công',
+                'message' => 'Tran dau da duoc cap nhat thanh cong',
                 'match' => $match
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation error: ' . json_encode($e->errors()));
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi validate: ' . collect($e->errors())->flatten()->join(', '),
+                'message' => 'Loi validate: ' . collect($e->errors())->flatten()->join(', '),
                 'errors' => $e->errors()
             ], 422);
         } catch (\Exception $e) {
             Log::error('Update match error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
-                'message' => 'Lỗi: ' . $e->getMessage()
+                'message' => 'Loi: ' . $e->getMessage()
             ], 500);
         }
     }

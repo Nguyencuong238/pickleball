@@ -1081,6 +1081,17 @@
              modal.style.display = 'none';
          }
 
+         // Format date from ISO to d/m/Y
+         function formatDate(dateString) {
+             if (!dateString) return 'N/A';
+             const d = new Date(dateString);
+             if (isNaN(d.getTime())) return 'N/A';
+             const day = d.getDate().toString().padStart(2, '0');
+             const month = (d.getMonth() + 1).toString().padStart(2, '0');
+             const year = d.getFullYear();
+             return `${day}/${month}/${year}`;
+         }
+
          function buildMatchDetailsHTML(match) {
              const setScores = match.set_scores ? (typeof match.set_scores === 'string' ? JSON.parse(match.set_scores) : match.set_scores) : [];
              let setsHTML = '';
@@ -1159,7 +1170,7 @@
                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                          <div>
                              <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">📅 Ngày thi đấu</label>
-                             <div style="font-weight: 600; color: var(--text-primary);">${match.match_date || 'N/A'}</div>
+                             <div style="font-weight: 600; color: var(--text-primary);">${formatDate(match.match_date)}</div>
                          </div>
                          <div>
                              <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">🕐 Giờ thi đấu</label>
@@ -1182,6 +1193,10 @@
                              <div style="display: inline-block; background: ${statusColors[match.status] || '#999'}; color: white; padding: 0.25rem 0.75rem; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600;">
                                  ${statusLabels[match.status] || match.status}
                              </div>
+                         </div>
+                         <div>
+                             <label style="display: block; font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Trọng tài</label>
+                             <div style="font-weight: 600; color: var(--text-primary);">${match.referee_name || (match.referee ? match.referee.name : 'Chua chi dinh')}</div>
                          </div>
                      </div>
                  </div>
