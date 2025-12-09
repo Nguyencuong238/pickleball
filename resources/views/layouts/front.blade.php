@@ -261,7 +261,7 @@
                 <li><a href="{{ route('tournaments') }}" class="nav-link @if(request()->routeIs('tournaments')) active @endif">Giải đấu</a></li>
                 <li><a href="{{ route('ocr.matches.list') }}" class="nav-link @if(request()->routeIs('ocr.matches.list')) active @endif">Trận đấu</a></li>
                 <li class="nav-item dropdown">
-                    <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*') && !request()->routeIs('ocr.matches.list') && !request()->routeIs('ocr.ocr-matches')) active @endif">OPRS</a>
+                    <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*') && !request()->routeIs('ocr.matches.list') && !request()->routeIs('ocr.ocr-matches')) active @endif">Bảng xếp hạng</a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('ocr.index') }}" class="dropdown-item">Tổng quan OPRS</a></li>
                         <li><a href="{{ route('ocr.leaderboard') }}" class="dropdown-item">Bảng xếp hạng OPRS</a></li>
@@ -286,10 +286,10 @@
 
                 @guest
                     <li class="mobile-only login-register-btn">
-                        <a href="/login" class="btn btn-outline">Đăng nhập</a>
+                        <a href="/login" class="btn btn-outline" >Đăng nhập</a>
                     </li>
                     <li class="mobile-only login-register-btn">
-                        <a href="/register" class="btn btn-primary">Đăng ký</a>
+                        <a href="/register" class="btn btn-primary" >Đăng ký</a>
                     </li>
                 @endguest
             </ul>
@@ -349,8 +349,8 @@
                     </div>
                 @else
                     <div class="nav-actions">
-                        <a href="/login" class="btn btn-outline">Đăng nhập</a>
-                        <a href="/register" class="btn btn-primary">Đăng ký</a>
+                        <a href="/login" class="btn btn-outline" style="width: 120px">Đăng nhập</a>
+                        <a href="/register" class="btn btn-primary" style="width: 100px">Đăng ký</a>
                     </div>
                 @endauth
 
