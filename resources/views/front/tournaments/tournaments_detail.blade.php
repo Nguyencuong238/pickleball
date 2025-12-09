@@ -7,9 +7,24 @@
         .hero-title {
             text-align: left
         }
+
+        .hero-content{
+            max-width: 1200px;
+        }
         .hero-actions {
             justify-content: flex-start;
         }
+
+        @media (min-width: 1440px) {
+            .hero-actions {
+                margin-left: 150px;
+            }
+
+            .hero-meta {
+                margin-left: 150px;
+            }
+        }
+
         #registerModal {
             position: fixed;
             top: 0;

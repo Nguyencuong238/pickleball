@@ -51,6 +51,7 @@ class TournamentController extends Controller
             'prizes' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'status' => 'required|in:0,1',
+            'is_watch' => 'nullable|in:0,1',
             'competition_format' => 'nullable|string|in:single,double,mixed',
             'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
             'registration_benefits' => 'nullable|string',
@@ -78,6 +79,7 @@ class TournamentController extends Controller
             'rules',
             'prizes',
             'status',
+            'is_watch',
             'competition_format',
             'tournament_rank',
             'registration_benefits',
@@ -89,6 +91,9 @@ class TournamentController extends Controller
             'competition_schedule',
             'results',
         ]);
+
+        // Handle checkbox - convert to integer
+        $data['is_watch'] = $request->has('is_watch') ? 1 : 0;
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('tournament_images', 'public');
@@ -157,6 +162,7 @@ class TournamentController extends Controller
             'price' => 'nullable|numeric|min:0',
             'rules' => 'nullable|string',
             'prizes' => 'nullable|numeric|min:0',
+            'is_watch' => 'nullable|in:0,1',
             'competition_format' => 'nullable|string|in:single,double,mixed',
             'registration_benefits' => 'nullable|string',
             'competition_rules' => 'nullable|string',
@@ -173,10 +179,14 @@ class TournamentController extends Controller
             'price',
             'rules',
             'prizes',
+            'is_watch',
             'competition_format',
             'registration_benefits',
             'competition_rules',
         ]);
+
+        // Handle checkbox - convert to integer
+        $data['is_watch'] = $request->has('is_watch') ? 1 : 0;
 
         // Sync gallery images
         $tournament->syncMediaCollection('gallery', 'gallery', $request);

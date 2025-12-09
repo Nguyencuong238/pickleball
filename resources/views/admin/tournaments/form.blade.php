@@ -114,6 +114,16 @@
             </div>
         </div>
 
+        <!-- Is Watch -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" name="is_watch" value="1" 
+                    {{ old('is_watch', $tournament->is_watch ?? 0) ? 'checked' : '' }}
+                    style="width: 18px; height: 18px; cursor: pointer;">
+                <span style="font-weight: 600; color: #1e293b;">Chỉ xem chi tiết</span>
+            </label>
+        </div>
+
         <!-- Mô Tả -->
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Mô Tả</label>

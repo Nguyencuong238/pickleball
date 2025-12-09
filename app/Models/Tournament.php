@@ -22,6 +22,7 @@ class Tournament extends Model implements HasMedia
         'prizes' => 'float',
         'max_participants' => 'integer',
         'status' => 'boolean',
+        'is_watch' => 'boolean',
     ];
 
     public function user()
