@@ -473,4 +473,65 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    // ==================== Referee Relationships ====================
+
+    /**
+     * Tournament referee assignments
+     */
+    public function tournamentReferees(): HasMany
+    {
+        return $this->hasMany(TournamentReferee::class, 'user_id');
+    }
+
+    /**
+     * Tournaments this user referees
+     */
+    public function refereeTournaments()
+    {
+        return $this->belongsToMany(Tournament::class, 'tournament_referees')
+            ->withPivot(['assigned_at', 'assigned_by', 'status'])
+            ->withTimestamps()
+            ->wherePivot('status', 'active');
+    }
+
+    /**
+     * Matches this user is assigned to referee
+     */
+    public function refereeMatches(): HasMany
+    {
+        return $this->hasMany(MatchModel::class, 'referee_id');
+    }
+
+    /**
+     * Check if user has referee role
+     */
+    public function isReferee(): bool
+    {
+        return $this->hasRole('referee');
+    }
+
+    /**
+     * Check if user can referee this tournament
+     */
+    public function canReferee(Tournament $tournament): bool
+    {
+        return $this->isReferee() && $tournament->hasReferee($this);
+    }
+
+    /**
+     * Get active tournament count for referee
+     */
+    public function getActiveRefereeTournamentsCount(): int
+    {
+        return $this->refereeTournaments()->count();
+    }
+
+    /**
+     * Get total matches officiated by this referee
+     */
+    public function getMatchesOfficiatedCount(): int
+    {
+        return $this->refereeMatches()->where('status', 'completed')->count();
+    }
 }

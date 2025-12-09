@@ -31,6 +31,8 @@ use App\Http\Controllers\Front\OcrController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\SocialController;
 use App\Http\Controllers\Front\ProfileController;
+use App\Http\Controllers\Front\RefereeController;
+use App\Http\Controllers\Front\RefereeProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -91,6 +93,12 @@ Route::get('/instructors', [HomeController::class, 'instructors'])->name('instru
 Route::get('/instructors/{id}', [HomeController::class, 'instructorDetail'])->name('instructors.detail');
 Route::get('/course', [HomeController::class, 'course'])->name('course');
 Route::get('/course/{id}', [HomeController::class, 'courseDetail'])->name('course.detail');
+
+// Academy Public Routes
+Route::prefix('academy')->name('academy.')->group(function () {
+    Route::get('referees', [RefereeProfileController::class, 'index'])->name('referees.index');
+    Route::get('referees/{referee}', [RefereeProfileController::class, 'show'])->name('referees.show');
+});
 
 // Booking API for front-end
 Route::post('/api/bookings', [HomeController::class, 'bookingCourt'])->name('api.bookings.store');
@@ -272,6 +280,20 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     // Social Events Routes
     Route::resource('socials', SocialController::class);
     Route::post('socials/bulk-delete', [SocialController::class, 'bulkDelete'])->name('socials.bulkDelete');
+
+    // Tournament Referee Management
+    Route::post('tournaments/{tournament}/referees/add', [HomeYardTournamentController::class, 'addReferee'])->name('tournaments.referees.add');
+    Route::delete('tournaments/{tournament}/referees/{referee}', [HomeYardTournamentController::class, 'removeReferee'])->name('tournaments.referees.remove');
+    Route::get('referees/available', [HomeYardTournamentController::class, 'getAvailableReferees'])->name('referees.available');
+});
+
+// Referee Routes
+Route::middleware(['auth', 'role:referee'])->prefix('referee')->name('referee.')->group(function () {
+    Route::get('dashboard', [RefereeController::class, 'dashboard'])->name('dashboard');
+    Route::get('matches', [RefereeController::class, 'matches'])->name('matches.index');
+    Route::get('matches/{match}', [RefereeController::class, 'show'])->name('matches.show');
+    Route::post('matches/{match}/start', [RefereeController::class, 'startMatch'])->name('matches.start');
+    Route::put('matches/{match}/update-score', [RefereeController::class, 'updateScore'])->name('matches.update-score');
 });
 
 // OCR Frontend Routes

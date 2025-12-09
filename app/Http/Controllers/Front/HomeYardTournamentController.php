@@ -13,6 +13,7 @@ use App\Models\Group;
 use App\Models\GroupStanding;
 use App\Models\Booking;
 use App\Models\MatchModel;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -115,6 +116,11 @@ class HomeYardTournamentController extends Controller
         // Sync banner image
         $tournament->syncMediaCollection('banner', 'banner', $request);
 
+        // Assign referees if provided
+        if ($request->filled('referee_ids')) {
+            $this->assignReferees($tournament, $request->referee_ids);
+        }
+
         return redirect()->back()->with('success', 'Giải đấu đã được tạo thành công. Bạn có thể tiếp tục thêm nội dung thi đấu.');
     }
 
@@ -189,6 +195,11 @@ class HomeYardTournamentController extends Controller
         $tournament->syncMediaCollection('banner', 'banner', $request);
 
         $tournament->update($data);
+
+        // Sync referees if provided
+        if ($request->has('referee_ids')) {
+            $this->syncReferees($tournament, $request->referee_ids ?? []);
+        }
 
         return redirect()->back()->with('success', 'Thông tin giải đấu đã được cập nhật thành công.');
     }
@@ -3560,5 +3571,155 @@ class HomeYardTournamentController extends Controller
                 'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
         }
+    }
+
+    // ==================== Referee Management Methods ====================
+
+    /**
+     * Assign referees to tournament with audit trail
+     */
+    private function assignReferees(Tournament $tournament, array $refereeIds): void
+    {
+        $assignedBy = auth()->id();
+        $assignedAt = now();
+
+        foreach ($refereeIds as $refereeId) {
+            // Verify user has referee role
+            $referee = User::find($refereeId);
+            if (!$referee || !$referee->hasRole('referee')) {
+                continue; // Skip non-referee users
+            }
+
+            // Check if already assigned
+            if ($tournament->hasReferee($referee)) {
+                continue;
+            }
+
+            $tournament->tournamentReferees()->create([
+                'user_id' => $refereeId,
+                'assigned_by' => $assignedBy,
+                'assigned_at' => $assignedAt,
+                'status' => 'active',
+            ]);
+
+            // Activity log
+            ActivityLog::log("Trong tai '{$referee->name}' duoc gan cho giai dau '{$tournament->name}'", 'TournamentReferee', $tournament->id);
+        }
+    }
+
+    /**
+     * Sync referees (add new, remove old)
+     */
+    private function syncReferees(Tournament $tournament, array $newRefereeIds): void
+    {
+        $currentRefereeIds = $tournament->referees()->pluck('users.id')->toArray();
+        $assignedBy = auth()->id();
+
+        // Add new referees
+        $toAdd = array_diff($newRefereeIds, $currentRefereeIds);
+        foreach ($toAdd as $refereeId) {
+            $referee = User::find($refereeId);
+            if (!$referee || !$referee->hasRole('referee')) {
+                continue;
+            }
+
+            $tournament->tournamentReferees()->create([
+                'user_id' => $refereeId,
+                'assigned_by' => $assignedBy,
+                'assigned_at' => now(),
+                'status' => 'active',
+            ]);
+
+            ActivityLog::log("Trong tai '{$referee->name}' duoc gan cho giai dau '{$tournament->name}'", 'TournamentReferee', $tournament->id);
+        }
+
+        // Remove old referees
+        $toRemove = array_diff($currentRefereeIds, $newRefereeIds);
+        foreach ($toRemove as $refereeId) {
+            $referee = User::find($refereeId);
+            $tournament->tournamentReferees()->where('user_id', $refereeId)->delete();
+
+            if ($referee) {
+                ActivityLog::log("Trong tai '{$referee->name}' bi xoa khoi giai dau '{$tournament->name}'", 'TournamentReferee', $tournament->id);
+            }
+        }
+    }
+
+    /**
+     * Add referee to tournament (AJAX)
+     */
+    public function addReferee(Request $request, Tournament $tournament)
+    {
+        $this->authorize('update', $tournament);
+
+        $request->validate([
+            'referee_id' => 'required|exists:users,id',
+        ]);
+
+        $referee = User::findOrFail($request->referee_id);
+
+        if (!$referee->hasRole('referee')) {
+            return response()->json(['success' => false, 'message' => 'Nguoi dung khong phai la trong tai'], 400);
+        }
+
+        if ($tournament->hasReferee($referee)) {
+            return response()->json(['success' => false, 'message' => 'Trong tai da duoc gan'], 400);
+        }
+
+        try {
+            $tournament->assignReferee($referee, auth()->user());
+
+            ActivityLog::log("Trong tai '{$referee->name}' duoc gan cho giai dau '{$tournament->name}'", 'TournamentReferee', $tournament->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Gan trong tai thanh cong',
+                'referee' => [
+                    'id' => $referee->id,
+                    'name' => $referee->name,
+                ],
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Add referee error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Remove referee from tournament (AJAX)
+     */
+    public function removeReferee(Request $request, Tournament $tournament, User $referee)
+    {
+        $this->authorize('update', $tournament);
+
+        try {
+            $tournament->removeReferee($referee);
+
+            ActivityLog::log("Trong tai '{$referee->name}' bi xoa khoi giai dau '{$tournament->name}'", 'TournamentReferee', $tournament->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xoa trong tai thanh cong',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Remove referee error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Get available referees for assignment
+     */
+    public function getAvailableReferees()
+    {
+        $referees = User::role('referee')
+            ->select('id', 'name', 'email')
+            ->orderBy('name')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'referees' => $referees,
+        ]);
     }
 }

@@ -27,6 +27,8 @@ class MatchModel extends Model
         'athlete2_name',
         'athlete2_score',
         'winner_id',
+        'referee_id',
+        'referee_name',
         'match_date',
         'match_time',
         'actual_start_time',
@@ -180,5 +182,77 @@ class MatchModel extends Model
             'actual_end_time' => now(),
             'winner_id' => $winnerId,
         ]);
+    }
+
+    // ==================== Referee Relationships ====================
+
+    /**
+     * Referee assigned to this match
+     */
+    public function referee(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'referee_id');
+    }
+
+    /**
+     * Check if match has referee assigned
+     */
+    public function hasReferee(): bool
+    {
+        return !is_null($this->referee_id);
+    }
+
+    /**
+     * Check if user is assigned referee
+     */
+    public function isAssignedToReferee(User $user): bool
+    {
+        return $this->referee_id === $user->id;
+    }
+
+    /**
+     * Assign referee to match
+     */
+    public function assignReferee(User $referee): void
+    {
+        $this->update([
+            'referee_id' => $referee->id,
+            'referee_name' => $referee->name,
+        ]);
+    }
+
+    /**
+     * Remove referee from match
+     */
+    public function removeReferee(): void
+    {
+        $this->update([
+            'referee_id' => null,
+            'referee_name' => null,
+        ]);
+    }
+
+    /**
+     * Check if referee can edit this match scores
+     */
+    public function canEditScores(User $user): bool
+    {
+        return $this->isAssignedToReferee($user) && !$this->isCompleted();
+    }
+
+    /**
+     * Scope: matches for a specific referee
+     */
+    public function scopeForReferee($query, int $refereeId)
+    {
+        return $query->where('referee_id', $refereeId);
+    }
+
+    /**
+     * Scope: unassigned matches (no referee)
+     */
+    public function scopeUnassigned($query)
+    {
+        return $query->whereNull('referee_id');
     }
 }

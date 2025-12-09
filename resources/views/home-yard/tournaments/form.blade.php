@@ -166,6 +166,33 @@
             </div>
         </div>
 
+        <!-- Chỉ Định Trọng Tài -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">[WHISTLE] Chi Dinh Trong Tai</label>
+            @php
+                $availableReferees = \App\Models\User::role('referee')->orderBy('name')->get();
+                $assignedRefereeIds = isset($tournament) ? $tournament->referees->pluck('id')->toArray() : [];
+            @endphp
+            @if($availableReferees->isEmpty())
+                <div style="background: #fef3c7; color: #92400e; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem;">
+                    [INFO] Chua co trong tai nao trong he thong. Vui long tao nguoi dung voi vai tro Trong tai truoc.
+                </div>
+            @else
+                <select name="referee_ids[]" id="referee_ids" class="form-control" multiple size="5"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                    @foreach($availableReferees as $referee)
+                        <option value="{{ $referee->id }}"
+                            {{ in_array($referee->id, old('referee_ids', $assignedRefereeIds)) ? 'selected' : '' }}>
+                            {{ $referee->name }} ({{ $referee->email }})
+                        </option>
+                    @endforeach
+                </select>
+                <small style="display: block; margin-top: 6px; color: #64748b; font-size: 0.85rem;">
+                    Giu phim Ctrl (Cmd tren Mac) de chon nhieu trong tai
+                </small>
+            @endif
+        </div>
+
         <!-- Lịch Thi Đấu -->
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Lịch Thi Đấu Chi Tiết</label>

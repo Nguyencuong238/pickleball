@@ -64,4 +64,66 @@ class Tournament extends Model implements HasMedia
         $this->addMediaCollection('banner')
             ->singleFile();
     }
+
+    // ==================== Referee Relationships ====================
+
+    /**
+     * Referee assignments for this tournament
+     */
+    public function tournamentReferees()
+    {
+        return $this->hasMany(TournamentReferee::class);
+    }
+
+    /**
+     * Active referees assigned to this tournament
+     */
+    public function referees()
+    {
+        return $this->belongsToMany(User::class, 'tournament_referees')
+            ->withPivot(['assigned_at', 'assigned_by', 'status'])
+            ->withTimestamps()
+            ->wherePivot('status', 'active');
+    }
+
+    /**
+     * All referees (including inactive)
+     */
+    public function allReferees()
+    {
+        return $this->belongsToMany(User::class, 'tournament_referees')
+            ->withPivot(['assigned_at', 'assigned_by', 'status'])
+            ->withTimestamps();
+    }
+
+    /**
+     * Check if user is assigned as referee
+     */
+    public function hasReferee(User $user): bool
+    {
+        return $this->referees()->where('users.id', $user->id)->exists();
+    }
+
+    /**
+     * Assign referee to tournament
+     */
+    public function assignReferee(User $referee, User $assignedBy): TournamentReferee
+    {
+        return $this->tournamentReferees()->create([
+            'user_id' => $referee->id,
+            'assigned_at' => now(),
+            'assigned_by' => $assignedBy->id,
+            'status' => 'active',
+        ]);
+    }
+
+    /**
+     * Remove referee from tournament
+     */
+    public function removeReferee(User $referee): bool
+    {
+        return (bool) $this->tournamentReferees()
+            ->where('user_id', $referee->id)
+            ->delete();
+    }
 }
