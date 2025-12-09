@@ -1556,6 +1556,32 @@
             }
         }
 
+        function openOcrAccountRequiredModal(message) {
+            const modal = document.getElementById('ocrAccountRequiredModal');
+            const messageEl = document.getElementById('ocrAccountMessage');
+            if (messageEl) {
+                messageEl.textContent = message;
+            }
+            if (modal) {
+                modal.style.display = 'block';
+            }
+        }
+
+        function closeOcrAccountRequiredModal() {
+            const modal = document.getElementById('ocrAccountRequiredModal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Close OCR account modal when clicking outside
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('ocrAccountRequiredModal');
+            if (event.target === modal) {
+                closeOcrAccountRequiredModal();
+            }
+        });
+
         // Close modal when clicking outside
         window.addEventListener('click', function(event) {
             const modal = document.getElementById('addAthleteModal');
@@ -1607,7 +1633,28 @@
                                 location.reload();
                             }, 1500);
                         } else {
-                            toastr.error('Lỗi không xác định. Vui lòng thử lại sau.');
+                            // Check if it's an OCR account requirement error
+                            if (data.message && data.message.includes('chưa được đăng ký')) {
+                                // Close form modal and show OCR account required modal
+                                closeAddAthleteModal();
+                                setTimeout(() => {
+                                    openOcrAccountRequiredModal(data.message);
+                                }, 300);
+                            } else {
+                                // Show other errors with toastr
+                                if (data.message) {
+                                    toastr.error(data.message, 'Lỗi', {timeOut: 5000});
+                                } else if (data.errors) {
+                                    // Handle validation errors
+                                    let errorMsg = 'Lỗi validate:\n';
+                                    for (const [field, messages] of Object.entries(data.errors)) {
+                                        errorMsg += messages.join(', ') + '\n';
+                                    }
+                                    toastr.error(errorMsg, 'Lỗi', {timeOut: 5000});
+                                } else {
+                                    toastr.error('Lỗi không xác định. Vui lòng thử lại sau.');
+                                }
+                            }
                         }
                     })
                     .catch(error => {
@@ -2434,45 +2481,84 @@
                     onclick="closeAddAthleteModal()">×</button>
             </div>
 
-            <form id="addAthleteForm">
-                <div class="form-group">
-                    <label class="form-label">Tên VĐV *</label>
-                    <input type="text" name="athlete_name" class="form-input" placeholder="Nhập tên vận động viên"
-                        required>
+            @if ($tournament && $tournament->is_ocr)
+                <!-- Show message only for OCR tournaments -->
+                <div style="background-color: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 20px; margin-bottom: 20px; color: #92400E; text-align: center;">
+                    <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
+                    <h3 style="margin: 0 0 1rem 0; font-weight: 700; font-size: 1.1rem;">Giải Đấu Tính Điểm OCR</h3>
+                    <p style="margin: 0 0 1rem 0; line-height: 1.6;">
+                        Vận động viên <strong>phải tạo tài khoản</strong> trong hệ thống trước khi tham gia giải đấu này.
+                    </p>
+                    <p style="margin: 0; line-height: 1.6;">
+                        Yêu cầu cung cấp <strong>email đã đăng ký</strong> cho ban tổ chức để thêm vào danh sách.
+                    </p>
                 </div>
-
-                <div class="grid grid-2">
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="closeAddAthleteModal()">❌ Đóng</button>
+                </div>
+            @else
+                <!-- Show form only for non-OCR tournaments -->
+                <form id="addAthleteForm">
                     <div class="form-group">
-                        <label class="form-label">Email *</label>
-                        <input type="email" name="email" class="form-input" placeholder="VD: athlete@example.com"
+                        <label class="form-label">Tên VĐV *</label>
+                        <input type="text" name="athlete_name" class="form-input" placeholder="Nhập tên vận động viên"
                             required>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Số điện thoại *</label>
-                        <input type="tel" name="phone" class="form-input" placeholder="VD: 0123456789" required>
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Email *</label>
+                            <input type="email" name="email" class="form-input" placeholder="VD: athlete@example.com"
+                                required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại *</label>
+                            <input type="tel" name="phone" class="form-input" placeholder="VD: 0123456789" required>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label">Nội dung thi đấu *</label>
-                    <select name="category_id" class="form-select" required>
-                        <option value="">-- Chọn nội dung --</option>
-                        @if ($tournament && $tournament->categories)
-                            @foreach ($tournament->categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                            @endforeach
-                        @else
-                            <option value="">Chưa có nội dung. Vui lòng tạo nội dung thi đấu trước.</option>
-                        @endif
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label class="form-label">Nội dung thi đấu *</label>
+                        <select name="category_id" class="form-select" required>
+                            <option value="">-- Chọn nội dung --</option>
+                            @if ($tournament && $tournament->categories)
+                                @foreach ($tournament->categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                @endforeach
+                            @else
+                                <option value="">Chưa có nội dung. Vui lòng tạo nội dung thi đấu trước.</option>
+                            @endif
+                        </select>
+                    </div>
 
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="submit" class="btn btn-success" id="submitAthleteBtn">✅ Thêm VĐV</button>
-                    <button type="button" class="btn btn-secondary" onclick="closeAddAthleteModal()">❌ Hủy</button>
-                </div>
-            </form>
+                    <div style="display: flex; gap: 10px; margin-top: 20px;">
+                        <button type="submit" class="btn btn-success" id="submitAthleteBtn">✅ Thêm VĐV</button>
+                        <button type="button" class="btn btn-secondary" onclick="closeAddAthleteModal()">❌ Hủy</button>
+                    </div>
+                </form>
+            @endif
+        </div>
+    </div>
+
+    <!-- MODAL: YÊU CẦU TÀI KHOẢN OCR -->
+    <div id="ocrAccountRequiredModal"
+        style="display: none; position: fixed; z-index: 1001; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+        <div
+            style="background-color: var(--bg-white); margin: 20% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 500px; box-shadow: var(--shadow-lg); text-align: center;">
+            <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
+            <h2 style="margin: 0 0 1rem 0; font-size: 1.3rem; font-weight: 700; color: #DC2626;">Yêu Cầu Tài Khoản</h2>
+            <p id="ocrAccountMessage" style="margin: 1rem 0; font-size: 1rem; color: #666; line-height: 1.6;"></p>
+            <div style="background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 12px; margin: 1.5rem 0; border-radius: 4px; text-align: left;">
+                <p style="margin: 0; font-size: 0.95rem; color: #92400E;">
+                    <strong>💡 Giải pháp:</strong><br>
+                    Vận động viên cần đăng ký tài khoản trong hệ thống trước khi tham gia giải đấu này. 
+                    Sau đó, cung cấp email đã đăng ký cho ban tổ chức để thêm vào danh sách.
+                </p>
+            </div>
+            <button type="button" class="btn btn-primary" onclick="closeOcrAccountRequiredModal()" style="width: 100%; margin-top: 1rem;">
+                ✅ Tôi đã hiểu
+            </button>
         </div>
     </div>
 

@@ -14,6 +14,11 @@ use App\Models\GroupStanding;
 use App\Models\Booking;
 use App\Models\MatchModel;
 use App\Models\User;
+use App\Models\OcrMatch;
+use App\Models\EloHistory;
+use App\Models\OprsHistory;
+use App\Services\EloService;
+use App\Services\OprsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -23,9 +28,14 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class HomeYardTournamentController extends Controller
 {
-    public function __construct()
+    private EloService $eloService;
+    private OprsService $oprsService;
+
+    public function __construct(EloService $eloService, OprsService $oprsService)
     {
         $this->middleware(['auth', 'role:home_yard']);
+        $this->eloService = $eloService;
+        $this->oprsService = $oprsService;
     }
 
     public function index()
@@ -326,10 +336,23 @@ class HomeYardTournamentController extends Controller
 
             \Log::info('Validation passed', $validated);
 
+            // Try to find user by email to link the correct athlete user
+            $athleteUser = User::where('email', $validated['email'])->first();
+
+            // If tournament has is_ocr = 1, require athlete to have an account
+            if ($tournament->is_ocr && !$athleteUser) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Giải đấu có tính điểm OCR. VĐV phải tạo tài khoản trước khi tham gia. Email: ' . $validated['email'] . ' chưa được đăng ký trong hệ thống.'
+                ], 422);
+            }
+
+            $userId = $athleteUser ? $athleteUser->id : auth()->id();  // Use athlete's user if exists, else organizer
+            
             $athlete = TournamentAthlete::create([
                 'tournament_id' => $tournament->id,
                 'category_id' => $validated['category_id'],
-                'user_id' => auth()->id(),  // Set the current user as the creator
+                'user_id' => $userId,  // Try to link to actual athlete user by email, fallback to organizer
                 'athlete_name' => $validated['athlete_name'],
                 'email' => $validated['email'],
                 'phone' => $validated['phone'],
@@ -1564,6 +1587,17 @@ class HomeYardTournamentController extends Controller
                         $athlete1 = $athletes[$i];
                         $athlete2 = $athletes[$j];
 
+                        // Skip if athletes are the same user (prevents OCR processing issues)
+                        if ($athlete1->user_id === $athlete2->user_id) {
+                            Log::warning('Skipping match creation - both athletes have the same user_id', [
+                                'group_id' => $group->id,
+                                'athlete1_id' => $athlete1->id,
+                                'athlete2_id' => $athlete2->id,
+                                'user_id' => $athlete1->user_id
+                            ]);
+                            continue;
+                        }
+
                         // Get athlete names
                         $athlete1Name = $athlete1->athlete_name ?? ($athlete1->user ? $athlete1->user->name : 'Unknown');
                         $athlete2Name = $athlete2->athlete_name ?? ($athlete2->user ? $athlete2->user->name : 'Unknown');
@@ -2208,6 +2242,14 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
 
+            // Verify athletes are different users (important for OCR processing)
+            if ($athlete1->user_id === $athlete2->user_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Hai VDV phai la nhung nguoi dung khac nhau (OCR)'
+                ], 422);
+            }
+
             // Validate referee is in tournament referee pool (if provided)
             $refereeId = $validated['referee_id'] ?? null;
             $refereeName = null;
@@ -2473,6 +2515,9 @@ class HomeYardTournamentController extends Controller
      */
     private function handleEndMatch(MatchModel $match, array $validated)
     {
+        // Load tournament để check is_ocr
+        $match->load('tournament');
+
         // Lưu set cuối cùng vào set_scores nếu có điểm
         if ($validated['athlete1_score'] > 0 || $validated['athlete2_score'] > 0) {
             $setScores = $match->set_scores ? json_decode($match->set_scores, true) : [];
@@ -2545,6 +2590,187 @@ class HomeYardTournamentController extends Controller
 
         // Cập nhật thống kê vào bảng tournament_athlete
         $this->updateTournamentAthleteStats($match, $setsWonAthlete1, $setsWonAthlete2);
+
+        // ========== LOGIC OCR ==========
+        // Kiểm tra nếu giải đấu có bật OCR (is_ocr = 1)
+        if ($match->tournament && $match->tournament->is_ocr && $match->winner_id) {
+            $this->processOcrMatch($match, $setsWonAthlete1, $setsWonAthlete2);
+        }
+    }
+
+    /**
+     * Process OCR (Elo rating) for tournament match
+     * Tính điểm Elo và lưu vào cơ sở dữ liệu
+     */
+    private function processOcrMatch(MatchModel $match, int $setsWonAthlete1, int $setsWonAthlete2)
+    {
+        try {
+            // Load tournament athletes and get the actual user
+            $tournamentAthlete1 = \App\Models\TournamentAthlete::find($match->athlete1_id);
+            $tournamentAthlete2 = \App\Models\TournamentAthlete::find($match->athlete2_id);
+
+            if (!$tournamentAthlete1 || !$tournamentAthlete2) {
+                Log::warning("OCR: Tournament athlete not found for match {$match->id}");
+                return;
+            }
+
+            $athlete1 = $tournamentAthlete1->user;
+            $athlete2 = $tournamentAthlete2->user;
+
+            if (!$athlete1 || !$athlete2) {
+                Log::warning("OCR: User not found for match {$match->id}");
+                return;
+            }
+
+            // Validate: 2 athletes phải khác nhau
+            if ($athlete1->id === $athlete2->id) {
+                Log::warning("OCR: Cannot process match {$match->id} - both athletes have the same user_id ({$athlete1->id}). Athletes must be different users.");
+                return;
+            }
+
+            // Validate: tournament athletes phải khác nhau
+            if ($match->athlete1_id === $match->athlete2_id) {
+                Log::warning("OCR: Cannot process match {$match->id} - athlete1_id and athlete2_id are the same ({$match->athlete1_id})");
+                return;
+            }
+
+            // Xác định người thắng
+            $athlete1Won = $match->winner_id === $match->athlete1_id;
+
+            // Bắt đầu transaction
+            DB::beginTransaction();
+
+            // Lấy Elo trước
+            $elo1Before = $athlete1->elo_rating;
+            $elo2Before = $athlete2->elo_rating;
+
+            // Tính K-factor cho mỗi người
+            $kFactor1 = $this->eloService->getKFactor($athlete1);
+            $kFactor2 = $this->eloService->getKFactor($athlete2);
+
+            // Tính rating change
+            $change1 = $this->eloService->calculateRatingChange(
+                $elo1Before,
+                $elo2Before,
+                $athlete1Won,
+                $kFactor1
+            );
+            $change2 = $this->eloService->calculateRatingChange(
+                $elo2Before,
+                $elo1Before,
+                !$athlete1Won,
+                $kFactor2
+            );
+
+            // Cập nhật Elo rating mới
+            $elo1After = max(100, $elo1Before + $change1); // Min Elo = 100
+            $elo2After = max(100, $elo2Before + $change2);
+
+            // Cập nhật user
+            $athlete1->update([
+                'elo_rating' => $elo1After,
+                'total_ocr_matches' => $athlete1->total_ocr_matches + 1,
+                'ocr_wins' => $athlete1Won ? $athlete1->ocr_wins + 1 : $athlete1->ocr_wins,
+                'ocr_losses' => !$athlete1Won ? $athlete1->ocr_losses + 1 : $athlete1->ocr_losses,
+            ]);
+
+            $athlete2->update([
+                'elo_rating' => $elo2After,
+                'total_ocr_matches' => $athlete2->total_ocr_matches + 1,
+                'ocr_wins' => !$athlete1Won ? $athlete2->ocr_wins + 1 : $athlete2->ocr_wins,
+                'ocr_losses' => $athlete1Won ? $athlete2->ocr_losses + 1 : $athlete2->ocr_losses,
+            ]);
+
+            // Cập nhật rank
+            $athlete1->updateEloRank();
+            $athlete2->updateEloRank();
+
+            // ========== GHI LOG EloHistory ==========
+            EloHistory::create([
+                'user_id' => $athlete1->id,
+                'ocr_match_id' => null, // tournament match không phải OCR match
+                'elo_before' => $elo1Before,
+                'elo_after' => $elo1After,
+                'change_amount' => $change1,
+                'change_reason' => $athlete1Won ? EloHistory::REASON_MATCH_WIN : EloHistory::REASON_MATCH_LOSS,
+            ]);
+
+            EloHistory::create([
+                'user_id' => $athlete2->id,
+                'ocr_match_id' => null,
+                'elo_before' => $elo2Before,
+                'elo_after' => $elo2After,
+                'change_amount' => $change2,
+                'change_reason' => !$athlete1Won ? EloHistory::REASON_MATCH_WIN : EloHistory::REASON_MATCH_LOSS,
+            ]);
+
+            // ========== GHI LOG OprsHistory ==========
+            // Refresh athlete để lấy OPRS mới
+            $athlete1->refresh();
+            $athlete2->refresh();
+
+            // Lấy OPRS hiện tại (hoặc tính lại)
+            $oprs1After = $this->oprsService->calculateOprs($athlete1);
+            $oprs2After = $this->oprsService->calculateOprs($athlete2);
+
+            // Ghi OprsHistory cho athlete1
+            OprsHistory::create([
+                'user_id' => $athlete1->id,
+                'elo_score' => $athlete1->elo_rating,
+                'challenge_score' => $athlete1->challenge_score ?? 0,
+                'community_score' => $athlete1->community_score ?? 0,
+                'total_oprs' => $oprs1After,
+                'opr_level' => $this->oprsService->calculateOprLevel($oprs1After),
+                'change_reason' => OprsHistory::REASON_MATCH_RESULT,
+                'metadata' => [
+                    'match_id' => $match->id,
+                    'tournament_id' => $match->tournament_id,
+                    'elo_change' => $change1,
+                    'match_result' => $athlete1Won ? 'win' : 'loss',
+                    'opponent_id' => $athlete2->id,
+                ],
+            ]);
+
+            // Ghi OprsHistory cho athlete2
+            OprsHistory::create([
+                'user_id' => $athlete2->id,
+                'elo_score' => $athlete2->elo_rating,
+                'challenge_score' => $athlete2->challenge_score ?? 0,
+                'community_score' => $athlete2->community_score ?? 0,
+                'total_oprs' => $oprs2After,
+                'opr_level' => $this->oprsService->calculateOprLevel($oprs2After),
+                'change_reason' => OprsHistory::REASON_MATCH_RESULT,
+                'metadata' => [
+                    'match_id' => $match->id,
+                    'tournament_id' => $match->tournament_id,
+                    'elo_change' => $change2,
+                    'match_result' => !$athlete1Won ? 'win' : 'loss',
+                    'opponent_id' => $athlete1->id,
+                ],
+            ]);
+
+            DB::commit();
+
+            // Log activity
+            Log::info("OCR processed for tournament match {$match->id}", [
+                'athlete1_id' => $athlete1->id,
+                'athlete1_elo_change' => $change1,
+                'athlete2_id' => $athlete2->id,
+                'athlete2_elo_change' => $change2,
+            ]);
+
+            // Log activity message
+            $athlete1Name = $match->athlete1->athlete_name;
+            $athlete2Name = $match->athlete2->athlete_name;
+            ActivityLog::log(
+                "OCR: {$athlete1Name} ({$elo1Before} → {$elo1After}) vs {$athlete2Name} ({$elo2Before} → {$elo2After})",
+                'EloRating',
+                $match->id
+            );
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("OCR processing error for match {$match->id}: " . $e->getMessage());
+        }
     }
 
     /**
@@ -2998,13 +3224,13 @@ class HomeYardTournamentController extends Controller
             // Base query for group standings
             // Join with groups and tournament_athletes to filter by tournament
             $query = GroupStanding::with([
-                    'athlete' => function ($q) {
-                        $q->select('id', 'athlete_name', 'category_id');
-                    },
-                    'athlete.category' => function ($q) {
-                        $q->select('id', 'category_name');
-                    }
-                ])
+                'athlete' => function ($q) {
+                    $q->select('id', 'athlete_name', 'category_id');
+                },
+                'athlete.category' => function ($q) {
+                    $q->select('id', 'category_name');
+                }
+            ])
                 ->whereHas('group', function ($q) use ($tournament) {
                     $q->where('tournament_id', $tournament->id);
                 });
@@ -3134,13 +3360,13 @@ class HomeYardTournamentController extends Controller
 
             // Get standings
             $query = GroupStanding::with([
-                    'athlete' => function ($q) {
-                        $q->select('id', 'athlete_name', 'category_id');
-                    },
-                    'athlete.category' => function ($q) {
-                        $q->select('id', 'category_name');
-                    }
-                ])
+                'athlete' => function ($q) {
+                    $q->select('id', 'athlete_name', 'category_id');
+                },
+                'athlete.category' => function ($q) {
+                    $q->select('id', 'category_name');
+                }
+            ])
                 ->whereHas('group', function ($q) use ($tournament) {
                     $q->where('tournament_id', $tournament->id);
                 });
