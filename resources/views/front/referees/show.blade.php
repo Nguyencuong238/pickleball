@@ -240,7 +240,7 @@
 <div class="profile-hero">
     <div class="profile-container">
         <a href="{{ route('academy.referees.index') }}" class="back-link">
-            [ARROW-LEFT] Quay lai danh sach trong tai
+            ← Quay lại danh sách trọng tài
         </a>
 
         <div class="profile-header">
@@ -256,18 +256,18 @@
                 <h1>{{ $referee->name }}</h1>
 
                 @if($referee->location)
-                    <p class="profile-location">[LOCATION] {{ $referee->location }}</p>
+                    <p class="profile-location">📍 {{ $referee->location }}</p>
                 @endif
 
                 @if($referee->referee_status == 'active')
-                    <span class="profile-status status-active">[CHECK] Dang hoat dong</span>
+                    <span class="profile-status status-active">Đang hoạt động</span>
                 @else
-                    <span class="profile-status status-inactive">[PAUSE] Tam nghi</span>
+                    <span class="profile-status status-inactive">Tạm nghỉ</span>
                 @endif
 
                 @if($referee->referee_rating)
                     <div class="profile-rating">
-                        [STAR] {{ number_format($referee->referee_rating, 1) }} / 5.0
+                        ⭐ {{ number_format($referee->referee_rating, 1) }} / 5.0
                     </div>
                 @endif
             </div>
@@ -280,19 +280,19 @@
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-value">{{ $stats['total_matches'] }}</div>
-            <div class="stat-label">Tong tran</div>
+            <div class="stat-label">Tổng trận</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ $stats['completed_matches'] }}</div>
-            <div class="stat-label">Hoan thanh</div>
+            <div class="stat-label">Hoàn thành</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ $stats['completion_rate'] }}%</div>
-            <div class="stat-label">Ti le hoan thanh</div>
+            <div class="stat-label">Tỉ lệ hoàn thành</div>
         </div>
         <div class="stat-card">
             <div class="stat-value">{{ $stats['tournaments'] }}</div>
-            <div class="stat-label">Giai dau</div>
+            <div class="stat-label">Giải đấu</div>
         </div>
     </div>
 
@@ -300,7 +300,7 @@
     @if($referee->referee_bio)
         <div class="section-card">
             <div class="section-header">
-                <h3>[USER] Gioi thieu</h3>
+                <h3>Giới thiệu</h3>
             </div>
             <div class="section-body">
                 <p class="bio-text">{{ $referee->referee_bio }}</p>
@@ -311,22 +311,22 @@
     {{-- Recent Matches --}}
     <div class="section-card">
         <div class="section-header">
-            <h3>[MATCH] Tran dau gan day</h3>
+            <h3>Trận đấu gần đây</h3>
         </div>
         <div class="section-body" style="padding: 0;">
             @if($referee->refereeMatches->isEmpty())
                 <div class="empty-message">
-                    [INFO] Chua co tran dau nao da hoan thanh
+                    Chưa có trận đấu nào đã hoàn thành
                 </div>
             @else
                 <div style="overflow-x: auto;">
                     <table class="matches-table">
                         <thead>
                             <tr>
-                                <th>Ngay</th>
-                                <th>Giai dau</th>
-                                <th>Tran dau</th>
-                                <th>Ti so</th>
+                                <th>Ngày</th>
+                                <th>Giải đấu</th>
+                                <th>Trận đấu</th>
+                                <th>Tỉ số</th>
                             </tr>
                         </thead>
                         <tbody>
