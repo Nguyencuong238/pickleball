@@ -52,6 +52,7 @@ class TournamentController extends Controller
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'status' => 'required|in:0,1',
             'is_watch' => 'nullable|in:0,1',
+            'is_ocr' => 'nullable|in:0,1',
             'competition_format' => 'nullable|string|in:single,double,mixed',
             'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
             'registration_benefits' => 'nullable|string',
@@ -80,6 +81,7 @@ class TournamentController extends Controller
             'prizes',
             'status',
             'is_watch',
+            'is_ocr',
             'competition_format',
             'tournament_rank',
             'registration_benefits',
@@ -94,6 +96,7 @@ class TournamentController extends Controller
 
         // Handle checkbox - convert to integer
         $data['is_watch'] = $request->has('is_watch') ? 1 : 0;
+        $data['is_ocr'] = $request->has('is_ocr') ? 1 : 0;
 
         if ($request->hasFile('image')) {
             $data['image'] = $request->file('image')->store('tournament_images', 'public');
@@ -163,6 +166,7 @@ class TournamentController extends Controller
             'rules' => 'nullable|string',
             'prizes' => 'nullable|numeric|min:0',
             'is_watch' => 'nullable|in:0,1',
+            'is_ocr' => 'nullable|in:0,1',
             'competition_format' => 'nullable|string|in:single,double,mixed',
             'registration_benefits' => 'nullable|string',
             'competition_rules' => 'nullable|string',
@@ -180,6 +184,7 @@ class TournamentController extends Controller
             'rules',
             'prizes',
             'is_watch',
+            'is_ocr',
             'competition_format',
             'registration_benefits',
             'competition_rules',
@@ -187,6 +192,7 @@ class TournamentController extends Controller
 
         // Handle checkbox - convert to integer
         $data['is_watch'] = $request->has('is_watch') ? 1 : 0;
+        $data['is_ocr'] = $request->has('is_ocr') ? 1 : 0;
 
         // Sync gallery images
         $tournament->syncMediaCollection('gallery', 'gallery', $request);

@@ -23,6 +23,7 @@ class Tournament extends Model implements HasMedia
         'max_participants' => 'integer',
         'status' => 'boolean',
         'is_watch' => 'boolean',
+        'is_ocr' => 'boolean',
     ];
 
     public function user()
