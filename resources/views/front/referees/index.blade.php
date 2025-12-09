@@ -6,7 +6,7 @@
 <style>
     .page-hero {
         background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        padding: 4rem 2rem;
+        padding: calc(80px + var(--spacing-xxl)) 0 var(--spacing-xxl);
         text-align: center;
         color: white;
         margin-bottom: 3rem;
@@ -79,6 +79,14 @@
         text-decoration: none;
         display: inline-flex;
         align-items: center;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+    }
+
+    .btn-clear:hover {
+        background: #cbd5e1;
+        color: #334155;
     }
 
     .referees-grid {
@@ -232,27 +240,27 @@
 
 @section('content')
 <div class="page-hero">
-    <h1>[WHISTLE] Trong Tai</h1>
-    <p>Doi ngu trong tai chuyen nghiep, tan tam voi cac giai dau pickleball tai Viet Nam</p>
+    <h1>🏅 Trọng Tài</h1>
+    <p>Đội ngũ trọng tài chuyên nghiệp, tận tâm với các giải đấu pickleball tại Việt Nam</p>
 </div>
 
 <div class="referee-container">
     {{-- Search and Filter --}}
     <form method="GET" class="filter-bar">
-        <input type="text" name="search" placeholder="[SEARCH] Tim kiem theo ten..." value="{{ request('search') }}">
+        <input type="text" name="search" placeholder="🔍 Tìm kiếm theo tên..." value="{{ request('search') }}">
         <select name="status">
-            <option value="">-- Tat ca trang thai --</option>
-            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Dang hoat dong</option>
-            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Tam nghi</option>
+            <option value="">-- Tất cả trạng thái --</option>
+            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Đang hoạt động</option>
+            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Tạm nghỉ</option>
         </select>
-        <button type="submit" class="btn-search">[SEARCH] Tim kiem</button>
-        <a href="{{ route('academy.referees.index') }}" class="btn-clear">[CLEAR] Xoa</a>
+        <button type="submit" class="btn-search">Tìm kiếm</button>
+        <a href="{{ route('academy.referees.index') }}" class="btn-clear">Xóa</a>
     </form>
 
     {{-- Referee Cards --}}
     @if($referees->isEmpty())
         <div class="empty-state">
-            <p>[INFO] Khong tim thay trong tai nao</p>
+            <p>Không tìm thấy trọng tài nào</p>
         </div>
     @else
         <div class="referees-grid">
@@ -270,29 +278,29 @@
 
                     @if($referee->location)
                         <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 0.5rem;">
-                            [LOCATION] {{ $referee->location }}
+                            📍 {{ $referee->location }}
                         </p>
                     @endif
 
                     <div class="referee-stats">
                         <span class="stat-badge badge-matches">
-                            [MATCH] {{ $referee->matches_completed ?? 0 }} tran
+                            {{ $referee->matches_completed ?? 0 }} trận
                         </span>
                         @if($referee->referee_status == 'active')
-                            <span class="stat-badge badge-active">[CHECK] Hoat dong</span>
+                            <span class="stat-badge badge-active">Hoạt động</span>
                         @else
-                            <span class="stat-badge badge-inactive">[PAUSE] Tam nghi</span>
+                            <span class="stat-badge badge-inactive">Tạm nghỉ</span>
                         @endif
                     </div>
 
                     @if($referee->referee_rating)
                         <div class="referee-rating">
-                            [STAR] {{ number_format($referee->referee_rating, 1) }} / 5.0
+                            ⭐ {{ number_format($referee->referee_rating, 1) }} / 5.0
                         </div>
                     @endif
 
                     <a href="{{ route('academy.referees.show', $referee) }}" class="btn-profile">
-                        [VIEW] Xem ho so
+                        Xem hồ sơ
                     </a>
                 </div>
             @endforeach

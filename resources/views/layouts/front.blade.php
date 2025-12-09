@@ -275,10 +275,11 @@
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle">Academy</a>
+                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*')) active @endif">Academy</a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
+                        <li><a href="{{ route('academy.referees.index') }}" class="dropdown-item">Trọng tài</a></li>
                     </ul>
                 </li>
                 <li><a href="{{ route('news') }}" class="nav-link @if(request()->routeIs('news')) active @endif">Tin tức</a></li>
