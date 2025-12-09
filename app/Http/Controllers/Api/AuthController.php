@@ -95,7 +95,7 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Đăng nhập thành công!',
-            'user' => new UserResource(auth('api')->user()),
+            'user' => auth('api')->user(),
             'access_token' => $token,
             'token_type' => 'Bearer',
             'expires_in' => JWTAuth::factory()->getTTL() * 60,
