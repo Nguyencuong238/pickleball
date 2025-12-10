@@ -407,6 +407,16 @@
                 <i class="fas fa-chart-line"></i> Trang Chủ
             </a>
 
+            <a href="{{ route('admin.permission-requests.index') }}" class="nav-link {{ request()->routeIs('admin.permission-requests.*') ? 'active' : '' }}">
+                <i class="fas fa-certificate"></i> Yêu Cầu Cấp Quyền
+                @php
+                    $pendingCount = \App\Models\PermissionRequest::where('status', 'pending')->count();
+                @endphp
+                @if($pendingCount > 0)
+                    <span class="badge bg-danger rounded-pill ms-auto">{{ $pendingCount }}</span>
+                @endif
+            </a>
+
             <hr style="border-color: rgba(255,255,255,0.2); margin: 15px 0;">
             
             <p style="padding: 0 20px; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Quản Lý</p>

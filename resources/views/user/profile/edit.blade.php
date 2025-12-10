@@ -154,10 +154,154 @@
         background: #fecaca;
     }
 
+    .btn-info {
+        background: #dbeafe;
+        color: #0c4a6e;
+    }
+
+    .btn-info:hover {
+        background: #bfdbfe;
+    }
+
     .text-danger {
         color: #dc2626;
         font-size: 0.875rem;
         margin-top: 5px;
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .modal-content {
+        background: white;
+        border-radius: 15px;
+        padding: clamp(20px, 3vw, 40px);
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(30px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #f3f4f6;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: #1f2937;
+        font-weight: 700;
+    }
+
+    .modal-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: #6b7280;
+        transition: color 0.3s;
+    }
+
+    .modal-close:hover {
+        color: #1f2937;
+    }
+
+    .permission-item {
+        background: #f9fafb;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        display: flex;
+        gap: 12px;
+    }
+
+    .permission-item input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+
+    .permission-info {
+        flex: 1;
+    }
+
+    .permission-info label {
+        display: block;
+        font-weight: 600;
+        color: #1f2937;
+        margin-bottom: 5px;
+        cursor: pointer;
+    }
+
+    .permission-info p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #f3f4f6;
+        padding-top: 20px;
+        margin-top: 20px;
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    .modal-footer .btn {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+
+    .permission-error {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
     }
 
     .form-row {
@@ -215,6 +359,16 @@
 </style>
 
 <div class="profile-container">
+    @if(session('success'))
+        <div style="background: #d1fae5; border: 1px solid #6ee7b7; color: #065f46; padding: 16px; border-radius: 10px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <svg style="width: 20px; height: 20px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <span>{{ session('success') }}</span>
+        </div>
+    @endif
+
     <div class="profile-header">
         <h2>Chỉnh Sửa Hồ Sơ</h2>
         <p>Cập nhật thông tin cá nhân của bạn</p>
@@ -318,79 +472,182 @@
     </div>
 
     {{-- Password Section --}}
-    <div class="profile-card">
-        <h4>{{ $hasPassword ? 'Đổi Mật Khẩu' : 'Đặt Mật Khẩu' }}</h4>
-        @if(!$hasPassword)
-            <div class="oauth-notice">
-                Bạn chưa có mật khẩu. Vui lòng đặt mật khẩu để bảo mật tài khoản.
-            </div>
-        @endif
-        <form action="{{ route('user.profile.password') }}" method="POST">
-            @csrf
-            @method('PUT')
-            @if($hasPassword)
-                <div class="form-group">
-                    <label class="form-label">Mật Khẩu Hiện Tại *</label>
-                    <input type="password" name="current_password" class="form-control" placeholder="Nhập mật khẩu hiện tại">
-                    @error('current_password')
-                        <p class="text-danger">{{ $message }}</p>
-                    @enderror
-                </div>
-            @endif
-            <div class="form-row">
-                <div class="form-group">
-                    <label class="form-label">Mật Khẩu Mới *</label>
-                    <input type="password" name="password" class="form-control" placeholder="Tối thiểu 6 ký tự">
-                    @error('password')
-                        <p class="text-danger">{{ $message }}</p>
-                    @enderror
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Xác Nhận Mật Khẩu Mới *</label>
-                    <input type="password" name="password_confirmation" class="form-control" placeholder="Nhập lại mật khẩu mới">
-                </div>
-            </div>
-            <button type="submit" class="btn btn-primary">{{ $hasPassword ? 'Đổi Mật Khẩu' : 'Đặt Mật Khẩu' }}</button>
-        </form>
-    </div>
+     <div class="profile-card">
+         <h4>{{ $hasPassword ? 'Đổi Mật Khẩu' : 'Đặt Mật Khẩu' }}</h4>
+         @if(!$hasPassword)
+             <div class="oauth-notice">
+                 Bạn chưa có mật khẩu. Vui lòng đặt mật khẩu để bảo mật tài khoản.
+             </div>
+         @endif
+         <form action="{{ route('user.profile.password') }}" method="POST">
+             @csrf
+             @method('PUT')
+             @if($hasPassword)
+                 <div class="form-group">
+                     <label class="form-label">Mật Khẩu Hiện Tại *</label>
+                     <input type="password" name="current_password" class="form-control" placeholder="Nhập mật khẩu hiện tại">
+                     @error('current_password')
+                         <p class="text-danger">{{ $message }}</p>
+                     @enderror
+                 </div>
+             @endif
+             <div class="form-row">
+                 <div class="form-group">
+                     <label class="form-label">Mật Khẩu Mới *</label>
+                     <input type="password" name="password" class="form-control" placeholder="Tối thiểu 6 ký tự">
+                     @error('password')
+                         <p class="text-danger">{{ $message }}</p>
+                     @enderror
+                 </div>
+                 <div class="form-group">
+                     <label class="form-label">Xác Nhận Mật Khẩu Mới *</label>
+                     <input type="password" name="password_confirmation" class="form-control" placeholder="Nhập lại mật khẩu mới">
+                 </div>
+             </div>
+             <button type="submit" class="btn btn-primary">{{ $hasPassword ? 'Đổi Mật Khẩu' : 'Đặt Mật Khẩu' }}</button>
+         </form>
+     </div>
 
-</div>
+     {{-- Permission Request Section --}}
+     <div class="profile-card">
+         <h4>Đăng Ký Quyền</h4>
+         <p style="color: #6b7280; margin-bottom: 20px;">Nâng cấp tài khoản của bạn bằng cách đăng ký để trở thành chủ sân, chủ giải hoặc trọng tài.</p>
+         <button type="button" class="btn btn-info" onclick="openPermissionModal()">Đăng Ký Quyền</button>
+     </div>
+
+     {{-- Permission Modal --}}
+     <div id="permissionModal" class="modal">
+         <div class="modal-content">
+             <div class="modal-header">
+                 <h3>Đăng Ký Quyền</h3>
+                 <button type="button" class="modal-close" onclick="closePermissionModal()">&times;</button>
+             </div>
+             <div id="permissionError"></div>
+             <form id="permissionForm" onsubmit="submitPermissionRequest(event)">
+                 @csrf
+                 <div class="permission-item">
+                     <input type="checkbox" id="quản-lý-sân-giải" name="permissions" value="home_yard">
+                     <div class="permission-info">
+                         <label for="quản-lý-sân-giải">Quản Lý Sân & Giải Đấu</label>
+                         <p>Quản lý và cho thuê sân quần vợt, tổ chức và quản lý các giải đấu</p>
+                     </div>
+                 </div>
+
+                 <div class="permission-item">
+                     <input type="checkbox" id="trọng-tài" name="permissions" value="referee">
+                     <div class="permission-info">
+                         <label for="trọng-tài">Trọng Tài</label>
+                         <p>Phân công làm trọng tài cho các giải đấu</p>
+                     </div>
+                 </div>
+
+                 <div class="modal-footer">
+                     <button type="button" class="btn btn-secondary" onclick="closePermissionModal()">Hủy</button>
+                     <button type="submit" class="btn btn-primary">Yêu Cầu Duyệt</button>
+                 </div>
+             </form>
+         </div>
+     </div>
+
+    </div>
 
 @endsection
 
 @section('js')
 <script>
-    // Avatar preview - XSS safe implementation
-    document.getElementById('avatar-input').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file size (2MB max)
-            if (file.size > 2 * 1024 * 1024) {
-                toastr.error('Kích thước file tối đa là 2MB.');
-                this.value = '';
-                return;
-            }
+     // Avatar preview - XSS safe implementation
+     document.getElementById('avatar-input').addEventListener('change', function(e) {
+         const file = e.target.files[0];
+         if (file) {
+             // Validate file size (2MB max)
+             if (file.size > 2 * 1024 * 1024) {
+                 toastr.error('Kích thước file tối đa là 2MB.');
+                 this.value = '';
+                 return;
+             }
 
-            // Validate file type
-            const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-            if (!validTypes.includes(file.type)) {
-                toastr.error('Chỉ chấp nhận file JPG, PNG, WebP.');
-                this.value = '';
-                return;
-            }
+             // Validate file type
+             const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+             if (!validTypes.includes(file.type)) {
+                 toastr.error('Chỉ chấp nhận file JPG, PNG, WebP.');
+                 this.value = '';
+                 return;
+             }
 
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const preview = document.getElementById('avatar-preview');
-                // XSS safe: create image element instead of using innerHTML
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.alt = 'Avatar';
-                preview.innerHTML = '';
-                preview.appendChild(img);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+             const reader = new FileReader();
+             reader.onload = function(e) {
+                 const preview = document.getElementById('avatar-preview');
+                 // XSS safe: create image element instead of using innerHTML
+                 const img = document.createElement('img');
+                 img.src = e.target.result;
+                 img.alt = 'Avatar';
+                 preview.innerHTML = '';
+                 preview.appendChild(img);
+             };
+             reader.readAsDataURL(file);
+         }
+     });
+
+     // Permission Modal Functions
+     function openPermissionModal() {
+         document.getElementById('permissionModal').classList.add('show');
+         document.getElementById('permissionError').innerHTML = '';
+     }
+
+     function closePermissionModal() {
+         document.getElementById('permissionModal').classList.remove('show');
+         document.getElementById('permissionForm').reset();
+         document.getElementById('permissionError').innerHTML = '';
+     }
+
+     // Close modal when clicking outside
+     document.getElementById('permissionModal').addEventListener('click', function(e) {
+         if (e.target === this) {
+             closePermissionModal();
+         }
+     });
+
+     function submitPermissionRequest(e) {
+         e.preventDefault();
+
+         // Get selected permissions
+         const checkboxes = document.querySelectorAll('input[name="permissions"]:checked');
+         if (checkboxes.length === 0) {
+             const errorDiv = document.getElementById('permissionError');
+             errorDiv.innerHTML = '<div class="permission-error">Vui lòng chọn ít nhất một quyền.</div>';
+             return;
+         }
+
+         const permissions = Array.from(checkboxes).map(cb => cb.value);
+
+         // Send request
+         fetch('{{ route("user.permission-request.store") }}', {
+             method: 'POST',
+             headers: {
+                 'Content-Type': 'application/json',
+                 'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+             },
+             body: JSON.stringify({ permissions: permissions })
+         })
+         .then(response => {
+             if (!response.ok) {
+                 return response.json().then(data => {
+                     throw new Error(data.message || 'Có lỗi xảy ra');
+                 });
+             }
+             return response.json();
+         })
+         .then(data => {
+             toastr.success('Yêu cầu cấp quyền đã được gửi. Vui lòng chờ admin duyệt.');
+             closePermissionModal();
+             setTimeout(() => {
+                 location.reload();
+             }, 1500);
+         })
+         .catch(error => {
+             const errorDiv = document.getElementById('permissionError');
+             errorDiv.innerHTML = '<div class="permission-error">' + error.message + '</div>';
+         });
+     }
 </script>
 @endsection

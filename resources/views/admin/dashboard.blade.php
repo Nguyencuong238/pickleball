@@ -100,17 +100,29 @@
         </div>
 
         <!-- Tournaments Management -->
-        <div class="col-12 col-sm-6 col-md-6 col-lg-4 mb-3">
-            <div class="card border-0 shadow-sm h-100">
-                <div class="card-body text-center">
-                    <i class="fas fa-trophy" style="font-size: 2.5rem; color: #dc3545; margin-bottom: 15px;"></i>
-                    <h5 class="card-title">Giải Đấu</h5>
-                    <p class="card-text text-muted">Tạo và quản lý giải đấu</p>
-                    <a href="{{ route('admin.tournaments.index') }}" class="btn btn-danger btn-sm w-100">Quản Lý</a>
-                </div>
-            </div>
+         <div class="col-12 col-sm-6 col-md-6 col-lg-4 mb-3">
+             <div class="card border-0 shadow-sm h-100">
+                 <div class="card-body text-center">
+                     <i class="fas fa-trophy" style="font-size: 2.5rem; color: #dc3545; margin-bottom: 15px;"></i>
+                     <h5 class="card-title">Giải Đấu</h5>
+                     <p class="card-text text-muted">Tạo và quản lý giải đấu</p>
+                     <a href="{{ route('admin.tournaments.index') }}" class="btn btn-danger btn-sm w-100">Quản Lý</a>
+                 </div>
+             </div>
+         </div>
+
+         <!-- Permission Requests Management -->
+         <div class="col-12 col-sm-6 col-md-6 col-lg-4 mb-3">
+             <div class="card border-0 shadow-sm h-100">
+                 <div class="card-body text-center">
+                     <i class="fas fa-certificate" style="font-size: 2.5rem; color: #6610f2; margin-bottom: 15px;"></i>
+                     <h5 class="card-title">Yêu Cầu Cấp Quyền</h5>
+                     <p class="card-text text-muted">Duyệt yêu cầu nâng cấp tài khoản</p>
+                     <a href="{{ route('admin.permission-requests.index') }}" class="btn btn-primary btn-sm w-100" style="background-color: #6610f2; border-color: #6610f2;">Quản Lý</a>
+                 </div>
+             </div>
+         </div>
         </div>
-    </div>
 
     <!-- Users Management Section -->
     <div class="row">

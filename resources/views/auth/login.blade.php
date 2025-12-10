@@ -193,32 +193,15 @@
                         <div class="form-group">
                             <label class="form-label">Xác nhận mật khẩu</label>
                             <div class="password-input-wrapper">
-                                <input type="password" class="form-input" name="password_confirmation" placeholder="Nhập lại mật khẩu" required>
-                                <button type="button" class="password-toggle">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                                        <circle cx="12" cy="12" r="3"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Bạn là:</label>
-                            <div style="display: flex; gap: 16px; margin-top: 8px;">
-                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;">
-                                    <input type="radio" name="role_type" value="user" checked required style="cursor: pointer;">
-                                    <span>Người dùng</span>
-                                </label>
-                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; flex: 1;">
-                                    <input type="radio" name="role_type" value="court_owner" required style="cursor: pointer;">
-                                    <span>Chủ sân</span>
-                                </label>
-                            </div>
-                            @error('role_type')
-                                <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
-                            @enderror
-                        </div>
+                                 <input type="password" class="form-input" name="password_confirmation" placeholder="Nhập lại mật khẩu" required>
+                                 <button type="button" class="password-toggle">
+                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                         <circle cx="12" cy="12" r="3"/>
+                                     </svg>
+                                 </button>
+                             </div>
+                         </div>
 
                         <div class="form-group">
                             <label class="checkbox-label">

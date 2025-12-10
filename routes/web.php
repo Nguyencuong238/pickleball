@@ -144,13 +144,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/api/delete-media/{mediaId}', [MediaUploadController::class, 'deleteMedia'])->name('api.delete-media');
 
     // User Profile Routes
-    Route::prefix('user/profile')->name('user.profile.')->group(function () {
-        Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
-        Route::put('/', [ProfileController::class, 'updateProfile'])->name('update');
-        Route::put('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar');
-        Route::put('/email', [ProfileController::class, 'updateEmail'])->name('email');
-        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
-    });
+     Route::prefix('user/profile')->name('user.profile.')->group(function () {
+         Route::get('/edit', [ProfileController::class, 'edit'])->name('edit');
+         Route::put('/', [ProfileController::class, 'updateProfile'])->name('update');
+         Route::put('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar');
+         Route::put('/email', [ProfileController::class, 'updateEmail'])->name('email');
+         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
+     });
+
+     // Permission Request Routes
+     Route::prefix('user/permission-request')->name('user.permission-request.')->group(function () {
+         Route::post('/', [\App\Http\Controllers\Front\PermissionRequestController::class, 'store'])->name('store');
+     });
 });
 
 // Instructor favorite routes (without auth middleware - controller checks auth internally)
@@ -337,12 +342,18 @@ Route::prefix('api/ocr')->name('api.ocr.')->middleware('auth')->group(function (
 
 // Admin routes
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/users', [UserPermissionController::class, 'index'])->name('users.index');
-    Route::get('/users/{user}/edit', [UserPermissionController::class, 'edit'])->name('users.edit');
-    Route::put('/users/{user}', [UserPermissionController::class, 'update'])->name('users.update');
-    Route::post('/users/{user}/approve', [UserPermissionController::class, 'approve'])->name('users.approve');
-    Route::post('/users/{user}/reject', [UserPermissionController::class, 'reject'])->name('users.reject');
+     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+     Route::get('/users', [UserPermissionController::class, 'index'])->name('users.index');
+     Route::get('/users/{user}/edit', [UserPermissionController::class, 'edit'])->name('users.edit');
+     Route::put('/users/{user}', [UserPermissionController::class, 'update'])->name('users.update');
+     Route::post('/users/{user}/approve', [UserPermissionController::class, 'approve'])->name('users.approve');
+     Route::post('/users/{user}/reject', [UserPermissionController::class, 'reject'])->name('users.reject');
+
+     // Permission Requests Management
+     Route::get('/permission-requests', [\App\Http\Controllers\Admin\PermissionRequestController::class, 'index'])->name('permission-requests.index');
+     Route::get('/permission-requests/{permissionRequest}', [\App\Http\Controllers\Admin\PermissionRequestController::class, 'show'])->name('permission-requests.show');
+     Route::post('/permission-requests/{permissionRequest}/approve', [\App\Http\Controllers\Admin\PermissionRequestController::class, 'approve'])->name('permission-requests.approve');
+     Route::post('/permission-requests/{permissionRequest}/reject', [\App\Http\Controllers\Admin\PermissionRequestController::class, 'reject'])->name('permission-requests.reject');
     Route::resource('news', NewsController::class);
     Route::resource('pages', PageController::class);
     Route::resource('categories', AdminCategoryController::class);

@@ -29,26 +29,27 @@ class AuthController extends Controller
             'email'     => 'required|email|unique:users,email',
             'phone'     => 'nullable|regex:/^\d{10,11}$/',
             'password'  => 'required|min:6|confirmed',
-            'role_type' => 'required|in:user,court_owner',
             'terms'     => 'required'
         ], [
             'email.unique' => 'Email này đã được sử dụng. Vui lòng chọn email khác.',
             'phone.regex' => 'Số điện thoại phải gồm 10 hoặc 11 chữ số.',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
-            'role_type.required' => 'Vui lòng chọn loại tài khoản.',
             'terms.required' => 'Bạn phải chấp nhận Điều khoản dịch vụ.'
         ]);
 
-        User::create([
+        $user = User::create([
             'name' => $req->name,
             'email' => $req->email,
             'phone' => $req->phone,
             'password' => Hash::make($req->password),
-            'role_type' => $req->role_type,
+            'role_type' => 'user',
             'status' => 'pending',
         ]);
 
-        return redirect('/admin/users')->with('success', 'Đăng ký thành công! Tài khoản của bạn đang chờ duyệt.');
+        // Log the user in
+        Auth::login($user);
+
+        return redirect('/user/profile/edit')->with('success', 'Đăng ký thành công! Vui lòng hoàn thành hồ sơ của bạn.');
     }
 
 
@@ -71,12 +72,16 @@ class AuthController extends Controller
                 return redirect('/admin/dashboard');
             }
 
+            if ($user->hasRole('referee')) {
+                return redirect(route('referee.dashboard'));
+            }
+
             if ($user->hasRole('home_yard')) {
                 return redirect(route('homeyard.overview'));
             }
 
-            // Redirect to user dashboard
-            return redirect('/user/dashboard');
+            // Redirect to user profile edit
+            return redirect('/user/profile/edit');
         }
 
         return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng!']);
@@ -163,6 +168,10 @@ class AuthController extends Controller
             return redirect('/admin/dashboard');
         }
 
+        if ($user->hasRole('referee')) {
+            return redirect(route('referee.dashboard'));
+        }
+
         if ($user->hasRole('home_yard')) {
             return redirect(route('homeyard.overview'));
         }
@@ -209,6 +218,10 @@ class AuthController extends Controller
         // Redirect based on user role
         if ($user->hasRole('admin')) {
             return redirect('/admin/dashboard');
+        }
+
+        if ($user->hasRole('referee')) {
+            return redirect(route('referee.dashboard'));
         }
 
         if ($user->hasRole('home_yard')) {
