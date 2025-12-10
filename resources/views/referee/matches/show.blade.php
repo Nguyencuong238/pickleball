@@ -1,7 +1,7 @@
 @extends('layouts.referee')
 
-@section('title', 'Match Detail')
-@section('header', 'Chi Tiet Tran Dau')
+@section('title', 'Chi Tiết Trận Đấu')
+@section('header', 'Chi Tiết Trận Đấu')
 
 @section('css')
 <style>
@@ -87,7 +87,7 @@
 @section('content')
 <div style="margin-bottom: 1.5rem;">
     <a href="{{ route('referee.matches.index') }}" class="btn btn-secondary">
-        [BACK] Quay lai danh sach
+        ⬅️ Quay lại danh sách
     </a>
 </div>
 
@@ -98,51 +98,51 @@
     <div class="detail-card-body">
         <div class="detail-row">
             <div class="detail-item">
-                <span class="detail-label">[TROPHY] Giai dau</span>
+                <span class="detail-label">🏆 Giải đấu</span>
                 <span class="detail-value">{{ $match->tournament->name }}</span>
             </div>
             <div class="detail-item">
-                <span class="detail-label">[CATEGORY] Noi dung</span>
+                <span class="detail-label">📁 Nội dung</span>
                 <span class="detail-value">{{ $match->category->name ?? 'N/A' }}</span>
             </div>
         </div>
         <div class="detail-row">
             <div class="detail-item">
-                <span class="detail-label">[ROUND] Vong dau</span>
+                <span class="detail-label">🔄 Vòng đấu</span>
                 <span class="detail-value">{{ $match->round->name ?? 'N/A' }}</span>
             </div>
             <div class="detail-item">
-                <span class="detail-label">[COURT] San dau</span>
+                <span class="detail-label">🏟️ Sân đấu</span>
                 <span class="detail-value">{{ $match->court->name ?? 'TBA' }}</span>
             </div>
         </div>
         <div class="detail-row">
             <div class="detail-item">
-                <span class="detail-label">[CALENDAR] Ngay thi dau</span>
+                <span class="detail-label">📅 Ngày thi đấu</span>
                 <span class="detail-value">{{ $match->match_date ? $match->match_date->format('d/m/Y') : 'TBA' }}</span>
             </div>
             <div class="detail-item">
-                <span class="detail-label">[CLOCK] Gio thi dau</span>
+                <span class="detail-label">⏰ Giờ thi đấu</span>
                 <span class="detail-value">{{ $match->match_time ?? 'TBA' }}</span>
             </div>
         </div>
         <div class="detail-row">
             <div class="detail-item">
-                <span class="detail-label">[STATUS] Trang thai</span>
+                <span class="detail-label">📌 Trạng thái</span>
                 <span class="detail-value">
                     @if($match->status == 'scheduled')
-                        <span class="badge badge-scheduled">[CLOCK] Scheduled</span>
+                        <span class="badge badge-scheduled">⏰ Đã lên lịch</span>
                     @elseif($match->status == 'in_progress')
-                        <span class="badge badge-in-progress">[PLAY] In Progress</span>
+                        <span class="badge badge-in-progress">▶️ Đang diễn ra</span>
                     @elseif($match->status == 'completed')
-                        <span class="badge badge-completed">[CHECK] Completed</span>
+                        <span class="badge badge-completed">✅ Đã hoàn thành</span>
                     @else
                         <span class="badge badge-scheduled">{{ $match->status }}</span>
                     @endif
                 </span>
             </div>
             <div class="detail-item">
-                <span class="detail-label">[GAME] Best of</span>
+                <span class="detail-label">🎮 Best of</span>
                 <span class="detail-value">{{ $match->best_of ?? 3 }} sets</span>
             </div>
         </div>
@@ -153,7 +153,7 @@
                 <form method="POST" action="{{ route('referee.matches.start', $match) }}">
                     @csrf
                     <button type="submit" class="btn btn-primary" style="background: linear-gradient(135deg, #10B981, #059669);">
-                        [PLAY] Bat dau tran dau
+                        ▶️ Bắt đầu trận đấu
                     </button>
                 </form>
             </div>
@@ -163,13 +163,13 @@
             <hr style="margin: 1.5rem 0; border-color: var(--border-color);">
             <div class="detail-row">
                 <div class="detail-item">
-                    <span class="detail-label">[SCORE] Ti so chung cuoc</span>
+                    <span class="detail-label">🎯 Tỉ số chung cuộc</span>
                     <span class="detail-value" style="font-size: 1.5rem; color: var(--primary-color);">
                         {{ $match->final_score }}
                     </span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">[WINNER] Nguoi thang</span>
+                    <span class="detail-label">🥇 Người thắng</span>
                     <span class="detail-value" style="color: var(--accent-green);">
                         @if($match->winner_id == $match->athlete1_id)
                             {{ $match->athlete1_name }}
@@ -189,7 +189,7 @@
 @if(!$match->isCompleted() && $match->status !== 'scheduled')
     <div class="score-entry-card">
         <div class="score-entry-header">
-            <h3 style="margin: 0;">[EDIT] Nhap ti so</h3>
+            <h3 style="margin: 0;">✏️ Nhập tỉ số</h3>
         </div>
         <div class="detail-card-body" style="padding: 1.5rem;">
             <form method="POST" action="{{ route('referee.matches.update-score', $match) }}">
@@ -210,13 +210,13 @@
                             <input type="hidden" name="set_scores[{{ $index }}][set]" value="{{ $set['set'] ?? ($index + 1) }}">
                             <div class="score-grid">
                                 <div class="score-input-group">
-                                    <label>{{ $match->athlete1_name ?? 'VDV 1' }}</label>
+                                    <label>{{ $match->athlete1_name ?? 'VĐV 1' }}</label>
                                     <input type="number" name="set_scores[{{ $index }}][athlete1]"
                                            value="{{ $set['athlete1'] ?? 0 }}" min="0" required>
                                 </div>
                                 <div class="vs-text">vs</div>
                                 <div class="score-input-group">
-                                    <label>{{ $match->athlete2_name ?? 'VDV 2' }}</label>
+                                    <label>{{ $match->athlete2_name ?? 'VĐV 2' }}</label>
                                     <input type="number" name="set_scores[{{ $index }}][athlete2]"
                                            value="{{ $set['athlete2'] ?? 0 }}" min="0" required>
                                 </div>
@@ -227,20 +227,20 @@
 
                 <div style="margin-bottom: 1.5rem;">
                     <button type="button" class="btn btn-secondary" onclick="addSet()">
-                        [PLUS] Them set
+                        ➕ Thêm set
                     </button>
                 </div>
 
                 <div style="margin-bottom: 1.5rem;">
-                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Trang thai tran dau</label>
+                    <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Trạng thái trận đấu</label>
                     <select name="status" class="form-control" style="padding: 0.75rem 1rem; border: 2px solid var(--border-color); border-radius: var(--radius-md);" required>
-                        <option value="in_progress" {{ $match->status == 'in_progress' ? 'selected' : '' }}>Dang thi dau</option>
-                        <option value="completed">Hoan thanh</option>
+                        <option value="in_progress" {{ $match->status == 'in_progress' ? 'selected' : '' }}>Đang thi đấu</option>
+                        <option value="completed">Hoàn thành</option>
                     </select>
                 </div>
 
                 <button type="submit" class="btn btn-primary">
-                    [SAVE] Luu ti so
+                    💾 Lưu tỉ số
                 </button>
             </form>
         </div>
@@ -258,12 +258,12 @@
                     <input type="hidden" name="set_scores[${setCount - 1}][set]" value="${setCount}">
                     <div class="score-grid">
                         <div class="score-input-group">
-                            <label>{{ $match->athlete1_name ?? 'VDV 1' }}</label>
+                            <label>{{ $match->athlete1_name ?? 'VĐV 1' }}</label>
                             <input type="number" name="set_scores[${setCount - 1}][athlete1]" value="0" min="0" required>
                         </div>
                         <div class="vs-text">vs</div>
                         <div class="score-input-group">
-                            <label>{{ $match->athlete2_name ?? 'VDV 2' }}</label>
+                            <label>{{ $match->athlete2_name ?? 'VĐV 2' }}</label>
                             <input type="number" name="set_scores[${setCount - 1}][athlete2]" value="0" min="0" required>
                         </div>
                     </div>
@@ -276,7 +276,7 @@
     {{-- Show completed match scores --}}
     <div class="detail-card">
         <div class="detail-card-header">
-            <h3>[CHART] Ket qua chi tiet</h3>
+            <h3>📊 Kết quả chi tiết</h3>
         </div>
         <div class="detail-card-body">
             @if($match->set_scores && count($match->set_scores) > 0)
@@ -284,8 +284,8 @@
                     <thead>
                         <tr>
                             <th>Set</th>
-                            <th>{{ $match->athlete1_name ?? 'VDV 1' }}</th>
-                            <th>{{ $match->athlete2_name ?? 'VDV 2' }}</th>
+                            <th>{{ $match->athlete1_name ?? 'VĐV 1' }}</th>
+                            <th>{{ $match->athlete2_name ?? 'VĐV 2' }}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -304,7 +304,7 @@
                 </table>
             @else
                 <div class="alert alert-info">
-                    [INFO] Khong co du lieu chi tiet
+                    ℹ️ Không có dữ liệu chi tiết
                 </div>
             @endif
         </div>
@@ -313,11 +313,11 @@
     {{-- Match not started yet --}}
     <div class="detail-card">
         <div class="detail-card-header">
-            <h3>[INFO] Thong bao</h3>
+            <h3>ℹ️ Thông báo</h3>
         </div>
         <div class="detail-card-body">
             <div class="alert alert-info">
-                [INFO] Vui long bat dau tran dau truoc khi nhap ti so
+                ℹ️ Vui lòng bắt đầu trận đấu trước khi nhập tỉ số
             </div>
         </div>
     </div>
@@ -327,7 +327,7 @@
 @if($match->notes)
     <div class="detail-card">
         <div class="detail-card-header">
-            <h3>[NOTE] Ghi chu</h3>
+            <h3>📝 Ghi chú</h3>
         </div>
         <div class="detail-card-body">
             <p>{{ $match->notes }}</p>

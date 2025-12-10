@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Referee Dashboard') - OnePickleball</title>
+    <title>@yield('title', 'Bảng Điều Khiển Trọng Tài') - OnePickleball</title>
     <link rel="icon" href="{{ asset('assets/images/logo.png') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}">
     <!-- Toastr CSS -->
@@ -275,45 +275,45 @@
                     <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="74px">
                 </a>
                 <button class="sidebar-toggle" onclick="toggleSidebar()">
-                    <span>[MENU]</span>
+                    <span>☰</span>
                 </button>
             </div>
 
             <nav class="sidebar-nav" id="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">Trong Tai</div>
+                    <div class="nav-section-title">Trọng Tài</div>
                     <a href="{{ route('referee.dashboard') }}" class="nav-item {{ request()->routeIs('referee.dashboard') ? 'active' : '' }}">
-                        <span class="nav-icon">[DASHBOARD]</span>
-                        <span class="nav-text">Tong quan</span>
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Tổng quan</span>
                     </a>
                     <a href="{{ route('referee.matches.index') }}" class="nav-item {{ request()->routeIs('referee.matches.*') ? 'active' : '' }}">
-                        <span class="nav-icon">[MATCH]</span>
-                        <span class="nav-text">Tran dau</span>
+                        <span class="nav-icon">🏸</span>
+                        <span class="nav-text">Trận đấu</span>
                     </a>
                 </div>
 
                 @if(auth()->user()->hasRole('home_yard'))
                 <div class="nav-section">
-                    <div class="nav-section-title">Vai Tro Khac</div>
+                    <div class="nav-section-title">Vai Trò Khác</div>
                     <a href="{{ route('homeyard.overview') }}" class="nav-item">
-                        <span class="nav-icon">[STADIUM]</span>
+                        <span class="nav-icon">🏟️</span>
                         <span class="nav-text">Home Yard</span>
                     </a>
                 </div>
                 @endif
 
                 <div class="nav-section">
-                    <div class="nav-section-title">He Thong</div>
+                    <div class="nav-section-title">Hệ Thống</div>
                     <a href="{{ route('home') }}" class="nav-item">
-                        <span class="nav-icon">[HOME]</span>
-                        <span class="nav-text">Trang chu</span>
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Trang chủ</span>
                     </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <a href="#" class="nav-item btn-logout"
                             onclick="event.preventDefault();this.closest('form').submit();">
-                            <span class="nav-icon">[LOGOUT]</span>
-                            <span class="nav-text">Dang xuat</span>
+                            <span class="nav-icon">🚪</span>
+                            <span class="nav-text">Đăng xuất</span>
                         </a>
                     </form>
                 </div>
@@ -324,13 +324,13 @@
         <main class="main-content">
             <div class="top-header">
                 <div class="header-search">
-                    <h2>@yield('header', 'Referee Dashboard')</h2>
+                    <h2>@yield('header', 'Bảng Điều Khiển Trọng Tài')</h2>
                 </div>
                 <div class="header-user">
                     <div class="user-avatar">{{ auth()->user()->getInitials() }}</div>
                     <div class="user-info">
                         <div class="user-name">{{ auth()->user()->name }}</div>
-                        <div class="user-role">Trong tai</div>
+                        <div class="user-role">Trọng tài</div>
                     </div>
                 </div>
             </div>

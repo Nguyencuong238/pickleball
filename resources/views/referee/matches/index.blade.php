@@ -1,17 +1,17 @@
 @extends('layouts.referee')
 
-@section('title', 'My Matches')
-@section('header', 'Tran Dau Cua Toi')
+@section('title', 'Trận Đấu Của Tôi')
+@section('header', 'Trận Đấu Của Tôi')
 
 @section('content')
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">[FILTER] Bo loc</h3>
+        <h3 class="card-title">🔍 Bộ lọc</h3>
     </div>
     <div class="card-body">
         <form method="GET" class="filter-form">
             <select name="tournament_id">
-                <option value="">-- Tat ca giai dau --</option>
+                <option value="">-- Tất cả giải đấu --</option>
                 @foreach($tournaments as $tournament)
                     <option value="{{ $tournament->id }}" {{ request('tournament_id') == $tournament->id ? 'selected' : '' }}>
                         {{ $tournament->name }}
@@ -20,41 +20,41 @@
             </select>
 
             <select name="status">
-                <option value="">-- Tat ca trang thai --</option>
-                <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>Scheduled</option>
-                <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>In Progress</option>
-                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                <option value="">-- Tất cả trạng thái --</option>
+                <option value="scheduled" {{ request('status') == 'scheduled' ? 'selected' : '' }}>Đã lên lịch</option>
+                <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>Đang diễn ra</option>
+                <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Đã hoàn thành</option>
             </select>
 
-            <input type="date" name="date_from" value="{{ request('date_from') }}" placeholder="Tu ngay">
-            <input type="date" name="date_to" value="{{ request('date_to') }}" placeholder="Den ngay">
+            <input type="date" name="date_from" value="{{ request('date_from') }}" placeholder="Từ ngày">
+            <input type="date" name="date_to" value="{{ request('date_to') }}" placeholder="Đến ngày">
 
-            <button type="submit" class="btn btn-primary">[SEARCH] Loc</button>
-            <a href="{{ route('referee.matches.index') }}" class="btn btn-secondary">[CLEAR] Xoa</a>
+            <button type="submit" class="btn btn-primary">🔎 Lọc</button>
+            <a href="{{ route('referee.matches.index') }}" class="btn btn-secondary">✖️ Xoá</a>
         </form>
     </div>
 </div>
 
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">[LIST] Danh sach tran dau</h3>
+        <h3 class="card-title">📋 Danh sách trận đấu</h3>
     </div>
     <div class="card-body">
         @if($matches->isEmpty())
             <div class="alert alert-info">
-                [INFO] Khong tim thay tran dau nao
+                ℹ️ Không tìm thấy trận đấu nào
             </div>
         @else
             <div class="table-responsive">
                 <table class="matches-table">
                     <thead>
                         <tr>
-                            <th>Ngay</th>
-                            <th>Giai dau</th>
-                            <th>Tran dau</th>
-                            <th>Trang thai</th>
-                            <th>Ti so</th>
-                            <th>Hanh dong</th>
+                            <th>Ngày</th>
+                            <th>Giải đấu</th>
+                            <th>Trận đấu</th>
+                            <th>Trạng thái</th>
+                            <th>Tỉ số</th>
+                            <th>Hành động</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -75,11 +75,11 @@
                                 </td>
                                 <td>
                                     @if($match->status == 'scheduled')
-                                        <span class="badge badge-scheduled">[CLOCK] Scheduled</span>
+                                        <span class="badge badge-scheduled">⏰ Đã lên lịch</span>
                                     @elseif($match->status == 'in_progress')
-                                        <span class="badge badge-in-progress">[PLAY] In Progress</span>
+                                        <span class="badge badge-in-progress">▶️ Đang diễn ra</span>
                                     @elseif($match->status == 'completed')
-                                        <span class="badge badge-completed">[CHECK] Completed</span>
+                                        <span class="badge badge-completed">✅ Đã hoàn thành</span>
                                     @else
                                         <span class="badge badge-scheduled">{{ $match->status }}</span>
                                     @endif
@@ -87,7 +87,7 @@
                                 <td>{{ $match->final_score ?? '-' }}</td>
                                 <td>
                                     <a href="{{ route('referee.matches.show', $match) }}" class="btn btn-primary btn-sm">
-                                        [VIEW] Xem
+                                        👁️ Xem
                                     </a>
                                 </td>
                             </tr>
