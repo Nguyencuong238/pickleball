@@ -2251,7 +2251,7 @@ class HomeYardTournamentController extends Controller
             }
 
             // Verify athletes are different users (important for OCR processing)
-            if ($athlete1->user_id === $athlete2->user_id) {
+            if ($tournament->is_ocr && $athlete1->user_id === $athlete2->user_id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Hai VDV phai la nhung nguoi dung khac nhau (OCR)'
