@@ -711,6 +711,18 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <label class="form-label">Hạng đấu</label>
+                            <select class="form-select" name="tournament_rank">
+                                <option value="">Chọn hạng đấu</option>
+                                <option value="beginner">Sơ Cấp</option>
+                                <option value="intermediate">Trung Cấp</option>
+                                <option value="advanced">Cao Cấp</option>
+                                <option value="professional">Chuyên Nghiệp</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="grid grid-2">
+                        <div class="form-group">
                             <label class="form-label">Số VĐV tối đa</label>
                             <input type="number" class="form-input" name="max_participants" placeholder="64">
                         </div>
@@ -738,12 +750,17 @@
                         <textarea class="form-input" name="competition_rules" placeholder="Nhập quy định của giải đấu..." rows="3"></textarea>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Quyền lợi khi tham gia</label>
-                        <textarea class="form-input" name="registration_benefits" placeholder="Nhập quyền lợi khi tham gia..."
-                            rows="3"></textarea>
+                         <label class="form-label">Quyền lợi khi tham gia</label>
+                         <textarea class="form-input" name="registration_benefits" placeholder="Nhập quyền lợi khi tham gia..."
+                             rows="3"></textarea>
+                     </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Timeline Sự Kiện</label>
+                        <textarea class="form-input" name="event_timeline" placeholder="Nhập timeline sự kiện của giải đấu..." rows="4"></textarea>
                     </div>
 
-                    <div class="grid grid-2">
+                     <div class="grid grid-2">
                         <div class="form-group">
                             <label class="form-label">Email liên hệ</label>
                             <input type="text" class="form-input" name="organizer_email" placeholder="example@gmail.com">

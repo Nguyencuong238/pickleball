@@ -87,9 +87,11 @@ class HomeYardTournamentController extends Controller
             'price' => 'nullable|numeric|min:0',
             'rules' => 'nullable|string',
             'competition_format' => 'nullable|string|in:single,double,mixed',
+            'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
             'price' => 'nullable|numeric|min:0',
             'prizes' => 'nullable|numeric|min:0',
             'registration_deadline' => 'nullable|date_format:Y-m-d\TH:i',
+            'event_timeline' => 'nullable|string',
 
         ]);
 
@@ -104,6 +106,8 @@ class HomeYardTournamentController extends Controller
             'rules',
             'competition_rules',
             'competition_format',
+            'tournament_rank',
+            'event_timeline',
             'registration_deadline',
             'prizes',
             'organizer_email',
@@ -178,8 +182,10 @@ class HomeYardTournamentController extends Controller
             'rules' => 'nullable|string',
             'prizes' => 'nullable|numeric|min:0',
             'competition_format' => 'nullable|string|in:single,double,mixed',
+            'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
             'registration_benefits' => 'nullable|string',
             'competition_rules' => 'nullable|string',
+            'event_timeline' => 'nullable|string',
         ]);
 
         $data = $request->only([
@@ -194,8 +200,10 @@ class HomeYardTournamentController extends Controller
             'rules',
             'prizes',
             'competition_format',
+            'tournament_rank',
             'registration_benefits',
             'competition_rules',
+            'event_timeline',
         ]);
 
         // Sync gallery images
