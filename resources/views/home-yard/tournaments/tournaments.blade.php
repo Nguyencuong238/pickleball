@@ -776,6 +776,30 @@
                         <textarea class="form-input" name="social_information" placeholder="Nhập thông tin mạng xã hội..." rows="3"></textarea>
                     </div>
 
+                    {{-- Referee Selection --}}
+                    <div class="form-group">
+                        <label class="form-label">Chỉ định trọng tài</label>
+                        @php
+                            $availableReferees = \App\Models\User::role('referee')->orderBy('name')->get();
+                        @endphp
+                        @if($availableReferees->isEmpty())
+                            <div style="background: #fef3c7; color: #92400e; padding: 10px 12px; border-radius: 6px; font-size: 0.9rem;">
+                                Chưa có trọng tài nào được tạo. Vui lòng thêm trọng tài trước khi chỉ định.
+                            </div>
+                        @else
+                            <select name="referee_ids[]" class="form-select" multiple size="4" style="height: auto;">
+                                @foreach($availableReferees as $referee)
+                                    <option value="{{ $referee->id }}">
+                                        {{ $referee->name }} ({{ $referee->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            <small style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 4px;">
+                                Giữ phím Ctrl/Cmd để chọn nhiều trọng tài. Bỏ chọn tất cả để xóa trọng tài.
+                            </small>
+                        @endif
+                    </div>
+
                     @php
                         $tournament = new \App\Models\Tournament();
                     @endphp
