@@ -493,8 +493,18 @@ class HomeController extends Controller
             }
         }
 
-        // Default ordering
-        $query->orderBy('start_date', 'asc');
+        // Default ordering: Ongoing first, then Upcoming, then Completed
+        // Using raw SQL CASE statement to prioritize status
+        $now = now();
+        $query->orderByRaw("
+            CASE 
+                WHEN start_date <= ? AND end_date >= ? THEN 1
+                WHEN start_date > ? THEN 2
+                ELSE 3
+            END ASC,
+            start_date ASC
+        ", [$now, $now, $now])
+        ->orderBy('start_date', 'asc');
 
         $tournaments = $query->paginate(6);
         
