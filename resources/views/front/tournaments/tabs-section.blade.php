@@ -707,7 +707,7 @@
         <!-- Gallery Tab -->
         <div class="tab-pane" id="gallery">
             <div class="content-card">
-                <h2 class="content-title">Hình ảnh từ các mùa giải trước</h2>
+                <h2 class="content-title">Hình ảnh</h2>
                 @php
                     $galleryItems = is_array($tournament->gallery)
                         ? $tournament->gallery
@@ -732,18 +732,7 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="gallery-grid">
-                        <div class="gallery-item">
-                            <div class="gallery-placeholder">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                                    <circle cx="8.5" cy="8.5" r="1.5" />
-                                    <polyline points="21 15 16 10 5 21" />
-                                </svg>
-                                <p>Chưa có hình ảnh</p>
-                            </div>
-                        </div>
-                    </div>
+                    <div class="empty-state">Chưa có hình ảnh</div>
                 @endif
             </div>
         </div>
