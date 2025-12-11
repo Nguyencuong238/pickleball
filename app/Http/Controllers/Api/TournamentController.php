@@ -23,7 +23,16 @@ class TournamentController extends Controller
 
         // Filter by status
         if ($request->has('status')) {
-            $query->where('status', $request->status);
+            if ($request->query('status') === 'upcoming') {
+                $query->where('start_date', '>', now());
+            } elseif ($request->query('status') === 'ongoing') {
+                $query->where('start_date', '<=', now())->where(function ($q) {
+                    $q->where('end_date', '>=', now())
+                        ->orWhereNull('end_date');
+                });
+            } elseif ($request->query('status') === 'completed') {
+                $query->where('end_date', '<', now());
+            }
         }
 
         // Filter by category
