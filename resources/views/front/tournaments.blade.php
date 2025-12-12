@@ -1,5 +1,24 @@
 @extends('layouts.front')
 
+@section('seo')
+    <title>Giải Đấu Pickleball - OnePickleball</title>
+    <meta name="description" content="Khám phá và đăng ký tham gia các giải đấu Pickleball chuyên nghiệp trên toàn quốc. Tìm kiếm giải đấu theo địa điểm, trình độ, và thời gian.">
+    <meta name="keywords" content="giải đấu pickleball, đăng ký giải đấu, pickleball tournament, tìm giải đấu, giải pickleball">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Giải Đấu Pickleball - Tìm & Đăng Ký">
+    <meta property="og:description" content="Khám phá và đăng ký tham gia các giải đấu Pickleball chuyên nghiệp trên toàn quốc">
+    <meta property="og:image" content="{{ asset('assets/images/logo.png') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="OnePickleball">
+    <meta property="og:locale" content="vi_VN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Giải Đấu Pickleball - OnePickleball">
+    <meta name="twitter:description" content="Khám phá các giải đấu Pickleball chuyên nghiệp">
+    <meta name="twitter:image" content="{{ asset('assets/images/logo.png') }}">
+@endsection
+
 @section('css')
     <style>
         .filter-body {

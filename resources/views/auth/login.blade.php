@@ -179,12 +179,12 @@
                                     </svg>
                                 </button>
                             </div>
-                            <div class="password-strength">
+                            {{-- <div class="password-strength">
                                 <div class="strength-bar">
                                     <div class="strength-progress"></div>
                                 </div>
                                 <span class="strength-text">Mật khẩu mạnh</span>
-                            </div>
+                            </div> --}}
                             @error('password')
                                 <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
                             @enderror

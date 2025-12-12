@@ -1,5 +1,24 @@
 @extends('layouts.front')
 
+@section('seo')
+    <title>Tin Tức Pickleball - OnePickleball</title>
+    <meta name="description" content="Tin tức Pickleball mới nhất, những cập nhật về các giải đấu, sân thi đấu và cộng đồng Pickleball Việt Nam.">
+    <meta name="keywords" content="tin tức pickleball, tin tức giải đấu, pickleball news, cộng đồng pickleball">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Tin Tức Pickleball - OnePickleball">
+    <meta property="og:description" content="Cập nhật tin tức mới nhất về Pickleball tại Việt Nam">
+    <meta property="og:image" content="{{ asset('assets/images/logo.png') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="OnePickleball">
+    <meta property="og:locale" content="vi_VN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Tin Tức Pickleball - OnePickleball">
+    <meta name="twitter:description" content="Tin tức mới nhất về Pickleball">
+    <meta name="twitter:image" content="{{ asset('assets/images/logo.png') }}">
+@endsection
+
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/css/styles-news-simple.css') }}">
     <style>

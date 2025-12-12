@@ -4,8 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>OnePickleball - Cộng Đồng Pickleball Việt Nam</title>
-    <meta name="description" content="Nền tảng hàng đầu về Pickleball tại Việt Nam - Tin tức, giải đấu, sân thi đấu và cộng đồng">
+    
+    @hasSection('seo')
+        @yield('seo')
+    @else
+        <title>OnePickleball - Nền tảng Pickleball hàng đầu tại Việt Nam</title>
+        <meta name="description" content="Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam. Tìm sân, đăng ký giải đấu và kết nối với hàng ngàn tay vợt.">
+        <meta name="keywords" content="pickleball, sân pickleball, giải đấu pickleball, cộng đồng pickleball">
+        <meta name="author" content="OnePickleball">
+        <meta property="og:title" content="OnePickleball - Nền tảng Pickleball hàng đầu tại Việt Nam">
+        <meta property="og:description" content="Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam. Tìm sân, đăng ký giải đấu và kết nối với hàng ngàn tay vợt.">
+        <meta property="og:image" content="{{ asset('assets/images/logo.png') }}">
+        <meta property="og:url" content="{{ request()->url() }}">
+        <meta property="og:type" content="website">
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="OnePickleball">
+        <meta name="twitter:description" content="Nền tảng kết nối cộng đồng Pickleball hàng đầu tại Việt Nam.">
+        <meta name="twitter:image" content="{{ asset('assets/images/logo.png') }}">
+        <meta name="canonical" content="{{ request()->url() }}">
+    @endif
+    
 
     <link rel="icon" href="{{asset('assets/images/logo.png')}}">
 
