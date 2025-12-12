@@ -52,7 +52,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Tournament categories API endpoint
+// Tournament API endpoints
+Route::get('/tournament/{tournament}', [TournamentController::class, 'show']);
 Route::get('/tournament/{tournament}/categories', [TournamentRegistrationController::class, 'getCategories']);
 
 /*

@@ -14,6 +14,8 @@ class TournamentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $media = $this->getFirstMedia('banner');
+        
         return [
             'id' => $this->id,
             'name' => $this->name,
@@ -23,10 +25,13 @@ class TournamentResource extends JsonResource
             'registration_deadline' => $this->registration_deadline,
             'location' => $this->location,
             'organizer' => $this->organizer,
+            'organizer_email' => $this->organizer_email,
+            'organizer_hotline' => $this->organizer_hotline,
             'price' => $this->price,
             'prizes' => $this->prizes,
             'max_participants' => $this->max_participants,
             'participants_count' => $this->athletes()->count(),
+            'image_url' => $media ? $media->getUrl() : null,
             'status' => $this->status,
             'user_id' => $this->user_id,
             'created_at' => $this->created_at,

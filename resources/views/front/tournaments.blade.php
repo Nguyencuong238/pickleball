@@ -367,16 +367,22 @@
                                                 <span
                                                     class="prize-amount">{{ $tournament->prizes ? number_format($tournament->prizes, 0, '.', ',') . ' VNĐ' : 'N/A' }}</span>
                                             </div>
-                                            @if (!$tournament->user_registered)
-                                                <button class="btn btn-primary btn-sm tournament-register-btn"
-                                                    onclick="event.preventDefault(); openRegisterModal({{ $tournament->id }}, '{{ $tournament->name }}');">
-                                                    Đăng ký ngay
+                                            @if ($tournament->is_watch == 1)
+                                                <button class="btn btn-primary btn-sm tournament-register-btn" onclick="event.preventDefault(); event.stopPropagation(); openDetailModal({{ $tournament->id }})">
+                                                    Xem chi tiết
                                                 </button>
                                             @else
-                                                <button class="btn btn-secondary btn-sm tournament-register-btn" disabled
-                                                    style="opacity: 0.6; cursor: not-allowed;">
-                                                    Chờ xét duyệt
-                                                </button>
+                                                @if (!$tournament->user_registered)
+                                                    <button class="btn btn-primary btn-sm tournament-register-btn"
+                                                        onclick="event.preventDefault(); openRegisterModal({{ $tournament->id }}, '{{ $tournament->name }}');">
+                                                        Đăng ký ngay
+                                                    </button>
+                                                @else
+                                                    <button class="btn btn-secondary btn-sm tournament-register-btn" disabled
+                                                        style="opacity: 0.6; cursor: not-allowed;">
+                                                        Chờ xét duyệt
+                                                    </button>
+                                                @endif
                                             @endif
                                         </div>
                                     </div>
@@ -409,6 +415,138 @@
             </div>
         </div>
     </section>
+
+    <!-- Detail Modal -->
+    <div id="detailModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: center; justify-content: center; animation: fadeIn 0.3s ease;">
+        <div style="background: white; border-radius: 20px; width: 90%; max-width: 700px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); overflow: auto; animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); max-height: 100vh; scrollbar-width: none;">
+            <!-- Tournament Image -->
+            <div style="width: 100%; height: 300px; overflow: hidden; border-radius: 20px 20px 0 0;">
+                <img id="detailImage" src="" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+
+            <!-- Modal Header -->
+            <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 30px 30px 40px; color: white; position: relative;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">Chi tiết giải đấu</h2>
+                <button onclick="closeDetailModal()"
+                    style="position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.5rem; cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.3)'"
+                    onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div style="padding: 40px 30px; overflow-y: auto; max-height: 70vh;">
+                <div style="display: grid; gap: 25px;">
+                    <!-- Thông tin cơ bản -->
+                    <div>
+                        <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Thông tin cơ bản</h3>
+                        <div style="display: grid; gap: 12px;">
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Tên giải:</span>
+                                <span id="detailName" style="color: #1f2937;"></span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Địa điểm:</span>
+                                <span id="detailLocation" style="color: #1f2937;"></span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Thời gian:</span>
+                                <span id="detailDate" style="color: #1f2937;"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin tham gia -->
+                    <div style="border-top: 1px solid #e5e7eb; padding-top: 25px;">
+                        <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Thông tin tham gia</h3>
+                        <div style="display: grid; gap: 12px;">
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Số VĐV tối đa:</span>
+                                <span id="detailMaxParticipants" style="color: #1f2937;"></span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Lệ phí đăng ký:</span>
+                                <span id="detailPrice" style="color: #1f2937;"></span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Hạn đăng ký:</span>
+                                <span id="detailDeadline" style="color: #1f2937;"></span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                                <span style="font-weight: 600; color: #6b7280;">Đã đăng ký:</span>
+                                <div>
+                                    <div style="margin-bottom: 8px; color: #1f2937;" id="detailRegistered"></div>
+                                    <div style="width: 100%; height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden;">
+                                        <div id="detailProgressBar" style="height: 100%; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin giải thưởng -->
+                    <div style="border-top: 1px solid #e5e7eb; padding-top: 25px;">
+                        <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Giải thưởng</h3>
+                        <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
+                            <span style="font-weight: 600; color: #6b7280;">Tổng giải:</span>
+                            <span id="detailPrizes" style="color: #1f2937; font-size: 1.1rem; font-weight: 600;"></span>
+                        </div>
+                    </div>
+
+                    <!-- Thông tin liên hệ -->
+                    <div id="detailContactSection" style="border-top: 1px solid #e5e7eb; padding-top: 25px; display: none;">
+                        <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Liên hệ</h3>
+                        <div style="display: grid; gap: 12px;" id="detailContactList"></div>
+                    </div>
+
+                    <!-- Mô tả -->
+                    <div id="detailDescriptionSection" style="border-top: 1px solid #e5e7eb; padding-top: 25px; display: none;">
+                        <h3 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1.1rem; font-weight: 600;">Mô tả</h3>
+                        <p id="detailDescription" style="margin: 0; color: #1f2937; line-height: 1.6;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div style="padding: 0 30px 30px; display: flex; gap: 12px; justify-content: flex-end;">
+                <button type="button" onclick="closeDetailModal()"
+                    style="padding: 12px 28px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem;"
+                    onmouseover="this.style.borderColor='#d1d5db'; this.style.background='#f9fafb'"
+                    onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white'">
+                    Đóng
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden tournaments data for modal population -->
+    <script type="application/json" id="tournamentsData">
+        @php
+            $tournamentsData = [];
+            foreach($tournaments as $tournament) {
+                $media = $tournament->getFirstMedia('banner');
+                $imageUrl = $media ? $media->getUrl() : '';
+                $tournamentsData[$tournament->id] = [
+                    'id' => $tournament->id,
+                    'name' => $tournament->name,
+                    'location' => $tournament->location,
+                    'start_date' => $tournament->start_date ? $tournament->start_date->format('d/m/Y') : 'N/A',
+                    'end_date' => $tournament->end_date ? $tournament->end_date->format('d/m/Y') : 'N/A',
+                    'registration_deadline' => $tournament->registration_deadline ? $tournament->registration_deadline->format('d/m/Y H:i') : 'N/A',
+                    'max_participants' => $tournament->max_participants,
+                    'price' => $tournament->price ?? 0,
+                    'prizes' => $tournament->prizes ?? 0,
+                    'athletes_count' => $tournament->athletes()->count(),
+                    'image_url' => $imageUrl,
+                    'description' => $tournament->description ?? '',
+                    'organizer_email' => $tournament->organizer_email ?? '',
+                    'organizer_hotline' => $tournament->organizer_hotline ?? ''
+                ];
+            }
+            echo json_encode($tournamentsData);
+        @endphp
+    </script>
 
     <!-- Registration Modal -->
     <div id="registerModal"
@@ -569,6 +707,88 @@
 @section('js')
     <script src="{{ asset('assets/js/tournaments.js') }}"></script>
     <script>
+        function openDetailModal(tournamentId) {
+            const tournamentsData = JSON.parse(document.getElementById('tournamentsData').textContent);
+            const tournament = tournamentsData[tournamentId];
+            
+            if (!tournament) {
+                alert('Không thể tải thông tin giải đấu');
+                return;
+            }
+            
+            // Populate basic info
+            document.getElementById('detailName').textContent = tournament.name;
+            document.getElementById('detailLocation').textContent = tournament.location;
+            document.getElementById('detailDate').textContent = tournament.start_date + ' - ' + tournament.end_date;
+            
+            // Populate participation info
+            document.getElementById('detailMaxParticipants').textContent = tournament.max_participants + ' người';
+            document.getElementById('detailPrice').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tournament.price);
+            document.getElementById('detailDeadline').textContent = tournament.registration_deadline;
+            
+            // Populate registered count and progress
+            const athletes = tournament.athletes_count || 0;
+            const percentage = tournament.max_participants > 0 ? Math.round((athletes / tournament.max_participants) * 100) : 0;
+            document.getElementById('detailRegistered').textContent = athletes + '/' + tournament.max_participants + ' (' + percentage + '%)';
+            document.getElementById('detailProgressBar').style.width = percentage + '%';
+            
+            // Populate prizes
+            document.getElementById('detailPrizes').textContent = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(tournament.prizes);
+            
+            // Populate image
+            const imgElement = document.getElementById('detailImage');
+            if (tournament.image_url) {
+                imgElement.src = tournament.image_url;
+            } else {
+                imgElement.src = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 700 400%22%3E%3Crect fill=%2200D9B5%22 width=%22700%22 height=%22400%22/%3E%3C/svg%3E';
+            }
+            imgElement.alt = tournament.name;
+            
+            // Populate contact info if exists
+            const contactSection = document.getElementById('detailContactSection');
+            const contactList = document.getElementById('detailContactList');
+            if (tournament.organizer_email || tournament.organizer_hotline) {
+                contactSection.style.display = 'block';
+                contactList.innerHTML = '';
+                
+                if (tournament.organizer_email) {
+                    const emailDiv = document.createElement('div');
+                    emailDiv.style.cssText = 'display: grid; grid-template-columns: 150px 1fr; gap: 20px;';
+                    emailDiv.innerHTML = '<span style="font-weight: 600; color: #6b7280;">Email:</span><span style="color: #1f2937;">' + tournament.organizer_email + '</span>';
+                    contactList.appendChild(emailDiv);
+                }
+                
+                if (tournament.organizer_hotline) {
+                    const hotlineDiv = document.createElement('div');
+                    hotlineDiv.style.cssText = 'display: grid; grid-template-columns: 150px 1fr; gap: 20px;';
+                    hotlineDiv.innerHTML = '<span style="font-weight: 600; color: #6b7280;">Hotline:</span><span style="color: #1f2937;">' + tournament.organizer_hotline + '</span>';
+                    contactList.appendChild(hotlineDiv);
+                }
+            } else {
+                contactSection.style.display = 'none';
+            }
+            
+            // Populate description if exists
+            const descriptionSection = document.getElementById('detailDescriptionSection');
+            if (tournament.description) {
+                descriptionSection.style.display = 'block';
+                document.getElementById('detailDescription').textContent = tournament.description;
+            } else {
+                descriptionSection.style.display = 'none';
+            }
+            
+            // Show modal
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detailModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
         function openRegisterModal(tournamentId, tournamentName) {
             document.getElementById('tournament_id').value = tournamentId;
             document.getElementById('modalTournamentName').textContent = tournamentName;
@@ -745,7 +965,14 @@
                 });
         }
 
-        // Close modal when clicking outside
+        // Close detail modal when clicking outside
+        document.getElementById('detailModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeDetailModal();
+            }
+        });
+
+        // Close register modal when clicking outside
         document.getElementById('registerModal').addEventListener('click', function(event) {
             if (event.target === this) {
                 closeRegisterModal();
@@ -755,7 +982,13 @@
         // Close modal on Escape key
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
-                closeRegisterModal();
+                const detailModal = document.getElementById('detailModal');
+                const registerModal = document.getElementById('registerModal');
+                if (detailModal.style.display === 'flex') {
+                    closeDetailModal();
+                } else if (registerModal.style.display === 'flex') {
+                    closeRegisterModal();
+                }
             }
         });
 
