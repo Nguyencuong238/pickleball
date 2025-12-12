@@ -36,21 +36,19 @@
                         <!-- YouTube Embed -->
                         <div class="youtube-container">
                             @php
-                                // Extract YouTube ID from video_link
-                                $youtubeId = $video->video_link;
-                                if (strpos($video->video_link, 'youtube.com') !== false) {
-                                    preg_match('/v=([a-zA-Z0-9_-]+)/', $video->video_link, $matches);
-                                    $youtubeId = $matches[1] ?? $video->video_link;
-                                } elseif (strpos($video->video_link, 'youtu.be') !== false) {
-                                    preg_match('/youtu\.be\/([a-zA-Z0-9_-]+)/', $video->video_link, $matches);
-                                    $youtubeId = $matches[1] ?? $video->video_link;
-                                }
+                                $embedUrl = $video->getEmbedUrl();
                             @endphp
-                            <iframe src="https://www.youtube.com/embed/{{ $youtubeId }}?rel=0&modestbranding=1"
-                                title="{{ $video->name }}" frameborder="0"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                allowfullscreen>
-                            </iframe>
+                            @if($embedUrl)
+                                <iframe src="{{ $embedUrl }}?rel=0&modestbranding=1"
+                                    title="{{ $video->name }}" frameborder="0"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowfullscreen>
+                                </iframe>
+                            @else
+                                <div style="padding: 40px; background: #f0f0f0; text-align: center; border-radius: 8px;">
+                                    <p style="color: #666; margin: 0;">Video không hợp lệ hoặc link không đúng định dạng</p>
+                                </div>
+                            @endif
                         </div>
                     </div>
 

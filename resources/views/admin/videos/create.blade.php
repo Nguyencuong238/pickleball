@@ -89,7 +89,10 @@
                     <div class="mb-3">
                         <label for="video_link" class="form-label">Link Video (Youtube)</label>
                         <input type="text" name="video_link" id="video_link" class="form-control @error('video_link') is-invalid @enderror"
-                            value="{{ old('video_link') }}" placeholder="https://www.youtube.com/watch?v=...">
+                            value="{{ old('video_link') }}" placeholder="https://www.youtube.com/watch?v=... hoặc https://youtube.com/shorts/...">
+                        <small class="text-muted d-block mt-2">
+                            ✓ Hỗ trợ: https://www.youtube.com/watch?v=... hoặc https://youtu.be/... hoặc https://youtube.com/shorts/...
+                        </small>
                         @error('video_link')
                             <span class="invalid-feedback">{{ $message }}</span>
                         @enderror

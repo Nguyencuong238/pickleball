@@ -51,4 +51,48 @@ class Video extends Model
         if (!$user) return false;
         return $this->likedByUsers()->where('user_id', $user->id)->exists();
     }
+
+    /**
+     * Extract YouTube video ID from various URL formats
+     * Supports: youtube.com/watch?v=, youtu.be/, youtube.com/shorts/, youtube.com/embed/
+     */
+    public function getYoutubeId(): ?string
+    {
+        if (!$this->video_link) return null;
+
+        $url = $this->video_link;
+
+        // Match youtu.be/ID
+        if (preg_match('/youtu\.be\/([a-zA-Z0-9_-]{11})/', $url, $matches)) {
+            return $matches[1];
+        }
+
+        // Match youtube.com/watch?v=ID
+        if (preg_match('/youtube\.com\/watch\?v=([a-zA-Z0-9_-]{11})/', $url, $matches)) {
+            return $matches[1];
+        }
+
+        // Match youtube.com/shorts/ID
+        if (preg_match('/youtube\.com\/shorts\/([a-zA-Z0-9_-]{11})/', $url, $matches)) {
+            return $matches[1];
+        }
+
+        // Match youtube.com/embed/ID
+        if (preg_match('/youtube\.com\/embed\/([a-zA-Z0-9_-]{11})/', $url, $matches)) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    /**
+     * Get embeddable YouTube URL
+     */
+    public function getEmbedUrl(): ?string
+    {
+        $videoId = $this->getYoutubeId();
+        if (!$videoId) return null;
+
+        return "https://www.youtube.com/embed/{$videoId}";
+    }
 }
