@@ -37,7 +37,9 @@ class TournamentController extends Controller
 
         // Filter by category
         if ($request->has('category_id')) {
-            $query->where('category_id', $request->category_id);
+            $query->whereHas('categories', function ($q) use ($request) {
+                $q->where('id', $request->category_id);
+            });
         }
 
         // Sort
