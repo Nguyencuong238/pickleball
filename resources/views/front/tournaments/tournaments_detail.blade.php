@@ -1,5 +1,28 @@
 @extends('layouts.front')
 
+@php
+$bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/logo.png');
+@endphp
+
+@section('seo')
+    <title>{{ $tournament->name }} - Giải Đấu | OnePickleball</title>
+    <meta name="description" content="{{ substr($tournament->description, 0, 160) ?: $tournament->name . ' - Giải đấu Pickleball chuyên nghiệp. Đăng ký tham gia ngay trên OnePickleball.' }}">
+    <meta name="keywords" content="giải đấu {{ $tournament->name }}, pickleball, {{ $tournament->location }}, đăng ký giải đấu">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ route('tournaments-detail', $tournament->id) }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $tournament->name }} - Giải Đấu Pickleball">
+    <meta property="og:description" content="{{ substr($tournament->description, 0, 160) ?: 'Giải đấu Pickleball - Tham gia ngay trên OnePickleball' }}">
+    <meta property="og:image" content="{{ $bannerImage }}">
+    <meta property="og:url" content="{{ route('tournaments-detail', $tournament->id) }}">
+    <meta property="og:site_name" content="OnePickleball">
+    <meta property="og:locale" content="vi_VN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $tournament->name }} - Giải Đấu Pickleball">
+    <meta name="twitter:description" content="Tham gia giải đấu {{ $tournament->name }} - {{ $tournament->location }}">
+    <meta name="twitter:image" content="{{ $bannerImage }}">
+@endsection
+
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-detail.css') }}">
@@ -13,16 +36,6 @@
         }
         .hero-actions {
             justify-content: flex-start;
-        }
-
-        @media (min-width: 1440px) {
-            .hero-actions {
-                margin-left: 150px;
-            }
-
-            .hero-meta {
-                margin-left: 150px;
-            }
         }
 
         #detailModal,
@@ -473,7 +486,7 @@
                             </div>
                             <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
                                 <span style="font-weight: 600; color: #6b7280;">Hạn đăng ký:</span>
-                                <span style="color: #1f2937;">{{ $tournament->registration_deadline->format('d/m/Y H:i') }}</span>
+                                <span style="color: #1f2937;">{{ $tournament->registration_deadline?->format('d/m/Y H:i') }}</span>
                             </div>
                             @php
                                 $currentAthletes = $tournament->athletes()->count();

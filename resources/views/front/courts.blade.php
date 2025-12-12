@@ -1,5 +1,24 @@
 @extends('layouts.front')
 
+@section('seo')
+    <title>Sân Pickleball Toàn Quốc - Đặt Sân Online | OnePickleball</title>
+    <meta name="description" content="Tìm kiếm và đặt sân Pickleball chất lượng cao trên toàn quốc. Lọc theo giá, đánh giá, tiện ích và vị trí. Đặt sân online dễ dàng.">
+    <meta name="keywords" content="sân pickleball, đặt sân pickleball, sân thi đấu, pickleball court, cho thuê sân">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ url()->current() }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Sân Pickleball Toàn Quốc - Đặt Online">
+    <meta property="og:description" content="Tìm kiếm và đặt sân Pickleball chất lượng cao. Hàng trăm sân với đầy đủ tiện ích">
+    <meta property="og:image" content="{{ asset('assets/images/logo.png') }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="OnePickleball">
+    <meta property="og:locale" content="vi_VN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Sân Pickleball - Đặt Sân Online">
+    <meta name="twitter:description" content="Tìm kiếm sân Pickleball chất lượng cao gần bạn">
+    <meta name="twitter:image" content="{{ asset('assets/images/logo.png') }}">
+@endsection
+
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/css/courts.css') }}">
     <style>

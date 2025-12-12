@@ -1,5 +1,28 @@
 @extends('layouts.front')
 
+@php
+$stadiumImage = $stadium->getFirstMediaUrl('banner') ?? asset('assets/images/court_default.svg');
+@endphp
+
+@section('seo')
+    <title>{{ $stadium->name }} - Sân Pickleball | OnePickleball</title>
+    <meta name="description" content="Sân {{ $stadium->name }} - {{ $stadium->address }}. Đặt sân Pickleball chất lượng cao. {{ $stadium->description ? substr($stadium->description, 0, 100) : '' }}">
+    <meta name="keywords" content="{{ $stadium->name }}, sân pickleball, {{ $stadium->address }}, đặt sân online">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ route('courts-detail', $stadium->id) }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $stadium->name }} - Sân Pickleball">
+    <meta property="og:description" content="Đặt sân Pickleball tại {{ $stadium->name }} - {{ $stadium->address }}">
+    <meta property="og:image" content="{{ $stadiumImage }}">
+    <meta property="og:url" content="{{ route('courts-detail', $stadium->id) }}">
+    <meta property="og:site_name" content="OnePickleball">
+    <meta property="og:locale" content="vi_VN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $stadium->name }} - Sân Pickleball">
+    <meta name="twitter:description" content="Đặt sân tại {{ $stadium->name }}">
+    <meta name="twitter:image" content="{{ $stadiumImage }}">
+@endsection
+
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-detail.css') }}">
