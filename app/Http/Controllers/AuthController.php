@@ -153,14 +153,16 @@ class AuthController extends Controller
                 'role_type' => 'user',
                 'status' => 'approved',
             ]);
-            $user->syncRoles([2]);
         } else {
             // Update google_id if user exists but doesn't have it
             if (!$user->google_id) {
                 $user->update(['google_id' => $googleUser->getId()]);
             }
         }
-
+        if (!$user->roles()->exists()) {
+            $user->syncRoles([2]);
+        }
+        
         // Log the user in
         Auth::login($user);
 
@@ -206,12 +208,14 @@ class AuthController extends Controller
                 'role_type' => 'user',
                 'status' => 'approved',
             ]);
-            $user->syncRoles([2]);
         } else {
             // Update facebook_id if user exists but doesn't have it
             if (!$user->facebook_id) {
                 $user->update(['facebook_id' => $facebookUser->getId()]);
             }
+        }
+        if (!$user->roles()->exists()) {
+            $user->syncRoles([2]);
         }
 
         // Log the user in
