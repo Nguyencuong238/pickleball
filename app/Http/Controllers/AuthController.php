@@ -153,6 +153,7 @@ class AuthController extends Controller
                 'role_type' => 'user',
                 'status' => 'approved',
             ]);
+            $user->syncRoles([2]);
         } else {
             // Update google_id if user exists but doesn't have it
             if (!$user->google_id) {
@@ -205,6 +206,7 @@ class AuthController extends Controller
                 'role_type' => 'user',
                 'status' => 'approved',
             ]);
+            $user->syncRoles([2]);
         } else {
             // Update facebook_id if user exists but doesn't have it
             if (!$user->facebook_id) {
