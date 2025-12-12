@@ -512,7 +512,22 @@
      <div class="profile-card">
          <h4>Đăng Ký Quyền</h4>
          <p style="color: #6b7280; margin-bottom: 20px;">Nâng cấp tài khoản của bạn bằng cách đăng ký để trở thành chủ sân, chủ giải hoặc trọng tài.</p>
-         <button type="button" class="btn btn-info" onclick="openPermissionModal()">Đăng Ký Quyền</button>
+         
+         @if($permissionRequest)
+             @if($permissionRequest->status === 'pending')
+                 <button type="button" class="btn" style="background: #fbbf24; color: #92400e; cursor: not-allowed;" disabled>
+                     ⏳ Chờ Xét Duyệt
+                 </button>
+             @elseif($permissionRequest->status === 'approved')
+                 <button type="button" class="btn" style="background: #d1fae5; color: #065f46; cursor: not-allowed;" disabled>
+                     ✓ Bạn Đã Đăng Ký Quyền
+                 </button>
+             @elseif($permissionRequest->status === 'rejected')
+                 <button type="button" class="btn btn-info" onclick="openPermissionModal()">Đăng Ký Quyền Lại</button>
+             @endif
+         @else
+             <button type="button" class="btn btn-info" onclick="openPermissionModal()">Đăng Ký Quyền</button>
+         @endif
      </div>
 
      {{-- Permission Modal --}}

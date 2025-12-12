@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Models\PermissionRequest;
 use App\Models\Province;
 use App\Services\ProfileService;
 use Illuminate\Http\Request;
@@ -24,8 +25,13 @@ class ProfileController extends Controller
         $user = auth()->user();
         $provinces = Province::orderBy('name')->get();
         $hasPassword = $this->profileService->hasPassword($user);
+        
+        // Get user's permission request status
+        $permissionRequest = PermissionRequest::where('user_id', $user->id)
+            ->latest()
+            ->first();
 
-        return view('user.profile.edit', compact('user', 'provinces', 'hasPassword'));
+        return view('user.profile.edit', compact('user', 'provinces', 'hasPassword', 'permissionRequest'));
     }
 
     /**
