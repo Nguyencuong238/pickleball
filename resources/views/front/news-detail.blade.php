@@ -9,12 +9,12 @@ $articleImage = $article->getFirstMediaUrl('featured_image') ?? asset('assets/im
     <meta name="description" content="{{ substr(strip_tags($article->content), 0, 160) ?: $article->title }}">
     <meta name="keywords" content="{{ $article->category ? $article->category->name . ', ' : '' }}pickleball, tin tức, {{ $article->author }}">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ route('news-detail', $article->id) }}">
+    <link rel="canonical" href="{{ route('news.show', $article->slug) }}">
     <meta property="og:type" content="article">
     <meta property="og:title" content="{{ $article->title }}">
     <meta property="og:description" content="{{ substr(strip_tags($article->content), 0, 160) ?: $article->title }}">
     <meta property="og:image" content="{{ $articleImage }}">
-    <meta property="og:url" content="{{ route('news-detail', $article->id) }}">
+    <meta property="og:url" content="{{ route('news.show', $article->slug) }}">
     <meta property="og:site_name" content="OnePickleball">
     <meta property="og:locale" content="vi_VN">
     <meta name="twitter:card" content="summary_large_image">
