@@ -445,7 +445,7 @@
 
                 <!-- My Profile -->
                 <div class="menu-card">
-                    <div class="icon-box icon-box-blue">[USER]</div>
+                    <div class="icon-box icon-box-teal">👤</div>
                     <h5>Ho So Cua Toi</h5>
                     <p>Xem va quan ly thong tin ho so va cai dat cua ban.</p>
                     <a href="{{ route('user.profile.edit') }}" class="menu-btn">Chinh Sua Ho So</a>

@@ -185,7 +185,6 @@ Route::prefix('socials')->group(function () {
 // News API
 Route::prefix('news')->group(function () {
     Route::get('', [NewsController::class, 'index']);
-    Route::get('trending', [NewsController::class, 'trending']);
     Route::get('{id}', [NewsController::class, 'show']);
 });
 

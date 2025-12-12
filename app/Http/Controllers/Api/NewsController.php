@@ -24,16 +24,10 @@ class NewsController extends Controller
 
         // Filter by category/type
         if ($request->has('category')) {
-            $query->where('category', $request->category);
+            $query->whereHas('category', function($q) use ($request) {
+                $q->where('slug', $request->category);
+            });
         }
-
-        // Only published news
-        $query->where('is_published', true);
-
-        // Sort
-        $sort = $request->get('sort', 'published_at');
-        $direction = $request->get('direction', 'desc');
-        $query->orderBy($sort, $direction);
 
         // Pagination
         $per_page = $request->get('per_page', 10);
@@ -49,7 +43,7 @@ class NewsController extends Controller
      */
     public function show($id)
     {
-        $news = News::where('is_published', true)->find($id);
+        $news = News::find($id);
 
         if (!$news) {
             return response()->json([
@@ -58,24 +52,6 @@ class NewsController extends Controller
             ], 404);
         }
 
-        // Increment views
-        $news->increment('views');
-
         return new NewsResource($news);
-    }
-
-    /**
-     * Get trending news
-     */
-    public function trending(Request $request)
-    {
-        $limit = $request->get('limit', 5);
-
-        $trending = News::where('is_published', true)
-            ->orderBy('views', 'desc')
-            ->limit($limit)
-            ->get();
-
-        return NewsResource::collection($trending);
     }
 }
