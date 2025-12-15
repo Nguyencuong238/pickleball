@@ -220,6 +220,7 @@ class HomeController extends Controller
             $durationHours
         );
 
+        $hourlyRate = (int) ($totalPrice / $durationHours);
         // Calculate service fee (5% of total price)
         $serviceFee = (int) round($totalPrice * 0.05);
 
@@ -248,7 +249,7 @@ class HomeController extends Controller
             'start_time' => $request->start_time,
             'end_time' => $endTime->format('H:i'),
             'duration_hours' => $durationHours,
-            'hourly_rate' => (int) $request->hourly_rate,
+            'hourly_rate' => $hourlyRate,
             'total_price' => $totalPrice,
             'service_fee' => $serviceFee,
             'status' => 'pending',
