@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NewsResource;
 use App\Models\News;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller
@@ -53,5 +54,18 @@ class NewsController extends Controller
         }
 
         return new NewsResource($news);
+    }
+
+    /**
+     * Get all news categories
+     */
+    public function categories()
+    {
+        $categories = Category::all();
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories,
+        ]);
     }
 }

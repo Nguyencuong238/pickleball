@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\TournamentController;
 use App\Http\Controllers\Api\SocialController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\MediaUploadController;
+use App\Http\Controllers\Api\BookingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -173,6 +174,7 @@ Route::prefix('tournaments')->group(function () {
     Route::get('', [TournamentController::class, 'index']);
     Route::get('{id}', [TournamentController::class, 'show']);
     Route::get('{id}/standings', [TournamentController::class, 'standings']);
+    Route::post('{id}/register', [TournamentController::class, 'register']);
 });
 
 // Socials API
@@ -186,6 +188,16 @@ Route::prefix('socials')->group(function () {
 Route::prefix('news')->group(function () {
     Route::get('', [NewsController::class, 'index']);
     Route::get('{id}', [NewsController::class, 'show']);
+    Route::get('categories', [NewsController::class, 'categories']);
+});
+
+// Court Bookings API
+Route::prefix('bookings')->middleware('auth:api')->group(function () {
+    Route::get('list', [BookingController::class, 'index']);
+    Route::get('{id}', [BookingController::class, 'show']);
+    Route::patch('{id}', [BookingController::class, 'update']);
+    Route::delete('{id}', [BookingController::class, 'destroy']);
+    Route::post('booking', [BookingController::class, 'bookingCourt']);
 });
 
 /*
