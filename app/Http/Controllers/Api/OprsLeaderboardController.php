@@ -34,6 +34,7 @@ class OprsLeaderboardController extends Controller
                 ],
                 'oprs' => $user->total_oprs,
                 'opr_level' => $user->opr_level,
+                'oprs_name' => OprsService::OPR_LEVELS[$user->opr_level]['name'] ?? null,
                 'elo_rating' => $user->elo_rating,
                 'elo_rank' => $user->elo_rank,
                 'stats' => [
