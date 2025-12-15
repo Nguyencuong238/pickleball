@@ -131,6 +131,7 @@ class OprsController extends Controller
                 'name' => $user->name,
                 'total_oprs' => $user->total_oprs,
                 'opr_level' => $user->opr_level,
+                'oprs_name' => OprsService::OPR_LEVELS[$user->opr_level]['name'] ?? null,
                 'breakdown' => $breakdown,
                 'rank' => $rank,
                 'elo_rating' => $user->elo_rating,

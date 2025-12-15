@@ -80,6 +80,7 @@ class OprsLeaderboardController extends Controller
                 ],
                 'oprs' => $user->total_oprs,
                 'opr_level' => $user->opr_level,
+                'oprs_name' => OprsService::OPR_LEVELS[$user->opr_level]['name'] ?? null,
                 'stats' => [
                     'matches' => $user->total_ocr_matches,
                     'wins' => $user->ocr_wins,
