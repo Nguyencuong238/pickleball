@@ -99,17 +99,18 @@ class OprsLeaderboardController extends Controller
     public function distribution(): JsonResponse
     {
         $distribution = $this->oprsService->getLevelDistribution();
-
+    
         $data = [];
         foreach (OprsService::OPR_LEVELS as $level => $info) {
-            $data[$level] = [
+            $data[] = [
+                'level' => $level,
                 'name' => $info['name'],
                 'min_oprs' => $info['min'],
                 'max_oprs' => $info['max'] === PHP_INT_MAX ? null : $info['max'],
                 'count' => $distribution[$level] ?? 0,
             ];
         }
-
+    
         return response()->json([
             'success' => true,
             'data' => $data,
