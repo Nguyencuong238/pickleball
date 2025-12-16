@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\TournamentController;
 use App\Http\Controllers\Api\SocialController;
 use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\BookingController;
+use App\Http\Controllers\Api\RefereeController;
+use App\Http\Controllers\Api\RefereeProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -170,6 +172,11 @@ Route::prefix('tournaments')->group(function () {
     Route::get('{id}/standings', [TournamentController::class, 'standings']);
     Route::post('{id}/register', [TournamentController::class, 'register']);
 });
+
+// User's registered tournaments (auth required)
+Route::middleware('auth:api')->group(function () {
+    Route::get('user/tournaments', [TournamentController::class, 'myTournaments']);
+});
 Route::get('/tournament/{tournament}', [TournamentController::class, 'show']);
 Route::get('/tournament/{tournament}/categories', [TournamentRegistrationController::class, 'getCategories']);
 
@@ -194,6 +201,27 @@ Route::prefix('bookings')->middleware('auth:api')->group(function () {
     Route::patch('{id}', [BookingController::class, 'update']);
     Route::delete('{id}', [BookingController::class, 'destroy']);
     Route::post('booking', [BookingController::class, 'bookingCourt']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Referee API Routes
+|--------------------------------------------------------------------------
+*/
+
+// Protected Referee endpoints (auth + referee role required)
+Route::prefix('referee')->middleware('auth:api')->group(function () {
+    Route::get('dashboard', [RefereeController::class, 'dashboard']);
+    Route::get('matches', [RefereeController::class, 'matches']);
+    Route::get('matches/{match}', [RefereeController::class, 'showMatch']);
+    Route::post('matches/{match}/start', [RefereeController::class, 'startMatch']);
+    Route::put('matches/{match}/score', [RefereeController::class, 'updateScore']);
+});
+
+// Public Referee endpoints (no auth required)
+Route::prefix('referees')->group(function () {
+    Route::get('', [RefereeProfileController::class, 'index']);
+    Route::get('{referee}', [RefereeProfileController::class, 'show']);
 });
 
 /*
