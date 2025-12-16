@@ -172,6 +172,11 @@ Route::prefix('tournaments')->group(function () {
     Route::get('{id}/standings', [TournamentController::class, 'standings']);
     Route::post('{id}/register', [TournamentController::class, 'register']);
 });
+
+// User's registered tournaments (auth required)
+Route::middleware('auth:api')->group(function () {
+    Route::get('user/tournaments', [TournamentController::class, 'myTournaments']);
+});
 Route::get('/tournament/{tournament}', [TournamentController::class, 'show']);
 Route::get('/tournament/{tournament}/categories', [TournamentRegistrationController::class, 'getCategories']);
 

@@ -94,6 +94,43 @@ class TournamentController extends Controller
     }
 
     /**
+     * Get tournaments that the authenticated user has registered for
+     */
+    public function myTournaments(Request $request)
+    {
+        $user = $request->user();
+
+        $registrations = TournamentAthlete::where('user_id', $user->id)
+            ->with(['tournament', 'category'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $registrations->map(function ($registration) {
+                return [
+                    'registration_id' => $registration->id,
+                    'status' => $registration->status,
+                    'payment_status' => $registration->payment_status,
+                    'registered_at' => $registration->registered_at,
+                    'category' => $registration->category ? [
+                        'id' => $registration->category->id,
+                        'name' => $registration->category->name,
+                    ] : null,
+                    'tournament' => $registration->tournament ? [
+                        'id' => $registration->tournament->id,
+                        'name' => $registration->tournament->name,
+                        'start_date' => $registration->tournament->start_date,
+                        'end_date' => $registration->tournament->end_date,
+                        'location' => $registration->tournament->location,
+                        'status' => $registration->tournament->status,
+                    ] : null,
+                ];
+            }),
+        ]);
+    }
+
+    /**
      * Register for tournament
      */
     public function register(Request $request, $tournament_id)
