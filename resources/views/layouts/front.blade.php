@@ -354,6 +354,10 @@
                                     <a href="{{ route('user.dashboard') }}" class="nav-link">
                                         <i class="icon-user"></i> Bảng điều khiển Người dùng
                                     </a>
+                                @elseif(auth()->user()->hasRole('referee'))
+                                    <a href="{{ route('referee.dashboard') }}" class="nav-link">
+                                        <i class="icon-user"></i> Bảng điều khiển Trọng tài
+                                    </a>
                                 @endif
                             @endif
                             <form method="POST" action="{{ route('logout') }}">
