@@ -58,22 +58,53 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Tournament $tournament, TournamentCategory $category)
     {
+        \Log::info('CategoryController@update called', [
+            'method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'wants_json' => $request->wantsJson(),
+            'request_data' => $request->all(),
+        ]);
+
         $this->authorize('update', $tournament);
 
         if ($category->tournament_id !== $tournament->id) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'category_name' => 'required|string|max:255',
-            'category_type' => 'required|string|in:single_men,single_women,double_men,double_women,double_mixed',
-            'age_group' => 'required|string|in:open,u18,18+,35+,45+',
-            'max_participants' => 'required|integer|min:4|max:128',
-            'prize_money' => 'nullable|numeric|min:0',
-            'description' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'category_name' => 'required|string|max:255',
+                'category_type' => 'required|string|in:single_men,single_women,double_men,double_women,double_mixed',
+                'age_group' => 'required|string|in:open,u18,18+,35+,45+',
+                'max_participants' => 'required|integer|min:4|max:128',
+                'prize_money' => 'nullable|numeric|min:0',
+                'description' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed', ['errors' => $e->errors()]);
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
+
+        // Remove _token if present
+        unset($validated['_token']);
 
         $category->update($validated);
+        \Log::info('Category updated successfully', ['category_id' => $category->id]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Nội dung '{$validated['category_name']}' đã được cập nhật!",
+                'data' => $category
+            ]);
+        }
 
         return redirect()->back()->with('success', "Nội dung '{$validated['category_name']}' đã được cập nhật!") ->with('step', 2);
     }

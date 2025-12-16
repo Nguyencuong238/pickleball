@@ -60,21 +60,70 @@ class GroupController extends Controller
      */
     public function update(Request $request, Tournament $tournament, Group $group)
     {
+        \Log::info('GroupController@update called', [
+            'method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'wants_json' => $request->wantsJson(),
+            'request_data' => $request->all(),
+        ]);
+
         $this->authorize('update', $tournament);
 
         if ($group->tournament_id !== $tournament->id) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'group_name' => 'required|string|max:255',
-            'group_code' => 'required|string|max:10',
-            'max_participants' => 'required|integer|min:2|max:128',
-            'advancing_count' => 'required|integer|min:1',
-            'description' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'category_id' => 'nullable|exists:tournament_categories,id,tournament_id,' . $tournament->id,
+                'round_id' => 'nullable|exists:rounds,id',
+                'group_name' => 'required|string|max:255',
+                'group_code' => 'required|string|max:10',
+                'max_participants' => 'required|integer|min:2|max:128',
+                'advancing_count' => 'required|integer|min:1',
+                'description' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed', ['errors' => $e->errors()]);
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
+
+        // Verify category belongs to this tournament if updating it
+        if (isset($validated['category_id'])) {
+            $category = \App\Models\TournamentCategory::findOrFail($validated['category_id']);
+            if ($category->tournament_id !== $tournament->id) {
+                abort(403);
+            }
+        }
+
+        // Verify round belongs to this tournament if provided
+        if (isset($validated['round_id']) && !empty($validated['round_id'])) {
+            $round = Round::findOrFail($validated['round_id']);
+            if ($round->tournament_id !== $tournament->id) {
+                abort(403);
+            }
+        }
+
+        // Remove _token if present
+        unset($validated['_token']);
 
         $group->update($validated);
+        \Log::info('Group updated successfully', ['group_id' => $group->id]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Bảng '{$validated['group_name']}' đã được cập nhật!",
+                'data' => $group
+            ]);
+        }
 
         return redirect()->back()->with('success', "Bảng '{$validated['group_name']}' đã được cập nhật!")->with('step', 4);
     }

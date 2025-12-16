@@ -219,6 +219,8 @@
                                                     {{ number_format($category->prize_money ?? 0, 0, ',', '.') }} VNĐ
                                                 </td>
                                                 <td style="padding: 10px;">
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="openEditCategoryModal({{ $category->id }}, '{{ $category->category_name }}', '{{ $category->category_type }}', '{{ $category->age_group }}', {{ $category->max_participants }}, {{ $category->prize_money ?? 0 }})">✏️</button>
                                                     <form method="POST"
                                                         action="{{ route('homeyard.tournaments.categories.destroy', [$tournament->id, $category->id]) }}"
                                                         style="display: inline;">
@@ -323,18 +325,20 @@
                             <div class="item-grid">
                                 @foreach ($tournament->rounds as $round)
                                     <div class="item-card">
-                                        <strong>{{ $round->round_name }}</strong>
-                                        <p>{{ \Carbon\Carbon::parse($round->start_date)->format('d/m/Y') }} -
-                                            {{ $round->start_time }}</p>
-                                        <form method="POST"
-                                            action="{{ route('homeyard.tournaments.rounds.destroy', [$tournament->id, $round->id]) }}"
-                                            style="display: inline; margin-top: 10px;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
-                                        </form>
-                                    </div>
+                                         <strong>{{ $round->round_name }}</strong>
+                                         <p>{{ \Carbon\Carbon::parse($round->start_date)->format('d/m/Y') }} -
+                                             {{ $round->start_time }}</p>
+                                         <button class="btn btn-primary btn-sm"
+                                             onclick="openEditRoundModal({{ $round->id }}, '{{ $round->round_name }}', '{{ $round->start_date->format('Y-m-d') }}', '{{ $round->start_time }}', {{ $round->round_number }}, '{{ $round->round_type }}')">✏️ Sửa</button>
+                                         <form method="POST"
+                                             action="{{ route('homeyard.tournaments.rounds.destroy', [$tournament->id, $round->id]) }}"
+                                             style="display: inline; margin-top: 10px;">
+                                             @csrf
+                                             @method('DELETE')
+                                             <button type="submit" class="btn btn-danger btn-sm"
+                                                 onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
+                                         </form>
+                                     </div>
                                 @endforeach
                             </div>
                         @else
@@ -484,6 +488,8 @@
                                                 </td>
                                                 <td style="padding: 10px;">{{ $group->advancing_count }}</td>
                                                 <td style="padding: 10px;">
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="openEditGroupModal({{ $group->id }}, '{{ $group->group_name }}', '{{ $group->group_code }}', {{ $group->category_id }}, {{ $group->round_id ?? 'null' }}, {{ $group->max_participants }}, {{ $group->advancing_count }}, '{{ str_replace("'", "\\'", $group->description ?? '') }}')">✏️</button>
                                                     <form method="POST"
                                                         action="{{ route('homeyard.tournaments.groups.destroy', [$tournament->id, $group->id]) }}"
                                                         style="display: inline;">
@@ -1781,6 +1787,7 @@
                             setTimeout(() => {
                                 closeEditAthleteModal();
                                 editAthleteForm.reset();
+                                localStorage.setItem('activeTab', 'athletes');
                                 location.reload();
                             }, 1500);
                         } else {
@@ -1816,6 +1823,7 @@
                     if (data.success) {
                         toastr.success('Xóa vận động viên thành công!');
                         setTimeout(() => {
+                            localStorage.setItem('activeTab', 'athletes');
                             location.reload();
                         }, 1500);
                     } else {
@@ -2173,6 +2181,7 @@
                             setTimeout(() => {
                                 closeEditMatchModal();
                                 editMatchForm.reset();
+                                localStorage.setItem('activeTab', 'matchManagement');
                                 location.reload();
                             }, 1500);
                         } else {
@@ -2189,14 +2198,322 @@
             });
         }
 
+        // ===== EDIT CATEGORY FUNCTIONS =====
+        function openEditCategoryModal(id, name, type, age, maxParticipants, prize) {
+            document.getElementById('editCategoryId').value = id;
+            document.getElementById('editCategoryName').value = name;
+            document.getElementById('editCategoryType').value = type;
+            document.getElementById('editCategoryAge').value = age;
+            document.getElementById('editCategoryMaxParticipants').value = maxParticipants;
+            document.getElementById('editCategoryPrize').value = prize;
+            document.getElementById('editCategoryModal').style.display = 'block';
+        }
+
+        function closeEditCategoryModal() {
+            document.getElementById('editCategoryModal').style.display = 'none';
+            document.getElementById('editCategoryForm').reset();
+        }
+
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupEditCategoryForm);
+        } else {
+            setupEditCategoryForm();
+        }
+
+        function setupEditCategoryForm() {
+            const form = document.getElementById('editCategoryForm');
+            if (!form) {
+                console.warn('editCategoryForm not found');
+                return;
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const categoryId = document.getElementById('editCategoryId').value;
+                const submitBtn = document.getElementById('submitEditCategoryBtn');
+                const originalText = submitBtn.innerHTML;
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Đang cập nhật...';
+
+                const data = {
+                    category_name: document.getElementById('editCategoryName').value,
+                    category_type: document.getElementById('editCategoryType').value,
+                    age_group: document.getElementById('editCategoryAge').value,
+                    max_participants: document.getElementById('editCategoryMaxParticipants').value,
+                    prize_money: document.getElementById('editCategoryPrize').value,
+                    _token: document.querySelector('meta[name="csrf-token"]').content
+                };
+
+                console.log('Sending edit category request:', { url: `/homeyard/tournaments/${tournamentId}/categories/${categoryId}`, data });
+
+                fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(async response => {
+                    console.log('=== CATEGORY EDIT RESPONSE ===');
+                    console.log('Response status:', response.status);
+                    const contentType = response.headers.get('content-type');
+                    console.log('Content-Type:', contentType);
+                    
+                    let body;
+                    if (contentType && contentType.includes('application/json')) {
+                        body = await response.json();
+                    } else {
+                        const text = await response.text();
+                        console.error('❌ ERROR: Response is not JSON!');
+                        console.error('Response text (first 1000 chars):', text.substring(0, 1000));
+                        console.error('Full response:', text);
+                        alert('Server error:\n' + text.substring(0, 500));
+                        body = { success: false, message: 'Server returned invalid response' };
+                    }
+                    return { status: response.status, body };
+                })
+                .then(({ status, body }) => {
+                    console.log('Response body:', body);
+                    if (status === 200 && body.success) {
+                        toastr.success('Cập nhật nội dung thi đấu thành công!');
+                        setTimeout(() => {
+                            closeEditCategoryModal();
+                            localStorage.setItem('activeTab', 'categories');
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        toastr.error(body.message || 'Lỗi cập nhật');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    toastr.error('Lỗi: ' + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            });
+        }
+
+        // ===== EDIT ROUND FUNCTIONS =====
+        function openEditRoundModal(id, name, date, time, number, type) {
+            document.getElementById('editRoundId').value = id;
+            document.getElementById('editRoundName').value = name;
+            document.getElementById('editRoundDate').value = date;
+            document.getElementById('editRoundTime').value = time;
+            document.getElementById('editRoundNumber').value = number;
+            document.getElementById('editRoundType').value = type;
+            document.getElementById('editRoundModal').style.display = 'block';
+        }
+
+        function closeEditRoundModal() {
+            document.getElementById('editRoundModal').style.display = 'none';
+            document.getElementById('editRoundForm').reset();
+        }
+
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupEditRoundForm);
+        } else {
+            setupEditRoundForm();
+        }
+
+        function setupEditRoundForm() {
+            const form = document.getElementById('editRoundForm');
+            if (!form) {
+                console.warn('editRoundForm not found');
+                return;
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const roundId = document.getElementById('editRoundId').value;
+                const submitBtn = document.getElementById('submitEditRoundBtn');
+                const originalText = submitBtn.innerHTML;
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Đang cập nhật...';
+
+                const data = {
+                    round_name: document.getElementById('editRoundName').value,
+                    start_date: document.getElementById('editRoundDate').value,
+                    start_time: document.getElementById('editRoundTime').value,
+                    round_number: document.getElementById('editRoundNumber').value,
+                    round_type: document.getElementById('editRoundType').value,
+                    _token: document.querySelector('meta[name="csrf-token"]').content
+                };
+
+                console.log('Sending edit round request:', { url: `/homeyard/tournaments/${tournamentId}/rounds/${roundId}`, data });
+
+                fetch(`/homeyard/tournaments/${tournamentId}/rounds/${roundId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(async response => {
+                    console.log('Response status:', response.status);
+                    const contentType = response.headers.get('content-type');
+                    console.log('Content-Type:', contentType);
+                    
+                    let body;
+                    if (contentType && contentType.includes('application/json')) {
+                        body = await response.json();
+                    } else {
+                        const text = await response.text();
+                        console.error('Response is not JSON:', text.substring(0, 500));
+                        body = { success: false, message: 'Server returned invalid response' };
+                    }
+                    return { status: response.status, body };
+                })
+                .then(({ status, body }) => {
+                    console.log('Response body:', body);
+                    if (status === 200 && body.success) {
+                        toastr.success('Cập nhật vòng đấu thành công!');
+                        setTimeout(() => {
+                            closeEditRoundModal();
+                            localStorage.setItem('activeTab', 'rounds');
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        toastr.error(body.message || 'Lỗi cập nhật');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    toastr.error('Lỗi: ' + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            });
+        }
+
+        // ===== EDIT GROUP FUNCTIONS =====
+        function openEditGroupModal(id, name, code, categoryId, roundId, maxParticipants, advancing, description) {
+            document.getElementById('editGroupId').value = id;
+            document.getElementById('editGroupName').value = name;
+            document.getElementById('editGroupCode').value = code;
+            document.getElementById('editGroupCategory').value = categoryId;
+            document.getElementById('editGroupRound').value = roundId || '';
+            document.getElementById('editGroupMaxParticipants').value = maxParticipants;
+            document.getElementById('editGroupAdvancing').value = advancing;
+            document.getElementById('editGroupDescription').value = description;
+            document.getElementById('editGroupModal').style.display = 'block';
+        }
+
+        function closeEditGroupModal() {
+            document.getElementById('editGroupModal').style.display = 'none';
+            document.getElementById('editGroupForm').reset();
+        }
+
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupEditGroupForm);
+        } else {
+            setupEditGroupForm();
+        }
+
+        function setupEditGroupForm() {
+            const form = document.getElementById('editGroupForm');
+            if (!form) {
+                console.warn('editGroupForm not found');
+                return;
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const groupId = document.getElementById('editGroupId').value;
+                const submitBtn = document.getElementById('submitEditGroupBtn');
+                const originalText = submitBtn.innerHTML;
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '⏳ Đang cập nhật...';
+
+                const data = {
+                    category_id: document.getElementById('editGroupCategory').value,
+                    round_id: document.getElementById('editGroupRound').value,
+                    group_name: document.getElementById('editGroupName').value,
+                    group_code: document.getElementById('editGroupCode').value,
+                    max_participants: document.getElementById('editGroupMaxParticipants').value,
+                    advancing_count: document.getElementById('editGroupAdvancing').value,
+                    description: document.getElementById('editGroupDescription').value,
+                    _token: document.querySelector('meta[name="csrf-token"]').content
+                };
+
+                console.log('Sending edit group request:', { url: `/homeyard/tournaments/${tournamentId}/groups/${groupId}`, data });
+
+                fetch(`/homeyard/tournaments/${tournamentId}/groups/${groupId}`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                })
+                .then(async response => {
+                    console.log('Response status:', response.status);
+                    const contentType = response.headers.get('content-type');
+                    console.log('Content-Type:', contentType);
+                    
+                    let body;
+                    if (contentType && contentType.includes('application/json')) {
+                        body = await response.json();
+                    } else {
+                        const text = await response.text();
+                        console.error('Response is not JSON:', text.substring(0, 500));
+                        body = { success: false, message: 'Server returned invalid response' };
+                    }
+                    return { status: response.status, body };
+                })
+                .then(({ status, body }) => {
+                    console.log('Response body:', body);
+                    if (status === 200 && body.success) {
+                        toastr.success('Cập nhật bảng đấu thành công!');
+                        setTimeout(() => {
+                            closeEditGroupModal();
+                            localStorage.setItem('activeTab', 'brackets');
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        toastr.error(body.message || 'Lỗi cập nhật');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fetch error:', error);
+                    toastr.error('Lỗi: ' + error.message);
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+            });
+        }
+
         // Initialize match forms when page loads
-        document.addEventListener('DOMContentLoaded', function() {
-            setupCategorySelectListener();
-            initializeCreateMatchForm();
-            initializeEditMatchForm();
-            updateGroupFilter();
-            loadRankings();
-        });
+         document.addEventListener('DOMContentLoaded', function() {
+             setupCategorySelectListener();
+             initializeCreateMatchForm();
+             initializeEditMatchForm();
+             updateGroupFilter();
+             loadRankings();
+         });
 
         // ===== RANKINGS/LEADERBOARD FUNCTIONS =====
 
@@ -2597,6 +2914,211 @@
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button type="button" class="btn btn-secondary" onclick="closeViewAthleteModal()">❌ Đóng</button>
             </div>
+        </div>
+    </div>
+
+    <!-- MODAL: SỬA NỘI DUNG THI ĐẤU -->
+    <div id="editCategoryModal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+        <div
+            style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">✏️ Sửa Nội Dung Thi Đấu</h2>
+                <button
+                    style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeEditCategoryModal()">×</button>
+            </div>
+
+            <form id="editCategoryForm">
+                <input type="hidden" id="editCategoryId" name="category_id" value="">
+
+                <div class="grid grid-3">
+                    <div class="form-group">
+                        <label class="form-label">Tên nội dung *</label>
+                        <input type="text" id="editCategoryName" name="category_name" class="form-input"
+                            placeholder="VD: Nam đơn 18+" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Loại nội dung *</label>
+                        <select id="editCategoryType" name="category_type" class="form-select" required>
+                            <option value="">-- Chọn loại --</option>
+                            <option value="single_men">Đơn nam</option>
+                            <option value="single_women">Đơn nữ</option>
+                            <option value="double_men">Đôi nam</option>
+                            <option value="double_women">Đôi nữ</option>
+                            <option value="double_mixed">Đôi nam nữ</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Độ tuổi *</label>
+                        <select id="editCategoryAge" name="age_group" class="form-select" required>
+                            <option value="open">Mở rộng</option>
+                            <option value="u18">U18</option>
+                            <option value="18+">18+</option>
+                            <option value="35+">35+</option>
+                            <option value="45+">45+</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Số VĐV tối đa *</label>
+                        <input type="number" id="editCategoryMaxParticipants" name="max_participants" class="form-input" min="4" max="128" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Giải thưởng (VNĐ)</label>
+                        <input type="number" id="editCategoryPrize" name="prize_money" class="form-input" min="0">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" id="submitEditCategoryBtn">✅ Cập nhật</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditCategoryModal()">❌ Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SỬA VÒNG ĐẤU -->
+    <div id="editRoundModal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+        <div
+            style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">✏️ Sửa Vòng Đấu</h2>
+                <button
+                    style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeEditRoundModal()">×</button>
+            </div>
+
+            <form id="editRoundForm">
+                <input type="hidden" id="editRoundId" name="round_id" value="">
+
+                <div class="grid grid-3">
+                    <div class="form-group">
+                        <label class="form-label">Tên vòng đấu *</label>
+                        <input type="text" id="editRoundName" name="round_name" class="form-input"
+                            placeholder="VD: Vòng bảng" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Ngày thi đấu *</label>
+                        <input type="date" id="editRoundDate" name="start_date" class="form-input" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Giờ bắt đầu *</label>
+                        <input type="time" id="editRoundTime" name="start_time" class="form-input" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label class="form-label">Số thứ tự vòng *</label>
+                        <input type="number" id="editRoundNumber" name="round_number" class="form-input" min="1" max="20" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Loại vòng *</label>
+                        <select id="editRoundType" name="round_type" class="form-select" required>
+                            <option value="">-- Chọn loại --</option>
+                            <option value="group_stage">Vòng bảng</option>
+                            <option value="knockout">Loại trực tiếp</option>
+                            <option value="quarterfinal">Tứ kết</option>
+                            <option value="semifinal">Bán kết</option>
+                            <option value="final">Chung kết</option>
+                            <option value="bronze">Tranh hạng 3</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" id="submitEditRoundBtn">✅ Cập nhật</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditRoundModal()">❌ Hủy</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: SỬA BẢNG ĐẤU -->
+    <div id="editGroupModal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+        <div
+            style="background-color: var(--bg-white); margin: 5% auto; padding: 2rem; border-radius: var(--radius-xl); width: 90%; max-width: 600px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">✏️ Sửa Bảng Đấu</h2>
+                <button
+                    style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeEditGroupModal()">×</button>
+            </div>
+
+            <form id="editGroupForm">
+                <input type="hidden" id="editGroupId" name="group_id" value="">
+
+                <div class="grid grid-3">
+                    <div class="form-group">
+                        <label class="form-label">Chọn nội dung thi đấu *</label>
+                        <select id="editGroupCategory" name="category_id" class="form-select" required>
+                            <option value="">-- Chọn nội dung --</option>
+                            @if ($tournament && $tournament->categories)
+                                @foreach ($tournament->categories as $category)
+                                    <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Chọn vòng đấu</label>
+                        <select id="editGroupRound" name="round_id" class="form-select">
+                            <option value="">-- Không chọn vòng --</option>
+                            @if ($tournament && $tournament->rounds)
+                                @foreach ($tournament->rounds as $round)
+                                    <option value="{{ $round->id }}">{{ $round->round_name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tên bảng (VD: A, B, C) *</label>
+                        <input type="text" id="editGroupName" name="group_name" class="form-input" placeholder="VD: Bảng A" required>
+                    </div>
+                </div>
+
+                <div class="grid grid-3">
+                    <div class="form-group">
+                        <label class="form-label">Mã bảng (VD: A, GRP1) *</label>
+                        <input type="text" id="editGroupCode" name="group_code" class="form-input" placeholder="VD: A" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Số VĐV *</label>
+                        <input type="number" id="editGroupMaxParticipants" name="max_participants" class="form-input" min="2" max="128" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Số người lọt vào vòng sau *</label>
+                        <input type="number" id="editGroupAdvancing" name="advancing_count" class="form-input" min="1" required
+                            title="Ví dụ: Bảng 4 VĐV, nhập 2 = top 2 tiến lên vòng tứ kết">
+                        <small style="color: #666; margin-top: 0.25rem; display: block;">VD: Bảng có 4 VĐV, nhập 2 = top 2 tiến lên vòng tiếp theo</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Ghi chú</label>
+                    <textarea id="editGroupDescription" name="description" class="form-input" placeholder="Ghi chú về bảng đấu (tuỳ chọn)" rows="3"></textarea>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success" id="submitEditGroupBtn">✅ Cập nhật</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeEditGroupModal()">❌ Hủy</button>
+                </div>
+            </form>
         </div>
     </div>
 

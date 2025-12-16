@@ -213,14 +213,17 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
 
     // Tournament Categories, Rounds, and Groups
     Route::post('tournaments/{tournament}/categories', [CategoryController::class, 'store'])->name('tournaments.categories.store');
+    Route::post('tournaments/{tournament}/categories/{category}', [CategoryController::class, 'update'])->name('tournaments.categories.update');
     Route::put('tournaments/{tournament}/categories/{category}', [CategoryController::class, 'update'])->name('tournaments.categories.update');
     Route::delete('tournaments/{tournament}/categories/{category}', [CategoryController::class, 'destroy'])->name('tournaments.categories.destroy');
 
     Route::post('tournaments/{tournament}/rounds', [RoundController::class, 'store'])->name('tournaments.rounds.store');
+    Route::post('tournaments/{tournament}/rounds/{round}', [RoundController::class, 'update'])->name('tournaments.rounds.update');
     Route::put('tournaments/{tournament}/rounds/{round}', [RoundController::class, 'update'])->name('tournaments.rounds.update');
     Route::delete('tournaments/{tournament}/rounds/{round}', [RoundController::class, 'destroy'])->name('tournaments.rounds.destroy');
 
     Route::post('tournaments/{tournament}/groups', [GroupController::class, 'store'])->name('tournaments.groups.store');
+    Route::post('tournaments/{tournament}/groups/{group}', [GroupController::class, 'update'])->name('tournaments.groups.update');
     Route::put('tournaments/{tournament}/groups/{group}', [GroupController::class, 'update'])->name('tournaments.groups.update');
     Route::delete('tournaments/{tournament}/groups/{group}', [GroupController::class, 'destroy'])->name('tournaments.groups.destroy');
 

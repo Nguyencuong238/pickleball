@@ -56,23 +56,54 @@ class RoundController extends Controller
      */
     public function update(Request $request, Tournament $tournament, Round $round)
     {
+        \Log::info('RoundController@update called', [
+            'method' => $request->method(),
+            'content_type' => $request->header('Content-Type'),
+            'wants_json' => $request->wantsJson(),
+            'request_data' => $request->all(),
+        ]);
+
         $this->authorize('update', $tournament);
 
         if ($round->tournament_id !== $tournament->id) {
             abort(403);
         }
 
-        $validated = $request->validate([
-            'round_name' => 'required|string|max:255',
-            'round_number' => 'required|integer|min:1|max:20',
-            'round_type' => 'required|string|in:group_stage,custom,quarterfinal,semifinal,final,round_of_64,round_of_32,round_of_16,third_place',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'start_time' => 'nullable|date_format:H:i',
-            'notes' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'round_name' => 'required|string|max:255',
+                'round_number' => 'required|integer|min:1|max:20',
+                'round_type' => 'required|string|in:group_stage,custom,quarterfinal,semifinal,final,round_of_64,round_of_32,round_of_16,third_place,knockout,bronze',
+                'start_date' => 'required|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
+                'start_time' => 'nullable|date_format:H:i',
+                'notes' => 'nullable|string',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Validation failed', ['errors' => $e->errors()]);
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation failed',
+                    'errors' => $e->errors()
+                ], 422);
+            }
+            throw $e;
+        }
+
+        // Remove _token if present
+        unset($validated['_token']);
 
         $round->update($validated);
+        \Log::info('Round updated successfully', ['round_id' => $round->id]);
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => "Vòng '{$validated['round_name']}' đã được cập nhật!",
+                'data' => $round
+            ]);
+        }
 
         return redirect()->back()->with('success', "Vòng '{$validated['round_name']}' đã được cập nhật!")->with('step', 3);
     }
