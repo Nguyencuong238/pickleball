@@ -46,6 +46,18 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label class="form-label">Hạng Đấu</label>
+                    <select class="form-select" name="tournament_rank">
+                        <option value="">-- Chọn --</option>
+                        <option value="beginner" {{ $tournament->tournament_rank === 'beginner' ? 'selected' : '' }}>Sơ Cấp</option>
+                        <option value="intermediate" {{ $tournament->tournament_rank === 'intermediate' ? 'selected' : '' }}>Trung Cấp</option>
+                        <option value="advanced" {{ $tournament->tournament_rank === 'advanced' ? 'selected' : '' }}>Cao Cấp</option>
+                        <option value="professional" {{ $tournament->tournament_rank === 'professional' ? 'selected' : '' }}>Chuyên Nghiệp</option>
+                    </select>
+                </div>
+            </div>
+            <div class="grid grid-2">
+                <div class="form-group">
                     <label class="form-label">Số VĐV tối đa</label>
                     <input type="number" class="form-input" name="max_participants" placeholder="64"
                         value="{{ $tournament->max_participants }}">
@@ -79,19 +91,6 @@
             <div class="form-group">
                 <label class="form-label">Quyền lợi khi tham gia</label>
                 <textarea class="form-input" name="registration_benefits" placeholder="Nhập quyền lợi khi tham gia..." rows="3">{{ $tournament->registration_benefits }}</textarea>
-            </div>
-
-            <div class="grid grid-2">
-                <div class="form-group">
-                    <label class="form-label">Hạng Đấu</label>
-                    <select class="form-select" name="tournament_rank">
-                        <option value="">-- Chọn --</option>
-                        <option value="beginner" {{ $tournament->tournament_rank === 'beginner' ? 'selected' : '' }}>Sơ Cấp</option>
-                        <option value="intermediate" {{ $tournament->tournament_rank === 'intermediate' ? 'selected' : '' }}>Trung Cấp</option>
-                        <option value="advanced" {{ $tournament->tournament_rank === 'advanced' ? 'selected' : '' }}>Cao Cấp</option>
-                        <option value="professional" {{ $tournament->tournament_rank === 'professional' ? 'selected' : '' }}>Chuyên Nghiệp</option>
-                    </select>
-                </div>
             </div>
 
             <div class="form-group">
