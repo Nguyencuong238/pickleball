@@ -320,7 +320,8 @@ class HomeYardTournamentController extends Controller
 
         $athletes = $tournament->athletes ?? collect();
 
-        $categories = $tournament->categories ?? collect();
+        // Reload categories từ DB để đảm bảo có dữ liệu mới nhất
+        $categories = \App\Models\TournamentCategory::where('tournament_id', $tournament->id)->get() ?? collect();
 
         // Get referees assigned to this tournament
         $referees = $tournament->referees ?? collect();

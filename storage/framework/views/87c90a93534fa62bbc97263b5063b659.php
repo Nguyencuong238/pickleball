@@ -1,6 +1,4 @@
-@extends('layouts.homeyard')
-
-@section('content')
+<?php $__env->startSection('content'); ?>
     <main class="main-content" id="mainContent">
         <div class="container">
             <!-- Top Header -->
@@ -9,25 +7,18 @@
                     <h1>Cấu Hình Giải Đấu</h1>
                     <div class="breadcrumb">
                         <span class="breadcrumb-item">
-                            <a href="{{ route('homeyard.overview') }}" class="breadcrumb-link">🏠 Dashboard</a>
+                            <a href="<?php echo e(route('homeyard.overview')); ?>" class="breadcrumb-link">🏠 Dashboard</a>
                         </span>
                         <span class="breadcrumb-separator">/</span>
                         <span class="breadcrumb-item">
-                            <a href="{{ route('homeyard.tournaments.index') }}" class="breadcrumb-link">Giải đấu</a>
+                            <a href="<?php echo e(route('homeyard.tournaments.index')); ?>" class="breadcrumb-link">Giải đấu</a>
                         </span>
                         <span class="breadcrumb-separator">/</span>
                         <span class="breadcrumb-item">Cấu hình</span>
                     </div>
                 </div>
                 <div class="header-right">
-                    {{-- <button class="btn btn-success">💾 Lưu thay đổi</button>
-                    <button class="btn btn-secondary">👁️ Xem trước</button>
-                    <div class="header-notifications">
-                        <button class="notification-btn">
-                            <span>🔔</span>
-                            <span class="notification-badge">5</span>
-                        </button>
-                    </div> --}}
+                    
                     <div class="header-user">
                         <div class="user-avatar">AD</div>
                         <div class="user-info">
@@ -40,33 +31,33 @@
             <!-- Tournament Header Banner -->
             <div class="tournament-header-banner fade-in">
                 <div class="tournament-header-content">
-                    <h2 class="tournament-header-title">{{ $tournament->name }}</h2>
+                    <h2 class="tournament-header-title"><?php echo e($tournament->name); ?></h2>
                     <div class="tournament-header-meta">
                         <div class="header-meta-item">
                             <span>📅</span>
-                            <span>{{ $tournament->start_date->format('j \\T\\h\\á\\n\\g n, Y') }} -
-                                {{ $tournament->end_date->format('j \\T\\h\\á\\n\\g n, Y') }}</span>
+                            <span><?php echo e($tournament->start_date->format('j \\T\\h\\á\\n\\g n, Y')); ?> -
+                                <?php echo e($tournament->end_date->format('j \\T\\h\\á\\n\\g n, Y')); ?></span>
                         </div>
                         <div class="header-meta-item">
                             <span>📍</span>
-                            <span>{{ $tournament->location }}</span>
+                            <span><?php echo e($tournament->location); ?></span>
                         </div>
                         <div class="header-meta-item">
                             <span>👥</span>
-                            <span>{{ $tournament->max_participants }} Vận động viên</span>
+                            <span><?php echo e($tournament->max_participants); ?> Vận động viên</span>
                         </div>
                         <div class="header-meta-item">
                             <span>💰</span>
-                            <span>Giải thưởng: {{ number_format($tournament->prizes, 0, ',', '.') }} VNĐ</span>
+                            <span>Giải thưởng: <?php echo e(number_format($tournament->prizes, 0, ',', '.')); ?> VNĐ</span>
                         </div>
                         <div class="header-meta-item">
-                            @if ($tournament->start_date < now() && $tournament->end_date > now())
+                            <?php if($tournament->start_date < now() && $tournament->end_date > now()): ?>
                                 <span class="badge badge-success">Đang diễn ra</span>
-                            @elseif($tournament->start_date > now())
+                            <?php elseif($tournament->start_date > now()): ?>
                                 <span class="badge badge-warning">Sắp diễn ra</span>
-                            @elseif($tournament->end_date < now())
+                            <?php elseif($tournament->end_date < now()): ?>
                                 <span class="badge badge-danger">Đã kết thúc</span>
-                            @endif
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -103,18 +94,25 @@
                             💡 Tạo các nội dung thi đấu khác nhau cho giải đấu
                         </div>
                         <form method="POST" class="mt-3"
-                            action="{{ route('homeyard.tournaments.categories.store', $tournament->id) }}">
-                            @csrf
+                            action="<?php echo e(route('homeyard.tournaments.categories.store', $tournament->id)); ?>">
+                            <?php echo csrf_field(); ?>
 
                             <div class="grid grid-3">
                                 <div class="form-group">
                                     <label class="form-label">Tên nội dung *</label>
                                     <input type="text" name="category_name" class="form-input"
                                         placeholder="VD: Nam đơn 18+" required>
-                                    @error('category_name')
+                                    <?php $__errorArgs = ['category_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
@@ -127,10 +125,17 @@
                                         <option value="double_women">Đôi nữ</option>
                                         <option value="double_mixed">Đôi nam nữ</option>
                                     </select>
-                                    @error('category_type')
+                                    <?php $__errorArgs = ['category_type'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
@@ -150,10 +155,17 @@
                                     <label class="form-label">Số VĐV tối đa *</label>
                                     <input type="number" name="max_participants" class="form-input" placeholder="32"
                                         min="4" max="128" required>
-                                    @error('max_participants')
+                                    <?php $__errorArgs = ['max_participants'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
@@ -167,7 +179,7 @@
                         </form>
 
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách nội dung đã tạo</h4>
-                        @if ($categories && $categories->count() > 0)
+                        <?php if($categories && $categories->count() > 0): ?>
                             <div style="overflow-x: auto;">
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead style="background: #f5f5f5;">
@@ -187,59 +199,59 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($categories as $category)
+                                        <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr style="border-bottom: 1px solid #ddd;">
-                                                <td style="padding: 10px;">{{ $category->category_name }}</td>
+                                                <td style="padding: 10px;"><?php echo e($category->category_name); ?></td>
                                                 <td style="padding: 10px;">
-                                                    @switch($category->category_type)
-                                                        @case('single_men')
+                                                    <?php switch($category->category_type):
+                                                        case ('single_men'): ?>
                                                             Đơn nam
-                                                        @break
+                                                        <?php break; ?>
 
-                                                        @case('single_women')
+                                                        <?php case ('single_women'): ?>
                                                             Đơn nữ
-                                                        @break
+                                                        <?php break; ?>
 
-                                                        @case('double_men')
+                                                        <?php case ('double_men'): ?>
                                                             Đôi nam
-                                                        @break
+                                                        <?php break; ?>
 
-                                                        @case('double_women')
+                                                        <?php case ('double_women'): ?>
                                                             Đôi nữ
-                                                        @break
+                                                        <?php break; ?>
 
-                                                        @case('double_mixed')
+                                                        <?php case ('double_mixed'): ?>
                                                             Đôi nam nữ
-                                                        @break
-                                                    @endswitch
+                                                        <?php break; ?>
+                                                    <?php endswitch; ?>
                                                 </td>
-                                                <td style="padding: 10px;">{{ $category->age_group }}</td>
-                                                <td style="padding: 10px;">{{ $category->max_participants }}</td>
+                                                <td style="padding: 10px;"><?php echo e($category->age_group); ?></td>
+                                                <td style="padding: 10px;"><?php echo e($category->max_participants); ?></td>
                                                 <td style="padding: 10px;">
-                                                    {{ number_format($category->prize_money ?? 0, 0, ',', '.') }} VNĐ
+                                                    <?php echo e(number_format($category->prize_money ?? 0, 0, ',', '.')); ?> VNĐ
                                                 </td>
                                                 <td style="padding: 10px;">
                                                     <button class="btn btn-primary btn-sm"
-                                                        onclick="openEditCategoryModal({{ $category->id }}, '{{ $category->category_name }}', '{{ $category->category_type }}', '{{ $category->age_group }}', {{ $category->max_participants }}, {{ $category->prize_money ?? 0 }})">✏️</button>
+                                                        onclick="openEditCategoryModal(<?php echo e($category->id); ?>, '<?php echo e($category->category_name); ?>', '<?php echo e($category->category_type); ?>', '<?php echo e($category->age_group); ?>', <?php echo e($category->max_participants); ?>, <?php echo e($category->prize_money ?? 0); ?>)">✏️</button>
                                                     <form method="POST"
-                                                        action="{{ route('homeyard.tournaments.categories.destroy', [$tournament->id, $category->id]) }}"
+                                                        action="<?php echo e(route('homeyard.tournaments.categories.destroy', [$tournament->id, $category->id])); ?>"
                                                         style="display: inline;">
-                                                        @csrf
-                                                        @method('DELETE')
+                                                        <?php echo csrf_field(); ?>
+                                                        <?php echo method_field('DELETE'); ?>
                                                         <button type="submit" class="btn btn-danger btn-sm"
                                                             onclick="return confirm('Xác nhận xóa?')">🗑️</button>
                                                     </form>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </tbody>
                                 </table>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div style="text-align: center; padding: 2rem; color: #999;">
                                 <p>Chưa có nội dung nào. Hãy thêm nội dung mới ở trên.</p>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -255,36 +267,57 @@
                             💡 Thiết lập các vòng đấu cho giải (Vòng bảng, Vòng 1/8, Tứ kết, Bán kết, Chung kết)
                         </div>
 
-                        <form method="POST" action="{{ route('homeyard.tournaments.rounds.store', $tournament->id) }}">
-                            @csrf
+                        <form method="POST" action="<?php echo e(route('homeyard.tournaments.rounds.store', $tournament->id)); ?>">
+                            <?php echo csrf_field(); ?>
 
                             <div class="grid grid-3">
                                 <div class="form-group">
                                     <label class="form-label">Tên vòng đấu *</label>
                                     <input type="text" name="round_name" class="form-input"
                                         placeholder="VD: Vòng bảng" required>
-                                    @error('round_name')
+                                    <?php $__errorArgs = ['round_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Ngày thi đấu *</label>
                                     <input type="date" name="start_date" class="form-input" required>
-                                    @error('start_date')
+                                    <?php $__errorArgs = ['start_date'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Giờ bắt đầu *</label>
                                     <input type="time" name="start_time" class="form-input" required>
-                                    @error('start_time')
+                                    <?php $__errorArgs = ['start_time'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
                             </div>
 
@@ -293,10 +326,17 @@
                                     <label class="form-label">Số thứ tự vòng *</label>
                                     <input type="number" name="round_number" class="form-input" placeholder="1"
                                         min="1" max="20" required>
-                                    @error('round_number')
+                                    <?php $__errorArgs = ['round_number'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
@@ -310,10 +350,17 @@
                                         <option value="final">Chung kết</option>
                                         <option value="bronze">Tranh hạng 3</option>
                                     </select>
-                                    @error('round_type')
+                                    <?php $__errorArgs = ['round_type'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
                             </div>
 
@@ -321,31 +368,31 @@
                         </form>
 
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách vòng đấu</h4>
-                        @if ($tournament && $tournament->rounds && $tournament->rounds->count() > 0)
+                        <?php if($tournament && $tournament->rounds && $tournament->rounds->count() > 0): ?>
                             <div class="item-grid">
-                                @foreach ($tournament->rounds as $round)
+                                <?php $__currentLoopData = $tournament->rounds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $round): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <div class="item-card">
-                                         <strong>{{ $round->round_name }}</strong>
-                                         <p>{{ \Carbon\Carbon::parse($round->start_date)->format('d/m/Y') }} -
-                                             {{ $round->start_time }}</p>
+                                         <strong><?php echo e($round->round_name); ?></strong>
+                                         <p><?php echo e(\Carbon\Carbon::parse($round->start_date)->format('d/m/Y')); ?> -
+                                             <?php echo e($round->start_time); ?></p>
                                          <button class="btn btn-primary btn-sm"
-                                             onclick="openEditRoundModal({{ $round->id }}, '{{ $round->round_name }}', '{{ $round->start_date->format('Y-m-d') }}', '{{ $round->start_time }}', {{ $round->round_number }}, '{{ $round->round_type }}')">✏️ Sửa</button>
+                                             onclick="openEditRoundModal(<?php echo e($round->id); ?>, '<?php echo e($round->round_name); ?>', '<?php echo e($round->start_date->format('Y-m-d')); ?>', '<?php echo e($round->start_time); ?>', <?php echo e($round->round_number); ?>, '<?php echo e($round->round_type); ?>')">✏️ Sửa</button>
                                          <form method="POST"
-                                             action="{{ route('homeyard.tournaments.rounds.destroy', [$tournament->id, $round->id]) }}"
+                                             action="<?php echo e(route('homeyard.tournaments.rounds.destroy', [$tournament->id, $round->id])); ?>"
                                              style="display: inline; margin-top: 10px;">
-                                             @csrf
-                                             @method('DELETE')
+                                             <?php echo csrf_field(); ?>
+                                             <?php echo method_field('DELETE'); ?>
                                              <button type="submit" class="btn btn-danger btn-sm"
                                                  onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
                                          </form>
                                      </div>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div style="text-align: center; padding: 2rem; color: #999;">
                                 <p>Chưa có vòng nào. Hãy thêm vòng mới ở trên.</p>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -360,51 +407,73 @@
                         <div class="alert alert-info mb-3">
                             💡 Tạo các bảng đấu cho nội dung thi đấu
                         </div>
-                        <form method="POST" action="{{ route('homeyard.tournaments.groups.store', $tournament->id) }}">
-                            @csrf
+                        <form method="POST" action="<?php echo e(route('homeyard.tournaments.groups.store', $tournament->id)); ?>">
+                            <?php echo csrf_field(); ?>
 
                             <div class="grid grid-3">
                                 <div class="form-group">
                                     <label class="form-label">Chọn nội dung thi đấu *</label>
                                     <select name="category_id" class="form-select" required>
                                         <option value="">-- Chọn nội dung --</option>
-                                        @if ($tournament && $tournament->categories)
-                                            @foreach ($tournament->categories as $category)
-                                                <option value="{{ $category->id }}">{{ $category->category_name }}
+                                        <?php if($tournament && $tournament->categories): ?>
+                                            <?php $__currentLoopData = $tournament->categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($category->id); ?>"><?php echo e($category->category_name); ?>
+
                                                 </option>
-                                            @endforeach
-                                        @endif
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <?php endif; ?>
                                     </select>
-                                    @error('category_id')
+                                    <?php $__errorArgs = ['category_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Chọn vòng đấu</label>
                                     <select name="round_id" class="form-select">
                                         <option value="">-- Không chọn vòng --</option>
-                                        @if ($tournament && $tournament->rounds)
-                                            @foreach ($tournament->rounds as $round)
-                                                <option value="{{ $round->id }}">{{ $round->round_name }}</option>
-                                            @endforeach
-                                        @endif
+                                        <?php if($tournament && $tournament->rounds): ?>
+                                            <?php $__currentLoopData = $tournament->rounds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $round): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <option value="<?php echo e($round->id); ?>"><?php echo e($round->round_name); ?></option>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        <?php endif; ?>
                                     </select>
-                                    @error('round_id')
+                                    <?php $__errorArgs = ['round_id'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Tên bảng (VD: A, B, C) *</label>
                                     <input type="text" name="group_name" class="form-input" placeholder="VD: Bảng A"
                                         required>
-                                    @error('group_name')
+                                    <?php $__errorArgs = ['group_name'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
                             </div>
 
@@ -413,20 +482,34 @@
                                     <label class="form-label">Mã bảng (VD: A, GRP1) *</label>
                                     <input type="text" name="group_code" class="form-input" placeholder="VD: A"
                                         required>
-                                    @error('group_code')
+                                    <?php $__errorArgs = ['group_code'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
                                     <label class="form-label">Số VĐV *</label>
                                     <input type="number" name="max_participants" class="form-input" placeholder="4"
                                         min="2" max="128" required>
-                                    @error('max_participants')
+                                    <?php $__errorArgs = ['max_participants'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
 
                                 <div class="form-group">
@@ -436,10 +519,17 @@
                                         title="Ví dụ: Bảng 4 VĐV, nhập 2 = top 2 tiến lên vòng tứ kết">
                                     <small style="color: #666; margin-top: 0.25rem; display: block;">VD: Bảng có 4 VĐV,
                                         nhập 2 = top 2 tiến lên vòng tiếp theo</small>
-                                    @error('advancing_count')
+                                    <?php $__errorArgs = ['advancing_count'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
                                         <span class="text-danger"
-                                            style="font-size: 0.85rem; color: #ef4444;">{{ $message }}</span>
-                                    @enderror
+                                            style="font-size: 0.85rem; color: #ef4444;"><?php echo e($message); ?></span>
+                                    <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
                                 </div>
                             </div>
 
@@ -452,7 +542,7 @@
                         </form>
 
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách bảng đã tạo</h4>
-                        @if ($tournament && $tournament->groups && $tournament->groups->count() > 0)
+                        <?php if($tournament && $tournament->groups && $tournament->groups->count() > 0): ?>
                             <div style="overflow-x: auto;">
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead style="background: #f5f5f5;">
@@ -474,41 +564,43 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($tournament->groups as $group)
+                                        <?php $__currentLoopData = $tournament->groups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr style="border-bottom: 1px solid #ddd;">
-                                                <td style="padding: 10px;"><strong>{{ $group->group_name }}</strong>
+                                                <td style="padding: 10px;"><strong><?php echo e($group->group_name); ?></strong>
                                                 </td>
-                                                <td style="padding: 10px;">{{ $group->group_code }}</td>
+                                                <td style="padding: 10px;"><?php echo e($group->group_code); ?></td>
                                                 <td style="padding: 10px;">
-                                                    {{ $group->category->category_name ?? 'N/A' }}</td>
-                                                <td style="padding: 10px;">{{ $group->round->round_name ?? 'Không' }}
+                                                    <?php echo e($group->category->category_name ?? 'N/A'); ?></td>
+                                                <td style="padding: 10px;"><?php echo e($group->round->round_name ?? 'Không'); ?>
+
                                                 </td>
                                                 <td style="padding: 10px;">
-                                                    {{ $group->current_participants }}/{{ $group->max_participants }}
+                                                    <?php echo e($group->current_participants); ?>/<?php echo e($group->max_participants); ?>
+
                                                 </td>
-                                                <td style="padding: 10px;">{{ $group->advancing_count }}</td>
+                                                <td style="padding: 10px;"><?php echo e($group->advancing_count); ?></td>
                                                 <td style="padding: 10px;">
                                                     <button class="btn btn-primary btn-sm"
-                                                        onclick="openEditGroupModal({{ $group->id }}, '{{ $group->group_name }}', '{{ $group->group_code }}', {{ $group->category_id }}, {{ $group->round_id ?? 'null' }}, {{ $group->max_participants }}, {{ $group->advancing_count }}, '{{ str_replace("'", "\\'", $group->description ?? '') }}')">✏️</button>
+                                                        onclick="openEditGroupModal(<?php echo e($group->id); ?>, '<?php echo e($group->group_name); ?>', '<?php echo e($group->group_code); ?>', <?php echo e($group->category_id); ?>, <?php echo e($group->round_id ?? 'null'); ?>, <?php echo e($group->max_participants); ?>, <?php echo e($group->advancing_count); ?>, '<?php echo e(str_replace("'", "\\'", $group->description ?? '')); ?>')">✏️</button>
                                                     <form method="POST"
-                                                        action="{{ route('homeyard.tournaments.groups.destroy', [$tournament->id, $group->id]) }}"
+                                                        action="<?php echo e(route('homeyard.tournaments.groups.destroy', [$tournament->id, $group->id])); ?>"
                                                         style="display: inline;">
-                                                        @csrf
-                                                        @method('DELETE')
+                                                        <?php echo csrf_field(); ?>
+                                                        <?php echo method_field('DELETE'); ?>
                                                         <button type="submit" class="btn btn-danger btn-sm"
                                                             onclick="return confirm('Xác nhận xóa?')">🗑️</button>
                                                     </form>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </tbody>
                                 </table>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div style="text-align: center; padding: 2rem; color: #999;">
                                 <p>Chưa có bảng nào. Hãy thêm bảng mới ở trên.</p>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -529,7 +621,7 @@
                                 <div class="stat-card-header">
                                     <div>
                                         <div class="stat-label">Tổng VĐV đăng ký</div>
-                                        <div class="stat-value">{{ $athletes->count() ?? 0 }}</div>
+                                        <div class="stat-value"><?php echo e($athletes->count() ?? 0); ?></div>
                                     </div>
                                     <div class="stat-icon primary">👥</div>
                                 </div>
@@ -538,7 +630,8 @@
                                 <div class="stat-card-header">
                                     <div>
                                         <div class="stat-label">Đã phê duyệt</div>
-                                        <div class="stat-value">{{ $athletes->where('status', 'approved')->count() ?? 0 }}
+                                        <div class="stat-value"><?php echo e($athletes->where('status', 'approved')->count() ?? 0); ?>
+
                                         </div>
                                     </div>
                                     <div class="stat-icon success">✅</div>
@@ -548,7 +641,8 @@
                                 <div class="stat-card-header">
                                     <div>
                                         <div class="stat-label">Chờ phê duyệt</div>
-                                        <div class="stat-value">{{ $athletes->where('status', 'pending')->count() ?? 0 }}
+                                        <div class="stat-value"><?php echo e($athletes->where('status', 'pending')->count() ?? 0); ?>
+
                                         </div>
                                     </div>
                                     <div class="stat-icon warning">⏳</div>
@@ -559,7 +653,7 @@
                                     <div>
                                         <div class="stat-label">Đã thanh toán</div>
                                         <div class="stat-value">
-                                            {{ $athletes->where('payment_status', 'paid')->count() ?? 0 }}</div>
+                                            <?php echo e($athletes->where('payment_status', 'paid')->count() ?? 0); ?></div>
                                     </div>
                                     <div class="stat-icon success">💰</div>
                                 </div>
@@ -567,73 +661,73 @@
                         </div>
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách VĐV đăng ký</h4>
 
-                        @if ($athletes && $athletes->count() > 0)
+                        <?php if($athletes && $athletes->count() > 0): ?>
                             <div class="athlete-list">
-                                @foreach ($athletes as $athlete)
+                                <?php $__currentLoopData = $athletes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $athlete): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <div class="athlete-item"
-                                        style="@if ($athlete->status === 'rejected') border-left-color: #EF4444; @elseif($athlete->status === 'pending') border-left-color: #F59E0B; @endif">
+                                        style="<?php if($athlete->status === 'rejected'): ?> border-left-color: #EF4444; <?php elseif($athlete->status === 'pending'): ?> border-left-color: #F59E0B; <?php endif; ?>">
                                         <div class="athlete-info">
-                                            <div class="athlete-name">{{ $athlete->athlete_name }}</div>
+                                            <div class="athlete-name"><?php echo e($athlete->athlete_name); ?></div>
                                             <div class="athlete-details">
-                                                📧 {{ $athlete->email }} | 📞 {{ $athlete->phone }} | 🎯
-                                                {{ $athlete->category->category_name ?? 'N/A' }}<br>
-                                                @if ($athlete->status === 'pending')
+                                                📧 <?php echo e($athlete->email); ?> | 📞 <?php echo e($athlete->phone); ?> | 🎯
+                                                <?php echo e($athlete->category->category_name ?? 'N/A'); ?><br>
+                                                <?php if($athlete->status === 'pending'): ?>
                                                     <span class="badge badge-warning">⏳ Chờ phê duyệt</span>
-                                                @elseif ($athlete->status === 'approved')
+                                                <?php elseif($athlete->status === 'approved'): ?>
                                                     <span class="badge badge-success">✅ Đã phê duyệt</span>
-                                                @elseif ($athlete->status === 'rejected')
+                                                <?php elseif($athlete->status === 'rejected'): ?>
                                                     <span class="badge badge-danger">❌ Từ chối</span>
-                                                @endif
-                                                @if ($athlete->payment_status === 'paid')
+                                                <?php endif; ?>
+                                                <?php if($athlete->payment_status === 'paid'): ?>
                                                     <span class="badge badge-success">💰 Đã thanh toán</span>
-                                                @elseif ($athlete->payment_status === 'pending')
+                                                <?php elseif($athlete->payment_status === 'pending'): ?>
                                                     <span class="badge badge-warning">⏳ Chờ thanh toán</span>
-                                                @else
+                                                <?php else: ?>
                                                     <span class="badge badge-danger">❌ Chưa thanh toán</span>
-                                                @endif
+                                                <?php endif; ?>
                                             </div>
                                         </div>
                                         <div class="athlete-actions">
                                             <button class="btn btn-primary btn-sm"
-                                                onclick="openViewAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">👁️
+                                                onclick="openViewAthleteModal(<?php echo e($athlete->id); ?>, '<?php echo e($athlete->athlete_name); ?>', '<?php echo e($athlete->email); ?>', '<?php echo e($athlete->phone); ?>', <?php echo e($athlete->category_id ?? 'null'); ?>)">👁️
                                                 Chi tiết</button>
-                                            @if ($athlete->status === 'pending')
+                                            <?php if($athlete->status === 'pending'): ?>
                                                 <form method="POST"
-                                                    action="{{ route('homeyard.athletes.approve', [$tournament->id, $athlete->id]) }}"
+                                                    action="<?php echo e(route('homeyard.athletes.approve', [$tournament->id, $athlete->id])); ?>"
                                                     style="display: inline;">
-                                                    @csrf
+                                                    <?php echo csrf_field(); ?>
                                                     <button type="submit" class="btn btn-success btn-sm">✅ Phê
                                                         duyệt</button>
                                                 </form>
                                                 <form method="POST"
-                                                    action="{{ route('homeyard.athletes.reject', [$tournament->id, $athlete->id]) }}"
+                                                    action="<?php echo e(route('homeyard.athletes.reject', [$tournament->id, $athlete->id])); ?>"
                                                     style="display: inline;">
-                                                    @csrf
+                                                    <?php echo csrf_field(); ?>
                                                     <button type="submit" class="btn btn-danger btn-sm"
                                                         onclick="return confirm('Từ chối đơn đăng ký?')">❌ Từ chối</button>
                                                 </form>
-                                            @else
+                                            <?php else: ?>
                                                 <button class="btn btn-warning btn-sm"
-                                                    onclick="openEditAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">✏️
+                                                    onclick="openEditAthleteModal(<?php echo e($athlete->id); ?>, '<?php echo e($athlete->athlete_name); ?>', '<?php echo e($athlete->email); ?>', '<?php echo e($athlete->phone); ?>', <?php echo e($athlete->category_id ?? 'null'); ?>)">✏️
                                                     Sửa</button>
                                                 <form method="POST"
-                                                    action="{{ route('homeyard.tournaments.athletes.remove', [$tournament->id, $athlete->id]) }}"
+                                                    action="<?php echo e(route('homeyard.tournaments.athletes.remove', [$tournament->id, $athlete->id])); ?>"
                                                     style="display: inline;">
-                                                    @csrf
-                                                    @method('DELETE')
+                                                    <?php echo csrf_field(); ?>
+                                                    <?php echo method_field('DELETE'); ?>
                                                     <button type="submit" class="btn btn-danger btn-sm"
                                                         onclick="return confirm('Xóa VĐV?')">🗑️</button>
                                                 </form>
-                                            @endif
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                @endforeach
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div style="text-align: center; padding: 2rem; color: #999;">
                                 <p>Chưa có VĐV nào đăng ký cho giải đấu này.</p>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="card fade-in">
@@ -650,32 +744,35 @@
                                 <label class="form-label">Chọn nội dung thi đấu *</label>
                                 <select id="categorySelect" class="form-select">
                                     <option value="">-- Chọn nội dung --</option>
-                                    @if ($tournament && $tournament->categories)
-                                        @foreach ($tournament->categories as $category)
-                                            <option value="{{ $category->id }}"
-                                                data-athletes="{{ $tournament->athletes->where('category_id', $category->id)->where('status', 'approved')->count() }}">
-                                                {{ $category->category_name }}
-                                                ({{ $tournament->athletes->where('category_id', $category->id)->where('status', 'approved')->count() }}
+                                    <?php if($tournament && $tournament->categories): ?>
+                                        <?php $__currentLoopData = $tournament->categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($category->id); ?>"
+                                                data-athletes="<?php echo e($tournament->athletes->where('category_id', $category->id)->where('status', 'approved')->count()); ?>">
+                                                <?php echo e($category->category_name); ?>
+
+                                                (<?php echo e($tournament->athletes->where('category_id', $category->id)->where('status', 'approved')->count()); ?>
+
                                                 VĐV)
                                             </option>
-                                        @endforeach
-                                    @endif
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Chọn bảng cần chia</label>
                                 <select id="groupSelect" class="form-select">
                                     <option value="">-- Tự động chia vào bảng đã tạo --</option>
-                                    @if ($tournament && $tournament->groups)
-                                        @foreach ($tournament->groups as $group)
-                                            <option value="{{ $group->id }}"
-                                                data-category="{{ $group->category_id }}"
-                                                data-max-participants="{{ $group->max_participants }}">
-                                                {{ $group->group_name }}
-                                                ({{ $group->current_participants }}/{{ $group->max_participants }})
+                                    <?php if($tournament && $tournament->groups): ?>
+                                        <?php $__currentLoopData = $tournament->groups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($group->id); ?>"
+                                                data-category="<?php echo e($group->category_id); ?>"
+                                                data-max-participants="<?php echo e($group->max_participants); ?>">
+                                                <?php echo e($group->group_name); ?>
+
+                                                (<?php echo e($group->current_participants); ?>/<?php echo e($group->max_participants); ?>)
                                             </option>
-                                        @endforeach
-                                    @endif
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -697,7 +794,7 @@
                             <div id="groupResults" class="group-grid">
                                 <!-- Kết quả sẽ được hiển thị ở đây -->
                             </div>
-                            {{-- <button id="saveResultBtn" class="btn btn-primary mt-2">💾 Lưu kết quả</button> --}}
+                            
                         </div>
                         <div id="noResultsMsg" style="text-align: center; padding: 2rem; color: #999;">
                             <p>Hãy chọn nội dung thi đấu và bốc thăm để xem kết quả</p>
@@ -722,7 +819,7 @@
                             trận mới</button>
 
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách trận đấu</h4>
-                        @if ($tournament && $tournament->matches && $tournament->matches->count() > 0)
+                        <?php if($tournament && $tournament->matches && $tournament->matches->count() > 0): ?>
                             <div style="overflow-x: auto;">
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead style="background: #f5f5f5;">
@@ -744,61 +841,64 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($tournament->matches as $match)
+                                        <?php $__currentLoopData = $tournament->matches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr style="border-bottom: 1px solid #ddd;">
                                                 <td style="padding: 10px;">
-                                                    {{ $match->athlete1->athlete_name ?? 'N/A' }}</td>
+                                                    <?php echo e($match->athlete1->athlete_name ?? 'N/A'); ?></td>
                                                 <td style="padding: 10px;">
-                                                    {{ $match->athlete2->athlete_name ?? 'N/A' }}</td>
+                                                    <?php echo e($match->athlete2->athlete_name ?? 'N/A'); ?></td>
                                                 <td style="padding: 10px;">
-                                                    {{ $match->category->category_name ?? 'N/A' }}</td>
-                                                <td style="padding: 10px;">{{ $match->round->round_name ?? 'N/A' }}
+                                                    <?php echo e($match->category->category_name ?? 'N/A'); ?></td>
+                                                <td style="padding: 10px;"><?php echo e($match->round->round_name ?? 'N/A'); ?>
+
                                                 </td>
                                                 <td style="padding: 10px;">
-                                                    {{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('d/m/Y') : '' }}
-                                                    {{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}
+                                                    <?php echo e($match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('d/m/Y') : ''); ?>
+
+                                                    <?php echo e($match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : ''); ?>
+
                                                 </td>
                                                 <td style="padding: 10px;">
-                                                    @if ($match->status === 'scheduled')
+                                                    <?php if($match->status === 'scheduled'): ?>
                                                         <span class="badge badge-warning">⏳ Chờ thi đấu</span>
-                                                    @elseif ($match->status === 'ready')
+                                                    <?php elseif($match->status === 'ready'): ?>
                                                         <span class="badge badge-info">📋 Sẵn sàng</span>
-                                                    @elseif ($match->status === 'in_progress')
+                                                    <?php elseif($match->status === 'in_progress'): ?>
                                                         <span class="badge badge-danger">🔴 Đang diễn ra</span>
-                                                    @elseif ($match->status === 'completed')
+                                                    <?php elseif($match->status === 'completed'): ?>
                                                         <span class="badge badge-success">✅ Hoàn thành</span>
-                                                    @elseif ($match->status === 'cancelled')
+                                                    <?php elseif($match->status === 'cancelled'): ?>
                                                         <span class="badge badge-secondary">❌ Hủy</span>
-                                                    @elseif ($match->status === 'postponed')
+                                                    <?php elseif($match->status === 'postponed'): ?>
                                                         <span class="badge badge-warning">⏸️ Hoãn lại</span>
-                                                    @elseif ($match->status === 'bye')
+                                                    <?php elseif($match->status === 'bye'): ?>
                                                         <span class="badge badge-light">🎯 Bye</span>
-                                                    @else
-                                                        <span class="badge badge-secondary">{{ $match->status }}</span>
-                                                    @endif
+                                                    <?php else: ?>
+                                                        <span class="badge badge-secondary"><?php echo e($match->status); ?></span>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td style="padding: 10px;">
                                                     <button class="btn btn-warning btn-sm"
-                                                        onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}', '{{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : '' }}', '{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}', '{{ $match->group_id }}', '{{ $match->status }}', '{{ $match->referee_id }}')">✏️</button>
+                                                        onclick="openEditMatchModal(<?php echo e($match->id); ?>, '<?php echo e($match->athlete1_id); ?>', '<?php echo e($match->athlete2_id); ?>', '<?php echo e($match->category_id); ?>', '<?php echo e($match->round_id); ?>', '<?php echo e($match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : ''); ?>', '<?php echo e($match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : ''); ?>', '<?php echo e($match->group_id); ?>', '<?php echo e($match->status); ?>', '<?php echo e($match->referee_id); ?>')">✏️</button>
                                                     <form method="POST"
-                                                        action="{{ route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id]) }}"
+                                                        action="<?php echo e(route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id])); ?>"
                                                         style="display: inline;">
-                                                        @csrf
-                                                        @method('DELETE')
+                                                        <?php echo csrf_field(); ?>
+                                                        <?php echo method_field('DELETE'); ?>
                                                         <button type="submit" class="btn btn-danger btn-sm"
                                                             onclick="return confirm('Xác nhận xóa?')">🗑️</button>
                                                     </form>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </tbody>
                                 </table>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div style="text-align: center; padding: 2rem; color: #999;">
                                 <p>Chưa có trận đấu nào. Hãy tạo trận mới ở trên.</p>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -827,24 +927,25 @@
                                 <select id="filterCategory" class="form-select"
                                     onchange="updateGroupFilter(); loadRankings()">
                                     <option value="">-- Tất cả nội dung --</option>
-                                    @if ($tournament && $tournament->categories)
-                                        @foreach ($tournament->categories as $category)
-                                            <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                        @endforeach
-                                    @endif
+                                    <?php if($tournament && $tournament->categories): ?>
+                                        <?php $__currentLoopData = $tournament->categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($category->id); ?>"><?php echo e($category->category_name); ?></option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                             <div>
                                 <label style="font-weight: 600; display: block; margin-bottom: 0.5rem;">Bảng đấu:</label>
                                 <select id="filterGroup" class="form-select" onchange="loadRankings()">
                                     <option value="">-- Tất cả bảng --</option>
-                                    @if ($tournament && $tournament->groups)
-                                        @foreach ($tournament->groups as $group)
-                                            <option value="{{ $group->id }}"
-                                                data-category-id="{{ $group->category_id }}">{{ $group->group_name }}
-                                                ({{ $group->category->category_name ?? 'N/A' }})</option>
-                                        @endforeach
-                                    @endif
+                                    <?php if($tournament && $tournament->groups): ?>
+                                        <?php $__currentLoopData = $tournament->groups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <option value="<?php echo e($group->id); ?>"
+                                                data-category-id="<?php echo e($group->category_id); ?>"><?php echo e($group->group_name); ?>
+
+                                                (<?php echo e($group->category->category_name ?? 'N/A'); ?>)</option>
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                         </div>
@@ -943,7 +1044,7 @@
                             💡 Quản lý danh sách vận động viên tham gia giải đấu
                         </div>
 
-                        @if ($tournament && $tournament->athletes && $tournament->athletes->count() > 0)
+                        <?php if($tournament && $tournament->athletes && $tournament->athletes->count() > 0): ?>
                             <div style="overflow-x: auto;">
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <thead style="background: #f5f5f5;">
@@ -963,47 +1064,48 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        @foreach ($tournament->athletes as $athlete)
+                                        <?php $__currentLoopData = $tournament->athletes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $athlete): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr style="border-bottom: 1px solid #ddd;">
-                                                <td style="padding: 10px;">{{ $athlete->athlete_name }}</td>
-                                                <td style="padding: 10px;">{{ $athlete->email }}</td>
-                                                <td style="padding: 10px;">{{ $athlete->phone }}</td>
+                                                <td style="padding: 10px;"><?php echo e($athlete->athlete_name); ?></td>
+                                                <td style="padding: 10px;"><?php echo e($athlete->email); ?></td>
+                                                <td style="padding: 10px;"><?php echo e($athlete->phone); ?></td>
                                                 <td style="padding: 10px;">
-                                                    @if ($athlete->category)
-                                                        {{ $athlete->category->category_name }}
-                                                    @else
+                                                    <?php if($athlete->category): ?>
+                                                        <?php echo e($athlete->category->category_name); ?>
+
+                                                    <?php else: ?>
                                                         <span style="color: #999;">-</span>
-                                                    @endif
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td style="padding: 10px;">
-                                                    @if ($athlete->status === 'approved')
+                                                    <?php if($athlete->status === 'approved'): ?>
                                                         <span class="badge badge-success">✅ Duyệt</span>
-                                                    @elseif ($athlete->status === 'pending')
+                                                    <?php elseif($athlete->status === 'pending'): ?>
                                                         <span class="badge badge-warning">⏳ Chờ duyệt</span>
-                                                    @else
+                                                    <?php else: ?>
                                                         <span class="badge badge-danger">❌ Từ chối</span>
-                                                    @endif
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td style="padding: 10px;">
                                                     <button class="btn btn-primary btn-sm"
-                                                        onclick="openViewAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">👁️
+                                                        onclick="openViewAthleteModal(<?php echo e($athlete->id); ?>, '<?php echo e($athlete->athlete_name); ?>', '<?php echo e($athlete->email); ?>', '<?php echo e($athlete->phone); ?>', <?php echo e($athlete->category_id ?? 'null'); ?>)">👁️
                                                         Xem</button>
                                                     <button class="btn btn-warning btn-sm"
-                                                        onclick="openEditAthleteModal({{ $athlete->id }}, '{{ $athlete->athlete_name }}', '{{ $athlete->email }}', '{{ $athlete->phone }}', {{ $athlete->category_id ?? 'null' }})">✏️
+                                                        onclick="openEditAthleteModal(<?php echo e($athlete->id); ?>, '<?php echo e($athlete->athlete_name); ?>', '<?php echo e($athlete->email); ?>', '<?php echo e($athlete->phone); ?>', <?php echo e($athlete->category_id ?? 'null'); ?>)">✏️
                                                         Sửa</button>
                                                     <button class="btn btn-danger btn-sm"
-                                                        onclick="deleteAthlete({{ $athlete->id }})">🗑️ Xóa</button>
+                                                        onclick="deleteAthlete(<?php echo e($athlete->id); ?>)">🗑️ Xóa</button>
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                     </tbody>
                                 </table>
                             </div>
-                        @else
+                        <?php else: ?>
                             <div style="text-align: center; padding: 2rem; color: #999;">
                                 <p>Chưa có vận động viên nào. Hãy thêm VĐV mới ở trên.</p>
                             </div>
-                        @endif
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -1027,13 +1129,14 @@
                         <label class="form-label">🎯 Bước 1: Chọn nội dung thi đấu *</label>
                         <select id="matchCategoryId" name="category_id" class="form-select" required>
                             <option value="">-- Chọn nội dung --</option>
-                            @if ($tournament && $tournament->categories)
-                                @foreach ($tournament->categories as $category)
-                                    <option value="{{ $category->id }}">
-                                        {{ $category->category_name }}
+                            <?php if($tournament && $tournament->categories): ?>
+                                <?php $__currentLoopData = $tournament->categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($category->id); ?>">
+                                        <?php echo e($category->category_name); ?>
+
                                     </option>
-                                @endforeach
-                            @endif
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </select>
                     </div>
 
@@ -1059,11 +1162,11 @@
                         <label class="form-label">🔄 Vòng đấu (Round)</label>
                         <select name="round_id" class="form-select" required>
                             <option value="">-- Chọn vòng (tuỳ chọn) --</option>
-                            @if ($tournament && $tournament->rounds)
-                                @foreach ($tournament->rounds as $round)
-                                    <option value="{{ $round->id }}">{{ $round->round_name }}</option>
-                                @endforeach
-                            @endif
+                            <?php if($tournament && $tournament->rounds): ?>
+                                <?php $__currentLoopData = $tournament->rounds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $round): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($round->id); ?>"><?php echo e($round->round_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </select>
                     </div>
 
@@ -1108,11 +1211,11 @@
                         <label class="form-label">Trọng tài (Referee)</label>
                         <select name="referee_id" id="matchRefereeId" class="form-select">
                             <option value="">--Không chỉ định trọng tài --</option>
-                            @if (isset($referees) && $referees->count() > 0)
-                                @foreach ($referees as $referee)
-                                    <option value="{{ $referee->id }}">{{ $referee->name }}</option>
-                                @endforeach
-                            @endif
+                            <?php if(isset($referees) && $referees->count() > 0): ?>
+                                <?php $__currentLoopData = $referees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $referee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($referee->id); ?>"><?php echo e($referee->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </select>
                         <small style="color: var(--text-light); font-size: 0.75rem;">Chi co the chon trong tai da duoc gan vao giai dau nay</small>
                     </div>
@@ -1145,11 +1248,11 @@
                             <label class="form-label">VĐV 1 *</label>
                             <select id="editAthlete1" name="athlete1_id" class="form-select" required>
                                 <option value="">-- Chọn VĐV --</option>
-                                @if ($tournament && $tournament->athletes)
-                                    @foreach ($tournament->athletes as $athlete)
-                                        <option value="{{ $athlete->id }}">{{ $athlete->athlete_name }}</option>
-                                    @endforeach
-                                @endif
+                                <?php if($tournament && $tournament->athletes): ?>
+                                    <?php $__currentLoopData = $tournament->athletes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $athlete): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($athlete->id); ?>"><?php echo e($athlete->athlete_name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </select>
                         </div>
 
@@ -1157,11 +1260,11 @@
                             <label class="form-label">VĐV 2 *</label>
                             <select id="editAthlete2" name="athlete2_id" class="form-select" required>
                                 <option value="">-- Chọn VĐV --</option>
-                                @if ($tournament && $tournament->athletes)
-                                    @foreach ($tournament->athletes as $athlete)
-                                        <option value="{{ $athlete->id }}">{{ $athlete->athlete_name }}</option>
-                                    @endforeach
-                                @endif
+                                <?php if($tournament && $tournament->athletes): ?>
+                                    <?php $__currentLoopData = $tournament->athletes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $athlete): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($athlete->id); ?>"><?php echo e($athlete->athlete_name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
@@ -1171,11 +1274,11 @@
                             <label class="form-label">Nội dung thi đấu (Category) *</label>
                             <select id="editCategory" name="category_id" class="form-select" required>
                                 <option value="">-- Chọn nội dung --</option>
-                                @if ($tournament && $tournament->categories)
-                                    @foreach ($tournament->categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                    @endforeach
-                                @endif
+                                <?php if($tournament && $tournament->categories): ?>
+                                    <?php $__currentLoopData = $tournament->categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($category->id); ?>"><?php echo e($category->category_name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </select>
                         </div>
 
@@ -1183,11 +1286,11 @@
                             <label class="form-label">Vòng đấu (Round) *</label>
                             <select id="editRound" name="round_id" class="form-select" required>
                                 <option value="">-- Chọn vòng --</option>
-                                @if ($tournament && $tournament->rounds)
-                                    @foreach ($tournament->rounds as $round)
-                                        <option value="{{ $round->id }}">{{ $round->round_name }}</option>
-                                    @endforeach
-                                @endif
+                                <?php if($tournament && $tournament->rounds): ?>
+                                    <?php $__currentLoopData = $tournament->rounds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $round): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <option value="<?php echo e($round->id); ?>"><?php echo e($round->round_name); ?></option>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                <?php endif; ?>
                             </select>
                         </div>
                     </div>
@@ -1211,11 +1314,11 @@
                         <label class="form-label">👥 Bảng/Nhóm (Group)</label>
                         <select id="editMatchGroup" name="group_id" class="form-select">
                             <option value="">-- Không chọn bảng --</option>
-                            @if ($tournament && $tournament->groups)
-                                @foreach ($tournament->groups as $group)
-                                    <option value="{{ $group->id }}">{{ $group->group_name }}</option>
-                                @endforeach
-                            @endif
+                            <?php if($tournament && $tournament->groups): ?>
+                                <?php $__currentLoopData = $tournament->groups; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $group): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($group->id); ?>"><?php echo e($group->group_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </select>
                     </div>
 
@@ -1238,11 +1341,11 @@
                         <label class="form-label">Trọng tài (Referee)</label>
                         <select name="referee_id" id="editRefereeId" class="form-select">
                             <option value="">-- không chỉ định trọng tài --</option>
-                            @if (isset($referees) && $referees->count() > 0)
-                                @foreach ($referees as $referee)
-                                    <option value="{{ $referee->id }}">{{ $referee->name }}</option>
-                                @endforeach
-                            @endif
+                            <?php if(isset($referees) && $referees->count() > 0): ?>
+                                <?php $__currentLoopData = $referees; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $referee): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($referee->id); ?>"><?php echo e($referee->name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </select>
                         <small style="color: var(--text-light); font-size: 0.75rem;">Chỉ có thể chọn trọng tài đã được chỉ định trong giải đấu</small>
                     </div>
@@ -1328,7 +1431,7 @@
              const categorySelect = document.getElementById('categorySelect');
              const drawMethod = document.getElementById('drawMethod');
              const groupSelect = document.getElementById('groupSelect');
-             const tournamentId = {{ $tournament->id ?? 0 }};
+             const tournamentId = <?php echo e($tournament->id ?? 0); ?>;
 
              // ✅ Hàm cập nhật hiển thị nút
              const updateDrawButtonsDisplay = () => {
@@ -1360,7 +1463,7 @@
 
                     const categoryId = categorySelect.value;
                     const method = drawMethod.value;
-                    const tournamentId = {{ $tournament->id ?? 0 }};
+                    const tournamentId = <?php echo e($tournament->id ?? 0); ?>;
 
                     // Lấy danh sách bảng cho nội dung này
                     const selectedGroups = Array.from(groupSelect.options)
@@ -1467,7 +1570,7 @@
                     }
 
                     const categoryId = categorySelect.value;
-                    const tournamentId = {{ $tournament->id ?? 0 }};
+                    const tournamentId = <?php echo e($tournament->id ?? 0); ?>;
 
                     resetBtn.disabled = true;
                     resetBtn.innerHTML = '⏳ Đang reset...';
@@ -1639,7 +1742,7 @@
                 submitBtn.innerHTML = '⏳ Đang xử lý...';
 
                 const formData = new FormData(this);
-                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const tournamentId = <?php echo $tournament->id ?? 0; ?>;
 
                 const url = `/homeyard/tournaments/${tournamentId}/athletes`;
 
@@ -1788,7 +1891,7 @@
                 submitBtn.innerHTML = '⏳ Đang cập nhật...';
 
                 const athleteId = document.getElementById('editAthleteId').value;
-                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const tournamentId = <?php echo $tournament->id ?? 0; ?>;
 
                 const formData = new FormData(this);
 
@@ -1840,7 +1943,7 @@
                 return;
             }
 
-            const tournamentId = {!! $tournament->id ?? 0 !!};
+            const tournamentId = <?php echo $tournament->id ?? 0; ?>;
 
             fetch(`/homeyard/tournaments/${tournamentId}/athletes/${athleteId}`, {
                     method: 'DELETE',
@@ -1873,7 +1976,7 @@
 
         // Xuất Excel
         function exportAthletes() {
-            const tournamentId = {!! $tournament->id ?? 0 !!};
+            const tournamentId = <?php echo $tournament->id ?? 0; ?>;
             window.location.href = `/homeyard/tournaments/${tournamentId}/athletes/export`;
         }
 
@@ -1905,7 +2008,7 @@
              const athlete1Select = document.getElementById('athlete1Select');
              const athlete2Select = document.getElementById('athlete2Select');
              const groupSelect = document.getElementById('matchGroupSelect');
-             const tournamentId = {!! $tournament->id ?? 0 !!};
+             const tournamentId = <?php echo $tournament->id ?? 0; ?>;
 
              if (categorySelect) {
                  // Remove old listeners
@@ -1920,7 +2023,7 @@
              const athlete1Select = document.getElementById('athlete1Select');
              const athlete2Select = document.getElementById('athlete2Select');
              const groupSelect = document.getElementById('matchGroupSelect');
-             const tournamentId = {!! $tournament->id ?? 0 !!};
+             const tournamentId = <?php echo $tournament->id ?? 0; ?>;
 
              if (!categorySelect.value) {
                  // Reset nếu không chọn category
@@ -2081,7 +2184,7 @@
                 submitBtn.innerHTML = '⏳ Đang xử lý...';
 
                 const formData = new FormData(form);
-                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const tournamentId = <?php echo $tournament->id ?? 0; ?>;
 
                 const matchDate = formData.get('match_date')?.trim();
                 const matchTime = formData.get('match_time')?.trim();
@@ -2168,7 +2271,7 @@
                 submitBtn.innerHTML = '⏳ Đang cập nhật...';
 
                 const matchId = form.querySelector('#editMatchId').value;
-                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const tournamentId = <?php echo $tournament->id ?? 0; ?>;
 
                 const formData = new FormData(form);
 
@@ -2260,7 +2363,7 @@
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const tournamentId = <?php echo $tournament->id ?? 0; ?>;
                 const categoryId = document.getElementById('editCategoryId').value;
                 const submitBtn = document.getElementById('submitEditCategoryBtn');
                 const originalText = submitBtn.innerHTML;
@@ -2364,7 +2467,7 @@
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const tournamentId = <?php echo $tournament->id ?? 0; ?>;
                 const roundId = document.getElementById('editRoundId').value;
                 const submitBtn = document.getElementById('submitEditRoundBtn');
                 const originalText = submitBtn.innerHTML;
@@ -2466,7 +2569,7 @@
 
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
-                const tournamentId = {!! $tournament->id ?? 0 !!};
+                const tournamentId = <?php echo $tournament->id ?? 0; ?>;
                 const groupId = document.getElementById('editGroupId').value;
                 const submitBtn = document.getElementById('submitEditGroupBtn');
                 const originalText = submitBtn.innerHTML;
@@ -2588,7 +2691,7 @@
         }
 
         async function loadRankings(page = 1) {
-            const tournamentId = {!! $tournament->id ?? 0 !!};
+            const tournamentId = <?php echo $tournament->id ?? 0; ?>;
             const categoryId = document.getElementById('filterCategory')?.value || '';
             const groupId = document.getElementById('filterGroup')?.value || '';
 
@@ -2802,7 +2905,7 @@
         }
 
         function exportRankingsExcel() {
-             const tournamentId = {!! $tournament->id ?? 0 !!};
+             const tournamentId = <?php echo $tournament->id ?? 0; ?>;
              const categoryId = document.getElementById('filterCategory')?.value || '';
              const groupId = document.getElementById('filterGroup')?.value || '';
 
@@ -2983,7 +3086,7 @@
                     onclick="closeAddAthleteModal()">×</button>
             </div>
 
-            @if ($tournament && $tournament->is_ocr)
+            <?php if($tournament && $tournament->is_ocr): ?>
                 <!-- Show message only for OCR tournaments -->
                 <div style="background-color: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 20px; margin-bottom: 20px; color: #92400E; text-align: center;">
                     <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
@@ -2998,7 +3101,7 @@
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
                     <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="closeAddAthleteModal()">❌ Đóng</button>
                 </div>
-            @else
+            <?php else: ?>
                 <!-- Show form only for non-OCR tournaments -->
                 <form id="addAthleteForm">
                     <div class="form-group">
@@ -3024,13 +3127,13 @@
                         <label class="form-label">Nội dung thi đấu *</label>
                         <select name="category_id" class="form-select" required>
                             <option value="">-- Chọn nội dung --</option>
-                            @if ($tournament && $tournament->categories)
-                                @foreach ($tournament->categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                @endforeach
-                            @else
+                            <?php if($tournament && $tournament->categories): ?>
+                                <?php $__currentLoopData = $tournament->categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($category->id); ?>"><?php echo e($category->category_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php else: ?>
                                 <option value="">Chưa có nội dung. Vui lòng tạo nội dung thi đấu trước.</option>
-                            @endif
+                            <?php endif; ?>
                         </select>
                     </div>
 
@@ -3039,7 +3142,7 @@
                         <button type="button" class="btn btn-secondary" onclick="closeAddAthleteModal()">❌ Hủy</button>
                     </div>
                 </form>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 
@@ -3249,11 +3352,11 @@
                         <label class="form-label">Chọn nội dung thi đấu *</label>
                         <select id="editGroupCategory" name="category_id" class="form-select" required>
                             <option value="">-- Chọn nội dung --</option>
-                            @if ($tournament && $tournament->categories)
-                                @foreach ($tournament->categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                @endforeach
-                            @endif
+                            <?php if($tournament && $tournament->categories): ?>
+                                <?php $__currentLoopData = $tournament->categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($category->id); ?>"><?php echo e($category->category_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </select>
                     </div>
 
@@ -3261,11 +3364,11 @@
                         <label class="form-label">Chọn vòng đấu</label>
                         <select id="editGroupRound" name="round_id" class="form-select">
                             <option value="">-- Không chọn vòng --</option>
-                            @if ($tournament && $tournament->rounds)
-                                @foreach ($tournament->rounds as $round)
-                                    <option value="{{ $round->id }}">{{ $round->round_name }}</option>
-                                @endforeach
-                            @endif
+                            <?php if($tournament && $tournament->rounds): ?>
+                                <?php $__currentLoopData = $tournament->rounds; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $round): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <option value="<?php echo e($round->id); ?>"><?php echo e($round->round_name); ?></option>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            <?php endif; ?>
                         </select>
                     </div>
 
@@ -3348,11 +3451,11 @@
                     <label class="form-label">Nội dung thi đấu *</label>
                     <select id="editAthleteCategory" name="category_id" class="form-select" required>
                         <option value="">-- Chọn nội dung --</option>
-                        @if ($tournament && $tournament->categories)
-                            @foreach ($tournament->categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                            @endforeach
-                        @endif
+                        <?php if($tournament && $tournament->categories): ?>
+                            <?php $__currentLoopData = $tournament->categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <option value="<?php echo e($category->id); ?>"><?php echo e($category->category_name); ?></option>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        <?php endif; ?>
                     </select>
                 </div>
 
@@ -3364,4 +3467,6 @@
         </div>
     </div>
 
-@endsection
+<?php $__env->stopSection(); ?>
+
+<?php echo $__env->make('layouts.homeyard', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH D:\laragon\www\pickleball_booking\resources\views/home-yard/config.blade.php ENDPATH**/ ?>

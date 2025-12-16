@@ -44,9 +44,10 @@ class CategoryController extends Controller
 
         try {
             $category = TournamentCategory::create($validated);
-            \Log::info('Category created successfully', ['category_id' => $category->id]);
+            \Log::info('Category created successfully', ['category_id' => $category->id, 'category' => $category->toArray()]);
+            \Log::info('Verify created category in DB', ['db_check' => TournamentCategory::find($category->id)?->toArray()]);
         } catch (\Exception $e) {
-            \Log::error('Error creating category', ['error' => $e->getMessage()]);
+            \Log::error('Error creating category', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
             throw $e;
         }
 
