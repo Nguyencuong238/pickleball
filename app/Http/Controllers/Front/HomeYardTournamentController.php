@@ -1745,6 +1745,115 @@ class HomeYardTournamentController extends Controller
     }
 
     /**
+     * Lấy dữ liệu cho bốc thăm thủ công
+     */
+    public function getManualDraw(Request $request, Tournament $tournament)
+    {
+        try {
+            $this->authorize('update', $tournament);
+
+            $categoryId = $request->input('category_id');
+            
+            if (!$categoryId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'category_id is required'
+                ], 422);
+            }
+
+            // Lấy danh sách VĐV đã duyệt cho nội dung này
+            $athletes = TournamentAthlete::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->where('status', 'approved')
+                ->select('id', 'athlete_name', 'group_id')
+                ->get();
+
+            // Lấy danh sách bảng cho nội dung này
+            $groups = Group::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->select('id', 'group_name', 'max_participants', 'current_participants')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'athletes' => $athletes,
+                'groups' => $groups
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Get manual draw error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Lưu kết quả bốc thăm thủ công
+     */
+    public function saveManualDraw(Request $request, Tournament $tournament)
+    {
+        try {
+            $this->authorize('update', $tournament);
+
+            $categoryId = $request->input('category_id');
+            $assignments = $request->input('assignments', []);
+
+            if (!$categoryId || empty($assignments)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'category_id và assignments là bắt buộc'
+                ], 422);
+            }
+
+            DB::beginTransaction();
+
+            // Reset trước
+            TournamentAthlete::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->update(['group_id' => null]);
+
+            // Cập nhật current_participants về 0
+            Group::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->update(['current_participants' => 0]);
+
+            // Gán VĐV vào bảng
+            $athletesAssigned = 0;
+            foreach ($assignments as $groupId => $athleteIds) {
+                if (!empty($athleteIds)) {
+                    TournamentAthlete::whereIn('id', $athleteIds)
+                        ->update(['group_id' => (int)$groupId]);
+                    $athletesAssigned += count($athleteIds);
+                }
+            }
+
+            // Cập nhật current_participants cho từng bảng
+            foreach ($assignments as $groupId => $athleteIds) {
+                if (!empty($athleteIds)) {
+                    $count = count($athleteIds);
+                    Group::where('id', $groupId)
+                        ->update(['current_participants' => $count]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => "Đã chia thành công {$athletesAssigned} vận động viên"
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Save manual draw error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi lưu: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
      * Xuất danh sách VĐV ra CSV
      */
     public function exportAthletes(Tournament $tournament)

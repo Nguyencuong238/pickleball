@@ -679,15 +679,19 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Phương thức</label>
-                                <select id="drawMethod" class="form-select">
-                                    <option value="auto">Tự động (Random)</option>
-                                    <option value="seeded" selected>Theo hạt giống (Seeded)</option>
-                                </select>
+                                 <label class="form-label">Phương thức</label>
+                                 <select id="drawMethod" class="form-select">
+                                     <option value="auto">Tự động (Random)</option>
+                                     <option value="seeded" selected>Theo hạt giống (Seeded)</option>
+                                     <option value="manual">Thủ công (Kéo thả)</option>
+                                 </select>
+                             </div>
                             </div>
-                        </div>
-                        <button id="drawBtn" class="btn btn-success">🎲 Bốc thăm</button>
-                        <button id="resetBtn" class="btn btn-warning">🔄 Bốc lại</button>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button id="drawBtn" class="btn btn-success">🎲 Bốc thăm</button>
+                                <button id="resetBtn" class="btn btn-warning">🔄 Bốc lại</button>
+                                <button id="manualDrawBtn" class="btn btn-info">📋 Bốc thăm thủ công</button>
+                            </div>
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Kết quả chia bảng</h4>
                         <div id="groupResultsContainer" style="display: none;">
                             <div id="groupResults" class="group-grid">
@@ -1317,20 +1321,35 @@
         });
 
         // Draw/Lottery Functionality
-        function initializeDraw() {
-            const drawBtn = document.getElementById('drawBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const categorySelect = document.getElementById('categorySelect');
-            const drawMethod = document.getElementById('drawMethod');
-            const groupSelect = document.getElementById('groupSelect');
-            const tournamentId = {{ $tournament->id ?? 0 }};
+         function initializeDraw() {
+             const drawBtn = document.getElementById('drawBtn');
+             const resetBtn = document.getElementById('resetBtn');
+             const manualDrawBtn = document.getElementById('manualDrawBtn');
+             const categorySelect = document.getElementById('categorySelect');
+             const drawMethod = document.getElementById('drawMethod');
+             const groupSelect = document.getElementById('groupSelect');
+             const tournamentId = {{ $tournament->id ?? 0 }};
 
-            // ✅ Load kết quả bốc thăm khi page load hoặc chọn category khác
-            categorySelect.addEventListener('change', function() {
-                if (this.value) {
-                    loadDrawResults(this.value, tournamentId);
-                }
-            });
+             // ✅ Hàm cập nhật hiển thị nút
+             const updateDrawButtonsDisplay = () => {
+                 const isManual = drawMethod.value === 'manual';
+                 drawBtn.style.display = isManual ? 'none' : 'inline-block';
+                 resetBtn.style.display = isManual ? 'none' : 'inline-block';
+                 manualDrawBtn.style.display = isManual ? 'inline-block' : 'none';
+             };
+
+             // Cập nhật khi load trang
+             updateDrawButtonsDisplay();
+
+             // ✅ Hiển/ẩn nút dựa trên phương thức được chọn
+             drawMethod.addEventListener('change', updateDrawButtonsDisplay);
+
+             // ✅ Load kết quả bốc thăm khi page load hoặc chọn category khác
+             categorySelect.addEventListener('change', function() {
+                 if (this.value) {
+                     loadDrawResults(this.value, tournamentId);
+                 }
+             });
 
             if (drawBtn) {
                 drawBtn.addEventListener('click', function() {
@@ -1481,9 +1500,20 @@
                             resetBtn.disabled = false;
                             resetBtn.innerHTML = '🔄 Bốc lại';
                         });
-                });
+                    });
+                }
+
+                // ✅ Bốc thăm thủ công
+                if (manualDrawBtn) {
+                    manualDrawBtn.addEventListener('click', function() {
+                        if (!categorySelect.value) {
+                            toastr.warning('Vui lòng chọn nội dung thi đấu');
+                            return;
+                        }
+                        openManualDrawModal(categorySelect.value, tournamentId);
+                    });
+                }
             }
-        }
 
         // ✅ Load kết quả bốc thăm từ DB
         function loadDrawResults(categoryId, tournamentId) {
@@ -2772,21 +2802,176 @@
         }
 
         function exportRankingsExcel() {
-            const tournamentId = {!! $tournament->id ?? 0 !!};
-            const categoryId = document.getElementById('filterCategory')?.value || '';
-            const groupId = document.getElementById('filterGroup')?.value || '';
+             const tournamentId = {!! $tournament->id ?? 0 !!};
+             const categoryId = document.getElementById('filterCategory')?.value || '';
+             const groupId = document.getElementById('filterGroup')?.value || '';
 
-            const params = new URLSearchParams();
-            if (categoryId) params.append('category_id', categoryId);
-            if (groupId) params.append('group_id', groupId);
+             const params = new URLSearchParams();
+             if (categoryId) params.append('category_id', categoryId);
+             if (groupId) params.append('group_id', groupId);
 
-            const url =
-                `/homeyard/tournaments/${tournamentId}/rankings/export${params.toString() ? '?' + params.toString() : ''}`;
-            window.location.href = url;
-        }
-    </script>
+             const url =
+                 `/homeyard/tournaments/${tournamentId}/rankings/export${params.toString() ? '?' + params.toString() : ''}`;
+             window.location.href = url;
+         }
 
-    <!-- MODAL: THÊM VĐV -->
+         // ✅ MANUAL DRAW FUNCTIONS
+         function openManualDrawModal(categoryId, tournamentId) {
+             const modal = document.getElementById('manualDrawModal');
+             const container = document.getElementById('manualDrawContainer');
+             container.innerHTML = '<p style="text-align:center;">⏳ Đang tải dữ liệu...</p>';
+             modal.style.display = 'block';
+
+             // Lấy danh sách VĐV và bảng
+             fetch(`/homeyard/tournaments/${tournamentId}/manual-draw?category_id=${categoryId}`)
+                 .then(res => res.json())
+                 .then(data => {
+                     if (data.success) {
+                         renderManualDraw(data, categoryId, tournamentId);
+                     } else {
+                         container.innerHTML = `<p style="color:red;">${data.message || 'Lỗi tải dữ liệu'}</p>`;
+                     }
+                 })
+                 .catch(err => {
+                     container.innerHTML = `<p style="color:red;">Lỗi: ${err.message}</p>`;
+                 });
+         }
+
+         function closeManualDrawModal() {
+             document.getElementById('manualDrawModal').style.display = 'none';
+         }
+
+         function renderManualDraw(data, categoryId, tournamentId) {
+             const { athletes, groups } = data;
+             const container = document.getElementById('manualDrawContainer');
+
+             let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-height: 600px; overflow-y: auto;">';
+             
+             // Danh sách VĐV (trái)
+             html += '<div><h4>🏃 Vận Động Viên</h4><div id="athletesList" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:300px;">';
+             athletes.forEach(athlete => {
+                 html += `<div draggable="true" data-athlete-id="${athlete.id}" class="athlete-item" style="padding:8px; margin:5px 0; background:white; border:1px solid #ddd; border-radius:4px; cursor:move; user-select:none;">
+                     ${athlete.athlete_name}
+                 </div>`;
+             });
+             html += '</div></div>';
+
+             // Danh sách bảng (phải)
+             html += '<div><h4>📊 Bảng Đấu</h4><div id="groupsList" style="display:flex; flex-direction:column; gap:10px;">';
+             groups.forEach(group => {
+                 const current = group.current_participants || 0;
+                 const max = group.max_participants || 0;
+                 html += `<div class="group-drop-zone" data-group-id="${group.id}" style="background:#e3f2fd; padding:10px; border:2px dashed #2196F3; border-radius:8px; min-height:150px; overflow-y:auto;">
+                     <strong>${group.group_name}</strong> <span style="color:#666;">(${current}/${max})</span>
+                     <div class="group-athletes" style="margin-top:5px; min-height:120px;"></div>
+                 </div>`;
+             });
+             html += '</div></div></div>';
+
+             // Nút save
+             html += `<div style="margin-top:20px; text-align:right;">
+                 <button class="btn btn-success" onclick="saveManualDraw(${categoryId}, ${tournamentId})">💾 Lưu kết quả</button>
+                 <button class="btn btn-secondary" onclick="closeManualDrawModal()">❌ Hủy</button>
+             </div>`;
+
+             container.innerHTML = html;
+             setupDragDrop();
+         }
+
+         function setupDragDrop() {
+             const athleteItems = document.querySelectorAll('.athlete-item');
+             const dropZones = document.querySelectorAll('.group-drop-zone');
+
+             athleteItems.forEach(item => {
+                 item.addEventListener('dragstart', (e) => {
+                     e.dataTransfer.effectAllowed = 'move';
+                     e.dataTransfer.setData('athleteId', item.dataset.athleteId);
+                 });
+             });
+
+             dropZones.forEach(zone => {
+                 zone.addEventListener('dragover', (e) => {
+                     e.preventDefault();
+                     e.dataTransfer.dropEffect = 'move';
+                     zone.style.backgroundColor = '#bbdefb';
+                 });
+
+                 zone.addEventListener('dragleave', (e) => {
+                     if (e.target === zone) {
+                         zone.style.backgroundColor = '#e3f2fd';
+                     }
+                 });
+
+                 zone.addEventListener('drop', (e) => {
+                     e.preventDefault();
+                     const athleteId = e.dataTransfer.getData('athleteId');
+                     const athleteItem = document.querySelector(`[data-athlete-id="${athleteId}"]`);
+                     
+                     if (athleteItem) {
+                         const groupContainer = zone.querySelector('.group-athletes');
+                         const clone = athleteItem.cloneNode(true);
+                         clone.style.cursor = 'grab';
+                         clone.addEventListener('dragstart', (e) => {
+                             e.dataTransfer.effectAllowed = 'move';
+                             e.dataTransfer.setData('athleteId', athleteId);
+                         });
+                         groupContainer.appendChild(clone);
+                     }
+                     zone.style.backgroundColor = '#e3f2fd';
+                 });
+             });
+         }
+
+         function saveManualDraw(categoryId, tournamentId) {
+             const assignedAthletes = {};
+             const dropZones = document.querySelectorAll('.group-drop-zone');
+
+             dropZones.forEach(zone => {
+                 const groupId = zone.dataset.groupId;
+                 const athletes = zone.querySelectorAll('[data-athlete-id]');
+                 assignedAthletes[groupId] = Array.from(athletes).map(a => a.dataset.athleteId);
+             });
+
+             fetch(`/homeyard/tournaments/${tournamentId}/manual-draw-save`, {
+                 method: 'POST',
+                 headers: {
+                     'Content-Type': 'application/json',
+                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                 },
+                 body: JSON.stringify({
+                     category_id: categoryId,
+                     assignments: assignedAthletes
+                 })
+             })
+             .then(res => res.json())
+             .then(data => {
+                 if (data.success) {
+                     toastr.success('✅ ' + data.message);
+                     closeManualDrawModal();
+                     loadDrawResults(categoryId, tournamentId);
+                 } else {
+                     toastr.error('❌ ' + data.message);
+                 }
+             })
+             .catch(err => toastr.error('❌ ' + err.message));
+         }
+        </script>
+
+        <!-- MODAL: BỐC THĂM THỦ CÔNG -->
+        <div id="manualDrawModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+            <div style="background-color: var(--bg-white); margin: 2% auto; padding: 2rem; border-radius: var(--radius-xl); width: 95%; max-width: 1000px; box-shadow: var(--shadow-lg);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">📋 Bốc Thăm Thủ Công</h2>
+                    <button style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeManualDrawModal()">×</button>
+                </div>
+                <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+                    <p style="margin: 0; font-size: 0.9rem;">💡 <strong>Hướng dẫn:</strong> Kéo vận động viên từ bên trái sang bảng đấu ở bên phải để chia bảng. Bạn có thể kéo lại để thay đổi.</p>
+                </div>
+                <div id="manualDrawContainer"></div>
+            </div>
+        </div>
+
+        <!-- MODAL: THÊM VĐV -->
     <div id="addAthleteModal"
         style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
         <div
