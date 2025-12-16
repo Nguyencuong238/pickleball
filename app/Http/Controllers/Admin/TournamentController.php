@@ -66,6 +66,8 @@ class TournamentController extends Controller
             'gallery_json' => 'nullable|string',
             'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
             'banner' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+            'category_ids' => 'required|array|min:1',
+            'category_ids.*' => 'integer|exists:tournament_categories,id',
         ]);
 
         $data = $request->only([
@@ -128,6 +130,11 @@ class TournamentController extends Controller
 
         $tournament = Tournament::create($data);
 
+        // Attach selected categories to tournament
+        if ($request->has('category_ids') && is_array($request->category_ids)) {
+            $tournament->categories()->sync($request->category_ids);
+        }
+
         // Log activity
         ActivityLog::log("Giải đấu '{$tournament->name}' được tạo", 'Tournament', $tournament->id);
 
@@ -175,6 +182,8 @@ class TournamentController extends Controller
             'social_information' => 'nullable|string',
             'organizer_email' => 'nullable|email',
             'organizer_hotline' => 'nullable|string|max:20',
+            'category_ids' => 'required|array|min:1',
+            'category_ids.*' => 'integer|exists:tournament_categories,id',
         ]);
 
         $data = $request->only([
@@ -211,6 +220,11 @@ class TournamentController extends Controller
         $tournament->syncMediaCollection('banner', 'banner', $request);
 
         $tournament->update($data);
+
+        // Sync categories
+        if ($request->has('category_ids') && is_array($request->category_ids)) {
+            $tournament->categories()->sync($request->category_ids);
+        }
 
         return redirect()->route('admin.tournaments.index')->with('success', 'Tournament updated successfully.');
     }

@@ -127,6 +127,7 @@
         gap: 0.5rem;
         padding-top: 1rem;
         border-top: 1px solid var(--border-color);
+        justify-content: flex-end;
     }
 
     .view-tabs {
@@ -551,16 +552,25 @@
                             $isCompleted = true;
                         }
 
-                        $formatText = '';
-                        if ($item->competition_format === 'single') {
-                            $formatText = 'Đơn';
-                        } elseif ($item->competition_format === 'double') {
-                            $formatText = 'Đôi';
-                        } elseif ($item->competition_format === 'mixed') {
-                            $formatText = 'Đôi nam nữ';
-                        } else {
-                            $formatText = 'Không xác định';
+                        // Get category formats from relationship
+                        $categories = $item->categories ?? collect();
+                        $formatTexts = [];
+                        $formatMap = [
+                            'single_men' => 'Đơn',
+                            'single_women' => 'Đơn',
+                            'double_men' => 'Đôi',
+                            'double_women' => 'Đôi',
+                            'double_mixed' => 'Đôi nam nữ',
+                        ];
+
+                        foreach ($categories as $category) {
+                            $text = $formatMap[$category->category_type] ?? $category->category_type;
+                            if (!in_array($text, $formatTexts)) {
+                                $formatTexts[] = $text;
+                            }
                         }
+
+                        $formatText = !empty($formatTexts) ? implode(', ', $formatTexts) : 'Không xác định';
                     @endphp
 
                     <div class="tournament-card fade-in" data-tournament-id="{{ $item->id }}" data-status="{{ $statusText }}" data-format="{{ $formatText }}"
@@ -609,10 +619,10 @@
                                 </div>
                             </div>
                             <div class="tournament-footer">
-                                <button class="btn btn-primary btn-sm" style="flex: 1;"
+                                {{-- <button class="btn btn-primary btn-sm" style="flex: 1;"
                                     onclick="openTournamentModal({{ $item->id }})">
                                     👁️ Chi tiết
-                                </button>
+                                </button> --}}
                                 <button class="btn btn-secondary btn-sm" onclick="openEditModal({{ $item->id }})">
                                     ✏️
                                 </button>
@@ -701,26 +711,30 @@
                             placeholder="VD: Sân Pickleball Thảo Điền">
                     </div>
                     <div class="grid grid-2">
-                        <div class="form-group">
-                            <label class="form-label">Loại giải *</label>
-                            <select class="form-select" name="competition_format">
-                                <option value="">Chọn loại giải</option>
-                                <option value="single">Đơn</option>
-                                <option value="double">Đôi</option>
-                                <option value="mixed">Đôi nam nữ</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label class="form-label">Hạng Đấu</label>
-                            <select class="form-select" name="tournament_rank">
-                                <option value="">-- Chọn --</option>
-                                <option value="beginner">Sơ Cấp</option>
-                                <option value="intermediate">Trung Cấp</option>
-                                <option value="advanced">Cao Cấp</option>
-                                <option value="professional">Chuyên Nghiệp</option>
-                            </select>
-                        </div>
-                    </div>
+                         <div class="form-group">
+                             <label class="form-label">Hạng Đấu</label>
+                             <select class="form-select" name="tournament_rank">
+                                 <option value="">-- Chọn --</option>
+                                 <option value="beginner">Sơ Cấp</option>
+                                 <option value="intermediate">Trung Cấp</option>
+                                 <option value="advanced">Cao Cấp</option>
+                                 <option value="professional">Chuyên Nghiệp</option>
+                             </select>
+                         </div>
+                      </div>
+
+                      <!-- Loại Giải -->
+                      <div class="form-group">
+                          <label class="form-label">Loại Giải *</label>
+                          <select name="category_ids[]" id="createModal_categories" class="form-select select2-multiple" multiple required>
+                              <option value="single">Đơn</option>
+                              <option value="double">Đôi</option>
+                              <option value="mixed">Đôi nam nữ</option>
+                          </select>
+                          <small style="display: block; margin-top: 6px; color: #64748b; font-size: 0.85rem;">
+                              Chọn một hoặc nhiều loại giải
+                          </small>
+                      </div>
                     <div class="grid grid-2">
                         <div class="form-group">
                             <label class="form-label">Số VĐV tối đa</label>
@@ -1151,6 +1165,21 @@
         // Modal functions
         function openCreateModal() {
             document.getElementById('createModal').classList.add('show');
+            
+            // Initialize Select2 for tournament categories
+            setTimeout(() => {
+                const categorySelect = document.getElementById('createModal_categories');
+                if (categorySelect && !$(categorySelect).data('select2')) {
+                    $(categorySelect).select2({
+                        placeholder: 'Chọn một hoặc nhiều loại giải...',
+                        allowClear: true,
+                        width: '100%',
+                        language: 'vi',
+                        closeOnSelect: false,
+                        dropdownParent: document.getElementById('createModal')
+                    });
+                }
+            }, 100);
         }
 
         function closeCreateModal() {
@@ -1219,6 +1248,21 @@
                 .then(data => {
                     modal.innerHTML = data.html;
                     modal.classList.add('show');
+                    
+                    // Initialize Select2 for tournament categories after modal loaded
+                    setTimeout(() => {
+                        const categorySelect = document.getElementById('editTournament_categories');
+                        if (categorySelect) {
+                            $(categorySelect).select2({
+                                placeholder: 'Chọn một hoặc nhiều loại giải...',
+                                allowClear: true,
+                                width: '100%',
+                                language: 'vi',
+                                closeOnSelect: false,
+                                dropdownParent: modal
+                            });
+                        }
+                    }, 100);
                 });
         }
 

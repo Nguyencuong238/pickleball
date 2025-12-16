@@ -36,7 +36,18 @@ class Tournament extends Model implements HasMedia
         return $this->hasMany(TournamentAthlete::class);
     }
 
+    /**
+     * Tournament categories (M:N relationship for multiple category selection)
+     */
     public function categories()
+    {
+        return $this->belongsToMany(TournamentCategory::class, 'tournament_tournament_category')->withTimestamps();
+    }
+
+    /**
+     * Legacy relationship - categories created specifically for this tournament
+     */
+    public function ownCategories()
     {
         return $this->hasMany(TournamentCategory::class);
     }

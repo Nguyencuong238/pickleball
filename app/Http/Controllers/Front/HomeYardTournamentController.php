@@ -92,7 +92,8 @@ class HomeYardTournamentController extends Controller
             'prizes' => 'nullable|numeric|min:0',
             'registration_deadline' => 'nullable|date_format:Y-m-d\TH:i',
             'event_timeline' => 'nullable|string',
-
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'string|in:single,double,mixed',
         ]);
 
         $data = $request->only([
@@ -129,6 +130,11 @@ class HomeYardTournamentController extends Controller
 
         // Sync banner image
         $tournament->syncMediaCollection('banner', 'banner', $request);
+
+        // Store selected category formats
+        if ($request->filled('category_ids')) {
+            $this->storeCategoryFormats($tournament, $request->category_ids);
+        }
 
         // Assign referees if provided
         if ($request->filled('referee_ids')) {
@@ -186,6 +192,8 @@ class HomeYardTournamentController extends Controller
             'registration_benefits' => 'nullable|string',
             'competition_rules' => 'nullable|string',
             'event_timeline' => 'nullable|string',
+            'category_ids' => 'nullable|array',
+            'category_ids.*' => 'string|in:single,double,mixed',
         ]);
 
         $data = $request->only([
@@ -213,6 +221,11 @@ class HomeYardTournamentController extends Controller
         $tournament->syncMediaCollection('banner', 'banner', $request);
 
         $tournament->update($data);
+
+        // Store selected category formats
+        if ($request->filled('category_ids')) {
+            $this->storeCategoryFormats($tournament, $request->category_ids);
+        }
 
         // Sync referees if provided
         if ($request->has('referee_ids')) {
@@ -3951,6 +3964,52 @@ class HomeYardTournamentController extends Controller
                 'success' => false,
                 'message' => 'Lỗi: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    // ==================== Category Format Methods ====================
+
+    /**
+     * Store category formats (single, double, mixed) to tournament_tournament_category table
+     */
+    private function storeCategoryFormats(Tournament $tournament, array $formats): void
+    {
+        // Map format to enum values and category names
+        $formatMap = [
+            'single' => ['enum_value' => 'single_men', 'name' => 'Đơn'],
+            'double' => ['enum_value' => 'double_men', 'name' => 'Đôi'],
+            'mixed' => ['enum_value' => 'double_mixed', 'name' => 'Đôi nam nữ'],
+        ];
+
+        // Get or create TournamentCategory records for each format
+        $categoryIds = [];
+        
+        foreach ($formats as $format) {
+            if (!isset($formatMap[$format])) {
+                continue;
+            }
+
+            $mapping = $formatMap[$format];
+            
+            // Check if category already exists for this tournament and format
+            $category = \App\Models\TournamentCategory::firstOrCreate(
+                [
+                    'tournament_id' => $tournament->id,
+                    'category_type' => $mapping['enum_value'],
+                ],
+                [
+                    'tournament_id' => $tournament->id,
+                    'category_name' => $mapping['name'],
+                    'category_type' => $mapping['enum_value'],
+                    'status' => 'open',
+                ]
+            );
+            $categoryIds[] = $category->id;
+        }
+
+        // Sync the categories to tournament
+        if (!empty($categoryIds)) {
+            $tournament->categories()->sync($categoryIds);
         }
     }
 

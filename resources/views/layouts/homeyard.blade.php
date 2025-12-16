@@ -10,11 +10,78 @@
     <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}">
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
-    <!-- jQuery (Required for Toastr) -->
+    <!-- Select2 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet"/>
+    <!-- jQuery (Required for Toastr and Select2) -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
     <style>
-        /* Page-specific styles */
-        .tournament-header-banner {
+        /* Select2 Custom Styling */
+        .select2-container--default .select2-selection--multiple {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 6px !important;
+            background-color: white !important;
+            padding: 6px 12px !important;
+            min-height: 44px !important;
+        }
+
+        .select2-container--default.select2-container--focus .select2-selection--multiple {
+            border: 2px solid var(--primary-color) !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice {
+            background-color: #f0f9ff !important;
+            border: 1px solid #bfdbfe !important;
+            border-radius: 4px !important;
+            padding: 4px 8px !important;
+            margin: 2px 4px 2px 0 !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+            color: var(--primary-color) !important;
+            font-weight: 600 !important;
+            margin-right: 4px !important;
+            font-size: 16px !important;
+        }
+
+        .select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+            color: #dc2626 !important;
+        }
+
+        .select2-dropdown {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 6px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 4px !important;
+            padding: 8px 12px !important;
+            font-size: 0.95rem !important;
+        }
+
+        .select2-container--default .select2-results__option {
+            padding: 10px 12px !important;
+            font-size: 0.95rem !important;
+        }
+
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #3b82f6 !important;
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #f0f9ff !important;
+            color: var(--primary-color) !important;
+        }
+
+        .select2-container--default .select2-results__option[aria-selected=true]:hover {
+            background-color: #bfdbfe !important;
+        }
+    /* Page-specific styles */
+     .tournament-header-banner {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             padding: 2rem;

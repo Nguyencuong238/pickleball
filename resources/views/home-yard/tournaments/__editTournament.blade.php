@@ -34,18 +34,6 @@
             </div>
             <div class="grid grid-2">
                 <div class="form-group">
-                    <label class="form-label">Loại giải *</label>
-                    <select class="form-select" name="competition_format">
-                        <option value="">Chọn loại giải</option>
-                        <option value="single" {{ $tournament->competition_format == 'single' ? 'selected' : '' }}>Đơn
-                        </option>
-                        <option value="double" {{ $tournament->competition_format == 'double' ? 'selected' : '' }}>Đôi
-                        </option>
-                        <option value="mixed" {{ $tournament->competition_format == 'mixed' ? 'selected' : '' }}>Đôi
-                            nam nữ</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label class="form-label">Hạng Đấu</label>
                     <select class="form-select" name="tournament_rank">
                         <option value="">-- Chọn --</option>
@@ -55,6 +43,37 @@
                         <option value="professional" {{ $tournament->tournament_rank === 'professional' ? 'selected' : '' }}>Chuyên Nghiệp</option>
                     </select>
                 </div>
+            </div>
+
+            <!-- Loại Giải -->
+            <div class="form-group">
+                <label class="form-label">Loại Giải *</label>
+                @php
+                    // Get selected formats from tournament categories
+                    $selectedFormats = [];
+                    $categories = $tournament->categories ?? collect();
+                    
+                    foreach ($categories as $category) {
+                        if (in_array($category->category_type, ['single_men', 'single_women'])) {
+                            $selectedFormats[] = 'single';
+                        } elseif (in_array($category->category_type, ['double_men', 'double_women'])) {
+                            $selectedFormats[] = 'double';
+                        } elseif ($category->category_type === 'double_mixed') {
+                            $selectedFormats[] = 'mixed';
+                        }
+                    }
+                    
+                    // Remove duplicates
+                    $selectedFormats = array_unique($selectedFormats);
+                @endphp
+                <select name="category_ids[]" id="editTournament_categories" class="form-select select2-multiple" multiple required>
+                    <option value="single" {{ in_array('single', $selectedFormats) ? 'selected' : '' }}>Đơn</option>
+                    <option value="double" {{ in_array('double', $selectedFormats) ? 'selected' : '' }}>Đôi</option>
+                    <option value="mixed" {{ in_array('mixed', $selectedFormats) ? 'selected' : '' }}>Đôi nam nữ</option>
+                </select>
+                <small style="display: block; margin-top: 6px; color: #64748b; font-size: 0.85rem;">
+                    Chọn một hoặc nhiều loại giải
+                </small>
             </div>
             <div class="grid grid-2">
                 <div class="form-group">

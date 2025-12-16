@@ -576,15 +576,12 @@ class HomeController extends Controller
     
     public function tournamentsDetail($tournament_id)
     {
-        $tournament = Tournament::findOrFail($tournament_id);
+        $tournament = Tournament::with('categories')->findOrFail($tournament_id);
 
         $registered = DB::table('tournament_athletes')
         ->where('tournament_id', $tournament->id)
         ->where('user_id', auth()->id())
         ->exists();
-
-        // Load categories for this tournament
-        $tournament->load('categories');
         
         return view('front.tournaments.tournaments_detail', [
             'tournament' => $tournament,

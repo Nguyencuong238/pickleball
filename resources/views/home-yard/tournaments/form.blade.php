@@ -123,6 +123,33 @@
             </div>
         </div>
 
+        <!-- Loại Giải (Tournament Categories) -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Loại Giải *</label>
+            @php
+                $availableCategories = \App\Models\TournamentCategory::where('status', 1)->orderBy('category_name')->get();
+                $assignedCategoryIds = isset($tournament) ? $tournament->categories->pluck('id')->toArray() : [];
+            @endphp
+            @if($availableCategories->isEmpty())
+                <div style="background: #fef3c7; color: #92400e; padding: 12px 16px; border-radius: 6px; font-size: 0.9rem;">
+                    ℹ️ Chưa có loại giải nào. Vui lòng tạo loại giải trước.
+                </div>
+            @else
+                <select name="category_ids[]" id="tournament_categories" class="form-select select2-multiple" multiple required
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                    @foreach($availableCategories as $category)
+                        <option value="{{ $category->id }}"
+                            {{ in_array($category->id, old('category_ids', $assignedCategoryIds)) ? 'selected' : '' }}>
+                            {{ $category->category_name }} ({{ $category->category_type }} - {{ $category->age_group ?? 'N/A' }})
+                        </option>
+                    @endforeach
+                </select>
+                <small style="display: block; margin-top: 6px; color: #64748b; font-size: 0.85rem;">
+                    Chọn một hoặc nhiều loại giải để tạo hạng mục trong giải đấu
+                </small>
+            @endif
+        </div>
+
         <!-- Lợi Ích Đăng Ký -->
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Lợi Ích Đăng Ký</label>
@@ -455,5 +482,45 @@
                  {{ isset($tournament) ? 'Cập Nhật Giải Đấu' : 'Tạo Giải Đấu' }}
              </button>
          </div>
-    </form>
-</div>
+        </form>
+        </div>
+
+        <script>
+        // Initialize Select2 for tournament categories
+        document.addEventListener('DOMContentLoaded', function() {
+        $('#tournament_categories').select2({
+            placeholder: 'Chọn một hoặc nhiều loại giải...',
+            allowClear: true,
+            width: '100%',
+            language: 'vi',
+            closeOnSelect: false,
+            templateResult: formatCategoryOption,
+            templateSelection: formatCategorySelection
+        });
+        });
+
+        function formatCategoryOption(option) {
+        if (!option.id) {
+            return option.text;
+        }
+        return $('<span>' + option.text + '</span>');
+        }
+
+        function formatCategorySelection(selection) {
+        if (!selection.id) {
+            return selection.text;
+        }
+        return selection.text;
+        }
+
+        // Validate that at least one category is selected on form submit
+        document.querySelector('form')?.addEventListener('submit', function(e) {
+        const selected = $('#tournament_categories').val();
+        if (!selected || selected.length === 0) {
+            e.preventDefault();
+            alert('⚠️ Vui lòng chọn ít nhất một loại giải');
+            $('#tournament_categories').focus();
+            return false;
+        }
+        });
+        </script>

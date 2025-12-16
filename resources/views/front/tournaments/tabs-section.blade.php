@@ -480,11 +480,40 @@
             <div style="display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 2rem;">
                 <div class="content-card gradient-card">
                     <h2 class="content-title">Thể thức thi đấu</h2>
-                    @if ($tournament->competition_format)
-                        @php $formatMap = ['single' => '🎯 Đơn', 'double' => '👥 Đôi', 'mixed' => '🤝 Hỗn hợp']; @endphp
+                    @php
+                        // Get category formats from tournament categories
+                        $categories = $tournament->categories ?? collect();
+                        $formatTexts = [];
+                        $formatMap = [
+                            'single_men' => '🎯 Đơn',
+                            'single_women' => '🎯 Đơn',
+                            'double_men' => '👥 Đôi',
+                            'double_women' => '👥 Đôi',
+                            'double_mixed' => '🤝 Hỗn hợp',
+                        ];
+
+                        foreach ($categories as $category) {
+                            $text = $formatMap[$category->category_type] ?? $category->category_type;
+                            if (!in_array($text, $formatTexts)) {
+                                $formatTexts[] = $text;
+                            }
+                        }
+                    @endphp
+
+                    @if (!empty($formatTexts))
                         <div class="gradient-bg">
                             <p class="gradient-text">
-                                {{ $formatMap[$tournament->competition_format] ?? $tournament->competition_format }}</p>
+                                {{ implode(', ', $formatTexts) }}
+                            </p>
+                        </div>
+                    @elseif ($tournament->competition_format)
+                        @php 
+                            $fallbackMap = ['single' => '🎯 Đơn', 'double' => '👥 Đôi', 'mixed' => '🤝 Hỗn hợp'];
+                        @endphp
+                        <div class="gradient-bg">
+                            <p class="gradient-text">
+                                {{ $fallbackMap[$tournament->competition_format] ?? $tournament->competition_format }}
+                            </p>
                         </div>
                     @endif
                 </div>
@@ -511,7 +540,7 @@
             <!-- Rules -->
             <div class="content-card">
                 <h2 class="content-title">Quy định thi đấu</h2>
-                @if ($tournament->competition_rules)
+                @if ($tournament->competition_rules && trim($tournament->competition_rules) !== '')
                     @php
                         $ruleText = trim($tournament->competition_rules);
                         // Split by main sections (lines starting with numbers like "1 ", "2 ", etc)
@@ -519,39 +548,71 @@
                         $sections = array_filter(array_map('trim', $sections));
                     @endphp
                     
-                    @foreach ($sections as $section)
-                        @php
-                            $lines = array_filter(array_map('trim', explode("\n", $section)));
-                            $firstLine = reset($lines);
-                            $isHeader = preg_match('/^\d+\s+/', $firstLine);
-                        @endphp
-                        
-                        @if ($isHeader)
-                            <div style="margin-top: 28px; margin-bottom: 20px;">
-                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-                                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #ec4899, #3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">
-                                        {{ preg_match('/^(\d+)/', $firstLine, $matches) ? $matches[1] : '1' }}
+                    @if (!empty($sections))
+                        {{-- Render theo định dạng có số (1, 2, 3, ...) --}}
+                        @forelse($sections as $section)
+                            @php
+                                $lines = array_filter(array_map('trim', explode("\n", $section)));
+                                $firstLine = reset($lines);
+                                $isHeader = preg_match('/^\d+\s+/', $firstLine);
+                            @endphp
+                            
+                            @if ($isHeader)
+                                <div style="margin-top: 28px; margin-bottom: 20px;">
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+                                        <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #ec4899, #3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">
+                                            {{ preg_match('/^(\d+)/', $firstLine, $matches) ? $matches[1] : '1' }}
+                                        </div>
+                                        <h3 style="font-size: 1.15rem; font-weight: 700; color: #1f2937; margin: 0;">
+                                            {{ preg_replace('/^\d+\s+/', '', $firstLine) }}
+                                        </h3>
                                     </div>
-                                    <h3 style="font-size: 1.15rem; font-weight: 700; color: #1f2937; margin: 0;">
-                                        {{ preg_replace('/^\d+\s+/', '', $firstLine) }}
-                                    </h3>
+                                    
+                                    <div style="display: flex; flex-direction: column; gap: 14px;">
+                                        @foreach (array_slice($lines, 1) as $rule)
+                                            @if (preg_match('/^[-•]/', $rule))
+                                                <div style="display: flex; gap: 14px; padding: 14px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
+                                                    <span style="color: #ec4899; font-weight: 700; flex-shrink: 0; margin-top: 2px;">✓</span>
+                                                    <p style="margin: 0; color: #374151; line-height: 1.6; font-size: 0.95rem;">
+                                                        {{ preg_replace('/^[-•]\s*/', '', $rule) }}
+                                                    </p>
+                                                </div>
+                                            @endif
+                                        @endforeach
+                                    </div>
                                 </div>
-                                
+                            @else
+                                {{-- Không có format với số, render dạng đơn giản --}}
                                 <div style="display: flex; flex-direction: column; gap: 14px;">
-                                    @foreach (array_slice($lines, 1) as $rule)
-                                        @if (preg_match('/^[-•]/', $rule))
-                                            <div style="display: flex; gap: 14px; padding: 14px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
-                                                <span style="color: #ec4899; font-weight: 700; flex-shrink: 0; margin-top: 2px;">✓</span>
-                                                <p style="margin: 0; color: #374151; line-height: 1.6; font-size: 0.95rem;">
-                                                    {{ preg_replace('/^[-•]\s*/', '', $rule) }}
-                                                </p>
-                                            </div>
-                                        @endif
+                                    @foreach ($lines as $line)
+                                        <div style="display: flex; gap: 14px; padding: 14px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
+                                            <span style="color: #ec4899; font-weight: 700; flex-shrink: 0; margin-top: 2px;">✓</span>
+                                            <p style="margin: 0; color: #374151; line-height: 1.6; font-size: 0.95rem;">
+                                                {{ $line }}
+                                            </p>
+                                        </div>
                                     @endforeach
                                 </div>
-                            </div>
-                        @endif
-                    @endforeach
+                            @endif
+                        @empty
+                            <p style="color: #6b7280;">Chưa có thông tin quy định thi đấu</p>
+                        @endforelse
+                    @else
+                        {{-- Nếu không có section nào, hiển thị tất cả dòng đơn giản --}}
+                        @php
+                            $lines = array_filter(array_map('trim', explode("\n", $ruleText)));
+                        @endphp
+                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                            @foreach ($lines as $line)
+                                <div style="display: flex; gap: 14px; padding: 14px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
+                                    <span style="color: #ec4899; font-weight: 700; flex-shrink: 0; margin-top: 2px;">✓</span>
+                                    <p style="margin: 0; color: #374151; line-height: 1.6; font-size: 0.95rem;">
+                                        {{ $line }}
+                                    </p>
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
                 @else
                     <p style="color: #6b7280;">Chưa có thông tin quy định thi đấu</p>
                 @endif
