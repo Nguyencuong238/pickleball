@@ -21,12 +21,12 @@ class TournamentController extends Controller
         $query = Tournament::query();
 
         // Search by name
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         // Filter by status
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             if ($request->query('status') === 'upcoming') {
                 $query->where('start_date', '>', now());
             } elseif ($request->query('status') === 'ongoing') {
@@ -37,13 +37,6 @@ class TournamentController extends Controller
             } elseif ($request->query('status') === 'completed') {
                 $query->where('end_date', '<', now());
             }
-        }
-
-        // Filter by category
-        if ($request->has('category_id')) {
-            $query->whereHas('categories', function ($q) use ($request) {
-                $q->where('id', $request->category_id);
-            });
         }
 
         // Sort
@@ -70,7 +63,7 @@ class TournamentController extends Controller
         if (!$tournament) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tournament not found',
+                'message' => 'Giải đấu không tồn tại',
             ], 404);
         }
 
@@ -87,7 +80,7 @@ class TournamentController extends Controller
         if (!$tournament) {
             return response()->json([
                 'success' => false,
-                'message' => 'Tournament not found',
+                'message' => 'Giải đấu không tồn tại',
             ], 404);
         }
 

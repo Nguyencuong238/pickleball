@@ -18,16 +18,13 @@ class NewsController extends Controller
         $query = News::query();
 
         // Search by title or description
-        if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%')
-                ->orWhere('description', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
         }
 
         // Filter by category/type
-        if ($request->has('category')) {
-            $query->whereHas('category', function($q) use ($request) {
-                $q->where('slug', $request->category);
-            });
+        if ($request->filled('category')) {
+            $query->where('id', $request->category);
         }
 
         // Pagination

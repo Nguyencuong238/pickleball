@@ -16,7 +16,6 @@ use App\Http\Controllers\Api\StadiumController;
 use App\Http\Controllers\Api\TournamentController;
 use App\Http\Controllers\Api\SocialController;
 use App\Http\Controllers\Api\NewsController;
-use App\Http\Controllers\Api\MediaUploadController;
 use App\Http\Controllers\Api\BookingController;
 
 /*
@@ -47,15 +46,10 @@ Route::prefix('auth')->group(function () {
 Route::prefix('auth')->middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::get('me', [AuthController::class, 'me']);
+    Route::get('user', function (Request $request) {
+        return $request->user();
+    });
 });
-
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
-// Tournament API endpoints
-Route::get('/tournament/{tournament}', [TournamentController::class, 'show']);
-Route::get('/tournament/{tournament}/categories', [TournamentRegistrationController::class, 'getCategories']);
 
 /*
 |--------------------------------------------------------------------------
@@ -176,6 +170,8 @@ Route::prefix('tournaments')->group(function () {
     Route::get('{id}/standings', [TournamentController::class, 'standings']);
     Route::post('{id}/register', [TournamentController::class, 'register']);
 });
+Route::get('/tournament/{tournament}', [TournamentController::class, 'show']);
+Route::get('/tournament/{tournament}/categories', [TournamentRegistrationController::class, 'getCategories']);
 
 // Socials API
 Route::prefix('socials')->group(function () {
@@ -186,9 +182,9 @@ Route::prefix('socials')->group(function () {
 
 // News API
 Route::prefix('news')->group(function () {
+    Route::get('categories', [NewsController::class, 'categories']);
     Route::get('', [NewsController::class, 'index']);
     Route::get('{id}', [NewsController::class, 'show']);
-    Route::get('categories', [NewsController::class, 'categories']);
 });
 
 // Court Bookings API
