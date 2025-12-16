@@ -83,6 +83,24 @@
 
             <div class="grid grid-2">
                 <div class="form-group">
+                    <label class="form-label">Hạng Đấu</label>
+                    <select class="form-select" name="tournament_rank">
+                        <option value="">-- Chọn --</option>
+                        <option value="beginner" {{ $tournament->tournament_rank === 'beginner' ? 'selected' : '' }}>Sơ Cấp</option>
+                        <option value="intermediate" {{ $tournament->tournament_rank === 'intermediate' ? 'selected' : '' }}>Trung Cấp</option>
+                        <option value="advanced" {{ $tournament->tournament_rank === 'advanced' ? 'selected' : '' }}>Cao Cấp</option>
+                        <option value="professional" {{ $tournament->tournament_rank === 'professional' ? 'selected' : '' }}>Chuyên Nghiệp</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Timeline Sự Kiện</label>
+                <textarea class="form-input" name="event_timeline" placeholder="Nhập timeline sự kiện của giải đấu..." rows="4">{{ $tournament->event_timeline }}</textarea>
+            </div>
+
+            <div class="grid grid-2">
+                <div class="form-group">
                     <label class="form-label">Email liên hệ</label>
                     <input type="text" class="form-input" name="organizer_email" placeholder="example@gmail.com" value="{{ $tournament->organizer_email }}">
                 </div>

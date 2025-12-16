@@ -168,8 +168,13 @@ class TournamentController extends Controller
             'is_watch' => 'nullable|in:0,1',
             'is_ocr' => 'nullable|in:0,1',
             'competition_format' => 'nullable|string|in:single,double,mixed',
+            'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
             'registration_benefits' => 'nullable|string',
             'competition_rules' => 'nullable|string',
+            'event_timeline' => 'nullable|string',
+            'social_information' => 'nullable|string',
+            'organizer_email' => 'nullable|email',
+            'organizer_hotline' => 'nullable|string|max:20',
         ]);
 
         $data = $request->only([
@@ -186,8 +191,13 @@ class TournamentController extends Controller
             'is_watch',
             'is_ocr',
             'competition_format',
+            'tournament_rank',
             'registration_benefits',
             'competition_rules',
+            'event_timeline',
+            'social_information',
+            'organizer_email',
+            'organizer_hotline',
         ]);
 
         // Handle checkbox - convert to integer

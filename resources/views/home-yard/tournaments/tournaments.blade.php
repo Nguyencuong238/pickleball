@@ -755,10 +755,23 @@
                              rows="3"></textarea>
                      </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Timeline Sự Kiện</label>
-                        <textarea class="form-input" name="event_timeline" placeholder="Nhập timeline sự kiện của giải đấu..." rows="4"></textarea>
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Hạng Đấu</label>
+                            <select class="form-select" name="tournament_rank">
+                                <option value="">-- Chọn --</option>
+                                <option value="beginner">Sơ Cấp</option>
+                                <option value="intermediate">Trung Cấp</option>
+                                <option value="advanced">Cao Cấp</option>
+                                <option value="professional">Chuyên Nghiệp</option>
+                            </select>
+                        </div>
                     </div>
+
+                    <div class="form-group">
+                         <label class="form-label">Timeline Sự Kiện</label>
+                         <textarea class="form-input" name="event_timeline" placeholder="Nhập timeline sự kiện của giải đấu..." rows="4"></textarea>
+                     </div>
 
                      <div class="grid grid-2">
                         <div class="form-group">
