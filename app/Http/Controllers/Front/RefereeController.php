@@ -127,7 +127,7 @@ class RefereeController extends Controller
             'actual_start_time' => now(),
         ]);
 
-        ActivityLog::log("Tran dau #{$match->id} bat dau boi trong tai", 'Match', $match->id);
+        ActivityLog::log("Trận đấu #{$match->id} bắt đầu bởi trọng tài", 'Match', $match->id);
 
         return back()->with('success', 'Match started');
     }
@@ -178,10 +178,10 @@ class RefereeController extends Controller
 
             DB::commit();
 
-            ActivityLog::log("Ti so tran dau #{$match->id} duoc cap nhat: {$finalScore}", 'Match', $match->id);
+            ActivityLog::log("Tỉ số trận đấu #{$match->id} được cập nhật: {$finalScore}", 'Match', $match->id);
 
             return redirect()->route('referee.matches.show', $match)
-                ->with('success', 'Ti so da duoc cap nhat');
+                ->with('success', 'Tỉ số đã được cập nhật');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Score update failed', ['error' => $e->getMessage()]);
