@@ -397,7 +397,7 @@
     }
 </style>
 
-<div class="dashboard-container">
+<div class="dashboard-container" style="margin-top: 100px">
     <div class="welcome-header">
         <h2>Chào mừng quay trở lại, {{ $user->name }}! 👋</h2>
         <p>Sẵn sàng khám phá các giải đấu mới và đặt trận đấu tiếp theo của bạn?</p>
@@ -417,7 +417,7 @@
                 <p>{{ $user->email }}</p>
                 <span class="role-badge">👤 Người Dùng Thường</span>
                 <hr>
-                <a href="{{ route('user.profile.edit') }}" class="edit-profile-btn">Chinh Sua Ho So</a>
+                <a href="{{ route('user.profile.edit') }}" class="edit-profile-btn">CChỉnh sửa hồ sơ</a>
             </div>
 
             <div class="stats-card">
@@ -446,9 +446,9 @@
                 <!-- My Profile -->
                 <div class="menu-card">
                     <div class="icon-box icon-box-teal">👤</div>
-                    <h5>Ho So Cua Toi</h5>
-                    <p>Xem va quan ly thong tin ho so va cai dat cua ban.</p>
-                    <a href="{{ route('user.profile.edit') }}" class="menu-btn">Chinh Sua Ho So</a>
+                    <h5>Hồ sơ của tôi</h5>
+                    <p>Xem va quản lý thông tin hồ sơ và  cài đặt của bạn.</p>
+                    <a href="{{ route('user.profile.edit') }}" class="menu-btn">Chỉnh sửa hồ sơ</a>
                 </div>
 
                 <!-- My Bookings -->
