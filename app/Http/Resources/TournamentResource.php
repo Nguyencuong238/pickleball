@@ -32,7 +32,7 @@ class TournamentResource extends JsonResource
             'max_participants' => $this->max_participants,
             'participants_count' => $this->athletes()->count(),
             'image_url' => $media ? $media->getUrl() : null,
-            'status' => $this->status,
+            'status' => $this->start_date > now() ? 'upcoming' : ($this->end_date < now() ? 'completed' : 'ongoing'),
             'user_id' => $this->user_id,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
