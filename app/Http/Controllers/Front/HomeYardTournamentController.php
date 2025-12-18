@@ -192,6 +192,9 @@ class HomeYardTournamentController extends Controller
             'registration_benefits' => 'nullable|string',
             'competition_rules' => 'nullable|string',
             'event_timeline' => 'nullable|string',
+            'social_information' => 'nullable|string',
+            'organizer_email' => 'nullable|email',
+            'organizer_hotline' => 'nullable|string|max:20',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'string|in:single,double,mixed',
         ]);
@@ -212,6 +215,9 @@ class HomeYardTournamentController extends Controller
             'registration_benefits',
             'competition_rules',
             'event_timeline',
+            'social_information',
+            'organizer_email',
+            'organizer_hotline',
         ]);
 
         // Sync gallery images

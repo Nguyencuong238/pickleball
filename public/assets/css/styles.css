@@ -1315,6 +1315,34 @@ ul {
     .nav-menu .nav-link:hover::before {
         transform: scaleY(1);
     }
+
+    /* Mobile dropdown styles */
+    .nav-item.dropdown > .dropdown-toggle::after {
+        content: '▼';
+        display: inline-block !important;
+        margin-left: 0.5rem;
+        font-size: 0.7rem;
+        transition: transform 0.3s;
+    }
+
+    .nav-item.dropdown .dropdown-menu {
+        position: static;
+        background-color: rgba(0, 217, 181, 0.05);
+        box-shadow: none;
+        padding: 0.5rem 0 0.5rem 2rem;
+        margin-top: 0;
+        border-radius: 0;
+        display: none;
+    }
+
+    .nav-item.dropdown .dropdown-menu.active {
+        display: block;
+    }
+
+    .nav-item.dropdown .dropdown-menu .dropdown-item {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
     .mobile-only {
         display: block;
     }
