@@ -132,7 +132,8 @@ class TournamentController extends Controller
 
         // Attach selected categories to tournament
         if ($request->has('category_ids') && is_array($request->category_ids)) {
-            $tournament->categories()->sync($request->category_ids);
+            $this->storeCategoryFormats($tournament, $request->category_ids);
+
         }
 
         // Log activity
@@ -223,7 +224,8 @@ class TournamentController extends Controller
 
         // Sync categories
         if ($request->has('category_ids') && is_array($request->category_ids)) {
-            $tournament->categories()->sync($request->category_ids);
+            $tournament->categories->each->delete(); // Remove existing categories
+            $this->storeCategoryFormats($tournament, $request->category_ids);
         }
 
         return redirect()->route('admin.tournaments.index')->with('success', 'Tournament updated successfully.');
@@ -247,5 +249,41 @@ class TournamentController extends Controller
         $tournament->delete();
 
         return redirect()->route('admin.tournaments.index')->with('success', 'Tournament deleted successfully.');
+    }
+
+    private function storeCategoryFormats(Tournament $tournament, array $formats): void
+    {
+        // Map format to enum values and category names
+        $formatMap = [
+            'single' => ['enum_value' => 'single_men', 'name' => 'Đơn'],
+            'double' => ['enum_value' => 'double_men', 'name' => 'Đôi'],
+            'mixed' => ['enum_value' => 'double_mixed', 'name' => 'Đôi nam nữ'],
+        ];
+
+        // Get or create TournamentCategory records for each format
+        $categoryIds = [];
+        
+        foreach ($formats as $format) {
+            if (!isset($formatMap[$format])) {
+                continue;
+            }
+
+            $mapping = $formatMap[$format];
+            
+            // Check if category already exists for this tournament and format
+            $category = \App\Models\TournamentCategory::firstOrCreate(
+                [
+                    'tournament_id' => $tournament->id,
+                    'category_type' => $mapping['enum_value'],
+                ],
+                [
+                    'tournament_id' => $tournament->id,
+                    'category_name' => $mapping['name'],
+                    'category_type' => $mapping['enum_value'],
+                    'status' => 'open',
+                ]
+            );
+            $categoryIds[] = $category->id;
+        }
     }
 }

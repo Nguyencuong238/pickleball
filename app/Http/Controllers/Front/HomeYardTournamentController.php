@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\OcrMatch;
 use App\Models\EloHistory;
 use App\Models\OprsHistory;
+use App\Models\TournamentCategory;
 use App\Services\EloService;
 use App\Services\OprsService;
 use Illuminate\Http\Request;
@@ -230,7 +231,11 @@ class HomeYardTournamentController extends Controller
 
         // Store selected category formats
         if ($request->filled('category_ids')) {
+            \App\Models\TournamentCategory::where('tournament_id', $tournament->id)->delete();
             $this->storeCategoryFormats($tournament, $request->category_ids);
+        } else {
+            // If no categories selected, remove all existing categories
+            $tournament->categories->each->delete();
         }
 
         // Sync referees if provided
@@ -3977,7 +3982,7 @@ class HomeYardTournamentController extends Controller
     // ==================== Category Format Methods ====================
 
     /**
-     * Store category formats (single, double, mixed) to tournament_tournament_category table
+     * Store category formats (single, double, mixed)
      */
     private function storeCategoryFormats(Tournament $tournament, array $formats): void
     {
@@ -4012,11 +4017,6 @@ class HomeYardTournamentController extends Controller
                 ]
             );
             $categoryIds[] = $category->id;
-        }
-
-        // Sync the categories to tournament
-        if (!empty($categoryIds)) {
-            $tournament->categories()->sync($categoryIds);
         }
     }
 

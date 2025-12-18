@@ -37,11 +37,11 @@ class Tournament extends Model implements HasMedia
     }
 
     /**
-     * Tournament categories (M:N relationship for multiple category selection)
+     * Tournament categories 
      */
     public function categories()
     {
-        return $this->belongsToMany(TournamentCategory::class, 'tournament_tournament_category')->withTimestamps();
+        return $this->hasMany(TournamentCategory::class, 'tournament_id');
     }
 
     /**
