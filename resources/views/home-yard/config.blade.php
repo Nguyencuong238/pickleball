@@ -573,7 +573,7 @@
                                     <div class="athlete-item"
                                         style="@if ($athlete->status === 'rejected') border-left-color: #EF4444; @elseif($athlete->status === 'pending') border-left-color: #F59E0B; @endif">
                                         <div class="athlete-info">
-                                            <div class="athlete-name">{{ $athlete->athlete_name }}</div>
+                                            <div class="athlete-name">{{ $athlete->athlete_name }} {{ $athlete->hasPartner() ? '( đánh cặp ' . $athlete->partner->athlete_name . ')' : '' }}</div>
                                             <div class="athlete-details">
                                                 📧 {{ $athlete->email }} | 📞 {{ $athlete->phone }} | 🎯
                                                 {{ $athlete->category->category_name ?? 'N/A' }}<br>
@@ -1111,7 +1111,7 @@
                                 @endforeach
                             @endif
                         </select>
-                        <small style="color: var(--text-light); font-size: 0.75rem;">Chi co the chon trong tai da duoc gan vao giai dau nay</small>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">Chỉ có thể chọn được trọng tài đã được phân công vào giải đấu này</small>
                     </div>
 
                     <div style="display: flex; gap: 10px; margin-top: 20px;">

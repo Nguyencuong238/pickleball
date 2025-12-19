@@ -321,7 +321,10 @@ class HomeYardTournamentController extends Controller
                 $query->with('category', 'round');
             }, 'matches' => function ($query) {
                 $query->with('athlete1', 'athlete2', 'category', 'round', 'referee');
-            }, 'athletes', 'referees'])
+            }, 'athletes' => function ($query) {
+                $query->latest();
+            },
+            'referees'])
             ->firstOrFail();
 
         // Get courts for all stadiums owned by this user
