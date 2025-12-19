@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class MatchModel extends Model
 {
@@ -40,19 +41,36 @@ class MatchModel extends Model
         'notes',
         'next_match_id',
         'winner_advances_to',
+        // Match control columns
+        'match_state',
+        'current_game',
+        'games_won_athlete1',
+        'games_won_athlete2',
+        'game_scores',
+        'serving_team',
+        'server_number',
+        'timer_seconds',
     ];
 
     protected $casts = [
-         'match_date' => 'date',
-         'match_time' => 'string',
-         'actual_start_time' => 'datetime',
-         'actual_end_time' => 'datetime',
-         'set_scores' => 'array',
-         'athlete1_score' => 'integer',
-         'athlete2_score' => 'integer',
-         'best_of' => 'integer',
-         'bracket_position' => 'integer',
-     ];
+        'match_date' => 'date',
+        'match_time' => 'string',
+        'actual_start_time' => 'datetime',
+        'actual_end_time' => 'datetime',
+        'set_scores' => 'array',
+        'athlete1_score' => 'integer',
+        'athlete2_score' => 'integer',
+        'best_of' => 'integer',
+        'bracket_position' => 'integer',
+        // Match control casts
+        'match_state' => 'array',
+        'current_game' => 'integer',
+        'games_won_athlete1' => 'integer',
+        'games_won_athlete2' => 'integer',
+        'game_scores' => 'array',
+        'server_number' => 'integer',
+        'timer_seconds' => 'integer',
+    ];
 
     /**
      * Get the tournament that owns this match.
@@ -254,5 +272,115 @@ class MatchModel extends Model
     public function scopeUnassigned($query)
     {
         return $query->whereNull('referee_id');
+    }
+
+    // ==================== Match Control Methods ====================
+
+    /**
+     * Get all events for this match
+     */
+    public function events(): HasMany
+    {
+        return $this->hasMany(MatchEvent::class, 'match_id');
+    }
+
+    /**
+     * Check if this is a doubles match
+     */
+    public function isDoubles(): bool
+    {
+        return $this->category?->isDoubles() ?? false;
+    }
+
+    /**
+     * Get game mode attribute (singles or doubles)
+     */
+    public function getGameModeAttribute(): string
+    {
+        return $this->isDoubles() ? 'doubles' : 'singles';
+    }
+
+    /**
+     * Record a match event
+     */
+    public function recordEvent(string $type, ?string $team = null, array $data = [], int $timerSeconds = 0): MatchEvent
+    {
+        return MatchEvent::record($this->id, $type, $team, $data, $timerSeconds);
+    }
+
+    /**
+     * Serialize match state for Vue initialization
+     */
+    public function toVueState(): array
+    {
+        $isDoubles = $this->isDoubles();
+
+        return [
+            'id' => $this->id,
+            'status' => $this->status,
+            'isCompleted' => $this->isCompleted(),
+            'bestOf' => $this->best_of,
+            'gameMode' => $isDoubles ? 'doubles' : 'singles',
+
+            'tournament' => [
+                'name' => $this->tournament?->name ?? 'N/A',
+            ],
+            'category' => [
+                'name' => $this->category?->category_name ?? 'N/A',
+            ],
+            'round' => [
+                'name' => $this->round?->round_name ?? 'N/A',
+            ],
+            'court' => [
+                'name' => $this->court?->name ?? 'TBA',
+                'number' => $this->court?->number ?? '--',
+            ],
+
+            'athlete1' => [
+                'id' => $this->athlete1_id,
+                'name' => $this->athlete1->athlete_name ?? 'TBD',
+                'partnerName' => $isDoubles ? ($this->athlete1?->partner?->athlete_name ?? null) : null,
+                'pairName' => $isDoubles ? ($this->athlete1?->pair_name ?? $this->athlete1_name) : $this->athlete1_name,
+            ],
+            'athlete2' => [
+                'id' => $this->athlete2_id,
+                'name' => $this->athlete2->athlete_name ?? 'TBD',
+                'partnerName' => $isDoubles ? ($this->athlete2?->partner?->athlete_name ?? null) : null,
+                'pairName' => $isDoubles ? ($this->athlete2?->pair_name ?? $this->athlete2_name) : $this->athlete2_name,
+            ],
+
+            'referee' => [
+                'id' => $this->referee_id,
+                'name' => $this->referee_name ?? 'N/A',
+            ],
+
+            // Existing state for recovery
+            'existingState' => $this->match_state,
+            'gameScores' => $this->game_scores ?? [],
+            'setScores' => $this->set_scores ?? [],
+            'currentGame' => $this->current_game ?? 1,
+            'gamesWonAthlete1' => $this->games_won_athlete1 ?? 0,
+            'gamesWonAthlete2' => $this->games_won_athlete2 ?? 0,
+            'timerSeconds' => $this->timer_seconds ?? 0,
+            'servingTeam' => $this->serving_team,
+            'serverNumber' => $this->server_number,
+        ];
+    }
+
+    /**
+     * Update match state from Vue app
+     */
+    public function syncState(array $state): void
+    {
+        $this->update([
+            'match_state' => $state,
+            'current_game' => $state['currentGame'] ?? $this->current_game,
+            'games_won_athlete1' => $state['gamesWonAthlete1'] ?? $this->games_won_athlete1,
+            'games_won_athlete2' => $state['gamesWonAthlete2'] ?? $this->games_won_athlete2,
+            'game_scores' => $state['gameScores'] ?? $this->game_scores,
+            'serving_team' => $state['servingTeam'] ?? $this->serving_team,
+            'server_number' => $state['serverNumber'] ?? $this->server_number,
+            'timer_seconds' => $state['timerSeconds'] ?? $this->timer_seconds,
+        ]);
     }
 }

@@ -310,6 +310,11 @@ Route::middleware(['auth', 'role:referee'])->prefix('referee')->name('referee.')
     Route::get('matches/{match}', [RefereeController::class, 'show'])->name('matches.show');
     Route::post('matches/{match}/start', [RefereeController::class, 'startMatch'])->name('matches.start');
     Route::put('matches/{match}/update-score', [RefereeController::class, 'updateScore'])->name('matches.update-score');
+
+    // Match Control API Routes
+    Route::post('matches/{match}/sync-events', [RefereeController::class, 'syncEvents'])->name('matches.sync-events');
+    Route::post('matches/{match}/end', [RefereeController::class, 'endMatch'])->name('matches.end');
+    Route::get('matches/{match}/state', [RefereeController::class, 'getMatchState'])->name('matches.state');
 });
 
 // OCR Frontend Routes
