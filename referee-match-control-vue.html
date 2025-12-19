@@ -1,0 +1,2863 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Điều Hành Trận Đấu - onePickleball</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        :root {
+            --primary: #008bb9;
+            --primary-light: #00a8e0;
+            --primary-dark: #006d91;
+            --secondary: #00d4aa;
+            --accent: #f0b429;
+            --accent-light: #ffd166;
+
+            --bg-dark: #0a1628;
+            --bg-darker: #060d18;
+            --bg-card: #0f2140;
+            --bg-card-light: #152a4a;
+
+            --border-color: rgba(0, 139, 185, 0.2);
+            --border-light: rgba(255, 255, 255, 0.08);
+
+            --text-white: #ffffff;
+            --text-light: #e2e8f0;
+            --text-muted: #94a3b8;
+
+            --team-blue: #3b82f6;
+            --team-red: #ef4444;
+
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+
+            --radius-sm: 10px;
+            --radius-md: 14px;
+            --radius-lg: 20px;
+            --radius-xl: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-darker);
+            color: var(--text-white);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(ellipse at 0% 0%, rgba(0, 139, 185, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(0, 212, 170, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 32px;
+            background: rgba(15, 33, 64, 0.9);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .btn-back {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-white);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .btn-back:hover {
+            border-color: var(--primary);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-center {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .match-timer-box {
+            text-align: center;
+            padding: 12px 40px;
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            border-radius: var(--radius-lg);
+        }
+
+        .timer-label {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 600;
+        }
+
+        .timer-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--text-white);
+            letter-spacing: 3px;
+        }
+
+        .match-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 20px;
+            background: var(--bg-card);
+            border-radius: 50px;
+            border: 1px solid var(--border-color);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--warning);
+        }
+
+        .status-dot.live {
+            background: var(--danger);
+        }
+
+        .status-text {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .game-badge {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .game-badge strong {
+            color: var(--accent);
+            font-weight: 800;
+        }
+
+        .game-score-display {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 4px;
+        }
+
+        .game-score-item {
+            font-family: 'Space Mono', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        .game-score-item.left {
+            background: rgba(59, 130, 246, 0.2);
+            color: var(--team-blue);
+        }
+
+        .game-score-item.right {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--team-red);
+        }
+
+        .game-score-separator {
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .game-mode-switch {
+            display: flex;
+            background: var(--bg-card);
+            border-radius: var(--radius-md);
+            padding: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .mode-btn {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .referee-info-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            background: rgba(0, 139, 185, 0.1);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+        }
+
+        .referee-avatar-sm {
+            width: 40px;
+            height: 40px;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .referee-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .referee-name-sm {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .referee-role {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 24px;
+            padding: 24px 32px;
+        }
+
+        /* Scoreboard Panel */
+        .scoreboard-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        /* Score Call Display */
+        .score-call-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 16px 32px;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .score-call-label {
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .score-call-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--accent);
+            letter-spacing: 4px;
+        }
+
+        /* Court Info */
+        .court-info-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px 32px;
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+        }
+
+        .court-display {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .court-icon-lg {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .court-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .court-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .court-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .court-divider {
+            width: 1px;
+            height: 50px;
+            background: linear-gradient(180deg, transparent, var(--border-color), transparent);
+        }
+
+        .tournament-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .tournament-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-white);
+        }
+
+        .tournament-round {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .tournament-round span {
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        /* Main Scoreboard */
+        .scoreboard-main {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 32px;
+            align-items: stretch;
+        }
+
+        /* Team Card */
+        .team-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            padding: 28px;
+            border: 2px solid var(--border-light);
+            position: relative;
+            transition: border-color 0.2s;
+            overflow: hidden;
+        }
+
+        .team-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+        }
+
+        .team-card.blue::before {
+            background: linear-gradient(90deg, var(--team-blue), var(--primary-light));
+        }
+
+        .team-card.red::before {
+            background: linear-gradient(90deg, var(--team-red), var(--accent));
+        }
+
+        .team-card.serving {
+            border-color: var(--primary);
+        }
+
+        .serving-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .team-header {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .team-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .team-card.blue .team-avatar {
+            background: linear-gradient(135deg, var(--team-blue) 0%, #2563eb 100%);
+        }
+
+        .team-card.red .team-avatar {
+            background: linear-gradient(135deg, var(--team-red) 0%, #dc2626 100%);
+        }
+
+        .team-info {
+            flex: 1;
+        }
+
+        .team-name {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--text-white);
+            margin-bottom: 4px;
+        }
+
+        .team-score-section {
+            text-align: center;
+            padding: 24px 0;
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-light);
+        }
+
+        .team-score {
+            font-family: 'Space Mono', monospace;
+            font-size: 100px;
+            font-weight: 700;
+            line-height: 1;
+            transition: transform 0.15s;
+        }
+
+        .team-card.blue .team-score {
+            color: var(--team-blue);
+        }
+
+        .team-card.red .team-score {
+            color: var(--team-red);
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+
+        .server-number-display {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            border-radius: 20px;
+        }
+
+        .server-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .server-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* Players Section */
+        .players-section {
+            margin-bottom: 24px;
+        }
+
+        .players-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .players-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .player-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            background: var(--bg-dark);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-light);
+            transition: all 0.2s;
+        }
+
+        .player-card.active {
+            border-color: var(--primary);
+            background: rgba(0, 139, 185, 0.1);
+        }
+
+        .player-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .player-card.active .player-status {
+            background: var(--secondary);
+        }
+
+        .player-details {
+            flex: 1;
+        }
+
+        .player-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        .player-card.active .player-name {
+            color: var(--text-white);
+        }
+
+        .player-position {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .player-tag {
+            padding: 6px 12px;
+            background: rgba(0, 139, 185, 0.2);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--primary-light);
+        }
+
+        /* Score Controls */
+        .score-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-score {
+            height: 56px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-score.add {
+            background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-score.subtract {
+            background: var(--bg-darker);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .btn-score:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-score:active {
+            transform: scale(0.97);
+        }
+
+        /* VS Center */
+        .vs-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            padding: 20px 0;
+        }
+
+        .vs-line {
+            width: 3px;
+            height: 80px;
+            background: linear-gradient(180deg, transparent, var(--primary), transparent);
+            border-radius: 2px;
+        }
+
+        .vs-badge {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 900;
+            color: white;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .vs-switch-btn {
+            padding: 12px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .vs-switch-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary-light);
+        }
+
+        /* Right Panel */
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Control Card */
+        .control-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .control-card-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border-light);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .control-card-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-white);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .control-card-body {
+            padding: 20px;
+        }
+
+        /* Game Controls */
+        .game-controls-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-game {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 20px 16px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s;
+        }
+
+        .btn-game:hover {
+            transform: translateY(-3px);
+        }
+
+        .btn-game:active {
+            transform: scale(0.97);
+        }
+
+        .btn-game.coin {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--warning) 100%);
+            color: var(--bg-dark);
+        }
+
+        .btn-game.start {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn-game.start.running {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .btn-game.pause {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+            color: white;
+        }
+
+        .btn-game.end {
+            background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
+            color: white;
+        }
+
+        /* Quick Actions */
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-quick {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--bg-dark);
+            color: var(--text-light);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-quick:hover {
+            border-color: var(--primary);
+            background: rgba(0, 139, 185, 0.1);
+        }
+
+        .btn-quick.fault:hover {
+            border-color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+
+        .btn-quick.undo:hover {
+            border-color: #6366f1;
+            background: rgba(99, 102, 241, 0.1);
+            color: #818cf8;
+        }
+
+        /* History */
+        .history-list {
+            max-height: 280px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .history-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .history-list::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+            border-radius: 3px;
+        }
+
+        .history-list::-webkit-scrollbar-thumb {
+            background: var(--primary-dark);
+            border-radius: 3px;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            border: 1px solid var(--border-light);
+        }
+
+        .history-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .history-time {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            color: var(--text-muted);
+            min-width: 50px;
+        }
+
+        .history-event {
+            flex: 1;
+            font-size: 13px;
+            color: var(--text-light);
+        }
+
+        .history-score {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--primary-light);
+            padding: 6px 12px;
+            background: rgba(0, 139, 185, 0.15);
+            border-radius: 20px;
+        }
+
+        .history-clear {
+            font-size: 12px;
+            color: var(--primary-light);
+            cursor: pointer;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+
+        .history-clear:hover {
+            color: var(--danger);
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(6, 13, 24, 0.95);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 32px 32px 24px;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(0, 139, 185, 0.1) 0%, transparent 100%);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .modal-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--text-white);
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .modal-body {
+            padding: 28px 32px;
+        }
+
+        .modal-footer {
+            padding: 20px 32px 28px;
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-modal {
+            flex: 1;
+            padding: 18px;
+            border-radius: var(--radius-md);
+            border: none;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-modal.secondary {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+        }
+
+        .btn-modal.secondary:hover {
+            border-color: var(--text-muted);
+            color: var(--text-light);
+        }
+
+        .btn-modal.primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+
+        .btn-modal.primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-modal:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Coin Flip */
+        .coin-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 28px;
+        }
+
+        .coin-3d {
+            width: 160px;
+            height: 160px;
+            perspective: 1000px;
+        }
+
+        .coin-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            cursor: pointer;
+            transition: transform 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .coin-inner.flipping {
+            animation: coinFlip 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes coinFlip {
+            0% {
+                transform: rotateY(0deg) rotateX(0deg) translateY(0);
+            }
+            25% {
+                transform: rotateY(720deg) rotateX(20deg) translateY(-80px);
+            }
+            50% {
+                transform: rotateY(1440deg) rotateX(0deg) translateY(-100px);
+            }
+            75% {
+                transform: rotateY(2160deg) rotateX(-20deg) translateY(-50px);
+            }
+            100% {
+                transform: rotateY(var(--final-rotation)) rotateX(0deg) translateY(0);
+            }
+        }
+
+        .coin-side {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            backface-visibility: hidden;
+            box-shadow:
+                inset 0 0 40px rgba(0, 0, 0, 0.3),
+                0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 4px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .coin-front {
+            background: linear-gradient(135deg, var(--team-blue) 0%, #2563eb 100%);
+        }
+
+        .coin-back {
+            background: linear-gradient(135deg, var(--team-red) 0%, #dc2626 100%);
+            transform: rotateY(180deg);
+        }
+
+        .coin-result-text {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-white);
+            text-align: center;
+            min-height: 28px;
+        }
+
+        .coin-hint {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-top: -10px;
+        }
+
+        .coin-inner:hover:not(.flipping) {
+            transform: scale(1.05);
+            transition: transform 0.2s;
+        }
+
+        /* Team Selection */
+        .team-options {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .team-option {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: var(--bg-dark);
+            border-radius: var(--radius-md);
+            border: 2px solid var(--border-light);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .team-option:hover {
+            background: rgba(0, 139, 185, 0.05);
+        }
+
+        .team-option.selected {
+            border-color: var(--primary);
+            background: rgba(0, 139, 185, 0.1);
+        }
+
+        .team-option-indicator {
+            width: 8px;
+            height: 50px;
+            border-radius: 4px;
+        }
+
+        .team-option-indicator.blue {
+            background: linear-gradient(180deg, var(--team-blue), var(--primary));
+        }
+
+        .team-option-indicator.red {
+            background: linear-gradient(180deg, var(--team-red), var(--warning));
+        }
+
+        .team-option-content {
+            flex: 1;
+        }
+
+        .team-option-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-white);
+            margin-bottom: 4px;
+        }
+
+        .team-option-players {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .team-option-radio {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .team-option.selected .team-option-radio {
+            border-color: var(--primary);
+            background: var(--primary);
+        }
+
+        /* Serve Selection */
+        .serve-section {
+            margin-bottom: 24px;
+        }
+
+        .serve-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .serve-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .player-option {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 16px 18px;
+            background: var(--bg-dark);
+            border-radius: var(--radius-sm);
+            border: 2px solid var(--border-light);
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .player-option:last-child {
+            margin-bottom: 0;
+        }
+
+        .player-option:hover {
+            background: rgba(0, 139, 185, 0.05);
+        }
+
+        .player-option.selected {
+            border-color: var(--primary);
+            background: rgba(0, 139, 185, 0.1);
+        }
+
+        .player-option-radio {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid var(--border-color);
+            transition: all 0.2s;
+        }
+
+        .player-option.selected .player-option-radio {
+            border-color: var(--primary);
+            background: var(--primary);
+            box-shadow: inset 0 0 0 4px var(--bg-dark);
+        }
+
+        .player-option-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-light);
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            padding: 18px 28px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-white);
+            font-size: 15px;
+            font-weight: 600;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transform: translateX(calc(100% + 40px));
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-icon {
+            font-size: 22px;
+        }
+
+        /* SVG Icons */
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .icon-lg {
+            width: 28px;
+            height: 28px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .control-panel {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .header {
+                flex-wrap: wrap;
+                gap: 16px;
+            }
+
+            .header-center {
+                order: 3;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .scoreboard-main {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .vs-center {
+                flex-direction: row;
+                padding: 0;
+            }
+
+            .vs-line {
+                width: 60px;
+                height: 3px;
+                background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            }
+
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .team-option.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .team-option.disabled:hover {
+            background: var(--bg-dark);
+            border-color: var(--border-light);
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="bg-pattern"></div>
+
+        <div class="app-container">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-left">
+                    <button class="btn-back" @click="goBack">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M15 18l-6-6 6-6"/>
+                        </svg>
+                        Quay lại
+                    </button>
+                    <div class="logo">
+                        <div class="logo-icon">🏓</div>
+                        <span class="logo-text">onePickleball</span>
+                    </div>
+                </div>
+
+                <div class="header-center">
+                    <div class="match-timer-box">
+                        <div class="timer-label">Thời gian</div>
+                        <div class="timer-value">{{ timerDisplay }}</div>
+                    </div>
+                    <div class="match-info">
+                        <div class="status-badge">
+                            <span class="status-dot" :class="{ live: status === 'playing' }"></span>
+                            <span class="status-text">{{ statusText }}</span>
+                        </div>
+                        <span class="game-badge">Game <strong>{{ currentGame }}</strong> / {{ totalGames }}</span>
+                        <div class="game-score-display">
+                            <span class="game-score-item left">{{ teams.left.gamesWon }}</span>
+                            <span class="game-score-separator">-</span>
+                            <span class="game-score-item right">{{ teams.right.gamesWon }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="header-right">
+                    <div class="game-mode-switch">
+                        <button
+                            class="mode-btn"
+                            :class="{ active: gameMode === 'singles' }"
+                            @click="setGameMode('singles')"
+                            :disabled="status !== 'waiting'"
+                        >
+                            Đơn
+                        </button>
+                        <button
+                            class="mode-btn"
+                            :class="{ active: gameMode === 'doubles' }"
+                            @click="setGameMode('doubles')"
+                            :disabled="status !== 'waiting'"
+                        >
+                            Đôi
+                        </button>
+                    </div>
+                    <div class="referee-info-header">
+                        <div class="referee-avatar-sm">👨‍⚖️</div>
+                        <div class="referee-details">
+                            <div class="referee-name-sm">Hoàng Minh Tuấn</div>
+                            <div class="referee-role">Trọng tài - Cấp 2</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Left Panel - Scoreboard -->
+                <div class="scoreboard-panel">
+                    <!-- Score Call Display -->
+                    <div class="score-call-bar">
+                        <span class="score-call-label">Score Call:</span>
+                        <span class="score-call-value">{{ scoreCall }}</span>
+                    </div>
+
+                    <!-- Court Info Bar -->
+                    <div class="court-info-bar">
+                        <div class="court-display">
+                            <div class="court-icon-lg">🏟️</div>
+                            <div class="court-text">
+                                <span class="court-label">Sân thi đấu</span>
+                                <span class="court-number">03</span>
+                            </div>
+                        </div>
+                        <div class="court-divider"></div>
+                        <div class="tournament-info">
+                            <div class="tournament-name">Vietnam Pickleball Open 2025</div>
+                            <div class="tournament-round">Vòng <span>Tứ kết</span> - {{ gameMode === 'singles' ? 'Đơn' : 'Đôi' }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Main Scoreboard -->
+                    <div class="scoreboard-main">
+                        <!-- Team Left (Blue) -->
+                        <div class="team-card blue" :class="{ serving: serving.team === 'left' }">
+                            <div class="serving-indicator" v-if="serving.team === 'left'">
+                                <span>🎾</span> Đang giao bóng
+                            </div>
+
+                            <div class="team-header">
+                                <div class="team-avatar">🔵</div>
+                                <div class="team-info">
+                                    <div class="team-name">{{ teams.left.name }}</div>
+                                </div>
+                            </div>
+
+                            <div class="team-score-section">
+                                <div class="team-score">{{ teams.left.score }}</div>
+                                <div class="score-label">Điểm số</div>
+                                <div class="server-number-display" v-if="serving.team === 'left' && gameMode === 'doubles'">
+                                    <span class="server-label">Server</span>
+                                    <span class="server-value">{{ serving.serverNumber }}</span>
+                                </div>
+                            </div>
+
+                            <div class="players-section" v-if="gameMode === 'doubles'">
+                                <div class="players-title">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                    Thành viên
+                                </div>
+                                <div class="players-grid">
+                                    <div
+                                        v-for="(player, index) in teams.left.players"
+                                        :key="index"
+                                        class="player-card"
+                                        :class="{ active: serving.team === 'left' && serving.serverIndex === index }"
+                                    >
+                                        <div class="player-status"></div>
+                                        <div class="player-details">
+                                            <div class="player-name">{{ player.name }}</div>
+                                            <div class="player-position">Vị trí: {{ player.courtSide === 'right' ? 'Bên Phải (Chẵn)' : 'Bên Trái (Lẻ)' }}</div>
+                                        </div>
+                                        <span class="player-tag">Server {{ index + 1 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="players-section" v-else>
+                                <div class="players-title">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                    VĐV
+                                </div>
+                                <div class="player-card" :class="{ active: serving.team === 'left' }">
+                                    <div class="player-status"></div>
+                                    <div class="player-details">
+                                        <div class="player-name">{{ teams.left.players[0].name }}</div>
+                                        <div class="player-position">Vị trí: {{ servingCourtSide === 'right' ? 'Bên Phải' : 'Bên Trái' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="score-controls">
+                                <button class="btn-score add" @click="rallyWon('left')">
+                                    <span>+</span> Thắng rally
+                                </button>
+                                <button class="btn-score subtract" @click="adjustScore('left', -1)">
+                                    <span>-</span> Trừ điểm
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- VS Center -->
+                        <div class="vs-center">
+                            <div class="vs-line"></div>
+                            <div class="vs-badge">VS</div>
+                            <button class="vs-switch-btn" @click="switchSides">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <polyline points="17 1 21 5 17 9"/>
+                                    <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                                    <polyline points="7 23 3 19 7 15"/>
+                                    <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                                </svg>
+                                Đổi sân
+                            </button>
+                            <div class="vs-line"></div>
+                        </div>
+
+                        <!-- Team Right (Red) -->
+                        <div class="team-card red" :class="{ serving: serving.team === 'right' }">
+                            <div class="serving-indicator" v-if="serving.team === 'right'">
+                                <span>🎾</span> Đang giao bóng
+                            </div>
+
+                            <div class="team-header">
+                                <div class="team-avatar">🔴</div>
+                                <div class="team-info">
+                                    <div class="team-name">{{ teams.right.name }}</div>
+                                </div>
+                            </div>
+
+                            <div class="team-score-section">
+                                <div class="team-score">{{ teams.right.score }}</div>
+                                <div class="score-label">Điểm số</div>
+                                <div class="server-number-display" v-if="serving.team === 'right' && gameMode === 'doubles'">
+                                    <span class="server-label">Server</span>
+                                    <span class="server-value">{{ serving.serverNumber }}</span>
+                                </div>
+                            </div>
+
+                            <div class="players-section" v-if="gameMode === 'doubles'">
+                                <div class="players-title">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="9" cy="7" r="4"/>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                                    </svg>
+                                    Thành viên
+                                </div>
+                                <div class="players-grid">
+                                    <div
+                                        v-for="(player, index) in teams.right.players"
+                                        :key="index"
+                                        class="player-card"
+                                        :class="{ active: serving.team === 'right' && serving.serverIndex === index }"
+                                    >
+                                        <div class="player-status"></div>
+                                        <div class="player-details">
+                                            <div class="player-name">{{ player.name }}</div>
+                                            <div class="player-position">Vị trí: {{ player.courtSide === 'right' ? 'Bên Phải (Chẵn)' : 'Bên Trái (Lẻ)' }}</div>
+                                        </div>
+                                        <span class="player-tag">Server {{ index + 1 }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="players-section" v-else>
+                                <div class="players-title">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                        <circle cx="12" cy="7" r="4"/>
+                                    </svg>
+                                    VĐV
+                                </div>
+                                <div class="player-card" :class="{ active: serving.team === 'right' }">
+                                    <div class="player-status"></div>
+                                    <div class="player-details">
+                                        <div class="player-name">{{ teams.right.players[0].name }}</div>
+                                        <div class="player-position">Vị trí: {{ servingCourtSide === 'right' ? 'Bên Phải' : 'Bên Trái' }}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="score-controls">
+                                <button class="btn-score add" @click="rallyWon('right')">
+                                    <span>+</span> Thắng rally
+                                </button>
+                                <button class="btn-score subtract" @click="adjustScore('right', -1)">
+                                    <span>-</span> Trừ điểm
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Panel - Controls -->
+                <div class="control-panel">
+                    <!-- Game Controls -->
+                    <div class="control-card">
+                        <div class="control-card-header">
+                            <span class="control-card-title">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polygon points="10 8 16 12 10 16 10 8" fill="currentColor"/>
+                                </svg>
+                                Điều khiển trận đấu
+                            </span>
+                        </div>
+                        <div class="control-card-body">
+                            <div class="game-controls-grid">
+                                <button class="btn-game coin" @click="showCoinFlip">
+                                    <svg class="icon icon-lg" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/>
+                                        <path d="M2 12h20"/>
+                                    </svg>
+                                    Bốc Thăm
+                                </button>
+                                <button class="btn-game pause" @click="pauseMatch" :disabled="status === 'waiting'">
+                                    <svg class="icon icon-lg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                        <rect x="6" y="4" width="4" height="16" rx="1"/>
+                                        <rect x="14" y="4" width="4" height="16" rx="1"/>
+                                    </svg>
+                                    {{ status === 'paused' ? 'Tiếp tục' : 'Tạm Dừng' }}
+                                </button>
+                                <button
+                                    class="btn-game start"
+                                    :class="{ running: status === 'playing' }"
+                                    @click="toggleMatch"
+                                >
+                                    <svg class="icon icon-lg" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                        <polygon points="5 3 19 12 5 21 5 3"/>
+                                    </svg>
+                                    {{ status === 'waiting' ? 'Bắt Đầu Trận Đấu' : 'Đang Diễn Ra' }}
+                                </button>
+                                <button class="btn-game end" @click="endGame" :disabled="status === 'waiting'">
+                                    <svg class="icon icon-lg" viewBox="0 0 24 24">
+                                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                        <rect x="8" y="8" width="8" height="8" rx="1" fill="currentColor"/>
+                                    </svg>
+                                    Kết Thúc
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="control-card">
+                        <div class="control-card-header">
+                            <span class="control-card-title">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                                </svg>
+                                Thao tác nhanh
+                            </span>
+                        </div>
+                        <div class="control-card-body">
+                            <div class="quick-actions-grid">
+                                <button class="btn-quick undo" @click="undo" :disabled="history.length === 0">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M3 7v6h6"/>
+                                        <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/>
+                                    </svg>
+                                    Hoàn Tác
+                                </button>
+                                <button class="btn-quick fault" @click="recordFault" :disabled="status !== 'playing'">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <line x1="15" y1="9" x2="9" y2="15"/>
+                                        <line x1="9" y1="9" x2="15" y2="15"/>
+                                    </svg>
+                                    Lỗi Giao
+                                </button>
+                                <button class="btn-quick" @click="manualSwitchServer" :disabled="status !== 'playing' || gameMode === 'singles'">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <polyline points="17 1 21 5 17 9"/>
+                                        <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
+                                        <polyline points="7 23 3 19 7 15"/>
+                                        <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
+                                    </svg>
+                                    Đổi Server
+                                </button>
+                                <button class="btn-quick" @click="requestTimeout" :disabled="status !== 'playing'">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="12" r="10"/>
+                                        <polyline points="12 6 12 12 16 14"/>
+                                    </svg>
+                                    Timeout
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- History -->
+                    <div class="control-card" style="flex: 1;">
+                        <div class="control-card-header">
+                            <span class="control-card-title">
+                                <svg class="icon" viewBox="0 0 24 24">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <polyline points="12 6 12 12 16 14"/>
+                                </svg>
+                                Lịch sử trận đấu
+                            </span>
+                            <span class="history-clear" @click="clearEventLog">Xóa tất cả</span>
+                        </div>
+                        <div class="control-card-body">
+                            <div class="history-list">
+                                <div class="history-item" v-for="(event, index) in eventLog" :key="index">
+                                    <span class="history-time">{{ event.time }}</span>
+                                    <span class="history-event">{{ event.message }}</span>
+                                    <span class="history-score">{{ event.score }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coin Flip Modal -->
+        <div class="modal-overlay" v-if="activeModal === 'coinFlip'" @click.self="closeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-icon">🎲</div>
+                    <div class="modal-title">Bốc Thăm Chia Sân</div>
+                    <div class="modal-subtitle">Nhấn vào đồng xu để bốc thăm ngẫu nhiên</div>
+                </div>
+                <div class="modal-body">
+                    <div class="coin-container">
+                        <div class="coin-3d">
+                            <div
+                                class="coin-inner"
+                                :class="{ flipping: coinFlipping }"
+                                :style="coinStyle"
+                                @click="flipCoin"
+                            >
+                                <div class="coin-side coin-front">🔵</div>
+                                <div class="coin-side coin-back">🔴</div>
+                            </div>
+                        </div>
+                        <div class="coin-result-text" v-if="coinResult">{{ coinResult }}</div>
+                        <div class="coin-hint" v-else-if="!coinFlipping">👆 Nhấn vào đồng xu để bốc thăm</div>
+                        <div class="coin-hint" v-else>🎲 Đang bốc thăm...</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal secondary" @click="closeModal" :disabled="coinFlipping">Đóng</button>
+                    <button class="btn-modal primary" @click="confirmCoinFlip" :disabled="!coinResult || coinFlipping">Tiếp Tục</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Team Assignment Modal -->
+        <div class="modal-overlay" v-if="activeModal === 'teamAssign'" @click.self="closeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-icon">📍</div>
+                    <div class="modal-title">Phân Chia Vị Trí Sân</div>
+                    <div class="modal-subtitle">Chọn đội sẽ đứng ở vị trí bên TRÁI</div>
+                </div>
+                <div class="modal-body">
+                    <div class="team-options">
+                        <div
+                            class="team-option"
+                            :class="{ selected: selectedLeftTeam === 'left' }"
+                            @click="selectedLeftTeam = 'left'"
+                        >
+                            <div class="team-option-indicator blue"></div>
+                            <div class="team-option-content">
+                                <div class="team-option-name">🔵 {{ teams.left.name }}</div>
+                                <div class="team-option-players">{{ getPlayersString('left') }}</div>
+                            </div>
+                            <div class="team-option-radio">
+                                <svg v-if="selectedLeftTeam === 'left'" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" style="width:16px;height:16px">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </div>
+                        </div>
+                        <div
+                            class="team-option"
+                            :class="{ selected: selectedLeftTeam === 'right' }"
+                            @click="selectedLeftTeam = 'right'"
+                        >
+                            <div class="team-option-indicator red"></div>
+                            <div class="team-option-content">
+                                <div class="team-option-name">🔴 {{ teams.right.name }}</div>
+                                <div class="team-option-players">{{ getPlayersString('right') }}</div>
+                            </div>
+                            <div class="team-option-radio">
+                                <svg v-if="selectedLeftTeam === 'right'" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" style="width:16px;height:16px">
+                                    <polyline points="20 6 9 17 4 12"/>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal secondary" @click="activeModal = 'coinFlip'">Quay Lại</button>
+                    <button class="btn-modal primary" @click="confirmTeamAssignment">Xác Nhận</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Serve Order Modal -->
+        <div class="modal-overlay" v-if="activeModal === 'serveOrder'" @click.self="closeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-icon">🎾</div>
+                    <div class="modal-title">Xác Định Người Giao Bóng</div>
+                    <div class="modal-subtitle">{{ teams[serving.team].name }} được quyền giao bóng trước</div>
+                </div>
+                <div class="modal-body">
+                    <div class="serve-section" v-if="gameMode === 'doubles'">
+                        <div class="serve-label">✋ Chọn người giao bóng đầu tiên</div>
+                        <div
+                            v-for="(player, index) in teams[serving.team].players"
+                            :key="index"
+                            class="player-option"
+                            :class="{ selected: selectedServerIndex === index }"
+                            @click="selectedServerIndex = index"
+                        >
+                            <div class="player-option-radio"></div>
+                            <span class="player-option-name">{{ player.name }}</span>
+                        </div>
+                    </div>
+                    <div class="serve-section" v-else>
+                        <div class="serve-label">Người giao bóng</div>
+                        <div class="player-option selected">
+                            <div class="player-option-radio"></div>
+                            <span class="player-option-name">{{ teams[serving.team].players[0].name }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal secondary" @click="activeModal = 'teamAssign'">Quay Lại</button>
+                    <button class="btn-modal primary" @click="confirmServeOrder">▶️ Bắt Đầu Trận Đấu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeout Modal -->
+        <div class="modal-overlay" v-if="activeModal === 'timeout'" @click.self="closeModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <div class="modal-icon">⏱️</div>
+                    <div class="modal-title">Gọi Timeout</div>
+                    <div class="modal-subtitle">Chọn đội muốn gọi timeout (mỗi đội 2 lần/game)</div>
+                </div>
+                <div class="modal-body">
+                    <div class="team-options">
+                        <div
+                            class="team-option"
+                            :class="{ disabled: timeout.leftRemaining <= 0 }"
+                            @click="timeout.leftRemaining > 0 && startTimeout('left')"
+                        >
+                            <div class="team-option-indicator blue"></div>
+                            <div class="team-option-content">
+                                <div class="team-option-name">🔵 {{ teams.left.name }}</div>
+                                <div class="team-option-players">Còn {{ timeout.leftRemaining }} timeout</div>
+                            </div>
+                            <div class="team-option-radio" v-if="timeout.leftRemaining > 0">
+                                <span style="font-size: 20px;">⏱️</span>
+                            </div>
+                            <div class="team-option-radio" v-else>
+                                <span style="font-size: 16px; color: var(--danger);">Hết</span>
+                            </div>
+                        </div>
+                        <div
+                            class="team-option"
+                            :class="{ disabled: timeout.rightRemaining <= 0 }"
+                            @click="timeout.rightRemaining > 0 && startTimeout('right')"
+                        >
+                            <div class="team-option-indicator red"></div>
+                            <div class="team-option-content">
+                                <div class="team-option-name">🔴 {{ teams.right.name }}</div>
+                                <div class="team-option-players">Còn {{ timeout.rightRemaining }} timeout</div>
+                            </div>
+                            <div class="team-option-radio" v-if="timeout.rightRemaining > 0">
+                                <span style="font-size: 20px;">⏱️</span>
+                            </div>
+                            <div class="team-option-radio" v-else>
+                                <span style="font-size: 16px; color: var(--danger);">Hết</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-modal secondary" @click="closeModal">Hủy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeout Countdown Overlay -->
+        <div class="modal-overlay" v-if="timeout.active" style="background: rgba(6, 13, 24, 0.98);">
+            <div class="modal-content" style="text-align: center;">
+                <div class="modal-header">
+                    <div class="modal-icon">⏱️</div>
+                    <div class="modal-title">TIMEOUT</div>
+                    <div class="modal-subtitle">{{ teams[timeout.team]?.name }}</div>
+                </div>
+                <div class="modal-body">
+                    <div style="font-family: 'Space Mono', monospace; font-size: 80px; font-weight: 700; color: var(--accent); margin: 20px 0;">
+                        {{ timeoutDisplay }}
+                    </div>
+                    <div style="font-size: 14px; color: var(--text-muted);">
+                        Còn {{ timeout.team === 'left' ? timeout.leftRemaining : timeout.rightRemaining }} timeout
+                    </div>
+                </div>
+                <div class="modal-footer" style="justify-content: center;">
+                    <button class="btn-modal primary" @click="endTimeout">▶️ Tiếp Tục Trận Đấu</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast -->
+        <div class="toast" :class="{ show: toast.show }">
+            <span class="toast-icon">{{ toast.icon }}</span>
+            <span class="toast-text">{{ toast.message }}</span>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, reactive, computed, watch, onMounted, onUnmounted } = Vue
+
+        createApp({
+            setup() {
+                // ==================== STATE ====================
+                const gameMode = ref('doubles') // 'singles' or 'doubles'
+                const status = ref('waiting') // 'waiting' | 'playing' | 'paused' | 'finished'
+                const timer = ref(0)
+                let timerInterval = null
+
+                const currentGame = ref(1)
+                const totalGames = ref(3)
+                const winScore = ref(11)
+
+                const teams = reactive({
+                    left: {
+                        name: 'Phượng Hoàng',
+                        score: 0,
+                        gamesWon: 0,
+                        players: [
+                            { name: 'Nguyễn Văn A', courtSide: 'right' },
+                            { name: 'Trần Văn B', courtSide: 'left' }
+                        ]
+                    },
+                    right: {
+                        name: 'Đại Bàng',
+                        score: 0,
+                        gamesWon: 0,
+                        players: [
+                            { name: 'Lê Văn C', courtSide: 'right' },
+                            { name: 'Phạm Văn D', courtSide: 'left' }
+                        ]
+                    }
+                })
+
+                const serving = reactive({
+                    team: 'left',
+                    serverIndex: 0,
+                    serverNumber: 2,
+                    isFirstServeOfGame: true
+                })
+
+                const history = ref([])
+                const eventLog = ref([])
+
+                const activeModal = ref(null)
+                const coinResult = ref('')
+                const coinRotation = ref(0)
+                const coinFlipping = ref(false)
+                const selectedLeftTeam = ref('left')
+                const selectedServerIndex = ref(0)
+
+                // Timeout state
+                const timeout = reactive({
+                    active: false,
+                    team: null,
+                    remaining: 60,
+                    interval: null,
+                    leftRemaining: 2,  // Số timeout còn lại của đội trái
+                    rightRemaining: 2  // Số timeout còn lại của đội phải
+                })
+
+                const toast = reactive({
+                    show: false,
+                    icon: '',
+                    message: ''
+                })
+
+                // Track đổi sân ở game quyết định
+                const hasSwitchedSidesInDecidingGame = ref(false)
+
+                // ==================== LOCAL STORAGE ====================
+                const STORAGE_KEY = 'pickleball_match_state'
+
+                function generateMatchId() {
+                    return 'match_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9)
+                }
+
+                const matchId = ref(generateMatchId())
+
+                function saveMatchState() {
+                    // Tính toán thời gian đã chơi thực tế
+                    // Nếu đang playing, lưu thời điểm bắt đầu để tính lại khi restore
+                    const now = Date.now()
+                    const state = {
+                        matchId: matchId.value,
+                        savedAt: now,
+                        gameMode: gameMode.value,
+                        status: status.value,
+                        timer: timer.value,
+                        // Lưu timestamp khi timer bắt đầu chạy (để tính lại thời gian khi restore)
+                        timerStartedAt: status.value === 'playing' ? (now - timer.value * 1000) : null,
+                        currentGame: currentGame.value,
+                        totalGames: totalGames.value,
+                        winScore: winScore.value,
+                        teams: {
+                            left: {
+                                name: teams.left.name,
+                                score: teams.left.score,
+                                gamesWon: teams.left.gamesWon,
+                                players: JSON.parse(JSON.stringify(teams.left.players))
+                            },
+                            right: {
+                                name: teams.right.name,
+                                score: teams.right.score,
+                                gamesWon: teams.right.gamesWon,
+                                players: JSON.parse(JSON.stringify(teams.right.players))
+                            }
+                        },
+                        serving: {
+                            team: serving.team,
+                            serverIndex: serving.serverIndex,
+                            serverNumber: serving.serverNumber,
+                            isFirstServeOfGame: serving.isFirstServeOfGame
+                        },
+                        timeout: {
+                            leftRemaining: timeout.leftRemaining,
+                            rightRemaining: timeout.rightRemaining
+                        },
+                        history: history.value,
+                        eventLog: eventLog.value,
+                        hasSwitchedSidesInDecidingGame: hasSwitchedSidesInDecidingGame.value
+                    }
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
+                    } catch (e) {
+                        console.error('Failed to save match state:', e)
+                    }
+                }
+
+                function loadMatchState() {
+                    try {
+                        const saved = localStorage.getItem(STORAGE_KEY)
+                        if (!saved) return false
+
+                        const state = JSON.parse(saved)
+
+                        // Kiểm tra xem state có hợp lệ không (không quá cũ - 24h)
+                        const maxAge = 24 * 60 * 60 * 1000
+                        if (Date.now() - state.savedAt > maxAge) {
+                            clearMatchState()
+                            return false
+                        }
+
+                        // Restore state
+                        matchId.value = state.matchId || generateMatchId()
+                        gameMode.value = state.gameMode
+
+                        // Tính lại timer nếu trận đang playing khi F5
+                        if (state.status === 'playing' && state.timerStartedAt) {
+                            // Tính thời gian đã trôi qua từ khi bắt đầu
+                            const elapsedSeconds = Math.floor((Date.now() - state.timerStartedAt) / 1000)
+                            timer.value = elapsedSeconds
+                        } else {
+                            timer.value = state.timer
+                        }
+
+                        status.value = state.status === 'playing' ? 'paused' : state.status // Pause nếu đang playing
+                        currentGame.value = state.currentGame
+                        totalGames.value = state.totalGames
+                        winScore.value = state.winScore
+
+                        // Teams
+                        teams.left.name = state.teams.left.name
+                        teams.left.score = state.teams.left.score
+                        teams.left.gamesWon = state.teams.left.gamesWon
+                        teams.left.players = state.teams.left.players
+
+                        teams.right.name = state.teams.right.name
+                        teams.right.score = state.teams.right.score
+                        teams.right.gamesWon = state.teams.right.gamesWon
+                        teams.right.players = state.teams.right.players
+
+                        // Serving
+                        serving.team = state.serving.team
+                        serving.serverIndex = state.serving.serverIndex
+                        serving.serverNumber = state.serving.serverNumber
+                        serving.isFirstServeOfGame = state.serving.isFirstServeOfGame
+
+                        // Timeout
+                        timeout.leftRemaining = state.timeout.leftRemaining
+                        timeout.rightRemaining = state.timeout.rightRemaining
+
+                        // History & Events
+                        history.value = state.history || []
+                        eventLog.value = state.eventLog || []
+
+                        hasSwitchedSidesInDecidingGame.value = state.hasSwitchedSidesInDecidingGame || false
+
+                        return true
+                    } catch (e) {
+                        console.error('Failed to load match state:', e)
+                        return false
+                    }
+                }
+
+                function clearMatchState() {
+                    try {
+                        localStorage.removeItem(STORAGE_KEY)
+                    } catch (e) {
+                        console.error('Failed to clear match state:', e)
+                    }
+                }
+
+                // ==================== COMPUTED ====================
+                const timerDisplay = computed(() => {
+                    const m = Math.floor(timer.value / 60).toString().padStart(2, '0')
+                    const s = (timer.value % 60).toString().padStart(2, '0')
+                    return `${m}:${s}`
+                })
+
+                const statusText = computed(() => {
+                    const statusMap = {
+                        waiting: 'Chờ bắt đầu',
+                        playing: 'Đang thi đấu',
+                        paused: 'Tạm dừng',
+                        finished: 'Kết thúc'
+                    }
+                    return statusMap[status.value]
+                })
+
+                const scoreCall = computed(() => {
+                    const serverScore = teams[serving.team].score
+                    const receiverTeam = serving.team === 'left' ? 'right' : 'left'
+                    const receiverScore = teams[receiverTeam].score
+
+                    if (gameMode.value === 'singles') {
+                        return `${serverScore} - ${receiverScore}`
+                    } else {
+                        return `${serverScore} - ${receiverScore} - ${serving.serverNumber}`
+                    }
+                })
+
+                const servingCourtSide = computed(() => {
+                    const score = teams[serving.team].score
+                    return score % 2 === 0 ? 'right' : 'left'
+                })
+
+                const coinStyle = computed(() => {
+                    return {
+                        transform: `rotateY(${coinRotation.value}deg)`
+                    }
+                })
+
+                const timeoutDisplay = computed(() => {
+                    const m = Math.floor(timeout.remaining / 60).toString().padStart(2, '0')
+                    const s = (timeout.remaining % 60).toString().padStart(2, '0')
+                    return `${m}:${s}`
+                })
+
+                // Kiểm tra có phải game quyết định không (game cuối, 2 đội hòa số game)
+                const isDecidingGame = computed(() => {
+                    const winsNeeded = Math.ceil(totalGames.value / 2)
+                    return currentGame.value === totalGames.value &&
+                           teams.left.gamesWon === teams.right.gamesWon &&
+                           teams.left.gamesWon === winsNeeded - 1
+                })
+
+                // ==================== METHODS ====================
+
+                // Timer
+                function startTimer() {
+                    timerInterval = setInterval(() => {
+                        timer.value++
+                    }, 1000)
+                }
+
+                function stopTimer() {
+                    if (timerInterval) {
+                        clearInterval(timerInterval)
+                        timerInterval = null
+                    }
+                }
+
+                // Toast
+                function showToast(icon, message) {
+                    toast.icon = icon
+                    toast.message = message
+                    toast.show = true
+                    setTimeout(() => {
+                        toast.show = false
+                    }, 3000)
+                }
+
+                // Event Log
+                function addEvent(message, shouldSave = true) {
+                    const m = Math.floor(timer.value / 60).toString().padStart(2, '0')
+                    const s = (timer.value % 60).toString().padStart(2, '0')
+                    eventLog.value.unshift({
+                        time: `${m}:${s}`,
+                        message: message,
+                        score: `${teams.left.score} - ${teams.right.score}`
+                    })
+                    if (eventLog.value.length > 50) {
+                        eventLog.value.pop()
+                    }
+                    // Save state after each event
+                    if (shouldSave && status.value !== 'waiting') {
+                        saveMatchState()
+                    }
+                }
+
+                function clearEventLog() {
+                    if (confirm('Xóa toàn bộ lịch sử trận đấu?')) {
+                        eventLog.value = []
+                        showToast('🗑️', 'Đã xóa lịch sử')
+                        saveMatchState()
+                    }
+                }
+
+                // History for undo
+                function saveHistory() {
+                    history.value.push({
+                        leftScore: teams.left.score,
+                        rightScore: teams.right.score,
+                        servingTeam: serving.team,
+                        serverIndex: serving.serverIndex,
+                        serverNumber: serving.serverNumber,
+                        isFirstServeOfGame: serving.isFirstServeOfGame,
+                        leftPlayers: JSON.parse(JSON.stringify(teams.left.players)),
+                        rightPlayers: JSON.parse(JSON.stringify(teams.right.players))
+                    })
+                    if (history.value.length > 20) {
+                        history.value.shift()
+                    }
+                }
+
+                function undo() {
+                    if (history.value.length === 0) {
+                        showToast('❌', 'Không có thao tác để hoàn tác')
+                        return
+                    }
+
+                    const prev = history.value.pop()
+                    teams.left.score = prev.leftScore
+                    teams.right.score = prev.rightScore
+                    serving.team = prev.servingTeam
+                    serving.serverIndex = prev.serverIndex
+                    serving.serverNumber = prev.serverNumber
+                    serving.isFirstServeOfGame = prev.isFirstServeOfGame
+                    teams.left.players = prev.leftPlayers
+                    teams.right.players = prev.rightPlayers
+
+                    addEvent('↩️ Hoàn tác thao tác trước')
+                    showToast('↩️', 'Đã hoàn tác')
+                }
+
+                // Game Mode
+                function setGameMode(mode) {
+                    if (status.value !== 'waiting') return
+                    gameMode.value = mode
+                    showToast('🎮', mode === 'singles' ? 'Chế độ Đơn' : 'Chế độ Đôi')
+                }
+
+                // Swap player positions (doubles only - when serving team scores)
+                function swapPlayerPositions(team) {
+                    const players = teams[team].players
+                    const temp = players[0].courtSide
+                    players[0].courtSide = players[1].courtSide
+                    players[1].courtSide = temp
+                }
+
+                // Đổi sân ở game quyết định (khi 1 đội đạt 6 điểm)
+                function checkDecidingGameSwitch() {
+                    if (!isDecidingGame.value) return
+                    if (hasSwitchedSidesInDecidingGame.value) return
+
+                    const leftScore = teams.left.score
+                    const rightScore = teams.right.score
+
+                    // Đổi sân khi 1 trong 2 đội đạt 6 điểm
+                    if (leftScore === 6 || rightScore === 6) {
+                        hasSwitchedSidesInDecidingGame.value = true
+                        performSideSwitch()
+                        addEvent('🔄 Đổi sân ở game quyết định (6 điểm)')
+                        showToast('🔄', 'Đổi sân - Game quyết định!')
+                    }
+                }
+
+                // Thực hiện đổi sân (dùng chung cho cả manual và auto)
+                function performSideSwitch() {
+                    // Swap team data
+                    const tempName = teams.left.name
+                    const tempScore = teams.left.score
+                    const tempGamesWon = teams.left.gamesWon
+                    const tempPlayers = JSON.parse(JSON.stringify(teams.left.players))
+
+                    teams.left.name = teams.right.name
+                    teams.left.score = teams.right.score
+                    teams.left.gamesWon = teams.right.gamesWon
+                    teams.left.players = JSON.parse(JSON.stringify(teams.right.players))
+
+                    teams.right.name = tempName
+                    teams.right.score = tempScore
+                    teams.right.gamesWon = tempGamesWon
+                    teams.right.players = tempPlayers
+
+                    // Đổi serving team (giữ nguyên đội đang giao)
+                    serving.team = serving.team === 'left' ? 'right' : 'left'
+                }
+
+                // Get player index on specific court side
+                function getPlayerIndexOnSide(team, side) {
+                    const players = teams[team].players
+                    return players[0].courtSide === side ? 0 : 1
+                }
+
+                // Switch serving team
+                function switchServingTeam() {
+                    serving.team = serving.team === 'left' ? 'right' : 'left'
+                }
+
+                // Handle side-out
+                function handleSideOut() {
+                    if (gameMode.value === 'singles') {
+                        // Singles: immediate side-out
+                        switchServingTeam()
+                        // Trong singles, người giao mới đứng ở bên sân theo điểm số của họ
+                        // Điểm chẵn → bên phải, điểm lẻ → bên trái
+                        const newServerScore = teams[serving.team].score
+                        const newCourtSide = newServerScore % 2 === 0 ? 'right' : 'left'
+                        teams[serving.team].players[0].courtSide = newCourtSide
+                        addEvent('🔄 Side-out!')
+                        showToast('🔄', 'Side-out - Đổi quyền giao')
+                    } else {
+                        // Doubles
+                        if (serving.isFirstServeOfGame) {
+                            // First serve of game (0-0-2) - side out immediately
+                            serving.isFirstServeOfGame = false
+                            switchServingTeam()
+                            serving.serverNumber = 1
+                            // Server 1 is on the right side (even score = 0)
+                            serving.serverIndex = getPlayerIndexOnSide(serving.team, 'right')
+                            addEvent('🔄 Side-out!')
+                            showToast('🔄', 'Side-out - Đổi quyền giao')
+                        } else if (serving.serverNumber === 1) {
+                            // Server 1 loses - switch to Server 2 (no position change)
+                            serving.serverNumber = 2
+                            serving.serverIndex = serving.serverIndex === 0 ? 1 : 0
+                            addEvent('2️⃣ Chuyển sang Server 2')
+                            showToast('2️⃣', 'Chuyển Server 2')
+                        } else {
+                            // Server 2 loses - side out
+                            switchServingTeam()
+                            serving.serverNumber = 1
+                            // New server 1 starts from correct position based on their score
+                            const side = teams[serving.team].score % 2 === 0 ? 'right' : 'left'
+                            serving.serverIndex = getPlayerIndexOnSide(serving.team, side)
+                            addEvent('🔄 Side-out!')
+                            showToast('🔄', 'Side-out - Đổi quyền giao')
+                        }
+                    }
+                }
+
+                // Main rally won logic
+                function rallyWon(winningTeam) {
+                    if (status.value !== 'playing') {
+                        showToast('⚠️', 'Vui lòng bắt đầu trận đấu!')
+                        return
+                    }
+
+                    saveHistory()
+
+                    if (winningTeam === serving.team) {
+                        // Serving team wins rally - they score
+                        teams[winningTeam].score++
+
+                        if (gameMode.value === 'doubles') {
+                            // In doubles, players swap positions when their team scores
+                            swapPlayerPositions(winningTeam)
+                            // Server stays the same person but their court side changed
+                        }
+
+                        addEvent(`[SCORE] +1 diem cho ${teams[winningTeam].name}`)
+
+                        // Kiểm tra đổi sân ở game quyết định (khi đạt 6 điểm)
+                        checkDecidingGameSwitch()
+
+                        checkGameWin()
+                    } else {
+                        // Receiving team wins rally - side out (no point scored)
+                        handleSideOut()
+                    }
+                }
+
+                // Adjust score manually
+                function adjustScore(team, delta) {
+                    if (delta < 0 && teams[team].score <= 0) return
+                    saveHistory()
+                    teams[team].score += delta
+                    addEvent(`✏️ ${delta > 0 ? '+' : ''}${delta} điểm cho ${teams[team].name} (điều chỉnh)`)
+                }
+
+                // Check game win
+                function checkGameWin() {
+                    const leftScore = teams.left.score
+                    const rightScore = teams.right.score
+
+                    // Win at 11+ with 2 point lead
+                    if ((leftScore >= winScore.value || rightScore >= winScore.value) &&
+                        Math.abs(leftScore - rightScore) >= 2) {
+                        endGame()
+                    }
+                }
+
+                // Record fault (same as receiving team winning rally)
+                function recordFault() {
+                    if (status.value !== 'playing') return
+                    saveHistory()
+                    handleSideOut()
+                    addEvent('❌ Lỗi giao bóng')
+                }
+
+                // Manual server switch (doubles only)
+                function manualSwitchServer() {
+                    if (status.value !== 'playing' || gameMode.value === 'singles') return
+                    saveHistory()
+
+                    serving.serverNumber = serving.serverNumber === 1 ? 2 : 1
+                    serving.serverIndex = serving.serverIndex === 0 ? 1 : 0
+
+                    addEvent(`🔄 Đổi sang Server ${serving.serverNumber}`)
+                    showToast('🔄', `Đã đổi sang Server ${serving.serverNumber}`)
+                }
+
+                // Timeout - hiển thị modal chọn đội timeout
+                function requestTimeout() {
+                    if (status.value !== 'playing') return
+                    if (timeout.active) return
+                    activeModal.value = 'timeout'
+                }
+
+                // Bắt đầu timeout cho đội được chọn
+                function startTimeout(team) {
+                    // Kiểm tra còn timeout không
+                    const remaining = team === 'left' ? timeout.leftRemaining : timeout.rightRemaining
+                    if (remaining <= 0) {
+                        showToast('❌', `${teams[team].name} đã hết timeout!`)
+                        return
+                    }
+
+                    // Trừ số timeout
+                    if (team === 'left') {
+                        timeout.leftRemaining--
+                    } else {
+                        timeout.rightRemaining--
+                    }
+
+                    // Pause game
+                    stopTimer()
+                    timeout.active = true
+                    timeout.team = team
+                    timeout.remaining = 60
+
+                    addEvent(`⏱️ ${teams[team].name} gọi timeout (còn ${team === 'left' ? timeout.leftRemaining : timeout.rightRemaining} lần)`)
+                    saveMatchState()
+
+                    // Đếm ngược
+                    timeout.interval = setInterval(() => {
+                        timeout.remaining--
+                        if (timeout.remaining <= 0) {
+                            endTimeout()
+                        }
+                    }, 1000)
+
+                    closeModal()
+                }
+
+                // Kết thúc timeout (tự động hoặc manual)
+                function endTimeout() {
+                    if (timeout.interval) {
+                        clearInterval(timeout.interval)
+                        timeout.interval = null
+                    }
+                    timeout.active = false
+                    timeout.team = null
+                    timeout.remaining = 60
+
+                    // Resume game
+                    startTimer()
+                    addEvent('▶️ Tiếp tục sau timeout')
+                    showToast('▶️', 'Tiếp tục trận đấu')
+                    saveMatchState()
+                }
+
+                // Switch sides - đổi vị trí sân cho 2 đội (manual)
+                function switchSides() {
+                    saveHistory()
+                    performSideSwitch()
+                    addEvent('🔄 Đổi vị trí sân')
+                    showToast('🔄', 'Đã đổi sân cho 2 đội')
+                }
+
+                // Match controls
+                function toggleMatch() {
+                    if (status.value === 'waiting') {
+                        activeModal.value = 'serveOrder'
+                    }
+                }
+
+                function startMatch() {
+                    status.value = 'playing'
+
+                    if (gameMode.value === 'doubles') {
+                        // Doubles: bắt đầu với Server 2 (quy tắc 0-0-2)
+                        serving.serverNumber = 2
+                        serving.isFirstServeOfGame = true
+                        // Người được chọn sẽ là Server 2, giao bóng đầu tiên
+                        serving.serverIndex = selectedServerIndex.value
+                    } else {
+                        // Singles: chỉ có 1 người giao
+                        serving.serverIndex = 0
+                    }
+
+                    // Generate new matchId when starting a new match
+                    matchId.value = generateMatchId()
+
+                    startTimer()
+                    addEvent('🎾 Trận đấu bắt đầu!')
+                    showToast('🎾', 'Trận đấu đã bắt đầu!')
+                    saveMatchState()
+                }
+
+                function pauseMatch() {
+                    if (status.value === 'waiting') return
+
+                    if (status.value === 'paused') {
+                        status.value = 'playing'
+                        startTimer()
+                        addEvent('▶️ Tiếp tục')
+                        showToast('▶️', 'Tiếp tục trận đấu')
+                    } else {
+                        status.value = 'paused'
+                        stopTimer()
+                        addEvent('⏸️ Tạm dừng')
+                        showToast('⏸️', 'Trận đấu tạm dừng')
+                    }
+                    saveMatchState()
+                }
+
+                function endGame() {
+                    if (status.value === 'waiting') return
+
+                    const leftScore = teams.left.score
+                    const rightScore = teams.right.score
+
+                    // Determine winner
+                    let winner = 'Hòa'
+                    if (leftScore > rightScore) {
+                        winner = teams.left.name
+                        teams.left.gamesWon++
+                    } else if (rightScore > leftScore) {
+                        winner = teams.right.name
+                        teams.right.gamesWon++
+                    }
+
+                    addEvent(`🏆 Game ${currentGame.value}: ${winner} thắng!`)
+                    showToast('🏆', `${winner} thắng Game ${currentGame.value}!`)
+
+                    // Check if match is over
+                    const winsNeeded = Math.ceil(totalGames.value / 2)
+                    if (teams.left.gamesWon >= winsNeeded || teams.right.gamesWon >= winsNeeded) {
+                        const matchWinner = teams.left.gamesWon >= winsNeeded ? teams.left.name : teams.right.name
+                        status.value = 'finished'
+                        stopTimer()
+                        addEvent(`👑 TRẬN ĐẤU KẾT THÚC: ${matchWinner} CHIẾN THẮNG!`)
+                        showToast('👑', `${matchWinner} thắng trận đấu!`)
+                        // Clear localStorage when match is finished
+                        clearMatchState()
+                    } else if (currentGame.value < totalGames.value) {
+                        currentGame.value++
+                        resetScores()
+                    }
+                }
+
+                function resetScores() {
+                    teams.left.score = 0
+                    teams.right.score = 0
+                    serving.serverNumber = 2
+                    serving.isFirstServeOfGame = true
+                    serving.serverIndex = 0
+                    history.value = []
+                    status.value = 'waiting'
+                    stopTimer()
+
+                    // Reset player positions
+                    teams.left.players[0].courtSide = 'right'
+                    teams.left.players[1].courtSide = 'left'
+                    teams.right.players[0].courtSide = 'right'
+                    teams.right.players[1].courtSide = 'left'
+
+                    // Reset timeout cho game mới
+                    timeout.leftRemaining = 2
+                    timeout.rightRemaining = 2
+                    timeout.active = false
+                    if (timeout.interval) {
+                        clearInterval(timeout.interval)
+                        timeout.interval = null
+                    }
+
+                    // Reset flag đổi sân game quyết định
+                    hasSwitchedSidesInDecidingGame.value = false
+
+                    // Save state for new game
+                    saveMatchState()
+                }
+
+                // Modal controls
+                function showCoinFlip() {
+                    activeModal.value = 'coinFlip'
+                    coinResult.value = ''
+                    coinRotation.value = 0
+                    coinFlipping.value = false
+                }
+
+                function closeModal() {
+                    activeModal.value = null
+                }
+
+                function flipCoin() {
+                    // Không cho flip khi đang quay
+                    if (coinFlipping.value) return
+
+                    coinFlipping.value = true
+                    coinResult.value = ''
+
+                    // Random kết quả: 0 = blue, 180 = red
+                    const finalRotation = 2880 + (Math.random() > 0.5 ? 180 : 0) // 8 vòng + kết quả
+                    coinRotation.value = finalRotation
+
+                    // Set CSS variable cho animation
+                    const coinElement = document.querySelector('.coin-inner')
+                    if (coinElement) {
+                        coinElement.style.setProperty('--final-rotation', finalRotation + 'deg')
+                    }
+
+                    setTimeout(() => {
+                        coinFlipping.value = false
+                        const isBlue = (coinRotation.value / 180) % 2 === 0
+                        coinResult.value = isBlue
+                            ? `🔵 ${teams.left.name} được chọn sân trước!`
+                            : `🔴 ${teams.right.name} được chọn sân trước!`
+                        addEvent(`🎲 Bốc thăm: ${coinResult.value}`)
+                    }, 1500)
+                }
+
+                function confirmCoinFlip() {
+                    activeModal.value = 'teamAssign'
+                }
+
+                function confirmTeamAssignment() {
+                    // If selected team should be on left but isn't, swap teams
+                    if (selectedLeftTeam.value === 'right') {
+                        // Swap team data
+                        const temp = { ...teams.left }
+                        Object.assign(teams.left, teams.right)
+                        Object.assign(teams.right, temp)
+                    }
+                    addEvent('✅ Đã phân chia vị trí sân')
+                    showToast('✅', 'Đã gán đội vào vị trí sân')
+                    activeModal.value = 'serveOrder'
+                }
+
+                function confirmServeOrder() {
+                    if (gameMode.value === 'doubles') {
+                        serving.serverIndex = selectedServerIndex.value
+                    }
+                    closeModal()
+                    startMatch()
+                }
+
+                // Helpers
+                function getPlayersString(team) {
+                    if (gameMode.value === 'singles') {
+                        return teams[team].players[0].name
+                    }
+                    return teams[team].players.map(p => p.name).join(' - ')
+                }
+
+                function goBack() {
+                    if (status.value !== 'waiting' && status.value !== 'finished') {
+                        const choice = confirm('Trận đấu đang diễn ra. Bạn có chắc muốn rời đi?\n\nNhấn OK để rời đi (dữ liệu sẽ được lưu).\nNhấn Cancel để ở lại.')
+                        if (!choice) return
+                    }
+                    showToast('⬅️', 'Quay lại danh sách trận đấu')
+                    // Note: State is preserved in localStorage, will be restored when user returns
+                }
+
+                // Keyboard shortcuts
+                function handleKeydown(e) {
+                    if (status.value !== 'playing') return
+
+                    if (e.key === ' ') {
+                        e.preventDefault()
+                        pauseMatch()
+                    }
+                    if (e.key === 'ArrowLeft') {
+                        e.preventDefault()
+                        rallyWon('left')
+                    }
+                    if (e.key === 'ArrowRight') {
+                        e.preventDefault()
+                        rallyWon('right')
+                    }
+                }
+
+                // Lifecycle
+                onMounted(() => {
+                    document.addEventListener('keydown', handleKeydown)
+
+                    // Try to restore match state from localStorage
+                    const restored = loadMatchState()
+                    if (restored) {
+                        addEvent('🔄 Khôi phục trận đấu từ phiên trước', false)
+                        showToast('🔄', 'Đã khôi phục trận đấu')
+
+                        // Nếu trận đấu đang paused (do F5 khi playing), hỏi user có muốn tiếp tục không
+                        if (status.value === 'paused') {
+                            setTimeout(() => {
+                                if (confirm('Trận đấu đang tạm dừng. Bạn có muốn tiếp tục không?')) {
+                                    status.value = 'playing'
+                                    startTimer()
+                                    addEvent('▶️ Tiếp tục trận đấu')
+                                    saveMatchState()
+                                }
+                            }, 500)
+                        }
+                    } else {
+                        addEvent('🎾 Sẵn sàng bắt đầu trận đấu', false)
+                    }
+                })
+
+                onUnmounted(() => {
+                    document.removeEventListener('keydown', handleKeydown)
+                    stopTimer()
+                })
+
+                return {
+                    // State
+                    gameMode,
+                    status,
+                    timer,
+                    currentGame,
+                    totalGames,
+                    winScore,
+                    teams,
+                    serving,
+                    history,
+                    eventLog,
+                    activeModal,
+                    coinResult,
+                    coinRotation,
+                    coinFlipping,
+                    selectedLeftTeam,
+                    selectedServerIndex,
+                    timeout,
+                    toast,
+
+                    // Computed
+                    timerDisplay,
+                    statusText,
+                    scoreCall,
+                    servingCourtSide,
+                    coinStyle,
+                    timeoutDisplay,
+
+                    // Methods
+                    setGameMode,
+                    rallyWon,
+                    adjustScore,
+                    undo,
+                    recordFault,
+                    manualSwitchServer,
+                    requestTimeout,
+                    startTimeout,
+                    endTimeout,
+                    switchSides,
+                    toggleMatch,
+                    pauseMatch,
+                    endGame,
+                    showCoinFlip,
+                    closeModal,
+                    flipCoin,
+                    confirmCoinFlip,
+                    confirmTeamAssignment,
+                    confirmServeOrder,
+                    clearEventLog,
+                    getPlayersString,
+                    goBack
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>
