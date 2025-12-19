@@ -37,7 +37,7 @@ class Tournament extends Model implements HasMedia
     }
 
     /**
-     * Tournament categories 
+     * Tournament categories (One tournament has many categories)
      */
     public function categories()
     {

@@ -667,7 +667,7 @@ unset($__errorArgs, $__bag); ?>
                                     <div class="athlete-item"
                                         style="<?php if($athlete->status === 'rejected'): ?> border-left-color: #EF4444; <?php elseif($athlete->status === 'pending'): ?> border-left-color: #F59E0B; <?php endif; ?>">
                                         <div class="athlete-info">
-                                            <div class="athlete-name"><?php echo e($athlete->athlete_name); ?></div>
+                                            <div class="athlete-name"><?php echo e($athlete->athlete_name); ?> <?php echo e($athlete->hasPartner() ? '( đánh cặp ' . $athlete->partner->athlete_name . ')' : ''); ?></div>
                                             <div class="athlete-details">
                                                 📧 <?php echo e($athlete->email); ?> | 📞 <?php echo e($athlete->phone); ?> | 🎯
                                                 <?php echo e($athlete->category->category_name ?? 'N/A'); ?><br>
@@ -844,9 +844,9 @@ unset($__errorArgs, $__bag); ?>
                                         <?php $__currentLoopData = $tournament->matches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr style="border-bottom: 1px solid #ddd;">
                                                 <td style="padding: 10px;">
-                                                    <?php echo e($match->athlete1->athlete_name ?? 'N/A'); ?></td>
+                                                    <?php echo e($match->athlete1->getPairNameAttribute() ?? 'N/A'); ?> </td>
                                                 <td style="padding: 10px;">
-                                                    <?php echo e($match->athlete2->athlete_name ?? 'N/A'); ?></td>
+                                                    <?php echo e($match->athlete2->getPairNameAttribute() ?? 'N/A'); ?></td>
                                                 <td style="padding: 10px;">
                                                     <?php echo e($match->category->category_name ?? 'N/A'); ?></td>
                                                 <td style="padding: 10px;"><?php echo e($match->round->round_name ?? 'N/A'); ?>
@@ -871,15 +871,13 @@ unset($__errorArgs, $__bag); ?>
                                                         <span class="badge badge-secondary">❌ Hủy</span>
                                                     <?php elseif($match->status === 'postponed'): ?>
                                                         <span class="badge badge-warning">⏸️ Hoãn lại</span>
-                                                    <?php elseif($match->status === 'bye'): ?>
-                                                        <span class="badge badge-light">🎯 Bye</span>
                                                     <?php else: ?>
                                                         <span class="badge badge-secondary"><?php echo e($match->status); ?></span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td style="padding: 10px;">
-                                                    <button class="btn btn-warning btn-sm"
-                                                        onclick="openEditMatchModal(<?php echo e($match->id); ?>, '<?php echo e($match->athlete1_id); ?>', '<?php echo e($match->athlete2_id); ?>', '<?php echo e($match->category_id); ?>', '<?php echo e($match->round_id); ?>', '<?php echo e($match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : ''); ?>', '<?php echo e($match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : ''); ?>', '<?php echo e($match->group_id); ?>', '<?php echo e($match->status); ?>', '<?php echo e($match->referee_id); ?>')">✏️</button>
+                                                    <!-- <button class="btn btn-warning btn-sm"
+                                                        onclick="openEditMatchModal(<?php echo e($match->id); ?>, '<?php echo e($match->athlete1_id); ?>', '<?php echo e($match->athlete2_id); ?>', '<?php echo e($match->category_id); ?>', '<?php echo e($match->round_id); ?>', '<?php echo e($match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : ''); ?>', '<?php echo e($match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : ''); ?>', '<?php echo e($match->group_id); ?>', '<?php echo e($match->status); ?>', '<?php echo e($match->referee_id); ?>')">✏️</button> -->
                                                     <form method="POST"
                                                         action="<?php echo e(route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id])); ?>"
                                                         style="display: inline;">
@@ -1140,17 +1138,17 @@ unset($__errorArgs, $__bag); ?>
                         </select>
                     </div>
 
-                    <!-- Bước 2: Chọn VĐV thuộc nội dung thi đấu đó -->
+                    <!-- Bước 2: Chọn VĐV/Cặp thuộc nội dung thi đấu đó -->
                     <div class="grid grid-2">
                         <div class="form-group">
-                            <label class="form-label">👤 Bước 2: Chọn VĐV 1 *</label>
+                            <label class="form-label" id="athlete1Label">👤 Bước 2: Chọn VĐV 1 *</label>
                             <select id="athlete1Select" name="athlete1_id" class="form-select" required disabled>
                                 <option value="">-- Hãy chọn nội dung thi đấu trước --</option>
                             </select>
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">👤 Chọn VĐV 2 *</label>
+                            <label class="form-label" id="athlete2Label">👤 Chọn VĐV 2 *</label>
                             <select id="athlete2Select" name="athlete2_id" class="form-select" required disabled>
                                 <option value="">-- Hãy chọn nội dung thi đấu trước --</option>
                             </select>
@@ -1202,7 +1200,6 @@ unset($__errorArgs, $__bag); ?>
                             <option value="completed">✅ Hoàn thành</option>
                             <option value="cancelled">❌ Hủy</option>
                             <option value="postponed">⏸️ Hoãn lại</option>
-                            <option value="bye">🎯 Bye</option>
                         </select>
                     </div>
 
@@ -1217,7 +1214,7 @@ unset($__errorArgs, $__bag); ?>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             <?php endif; ?>
                         </select>
-                        <small style="color: var(--text-light); font-size: 0.75rem;">Chi co the chon trong tai da duoc gan vao giai dau nay</small>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">Chỉ có thể chọn được trọng tài đã được phân công vào giải đấu này</small>
                     </div>
 
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1332,7 +1329,6 @@ unset($__errorArgs, $__bag); ?>
                             <option value="completed">✅ Hoàn thành</option>
                             <option value="cancelled">❌ Hủy</option>
                             <option value="postponed">⏸️ Hoãn lại</option>
-                            <option value="bye">🎯 Bye</option>
                         </select>
                     </div>
 
@@ -2022,27 +2018,28 @@ unset($__errorArgs, $__bag); ?>
              const categorySelect = document.getElementById('matchCategoryId');
              const athlete1Select = document.getElementById('athlete1Select');
              const athlete2Select = document.getElementById('athlete2Select');
+             const athlete1Label = document.getElementById('athlete1Label');
+             const athlete2Label = document.getElementById('athlete2Label');
              const groupSelect = document.getElementById('matchGroupSelect');
              const tournamentId = <?php echo $tournament->id ?? 0; ?>;
 
              if (!categorySelect.value) {
-                 // Reset nếu không chọn category
-                 athlete1Select.innerHTML =
-                     '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
-                 athlete2Select.innerHTML =
-                     '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                 // Reset if no category selected
+                 athlete1Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                 athlete2Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
                  athlete1Select.disabled = true;
                  athlete2Select.disabled = true;
+                 athlete1Label.textContent = '👤 Bước 2: Chọn VĐV 1 *';
+                 athlete2Label.textContent = '👤 Chọn VĐV 2 *';
 
-                 groupSelect.innerHTML =
-                     '<option value="">-- Chọn nội dung thi đấu trước --</option>';
+                 groupSelect.innerHTML = '<option value="">-- Chọn nội dung thi đấu trước --</option>';
                  groupSelect.disabled = true;
                  return;
              }
 
              const categoryId = categorySelect.value;
 
-             // Fetch danh sách VĐV của category từ server
+             // Fetch athletes/pairs for category
              fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/athletes`, {
                      headers: {
                          'X-Requested-With': 'XMLHttpRequest'
@@ -2050,39 +2047,64 @@ unset($__errorArgs, $__bag); ?>
                  })
                  .then(response => response.json())
                  .then(data => {
-                     if (data.success && data.athletes) {
-                         const athletes = data.athletes;
-                         const athleteOptions = athletes.map(athlete =>
-                             `<option value="${athlete.id}">${athlete.athlete_name}</option>`
-                         ).join('');
+                     if (data.success) {
+                         if (data.is_doubles) {
+                             // Doubles category: show pairs
+                             athlete1Label.textContent = '👥 Bước 2: Chọn Cặp 1 *';
+                             athlete2Label.textContent = '👥 Chọn Cặp 2 *';
 
-                         athlete1Select.innerHTML =
-                             `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
-                         athlete2Select.innerHTML =
-                             `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
+                             if (data.pairs && data.pairs.length > 0) {
+                                 const pairOptions = data.pairs.map(pair =>
+                                     `<option value="${pair.primary_athlete_id}">${pair.pair_name}</option>`
+                                 ).join('');
 
-                         athlete1Select.disabled = false;
-                         athlete2Select.disabled = false;
+                                 athlete1Select.innerHTML = `<option value="">-- Chọn Cặp 1 --</option>${pairOptions}`;
+                                 athlete2Select.innerHTML = `<option value="">-- Chọn Cặp 2 --</option>${pairOptions}`;
+                                 athlete1Select.disabled = false;
+                                 athlete2Select.disabled = false;
+                             } else {
+                                 athlete1Select.innerHTML = '<option value="">Chưa có cặp VĐV nào (cần đăng ký đồng đội)</option>';
+                                 athlete2Select.innerHTML = '<option value="">Chưa có cặp VĐV nào (cần đăng ký đồng đội)</option>';
+                                 athlete1Select.disabled = true;
+                                 athlete2Select.disabled = true;
+                             }
+                         } else {
+                             // Singles category: show individual athletes
+                             athlete1Label.textContent = '👤 Bước 2: Chọn VĐV 1 *';
+                             athlete2Label.textContent = '👤 Chọn VĐV 2 *';
+
+                             if (data.athletes && data.athletes.length > 0) {
+                                 const athleteOptions = data.athletes.map(athlete =>
+                                     `<option value="${athlete.id}">${athlete.athlete_name}</option>`
+                                 ).join('');
+
+                                 athlete1Select.innerHTML = `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
+                                 athlete2Select.innerHTML = `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
+                                 athlete1Select.disabled = false;
+                                 athlete2Select.disabled = false;
+                             } else {
+                                 athlete1Select.innerHTML = '<option value="">Không có VĐV nào</option>';
+                                 athlete2Select.innerHTML = '<option value="">Không có VĐV nào</option>';
+                                 athlete1Select.disabled = true;
+                                 athlete2Select.disabled = true;
+                             }
+                         }
                      } else {
-                         athlete1Select.innerHTML =
-                             '<option value="">Không có VĐV nào</option>';
-                         athlete2Select.innerHTML =
-                             '<option value="">Không có VĐV nào</option>';
+                         athlete1Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                         athlete2Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
                          athlete1Select.disabled = true;
                          athlete2Select.disabled = true;
                      }
                  })
                  .catch(error => {
                      console.error('Error fetching athletes:', error);
-                     athlete1Select.innerHTML =
-                         '<option value="">Lỗi tải dữ liệu</option>';
-                     athlete2Select.innerHTML =
-                         '<option value="">Lỗi tải dữ liệu</option>';
+                     athlete1Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                     athlete2Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
                      athlete1Select.disabled = true;
                      athlete2Select.disabled = true;
                  });
 
-             // Fetch danh sách groups của category từ server
+             // Fetch groups for category
              console.log('Fetching groups for categoryId:', categoryId);
              fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/groups`, {
                      headers: {
@@ -2101,22 +2123,54 @@ unset($__errorArgs, $__bag); ?>
                              return `<option value="${group.id}">${group.group_name}</option>`;
                          }).join('');
 
-                         groupSelect.innerHTML =
-                             `<option value="">-- Chọn bảng/nhóm (tuỳ chọn) --</option>${groupOptions}`;
+                         groupSelect.innerHTML = `<option value="">-- Chọn bảng/nhóm (tuỳ chọn) --</option>${groupOptions}`;
                          groupSelect.disabled = false;
                      } else {
-                         groupSelect.innerHTML =
-                             '<option value="">-- Không có bảng/nhóm nào (Tạo bảng trước) --</option>';
+                         groupSelect.innerHTML = '<option value="">-- Không có bảng/nhóm nào (Tạo bảng trước) --</option>';
                          groupSelect.disabled = true;
                      }
                  })
                  .catch(error => {
                      console.error('Error fetching groups:', error);
-                     groupSelect.innerHTML =
-                         '<option value="">Lỗi tải dữ liệu</option>';
+                     groupSelect.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
                      groupSelect.disabled = true;
                  });
          }
+
+         // Prevent selecting same pair/athlete for both sides
+         document.getElementById('athlete1Select').addEventListener('change', function() {
+             const selectedValue = this.value;
+             const athlete2Select = document.getElementById('athlete2Select');
+
+             // Re-enable all options first
+             Array.from(athlete2Select.options).forEach(option => {
+                 option.disabled = false;
+             });
+
+             // Disable the selected pair/athlete in the other dropdown
+             if (selectedValue) {
+                 const matchingOption = athlete2Select.querySelector(`option[value="${selectedValue}"]`);
+                 if (matchingOption) {
+                     matchingOption.disabled = true;
+                 }
+             }
+         });
+
+         document.getElementById('athlete2Select').addEventListener('change', function() {
+             const selectedValue = this.value;
+             const athlete1Select = document.getElementById('athlete1Select');
+
+             Array.from(athlete1Select.options).forEach(option => {
+                 option.disabled = false;
+             });
+
+             if (selectedValue) {
+                 const matchingOption = athlete1Select.querySelector(`option[value="${selectedValue}"]`);
+                 if (matchingOption) {
+                     matchingOption.disabled = true;
+                 }
+             }
+         });
 
         // Open Edit Match Modal
         function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId, status, refereeId) {

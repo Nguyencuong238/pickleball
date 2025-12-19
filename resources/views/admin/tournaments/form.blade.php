@@ -71,23 +71,99 @@
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Loại giải *</label>
-                <select name="competition_format" class="form-control" required
-                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
-                    <option value="">Chọn loại giải</option>
-                    <option value="single"
-                        {{ old('competition_format', $tournament->competition_format) == 'single' ? 'selected' : '' }}>
-                        Đơn
-                    </option>
-                    <option value="double"
-                        {{ old('competition_format', $tournament->competition_format) == 'double' ? 'selected' : '' }}>
-                        Đôi
-                    </option>
-                    <option value="mixed"
-                        {{ old('competition_format', $tournament->competition_format) == 'mixed' ? 'selected' : '' }}>
-                        Đôi
-                        nam nữ</option>
+                @php
+                    // Get selected category types from tournament
+                    $selectedTypes = [];
+                    if (isset($tournament) && $tournament->id) {
+                        $selectedTypes = $tournament->categories()
+                            ->distinct('category_type')
+                            ->pluck('category_type')
+                            ->toArray();
+                    }
+                @endphp
+                <select name="category_types[]" id="tournamentCategories" class="form-control tournament-categories-select" multiple required
+                    style="width: 100%;">
+                    <option value="single_men" {{ in_array('single_men', $selectedTypes) ? 'selected' : '' }}> Đơn Nam</option>
+                    <option value="single_women" {{ in_array('single_women', $selectedTypes) ? 'selected' : '' }}> Đơn Nữ</option>
+                    <option value="double_men" {{ in_array('double_men', $selectedTypes) ? 'selected' : '' }}> Đôi Nam</option>
+                    <option value="double_women" {{ in_array('double_women', $selectedTypes) ? 'selected' : '' }}> Đôi Nữ</option>
+                    <option value="double_mixed" {{ in_array('double_mixed', $selectedTypes) ? 'selected' : '' }}>Đôi Nam Nữ</option>
                 </select>
+                <small style="display: block; margin-top: 6px; color: #64748b; font-size: 0.85rem;">
+                    Giữ Ctrl/Cmd để chọn nhiều loại giải
+                </small>
             </div>
+
+            <style>
+                .tournament-categories-select {
+                    padding: 10px 12px !important;
+                    border: 1px solid #e2e8f0 !important;
+                    border-radius: 6px !important;
+                    font-size: 0.95rem !important;
+                }
+
+                .tournament-categories-select.select2-container--default .select2-selection--multiple {
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    padding: 5px 0;
+                    min-height: 42px;
+                }
+
+                .tournament-categories-select.select2-container--default.select2-container--focus .select2-selection--multiple {
+                    border: 2px solid #8b5cf6;
+                    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+                }
+
+                .tournament-categories-select.select2-container--default .select2-selection--multiple .select2-selection__choice {
+                    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+                    border: none;
+                    border-radius: 4px;
+                    color: white;
+                    padding: 4px 8px;
+                    margin: 5px 5px 5px 0;
+                }
+
+                .tournament-categories-select.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+                    color: rgba(255, 255, 255, 0.7);
+                    margin-right: 5px;
+                }
+
+                .tournament-categories-select.select2-container--default .select2-selection--multiple .select2-selection__choice__remove:hover {
+                    color: white;
+                }
+
+                .tournament-categories-select.select2-container--default .select2-selection--multiple .select2-search--inline .select2-search__field {
+                    border: none;
+                    padding: 6px;
+                    font-size: 0.95rem;
+                }
+
+                .select2-dropdown--below.tournament-categories-select.select2-container--default.select2-container--open .select2-selection--multiple {
+                    border-bottom-left-radius: 0;
+                    border-bottom-right-radius: 0;
+                }
+
+                .tournament-categories-select.select2-container--default .select2-dropdown {
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                }
+
+                .tournament-categories-select.select2-container--default .select2-results__option {
+                    padding: 10px 12px;
+                    font-size: 0.95rem;
+                }
+
+                .tournament-categories-select.select2-container--default .select2-results__option--highlighted[aria-selected] {
+                    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+                    color: white;
+                }
+
+                .tournament-categories-select.select2-container--default .select2-results__option[aria-selected="true"] {
+                    background: #f3f4f6;
+                    color: #1e293b;
+                }
+            </style>
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Số VĐV
                     Tối Đa</label>

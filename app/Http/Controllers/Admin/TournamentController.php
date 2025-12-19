@@ -39,61 +39,59 @@ class TournamentController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'registration_deadline' => 'nullable|date_format:Y-m-d\TH:i',
-            'location' => 'nullable|string|max:255',
-            'max_participants' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
-            'rules' => 'nullable|string',
-            'prizes' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'status' => 'required|in:0,1',
-            'is_watch' => 'nullable|in:0,1',
-            'is_ocr' => 'nullable|in:0,1',
-            'competition_format' => 'nullable|string|in:single,double,mixed',
-            'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
-            'registration_benefits' => 'nullable|string',
-            'competition_rules' => 'nullable|string',
-            'event_timeline' => 'nullable|string',
-            'social_information' => 'nullable|string',
-            'organizer_email' => 'nullable|email',
-            'organizer_hotline' => 'nullable|string|max:20',
-            'competition_schedule' => 'nullable|string',
-            'results' => 'nullable|string',
-            'gallery_json' => 'nullable|string',
-            'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'banner' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
-            'category_ids' => 'required|array|min:1',
-            'category_ids.*' => 'integer|exists:tournament_categories,id',
+           'name' => 'required|string|max:255',
+           'description' => 'nullable|string',
+           'start_date' => 'required|date',
+           'end_date' => 'nullable|date|after_or_equal:start_date',
+           'registration_deadline' => 'nullable|date_format:Y-m-d\TH:i',
+           'location' => 'nullable|string|max:255',
+           'max_participants' => 'required|integer|min:1',
+           'price' => 'required|numeric|min:0',
+           'rules' => 'nullable|string',
+           'prizes' => 'nullable|string',
+           'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+           'status' => 'required|in:0,1',
+           'is_watch' => 'nullable|in:0,1',
+           'is_ocr' => 'nullable|in:0,1',
+           'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
+           'registration_benefits' => 'nullable|string',
+           'competition_rules' => 'nullable|string',
+           'event_timeline' => 'nullable|string',
+           'social_information' => 'nullable|string',
+           'organizer_email' => 'nullable|email',
+           'organizer_hotline' => 'nullable|string|max:20',
+           'competition_schedule' => 'nullable|string',
+           'results' => 'nullable|string',
+           'gallery_json' => 'nullable|string',
+           'gallery.*' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+           'banner' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
+           'category_types' => 'required|array|min:1',
+           'category_types.*' => 'string|in:single_men,single_women,double_men,double_women,double_mixed',
         ]);
 
         $data = $request->only([
-            'name',
-            'description',
-            'start_date',
-            'end_date',
-            'registration_deadline',
-            'location',
-            'max_participants',
-            'price',
-            'rules',
-            'prizes',
-            'status',
-            'is_watch',
-            'is_ocr',
-            'competition_format',
-            'tournament_rank',
-            'registration_benefits',
-            'competition_rules',
-            'event_timeline',
-            'social_information',
-            'organizer_email',
-            'organizer_hotline',
-            'competition_schedule',
-            'results',
+           'name',
+           'description',
+           'start_date',
+           'end_date',
+           'registration_deadline',
+           'location',
+           'max_participants',
+           'price',
+           'rules',
+           'prizes',
+           'status',
+           'is_watch',
+           'is_ocr',
+           'tournament_rank',
+           'registration_benefits',
+           'competition_rules',
+           'event_timeline',
+           'social_information',
+           'organizer_email',
+           'organizer_hotline',
+           'competition_schedule',
+           'results',
         ]);
 
         // Handle checkbox - convert to integer
@@ -101,39 +99,44 @@ class TournamentController extends Controller
         $data['is_ocr'] = $request->has('is_ocr') ? 1 : 0;
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('tournament_images', 'public');
+           $data['image'] = $request->file('image')->store('tournament_images', 'public');
         }
 
         // Handle gallery JSON (from admin form)
         if ($request->has('gallery_json') && !empty($request->gallery_json)) {
-            try {
-                $data['gallery'] = json_decode($request->gallery_json, true) ?? [];
-            } catch (\Exception $e) {
-                $data['gallery'] = [];
-            }
+           try {
+               $data['gallery'] = json_decode($request->gallery_json, true) ?? [];
+           } catch (\Exception $e) {
+               $data['gallery'] = [];
+           }
         }
         // Handle gallery file uploads (legacy support)
         elseif ($request->hasFile('gallery')) {
-            $gallery = [];
-            foreach ($request->file('gallery') as $file) {
-                $gallery[] = $file->store('tournament_gallery', 'public');
-            }
-            $data['gallery'] = $gallery;
+           $gallery = [];
+           foreach ($request->file('gallery') as $file) {
+               $gallery[] = $file->store('tournament_gallery', 'public');
+           }
+           $data['gallery'] = $gallery;
         }
 
         // Handle banner file upload
         if ($request->hasFile('banner')) {
-            $data['banner'] = $request->file('banner')->store('tournament_banner', 'public');
+           $data['banner'] = $request->file('banner')->store('tournament_banner', 'public');
         }
 
         $data['user_id'] = auth()->id();
 
         $tournament = Tournament::create($data);
 
-        // Attach selected categories to tournament
-        if ($request->has('category_ids') && is_array($request->category_ids)) {
-            $this->storeCategoryFormats($tournament, $request->category_ids);
-
+        // Create categories from selected types
+        if ($request->has('category_types') && is_array($request->category_types)) {
+           foreach ($request->category_types as $categoryType) {
+               $tournament->categories()->create([
+                   'category_type' => $categoryType,
+                   'category_name' => $this->getCategoryName($categoryType),
+                   'status' => 1,
+               ]);
+           }
         }
 
         // Log activity
@@ -175,7 +178,6 @@ class TournamentController extends Controller
             'prizes' => 'nullable|numeric|min:0',
             'is_watch' => 'nullable|in:0,1',
             'is_ocr' => 'nullable|in:0,1',
-            'competition_format' => 'nullable|string|in:single,double,mixed',
             'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
             'registration_benefits' => 'nullable|string',
             'competition_rules' => 'nullable|string',
@@ -183,8 +185,8 @@ class TournamentController extends Controller
             'social_information' => 'nullable|string',
             'organizer_email' => 'nullable|email',
             'organizer_hotline' => 'nullable|string|max:20',
-            'category_ids' => 'required|array|min:1',
-            'category_ids.*' => 'integer|exists:tournament_categories,id',
+            'category_types' => 'required|array|min:1',
+            'category_types.*' => 'string|in:single_men,single_women,double_men,double_women,double_mixed',
         ]);
 
         $data = $request->only([
@@ -200,7 +202,6 @@ class TournamentController extends Controller
             'prizes',
             'is_watch',
             'is_ocr',
-            'competition_format',
             'tournament_rank',
             'registration_benefits',
             'competition_rules',
@@ -222,10 +223,17 @@ class TournamentController extends Controller
 
         $tournament->update($data);
 
-        // Sync categories
-        if ($request->has('category_ids') && is_array($request->category_ids)) {
-            $tournament->categories->each->delete(); // Remove existing categories
-            $this->storeCategoryFormats($tournament, $request->category_ids);
+        // Delete existing categories and create new ones
+        if ($request->has('category_types') && is_array($request->category_types)) {
+            $tournament->categories()->delete();
+            
+            foreach ($request->category_types as $categoryType) {
+                $tournament->categories()->create([
+                    'category_type' => $categoryType,
+                    'category_name' => $this->getCategoryName($categoryType),
+                    'status' => 1,
+                ]);
+            }
         }
 
         return redirect()->route('admin.tournaments.index')->with('success', 'Tournament updated successfully.');
@@ -249,6 +257,22 @@ class TournamentController extends Controller
         $tournament->delete();
 
         return redirect()->route('admin.tournaments.index')->with('success', 'Tournament deleted successfully.');
+    }
+
+    /**
+     * Get category name from category type
+     */
+    private function getCategoryName($categoryType)
+    {
+        $names = [
+            'single_men' => 'Đơn Nam',
+            'single_women' => 'Đơn Nữ',
+            'double_men' => 'Đôi Nam',
+            'double_women' => 'Đôi Nữ',
+            'double_mixed' => 'Đôi Nam Nữ',
+        ];
+        
+        return $names[$categoryType] ?? ucfirst(str_replace('_', ' ', $categoryType));
     }
 
     private function storeCategoryFormats(Tournament $tournament, array $formats): void
