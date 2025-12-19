@@ -231,7 +231,6 @@ class HomeYardTournamentController extends Controller
 
         // Store selected category formats
         if ($request->filled('category_ids')) {
-            \App\Models\TournamentCategory::where('tournament_id', $tournament->id)->delete();
             $this->storeCategoryFormats($tournament, $request->category_ids);
         } else {
             // If no categories selected, remove all existing categories
