@@ -163,6 +163,7 @@ Route::prefix('community')->group(function () {
 Route::prefix('stadiums')->group(function () {
     Route::get('', [StadiumController::class, 'index']);
     Route::get('{id}', [StadiumController::class, 'show']);
+    
 });
 
 // Tournaments API

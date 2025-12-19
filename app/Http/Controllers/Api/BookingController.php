@@ -352,7 +352,7 @@ class BookingController extends Controller
                 ->first();
             
             // Use court pricing if found, otherwise use court's rental_price
-            $hourlyRate = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 150000);
+            $hourlyRate = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 0);
             $totalPrice += $hourlyRate;
             $currentTime->modify('+1 hour');
         }

@@ -393,7 +393,7 @@
                                         <div class="court-info">
                                             <div class="info-row">
                                                 <span class="info-label">Giờ mở cửa:</span>
-                                                <span class="info-value">{{ $stadium->opening_hours ?? 'Liên hệ' }}</span>
+                                                <span class="info-value">{{ $stadium->opening_time . ' - ' . $stadium->closing_time }}</span>
                                             </div>
                                             <div class="info-row price-row">
                                                  <span class="info-label">SĐT:</span>

@@ -14,15 +14,15 @@ class StadiumController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Stadium::with('province');
+        $query = Stadium::with('province', 'courts', 'reviews');
 
         // Search by name
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
         // Filter by province
-        if ($request->has('province_id')) {
+        if ($request->filled('province_id')) {
             $query->where('province_id', $request->province_id);
         }
 
