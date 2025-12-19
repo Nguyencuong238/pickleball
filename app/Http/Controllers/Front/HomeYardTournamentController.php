@@ -2325,8 +2325,12 @@ class HomeYardTournamentController extends Controller
             $athletes = TournamentAthlete::where('tournament_id', $tournament->id)
                 ->where('category_id', $categoryId)
                 ->where('status', 'approved')
-                ->select('id', 'athlete_name', 'group_id')
+                ->select('id', 'athlete_name', 'group_id', 'partner_id')
                 ->get();
+
+            // Kiểm tra loại category (đôi hay đơn)
+            $category = TournamentCategory::find($categoryId);
+            $isDouble = $category && strpos($category->category_type, 'double') !== false;
 
             // Lấy danh sách bảng cho nội dung này
             $groups = Group::where('tournament_id', $tournament->id)
@@ -2334,10 +2338,39 @@ class HomeYardTournamentController extends Controller
                 ->select('id', 'group_name', 'max_participants', 'current_participants')
                 ->get();
 
+            // Nếu là nội dung đôi, nhóm VĐV thành cặp
+            $pairsData = [];
+            if ($isDouble) {
+                $processed = [];
+                foreach ($athletes as $athlete) {
+                    if (in_array($athlete->id, $processed)) {
+                        continue;
+                    }
+                    
+                    if ($athlete->partner_id && $athlete->partner_id > 0) {
+                        // Tìm partner
+                        $partner = $athletes->firstWhere('id', $athlete->partner_id);
+                        if ($partner) {
+                            $pairsData[] = [
+                                'pair_id' => 'pair_' . $athlete->id . '_' . $partner->id,
+                                'athlete1_id' => $athlete->id,
+                                'athlete1_name' => $athlete->athlete_name,
+                                'athlete2_id' => $partner->id,
+                                'athlete2_name' => $partner->athlete_name,
+                                'group_id' => $athlete->group_id
+                            ];
+                            $processed[] = $athlete->id;
+                            $processed[] = $partner->id;
+                        }
+                    }
+                }
+            }
+
             return response()->json([
                 'success' => true,
-                'athletes' => $athletes,
-                'groups' => $groups
+                'athletes' => $isDouble ? $pairsData : $athletes,
+                'groups' => $groups,
+                'is_double' => $isDouble
             ]);
         } catch (\Exception $e) {
             Log::error('Get manual draw error: ' . $e->getMessage());

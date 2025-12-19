@@ -3070,20 +3070,33 @@
         function renderManualDraw(data, categoryId, tournamentId) {
             const {
                 athletes,
-                groups
+                groups,
+                is_double
             } = data;
             const container = document.getElementById('manualDrawContainer');
 
             let html =
                 '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-height: 600px; overflow-y: auto;">';
 
-            // Danh sách VĐV (trái)
+            // Danh sách VĐV/Cặp (trái)
+            const listTitle = is_double ? '👥 Cặp VĐV' : '🏃 Vận Động Viên';
             html +=
-                '<div><h4>🏃 Vận Động Viên</h4><div id="athletesList" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:300px;">';
+                `<div><h4>${listTitle}</h4><div id="athletesList" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:300px;">`;
+            
             athletes.forEach(athlete => {
-                html += `<div draggable="true" data-athlete-id="${athlete.id}" class="athlete-item" style="padding:8px; margin:5px 0; background:white; border:1px solid #ddd; border-radius:4px; cursor:move; user-select:none;">
-                     ${athlete.athlete_name}
-                 </div>`;
+                if (is_double) {
+                    // Hiển thị theo cặp - store cả 2 athlete IDs
+                    html += `<div draggable="true" data-pair-id="${athlete.pair_id}" data-athlete-id="${athlete.athlete1_id}" data-partner-id="${athlete.athlete2_id}" class="athlete-item" style="padding:12px; margin:8px 0; background:#fff3e0; border:2px solid #ff9800; border-radius:6px; cursor:move; user-select:none;">
+                         <strong style="color:#e65100;">👥 Cặp</strong><br>
+                         <span style="color:#555;">1️⃣ ${athlete.athlete1_name}</span><br>
+                         <span style="color:#555;">2️⃣ ${athlete.athlete2_name}</span>
+                     </div>`;
+                } else {
+                    // Hiển thị VĐV lẻ
+                    html += `<div draggable="true" data-athlete-id="${athlete.id}" class="athlete-item" style="padding:8px; margin:5px 0; background:white; border:1px solid #ddd; border-radius:4px; cursor:move; user-select:none;">
+                         ${athlete.athlete_name}
+                     </div>`;
+                }
             });
             html += '</div></div>';
 
@@ -3101,22 +3114,33 @@
 
             // Nút save
             html += `<div style="margin-top:20px; text-align:right;">
-                 <button class="btn btn-success" onclick="saveManualDraw(${categoryId}, ${tournamentId})">💾 Lưu kết quả</button>
+                 <button class="btn btn-success" onclick="saveManualDraw(${categoryId}, ${tournamentId}, ${is_double})">💾 Lưu kết quả</button>
                  <button class="btn btn-secondary" onclick="closeManualDrawModal()">❌ Hủy</button>
              </div>`;
 
             container.innerHTML = html;
-            setupDragDrop();
+            setupDragDrop(is_double);
         }
 
-        function setupDragDrop() {
+        function setupDragDrop(isDouble = false) {
             const athleteItems = document.querySelectorAll('.athlete-item');
             const dropZones = document.querySelectorAll('.group-drop-zone');
 
             athleteItems.forEach(item => {
                 item.addEventListener('dragstart', (e) => {
                     e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('athleteId', item.dataset.athleteId);
+                    if (isDouble && item.dataset.pairId) {
+                        e.dataTransfer.setData('pairId', item.dataset.pairId);
+                        e.dataTransfer.setData('athleteId1', item.dataset.athleteId);
+                        // Tìm athlete2 (partner)
+                        const athleteNameText = item.textContent;
+                        e.dataTransfer.setData('pairData', JSON.stringify({
+                            athlete1_id: item.dataset.athleteId,
+                            pair_id: item.dataset.pairId
+                        }));
+                    } else {
+                        e.dataTransfer.setData('athleteId', item.dataset.athleteId);
+                    }
                 });
             });
 
@@ -3135,16 +3159,26 @@
 
                 zone.addEventListener('drop', (e) => {
                     e.preventDefault();
-                    const athleteId = e.dataTransfer.getData('athleteId');
-                    const athleteItem = document.querySelector(`[data-athlete-id="${athleteId}"]`);
+                    const groupContainer = zone.querySelector('.group-athletes');
+                    const athleteItem = document.querySelector('.athlete-item[draggable="true"]:hover') || 
+                                       Array.from(document.querySelectorAll('.athlete-item')).find(item => {
+                                           if (isDouble && e.dataTransfer.getData('pairId')) {
+                                               return item.dataset.pairId === e.dataTransfer.getData('pairId');
+                                           } else {
+                                               return item.dataset.athleteId === e.dataTransfer.getData('athleteId');
+                                           }
+                                       });
 
                     if (athleteItem) {
-                        const groupContainer = zone.querySelector('.group-athletes');
                         const clone = athleteItem.cloneNode(true);
                         clone.style.cursor = 'grab';
                         clone.addEventListener('dragstart', (e) => {
                             e.dataTransfer.effectAllowed = 'move';
-                            e.dataTransfer.setData('athleteId', athleteId);
+                            if (isDouble && clone.dataset.pairId) {
+                                e.dataTransfer.setData('pairId', clone.dataset.pairId);
+                            } else {
+                                e.dataTransfer.setData('athleteId', clone.dataset.athleteId);
+                            }
                         });
                         groupContainer.appendChild(clone);
                     }
@@ -3153,14 +3187,26 @@
             });
         }
 
-        function saveManualDraw(categoryId, tournamentId) {
+        function saveManualDraw(categoryId, tournamentId, isDouble = false) {
             const assignedAthletes = {};
             const dropZones = document.querySelectorAll('.group-drop-zone');
 
             dropZones.forEach(zone => {
                 const groupId = zone.dataset.groupId;
-                const athletes = zone.querySelectorAll('[data-athlete-id]');
-                assignedAthletes[groupId] = Array.from(athletes).map(a => a.dataset.athleteId);
+                const items = zone.querySelectorAll('[data-athlete-id]');
+                const athleteIds = [];
+                
+                Array.from(items).forEach(item => {
+                    // Thêm athlete1
+                    athleteIds.push(parseInt(item.dataset.athleteId));
+                    
+                    // Nếu là cặp, thêm thêm athlete2 (partner)
+                    if (isDouble && item.dataset.partnerId) {
+                        athleteIds.push(parseInt(item.dataset.partnerId));
+                    }
+                });
+                
+                assignedAthletes[groupId] = athleteIds;
             });
 
             fetch(`/homeyard/tournaments/${tournamentId}/manual-draw-save`, {
