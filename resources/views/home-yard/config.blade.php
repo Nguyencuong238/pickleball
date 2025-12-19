@@ -325,20 +325,21 @@
                             <div class="item-grid">
                                 @foreach ($tournament->rounds as $round)
                                     <div class="item-card">
-                                         <strong>{{ $round->round_name }}</strong>
-                                         <p>{{ \Carbon\Carbon::parse($round->start_date)->format('d/m/Y') }} -
-                                             {{ $round->start_time }}</p>
-                                         <button class="btn btn-primary btn-sm"
-                                             onclick="openEditRoundModal({{ $round->id }}, '{{ $round->round_name }}', '{{ $round->start_date->format('Y-m-d') }}', '{{ $round->start_time }}', {{ $round->round_number }}, '{{ $round->round_type }}')">✏️ Sửa</button>
-                                         <form method="POST"
-                                             action="{{ route('homeyard.tournaments.rounds.destroy', [$tournament->id, $round->id]) }}"
-                                             style="display: inline; margin-top: 10px;">
-                                             @csrf
-                                             @method('DELETE')
-                                             <button type="submit" class="btn btn-danger btn-sm"
-                                                 onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
-                                         </form>
-                                     </div>
+                                        <strong>{{ $round->round_name }}</strong>
+                                        <p>{{ \Carbon\Carbon::parse($round->start_date)->format('d/m/Y') }} -
+                                            {{ $round->start_time }}</p>
+                                        <button class="btn btn-primary btn-sm"
+                                            onclick="openEditRoundModal({{ $round->id }}, '{{ $round->round_name }}', '{{ $round->start_date->format('Y-m-d') }}', '{{ $round->start_time }}', {{ $round->round_number }}, '{{ $round->round_type }}')">✏️
+                                            Sửa</button>
+                                        <form method="POST"
+                                            action="{{ route('homeyard.tournaments.rounds.destroy', [$tournament->id, $round->id]) }}"
+                                            style="display: inline; margin-top: 10px;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
+                                        </form>
+                                    </div>
                                 @endforeach
                             </div>
                         @else
@@ -573,7 +574,9 @@
                                     <div class="athlete-item"
                                         style="@if ($athlete->status === 'rejected') border-left-color: #EF4444; @elseif($athlete->status === 'pending') border-left-color: #F59E0B; @endif">
                                         <div class="athlete-info">
-                                            <div class="athlete-name">{{ $athlete->athlete_name }} {{ $athlete->hasPartner() ? '( đánh cặp ' . $athlete->partner->athlete_name . ')' : '' }}</div>
+                                            <div class="athlete-name">{{ $athlete->athlete_name }}
+                                                {{ $athlete->hasPartner() ? '( đánh cặp ' . $athlete->partner->athlete_name . ')' : '' }}
+                                            </div>
                                             <div class="athlete-details">
                                                 📧 {{ $athlete->email }} | 📞 {{ $athlete->phone }} | 🎯
                                                 {{ $athlete->category->category_name ?? 'N/A' }}<br>
@@ -679,19 +682,19 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                 <label class="form-label">Phương thức</label>
-                                 <select id="drawMethod" class="form-select">
-                                     <option value="auto">Tự động (Random)</option>
-                                     <option value="seeded" selected>Theo hạt giống (Seeded)</option>
-                                     <option value="manual">Thủ công (Kéo thả)</option>
-                                 </select>
-                             </div>
+                                <label class="form-label">Phương thức</label>
+                                <select id="drawMethod" class="form-select">
+                                    <option value="auto">Tự động (Random)</option>
+                                    <option value="seeded" selected>Theo hạt giống (Seeded)</option>
+                                    <option value="manual">Thủ công (Kéo thả)</option>
+                                </select>
                             </div>
-                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                                <button id="drawBtn" class="btn btn-success">🎲 Bốc thăm</button>
-                                <button id="resetBtn" class="btn btn-warning">🔄 Bốc lại</button>
-                                <button id="manualDrawBtn" class="btn btn-info">📋 Bốc thăm thủ công</button>
-                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button id="drawBtn" class="btn btn-success">🎲 Bốc thăm</button>
+                            <button id="resetBtn" class="btn btn-warning">🔄 Bốc lại</button>
+                            <button id="manualDrawBtn" class="btn btn-info">📋 Bốc thăm thủ công</button>
+                        </div>
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Kết quả chia bảng</h4>
                         <div id="groupResultsContainer" style="display: none;">
                             <div id="groupResults" class="group-grid">
@@ -777,7 +780,7 @@
                                                 </td>
                                                 <td style="padding: 10px;">
                                                     <!-- <button class="btn btn-warning btn-sm"
-                                                        onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}', '{{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : '' }}', '{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}', '{{ $match->group_id }}', '{{ $match->status }}', '{{ $match->referee_id }}')">✏️</button> -->
+                                                            onclick="openEditMatchModal({{ $match->id }}, '{{ $match->athlete1_id }}', '{{ $match->athlete2_id }}', '{{ $match->category_id }}', '{{ $match->round_id }}', '{{ $match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : '' }}', '{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '' }}', '{{ $match->group_id }}', '{{ $match->status }}', '{{ $match->referee_id }}')">✏️</button> -->
                                                     <form method="POST"
                                                         action="{{ route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id]) }}"
                                                         style="display: inline;">
@@ -840,7 +843,8 @@
                                         @foreach ($tournament->groups as $group)
                                             <option value="{{ $group->id }}"
                                                 data-category-id="{{ $group->category_id }}">{{ $group->group_name }}
-                                                ({{ $group->category->category_name ?? 'N/A' }})</option>
+                                                ({{ $group->category->category_name ?? 'N/A' }})
+                                            </option>
                                         @endforeach
                                     @endif
                                 </select>
@@ -902,27 +906,42 @@
                         </div>
 
                         <!-- Statistics Cards -->
-                         <div class="statistics-cards"
-                             style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                             <div
-                                 style="background: linear-gradient(135deg, #2FE8C4 0%, #1FDDAF 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(47, 232, 196, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
-                                 <div style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;"></div>
-                                 <div style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">🥇 VĐV Hạng 1</div>
-                                 <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;" id="topAthlete">-</div>
-                             </div>
-                             <div
-                                 style="background: linear-gradient(135deg, #35E5C2 0%, #1DD9B5 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(53, 229, 194, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
-                                 <div style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;"></div>
-                                 <div style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">📊 Tổng Trận Đấu</div>
-                                 <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;" id="totalMatches">0</div>
-                             </div>
-                             <div
-                                 style="background: linear-gradient(135deg, #28E0BC 0%, #10D4A3 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(40, 224, 188, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
-                                 <div style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;"></div>
-                                 <div style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">👥 Tổng VĐV</div>
-                                 <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;" id="totalAthletes">0</div>
-                             </div>
-                         </div>
+                        <div class="statistics-cards"
+                            style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                            <div
+                                style="background: linear-gradient(135deg, #2FE8C4 0%, #1FDDAF 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(47, 232, 196, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
+                                <div
+                                    style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;">
+                                </div>
+                                <div
+                                    style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">
+                                    🥇 VĐV Hạng 1</div>
+                                <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;"
+                                    id="topAthlete">-</div>
+                            </div>
+                            <div
+                                style="background: linear-gradient(135deg, #35E5C2 0%, #1DD9B5 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(53, 229, 194, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
+                                <div
+                                    style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;">
+                                </div>
+                                <div
+                                    style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">
+                                    📊 Tổng Trận Đấu</div>
+                                <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;"
+                                    id="totalMatches">0</div>
+                            </div>
+                            <div
+                                style="background: linear-gradient(135deg, #28E0BC 0%, #10D4A3 100%); color: white; padding: 1.5rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 16px rgba(40, 224, 188, 0.14), inset 0 1px 0 rgba(255,255,255,0.15); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: default; position: relative; overflow: hidden;">
+                                <div
+                                    style="position: absolute; top: -50%; right: -50%; width: 100%; height: 100%; background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none;">
+                                </div>
+                                <div
+                                    style="font-size: 0.75rem; opacity: 0.82; margin-bottom: 0.75rem; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;">
+                                    👥 Tổng VĐV</div>
+                                <div style="font-size: 1.75rem; font-weight: 800; letter-spacing: -0.5px;"
+                                    id="totalAthletes">0</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1111,7 +1130,8 @@
                                 @endforeach
                             @endif
                         </select>
-                        <small style="color: var(--text-light); font-size: 0.75rem;">Chỉ có thể chọn được trọng tài đã được phân công vào giải đấu này</small>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">Chỉ có thể chọn được trọng tài đã được
+                            phân công vào giải đấu này</small>
                     </div>
 
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1240,7 +1260,8 @@
                                 @endforeach
                             @endif
                         </select>
-                        <small style="color: var(--text-light); font-size: 0.75rem;">Chỉ có thể chọn trọng tài đã được chỉ định trong giải đấu</small>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">Chỉ có thể chọn trọng tài đã được chỉ
+                            định trong giải đấu</small>
                     </div>
 
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -1317,35 +1338,35 @@
         });
 
         // Draw/Lottery Functionality
-         function initializeDraw() {
-             const drawBtn = document.getElementById('drawBtn');
-             const resetBtn = document.getElementById('resetBtn');
-             const manualDrawBtn = document.getElementById('manualDrawBtn');
-             const categorySelect = document.getElementById('categorySelect');
-             const drawMethod = document.getElementById('drawMethod');
-             const groupSelect = document.getElementById('groupSelect');
-             const tournamentId = {{ $tournament->id ?? 0 }};
+        function initializeDraw() {
+            const drawBtn = document.getElementById('drawBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            const manualDrawBtn = document.getElementById('manualDrawBtn');
+            const categorySelect = document.getElementById('categorySelect');
+            const drawMethod = document.getElementById('drawMethod');
+            const groupSelect = document.getElementById('groupSelect');
+            const tournamentId = {{ $tournament->id ?? 0 }};
 
-             // ✅ Hàm cập nhật hiển thị nút
-             const updateDrawButtonsDisplay = () => {
-                 const isManual = drawMethod.value === 'manual';
-                 drawBtn.style.display = isManual ? 'none' : 'inline-block';
-                 resetBtn.style.display = isManual ? 'none' : 'inline-block';
-                 manualDrawBtn.style.display = isManual ? 'inline-block' : 'none';
-             };
+            // ✅ Hàm cập nhật hiển thị nút
+            const updateDrawButtonsDisplay = () => {
+                const isManual = drawMethod.value === 'manual';
+                drawBtn.style.display = isManual ? 'none' : 'inline-block';
+                resetBtn.style.display = isManual ? 'none' : 'inline-block';
+                manualDrawBtn.style.display = isManual ? 'inline-block' : 'none';
+            };
 
-             // Cập nhật khi load trang
-             updateDrawButtonsDisplay();
+            // Cập nhật khi load trang
+            updateDrawButtonsDisplay();
 
-             // ✅ Hiển/ẩn nút dựa trên phương thức được chọn
-             drawMethod.addEventListener('change', updateDrawButtonsDisplay);
+            // ✅ Hiển/ẩn nút dựa trên phương thức được chọn
+            drawMethod.addEventListener('change', updateDrawButtonsDisplay);
 
-             // ✅ Load kết quả bốc thăm khi page load hoặc chọn category khác
-             categorySelect.addEventListener('change', function() {
-                 if (this.value) {
-                     loadDrawResults(this.value, tournamentId);
-                 }
-             });
+            // ✅ Load kết quả bốc thăm khi page load hoặc chọn category khác
+            categorySelect.addEventListener('change', function() {
+                if (this.value) {
+                    loadDrawResults(this.value, tournamentId);
+                }
+            });
 
             if (drawBtn) {
                 drawBtn.addEventListener('click', function() {
@@ -1403,7 +1424,7 @@
                     if (approvedAthletes > totalCapacity) {
                         toastr.error(
                             `❌ Không đủ chỗ trống. Bạn có ${approvedAthletes} VĐV nhưng các bảng chỉ có sức chứa ${totalCapacity}. Vui lòng tạo thêm bảng hoặc tăng số VĐV tối đa của bảng.`
-                            );
+                        );
                         return;
                     }
 
@@ -1496,20 +1517,20 @@
                             resetBtn.disabled = false;
                             resetBtn.innerHTML = '🔄 Bốc lại';
                         });
-                    });
-                }
-
-                // ✅ Bốc thăm thủ công
-                if (manualDrawBtn) {
-                    manualDrawBtn.addEventListener('click', function() {
-                        if (!categorySelect.value) {
-                            toastr.warning('Vui lòng chọn nội dung thi đấu');
-                            return;
-                        }
-                        openManualDrawModal(categorySelect.value, tournamentId);
-                    });
-                }
+                });
             }
+
+            // ✅ Bốc thăm thủ công
+            if (manualDrawBtn) {
+                manualDrawBtn.addEventListener('click', function() {
+                    if (!categorySelect.value) {
+                        toastr.warning('Vui lòng chọn nội dung thi đấu');
+                        return;
+                    }
+                    openManualDrawModal(categorySelect.value, tournamentId);
+                });
+            }
+        }
 
         // ✅ Load kết quả bốc thăm từ DB
         function loadDrawResults(categoryId, tournamentId) {
@@ -1637,6 +1658,26 @@
                 const formData = new FormData(this);
                 const tournamentId = {!! $tournament->id ?? 0 !!};
 
+                // Get category type and validate partner_id for doubles
+                const categorySelect = document.getElementById('addAthleteCategory');
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                const categoryType = selectedOption.dataset.categoryType || '';
+
+                if (DOUBLES_TYPES.includes(categoryType)) {
+                    const partnerName = document.getElementById('addAthletePartnerName').value.trim();
+                    if (!partnerName) {
+                        toastr.error('Vui lòng nhập tên đồng đội cho nội dung đôi', 'Lỗi', {
+                            timeOut: 5000
+                        });
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                        return;
+                    }
+                    formData.append('partner_name', partnerName);
+                    formData.append('partner_email', document.getElementById('addAthletePartnerEmail').value.trim());
+                    formData.append('partner_phone', document.getElementById('addAthletePartnerPhone').value.trim());
+                }
+
                 const url = `/homeyard/tournaments/${tournamentId}/athletes`;
 
                 fetch(url, {
@@ -1660,6 +1701,8 @@
                             setTimeout(() => {
                                 closeAddAthleteModal();
                                 addAthleteForm.reset();
+                                document.getElementById('addAthletePartnerSection').style.display =
+                                    'none';
                                 // Set active tab to athletes before reload
                                 localStorage.setItem('activeTab', 'athletes');
                                 location.reload();
@@ -1675,14 +1718,18 @@
                             } else {
                                 // Show other errors with toastr
                                 if (data.message) {
-                                    toastr.error(data.message, 'Lỗi', {timeOut: 5000});
+                                    toastr.error(data.message, 'Lỗi', {
+                                        timeOut: 5000
+                                    });
                                 } else if (data.errors) {
                                     // Handle validation errors
                                     let errorMsg = 'Lỗi validate:\n';
                                     for (const [field, messages] of Object.entries(data.errors)) {
                                         errorMsg += messages.join(', ') + '\n';
                                     }
-                                    toastr.error(errorMsg, 'Lỗi', {timeOut: 5000});
+                                    toastr.error(errorMsg, 'Lỗi', {
+                                        timeOut: 5000
+                                    });
                                 } else {
                                     toastr.error('Lỗi không xác định. Vui lòng thử lại sau.');
                                 }
@@ -1735,9 +1782,40 @@
             document.getElementById('editAthleteName').value = name;
             document.getElementById('editAthleteEmail').value = email;
             document.getElementById('editAthletePhone').value = phone;
+            
+            // Clear partner fields
+            document.getElementById('editAthletePartnerName').value = '';
+            document.getElementById('editAthletePartnerEmail').value = '';
+            document.getElementById('editAthletePartnerPhone').value = '';
+            document.getElementById('editPartnerNameError').style.display = 'none';
+            
             if (categoryId) {
                 document.getElementById('editAthleteCategory').value = categoryId;
+                // Trigger category change to show/hide partner section
+                handleEditAthleteCategoryChange();
             }
+
+            // Fetch full athlete data including partner info via AJAX
+            const tournamentId = {!! $tournament->id !!};
+            fetch(`/homeyard/tournaments/${tournamentId}/athletes/${id}`, {
+                method: 'GET',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.athlete) {
+                    const athlete = data.athlete;
+                    // Load partner data if exists
+                    if (athlete.partner) {
+                        document.getElementById('editAthletePartnerName').value = athlete.partner.athlete_name || '';
+                        document.getElementById('editAthletePartnerEmail').value = athlete.partner.email || '';
+                        document.getElementById('editAthletePartnerPhone').value = athlete.partner.phone || '';
+                    }
+                }
+            })
+            .catch(error => console.error('Error fetching athlete data:', error));
 
             const modal = document.getElementById('editAthleteModal');
             if (modal) {
@@ -1750,6 +1828,10 @@
             if (modal) {
                 modal.style.display = 'none';
             }
+            // Clear form and errors
+            document.getElementById('editAthleteForm').reset();
+            document.getElementById('editAthletePartnerSection').style.display = 'none';
+            document.getElementById('editPartnerNameError').style.display = 'none';
         }
 
         // Close modals when clicking outside
@@ -1788,18 +1870,35 @@
 
                 const formData = new FormData(this);
 
+                // Get category type and validate partner_id for doubles
+                const categorySelect = document.getElementById('editAthleteCategory');
+                const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+                const categoryType = selectedOption.dataset.categoryType || '';
+
+                const payloadData = {
+                    athlete_name: formData.get('athlete_name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    category_id: formData.get('category_id')
+                };
+
+                // Add partner info for doubles if provided
+                if (DOUBLES_TYPES.includes(categoryType)) {
+                    const partnerName = document.getElementById('editAthletePartnerName').value.trim();
+                    if (partnerName) {
+                        payloadData.partner_name = partnerName;
+                        payloadData.partner_email = document.getElementById('editAthletePartnerEmail').value.trim();
+                        payloadData.partner_phone = document.getElementById('editAthletePartnerPhone').value.trim();
+                    }
+                }
+
                 fetch(`/homeyard/tournaments/${tournamentId}/athletes/${athleteId}`, {
                         method: 'PUT',
                         headers: {
                             'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify({
-                            athlete_name: formData.get('athlete_name'),
-                            email: formData.get('email'),
-                            phone: formData.get('phone'),
-                            category_id: formData.get('category_id')
-                        })
+                        body: JSON.stringify(payloadData)
                     })
                     .then(response => {
                         if (!response.ok && response.status !== 422) {
@@ -1813,6 +1912,8 @@
                             setTimeout(() => {
                                 closeEditAthleteModal();
                                 editAthleteForm.reset();
+                                document.getElementById('editAthletePartnerSection').style.display =
+                                    'none';
                                 localStorage.setItem('activeTab', 'athletes');
                                 location.reload();
                             }, 1500);
@@ -1897,180 +1998,187 @@
 
         // Handle category selection in match modal
         function setupCategorySelectListener() {
-             const categorySelect = document.getElementById('matchCategoryId');
-             const athlete1Select = document.getElementById('athlete1Select');
-             const athlete2Select = document.getElementById('athlete2Select');
-             const groupSelect = document.getElementById('matchGroupSelect');
-             const tournamentId = {!! $tournament->id ?? 0 !!};
+            const categorySelect = document.getElementById('matchCategoryId');
+            const athlete1Select = document.getElementById('athlete1Select');
+            const athlete2Select = document.getElementById('athlete2Select');
+            const groupSelect = document.getElementById('matchGroupSelect');
+            const tournamentId = {!! $tournament->id ?? 0 !!};
 
-             if (categorySelect) {
-                 // Remove old listeners
-                 categorySelect.removeEventListener('change', handleCategoryChange);
-                 // Add new listener
-                 categorySelect.addEventListener('change', handleCategoryChange);
-             }
-         }
+            if (categorySelect) {
+                // Remove old listeners
+                categorySelect.removeEventListener('change', handleCategoryChange);
+                // Add new listener
+                categorySelect.addEventListener('change', handleCategoryChange);
+            }
+        }
 
-         function handleCategoryChange() {
-             const categorySelect = document.getElementById('matchCategoryId');
-             const athlete1Select = document.getElementById('athlete1Select');
-             const athlete2Select = document.getElementById('athlete2Select');
-             const athlete1Label = document.getElementById('athlete1Label');
-             const athlete2Label = document.getElementById('athlete2Label');
-             const groupSelect = document.getElementById('matchGroupSelect');
-             const tournamentId = {!! $tournament->id ?? 0 !!};
+        function handleCategoryChange() {
+            const categorySelect = document.getElementById('matchCategoryId');
+            const athlete1Select = document.getElementById('athlete1Select');
+            const athlete2Select = document.getElementById('athlete2Select');
+            const athlete1Label = document.getElementById('athlete1Label');
+            const athlete2Label = document.getElementById('athlete2Label');
+            const groupSelect = document.getElementById('matchGroupSelect');
+            const tournamentId = {!! $tournament->id ?? 0 !!};
 
-             if (!categorySelect.value) {
-                 // Reset if no category selected
-                 athlete1Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
-                 athlete2Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
-                 athlete1Select.disabled = true;
-                 athlete2Select.disabled = true;
-                 athlete1Label.textContent = '👤 Bước 2: Chọn VĐV 1 *';
-                 athlete2Label.textContent = '👤 Chọn VĐV 2 *';
+            if (!categorySelect.value) {
+                // Reset if no category selected
+                athlete1Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                athlete2Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                athlete1Select.disabled = true;
+                athlete2Select.disabled = true;
+                athlete1Label.textContent = '👤 Bước 2: Chọn VĐV 1 *';
+                athlete2Label.textContent = '👤 Chọn VĐV 2 *';
 
-                 groupSelect.innerHTML = '<option value="">-- Chọn nội dung thi đấu trước --</option>';
-                 groupSelect.disabled = true;
-                 return;
-             }
+                groupSelect.innerHTML = '<option value="">-- Chọn nội dung thi đấu trước --</option>';
+                groupSelect.disabled = true;
+                return;
+            }
 
-             const categoryId = categorySelect.value;
+            const categoryId = categorySelect.value;
 
-             // Fetch athletes/pairs for category
-             fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/athletes`, {
-                     headers: {
-                         'X-Requested-With': 'XMLHttpRequest'
-                     }
-                 })
-                 .then(response => response.json())
-                 .then(data => {
-                     if (data.success) {
-                         if (data.is_doubles) {
-                             // Doubles category: show pairs
-                             athlete1Label.textContent = '👥 Bước 2: Chọn Cặp 1 *';
-                             athlete2Label.textContent = '👥 Chọn Cặp 2 *';
+            // Fetch athletes/pairs for category
+            fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/athletes`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.is_doubles) {
+                            // Doubles category: show pairs
+                            athlete1Label.textContent = '👥 Bước 2: Chọn Cặp 1 *';
+                            athlete2Label.textContent = '👥 Chọn Cặp 2 *';
 
-                             if (data.pairs && data.pairs.length > 0) {
-                                 const pairOptions = data.pairs.map(pair =>
-                                     `<option value="${pair.primary_athlete_id}">${pair.pair_name}</option>`
-                                 ).join('');
+                            if (data.pairs && data.pairs.length > 0) {
+                                const pairOptions = data.pairs.map(pair =>
+                                    `<option value="${pair.primary_athlete_id}">${pair.pair_name}</option>`
+                                ).join('');
 
-                                 athlete1Select.innerHTML = `<option value="">-- Chọn Cặp 1 --</option>${pairOptions}`;
-                                 athlete2Select.innerHTML = `<option value="">-- Chọn Cặp 2 --</option>${pairOptions}`;
-                                 athlete1Select.disabled = false;
-                                 athlete2Select.disabled = false;
-                             } else {
-                                 athlete1Select.innerHTML = '<option value="">Chưa có cặp VĐV nào (cần đăng ký đồng đội)</option>';
-                                 athlete2Select.innerHTML = '<option value="">Chưa có cặp VĐV nào (cần đăng ký đồng đội)</option>';
-                                 athlete1Select.disabled = true;
-                                 athlete2Select.disabled = true;
-                             }
-                         } else {
-                             // Singles category: show individual athletes
-                             athlete1Label.textContent = '👤 Bước 2: Chọn VĐV 1 *';
-                             athlete2Label.textContent = '👤 Chọn VĐV 2 *';
+                                athlete1Select.innerHTML = `<option value="">-- Chọn Cặp 1 --</option>${pairOptions}`;
+                                athlete2Select.innerHTML = `<option value="">-- Chọn Cặp 2 --</option>${pairOptions}`;
+                                athlete1Select.disabled = false;
+                                athlete2Select.disabled = false;
+                            } else {
+                                athlete1Select.innerHTML =
+                                    '<option value="">Chưa có cặp VĐV nào (cần đăng ký đồng đội)</option>';
+                                athlete2Select.innerHTML =
+                                    '<option value="">Chưa có cặp VĐV nào (cần đăng ký đồng đội)</option>';
+                                athlete1Select.disabled = true;
+                                athlete2Select.disabled = true;
+                            }
+                        } else {
+                            // Singles category: show individual athletes
+                            athlete1Label.textContent = '👤 Bước 2: Chọn VĐV 1 *';
+                            athlete2Label.textContent = '👤 Chọn VĐV 2 *';
 
-                             if (data.athletes && data.athletes.length > 0) {
-                                 const athleteOptions = data.athletes.map(athlete =>
-                                     `<option value="${athlete.id}">${athlete.athlete_name}</option>`
-                                 ).join('');
+                            if (data.athletes && data.athletes.length > 0) {
+                                const athleteOptions = data.athletes.map(athlete =>
+                                    `<option value="${athlete.id}">${athlete.athlete_name}</option>`
+                                ).join('');
 
-                                 athlete1Select.innerHTML = `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
-                                 athlete2Select.innerHTML = `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
-                                 athlete1Select.disabled = false;
-                                 athlete2Select.disabled = false;
-                             } else {
-                                 athlete1Select.innerHTML = '<option value="">Không có VĐV nào</option>';
-                                 athlete2Select.innerHTML = '<option value="">Không có VĐV nào</option>';
-                                 athlete1Select.disabled = true;
-                                 athlete2Select.disabled = true;
-                             }
-                         }
-                     } else {
-                         athlete1Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
-                         athlete2Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
-                         athlete1Select.disabled = true;
-                         athlete2Select.disabled = true;
-                     }
-                 })
-                 .catch(error => {
-                     console.error('Error fetching athletes:', error);
-                     athlete1Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
-                     athlete2Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
-                     athlete1Select.disabled = true;
-                     athlete2Select.disabled = true;
-                 });
+                                athlete1Select.innerHTML =
+                                `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
+                                athlete2Select.innerHTML =
+                                `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
+                                athlete1Select.disabled = false;
+                                athlete2Select.disabled = false;
+                            } else {
+                                athlete1Select.innerHTML = '<option value="">Không có VĐV nào</option>';
+                                athlete2Select.innerHTML = '<option value="">Không có VĐV nào</option>';
+                                athlete1Select.disabled = true;
+                                athlete2Select.disabled = true;
+                            }
+                        }
+                    } else {
+                        athlete1Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                        athlete2Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                        athlete1Select.disabled = true;
+                        athlete2Select.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching athletes:', error);
+                    athlete1Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                    athlete2Select.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                    athlete1Select.disabled = true;
+                    athlete2Select.disabled = true;
+                });
 
-             // Fetch groups for category
-             console.log('Fetching groups for categoryId:', categoryId);
-             fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/groups`, {
-                     headers: {
-                         'X-Requested-With': 'XMLHttpRequest'
-                     }
-                 })
-                 .then(response => {
-                     console.log('Groups fetch response status:', response.status);
-                     return response.json();
-                 })
-                 .then(data => {
-                     console.log('Groups fetch response data:', data);
-                     if (data.success && data.groups && data.groups.length > 0) {
-                         const groups = data.groups;
-                         const groupOptions = groups.map(group => {
-                             return `<option value="${group.id}">${group.group_name}</option>`;
-                         }).join('');
+            // Fetch groups for category
+            console.log('Fetching groups for categoryId:', categoryId);
+            fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/groups`, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    console.log('Groups fetch response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Groups fetch response data:', data);
+                    if (data.success && data.groups && data.groups.length > 0) {
+                        const groups = data.groups;
+                        const groupOptions = groups.map(group => {
+                            return `<option value="${group.id}">${group.group_name}</option>`;
+                        }).join('');
 
-                         groupSelect.innerHTML = `<option value="">-- Chọn bảng/nhóm (tuỳ chọn) --</option>${groupOptions}`;
-                         groupSelect.disabled = false;
-                     } else {
-                         groupSelect.innerHTML = '<option value="">-- Không có bảng/nhóm nào (Tạo bảng trước) --</option>';
-                         groupSelect.disabled = true;
-                     }
-                 })
-                 .catch(error => {
-                     console.error('Error fetching groups:', error);
-                     groupSelect.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
-                     groupSelect.disabled = true;
-                 });
-         }
+                        groupSelect.innerHTML =
+                            `<option value="">-- Chọn bảng/nhóm (tuỳ chọn) --</option>${groupOptions}`;
+                        groupSelect.disabled = false;
+                    } else {
+                        groupSelect.innerHTML =
+                            '<option value="">-- Không có bảng/nhóm nào (Tạo bảng trước) --</option>';
+                        groupSelect.disabled = true;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching groups:', error);
+                    groupSelect.innerHTML = '<option value="">Lỗi tải dữ liệu</option>';
+                    groupSelect.disabled = true;
+                });
+        }
 
-         // Prevent selecting same pair/athlete for both sides
-         document.getElementById('athlete1Select').addEventListener('change', function() {
-             const selectedValue = this.value;
-             const athlete2Select = document.getElementById('athlete2Select');
+        // Prevent selecting same pair/athlete for both sides
+        document.getElementById('athlete1Select').addEventListener('change', function() {
+            const selectedValue = this.value;
+            const athlete2Select = document.getElementById('athlete2Select');
 
-             // Re-enable all options first
-             Array.from(athlete2Select.options).forEach(option => {
-                 option.disabled = false;
-             });
+            // Re-enable all options first
+            Array.from(athlete2Select.options).forEach(option => {
+                option.disabled = false;
+            });
 
-             // Disable the selected pair/athlete in the other dropdown
-             if (selectedValue) {
-                 const matchingOption = athlete2Select.querySelector(`option[value="${selectedValue}"]`);
-                 if (matchingOption) {
-                     matchingOption.disabled = true;
-                 }
-             }
-         });
+            // Disable the selected pair/athlete in the other dropdown
+            if (selectedValue) {
+                const matchingOption = athlete2Select.querySelector(`option[value="${selectedValue}"]`);
+                if (matchingOption) {
+                    matchingOption.disabled = true;
+                }
+            }
+        });
 
-         document.getElementById('athlete2Select').addEventListener('change', function() {
-             const selectedValue = this.value;
-             const athlete1Select = document.getElementById('athlete1Select');
+        document.getElementById('athlete2Select').addEventListener('change', function() {
+            const selectedValue = this.value;
+            const athlete1Select = document.getElementById('athlete1Select');
 
-             Array.from(athlete1Select.options).forEach(option => {
-                 option.disabled = false;
-             });
+            Array.from(athlete1Select.options).forEach(option => {
+                option.disabled = false;
+            });
 
-             if (selectedValue) {
-                 const matchingOption = athlete1Select.querySelector(`option[value="${selectedValue}"]`);
-                 if (matchingOption) {
-                     matchingOption.disabled = true;
-                 }
-             }
-         });
+            if (selectedValue) {
+                const matchingOption = athlete1Select.querySelector(`option[value="${selectedValue}"]`);
+                if (matchingOption) {
+                    matchingOption.disabled = true;
+                }
+            }
+        });
 
         // Open Edit Match Modal
-        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId, status, refereeId) {
+        function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId,
+            status, refereeId) {
             document.getElementById('editMatchId').value = matchId;
             document.getElementById('editAthlete1').value = athlete1Id;
             document.getElementById('editAthlete2').value = athlete2Id;
@@ -2331,58 +2439,70 @@
                     _token: document.querySelector('meta[name="csrf-token"]').content
                 };
 
-                console.log('Sending edit category request:', { url: `/homeyard/tournaments/${tournamentId}/categories/${categoryId}`, data });
+                console.log('Sending edit category request:', {
+                    url: `/homeyard/tournaments/${tournamentId}/categories/${categoryId}`,
+                    data
+                });
 
                 fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(async response => {
-                    console.log('=== CATEGORY EDIT RESPONSE ===');
-                    console.log('Response status:', response.status);
-                    const contentType = response.headers.get('content-type');
-                    console.log('Content-Type:', contentType);
-                    
-                    let body;
-                    if (contentType && contentType.includes('application/json')) {
-                        body = await response.json();
-                    } else {
-                        const text = await response.text();
-                        console.error('❌ ERROR: Response is not JSON!');
-                        console.error('Response text (first 1000 chars):', text.substring(0, 1000));
-                        console.error('Full response:', text);
-                        alert('Server error:\n' + text.substring(0, 500));
-                        body = { success: false, message: 'Server returned invalid response' };
-                    }
-                    return { status: response.status, body };
-                })
-                .then(({ status, body }) => {
-                    console.log('Response body:', body);
-                    if (status === 200 && body.success) {
-                        toastr.success('Cập nhật nội dung thi đấu thành công!');
-                        setTimeout(() => {
-                            closeEditCategoryModal();
-                            localStorage.setItem('activeTab', 'categories');
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        toastr.error(body.message || 'Lỗi cập nhật');
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    toastr.error('Lỗi: ' + error.message);
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                });
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(async response => {
+                        console.log('=== CATEGORY EDIT RESPONSE ===');
+                        console.log('Response status:', response.status);
+                        const contentType = response.headers.get('content-type');
+                        console.log('Content-Type:', contentType);
+
+                        let body;
+                        if (contentType && contentType.includes('application/json')) {
+                            body = await response.json();
+                        } else {
+                            const text = await response.text();
+                            console.error('❌ ERROR: Response is not JSON!');
+                            console.error('Response text (first 1000 chars):', text.substring(0, 1000));
+                            console.error('Full response:', text);
+                            alert('Server error:\n' + text.substring(0, 500));
+                            body = {
+                                success: false,
+                                message: 'Server returned invalid response'
+                            };
+                        }
+                        return {
+                            status: response.status,
+                            body
+                        };
+                    })
+                    .then(({
+                        status,
+                        body
+                    }) => {
+                        console.log('Response body:', body);
+                        if (status === 200 && body.success) {
+                            toastr.success('Cập nhật nội dung thi đấu thành công!');
+                            setTimeout(() => {
+                                closeEditCategoryModal();
+                                localStorage.setItem('activeTab', 'categories');
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            toastr.error(body.message || 'Lỗi cập nhật');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        toastr.error('Lỗi: ' + error.message);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
             });
         }
 
@@ -2435,54 +2555,66 @@
                     _token: document.querySelector('meta[name="csrf-token"]').content
                 };
 
-                console.log('Sending edit round request:', { url: `/homeyard/tournaments/${tournamentId}/rounds/${roundId}`, data });
+                console.log('Sending edit round request:', {
+                    url: `/homeyard/tournaments/${tournamentId}/rounds/${roundId}`,
+                    data
+                });
 
                 fetch(`/homeyard/tournaments/${tournamentId}/rounds/${roundId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(async response => {
-                    console.log('Response status:', response.status);
-                    const contentType = response.headers.get('content-type');
-                    console.log('Content-Type:', contentType);
-                    
-                    let body;
-                    if (contentType && contentType.includes('application/json')) {
-                        body = await response.json();
-                    } else {
-                        const text = await response.text();
-                        console.error('Response is not JSON:', text.substring(0, 500));
-                        body = { success: false, message: 'Server returned invalid response' };
-                    }
-                    return { status: response.status, body };
-                })
-                .then(({ status, body }) => {
-                    console.log('Response body:', body);
-                    if (status === 200 && body.success) {
-                        toastr.success('Cập nhật vòng đấu thành công!');
-                        setTimeout(() => {
-                            closeEditRoundModal();
-                            localStorage.setItem('activeTab', 'rounds');
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        toastr.error(body.message || 'Lỗi cập nhật');
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    toastr.error('Lỗi: ' + error.message);
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                });
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(async response => {
+                        console.log('Response status:', response.status);
+                        const contentType = response.headers.get('content-type');
+                        console.log('Content-Type:', contentType);
+
+                        let body;
+                        if (contentType && contentType.includes('application/json')) {
+                            body = await response.json();
+                        } else {
+                            const text = await response.text();
+                            console.error('Response is not JSON:', text.substring(0, 500));
+                            body = {
+                                success: false,
+                                message: 'Server returned invalid response'
+                            };
+                        }
+                        return {
+                            status: response.status,
+                            body
+                        };
+                    })
+                    .then(({
+                        status,
+                        body
+                    }) => {
+                        console.log('Response body:', body);
+                        if (status === 200 && body.success) {
+                            toastr.success('Cập nhật vòng đấu thành công!');
+                            setTimeout(() => {
+                                closeEditRoundModal();
+                                localStorage.setItem('activeTab', 'rounds');
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            toastr.error(body.message || 'Lỗi cập nhật');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        toastr.error('Lỗi: ' + error.message);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
             });
         }
 
@@ -2539,65 +2671,77 @@
                     _token: document.querySelector('meta[name="csrf-token"]').content
                 };
 
-                console.log('Sending edit group request:', { url: `/homeyard/tournaments/${tournamentId}/groups/${groupId}`, data });
+                console.log('Sending edit group request:', {
+                    url: `/homeyard/tournaments/${tournamentId}/groups/${groupId}`,
+                    data
+                });
 
                 fetch(`/homeyard/tournaments/${tournamentId}/groups/${groupId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(data)
-                })
-                .then(async response => {
-                    console.log('Response status:', response.status);
-                    const contentType = response.headers.get('content-type');
-                    console.log('Content-Type:', contentType);
-                    
-                    let body;
-                    if (contentType && contentType.includes('application/json')) {
-                        body = await response.json();
-                    } else {
-                        const text = await response.text();
-                        console.error('Response is not JSON:', text.substring(0, 500));
-                        body = { success: false, message: 'Server returned invalid response' };
-                    }
-                    return { status: response.status, body };
-                })
-                .then(({ status, body }) => {
-                    console.log('Response body:', body);
-                    if (status === 200 && body.success) {
-                        toastr.success('Cập nhật bảng đấu thành công!');
-                        setTimeout(() => {
-                            closeEditGroupModal();
-                            localStorage.setItem('activeTab', 'brackets');
-                            location.reload();
-                        }, 1500);
-                    } else {
-                        toastr.error(body.message || 'Lỗi cập nhật');
-                    }
-                })
-                .catch(error => {
-                    console.error('Fetch error:', error);
-                    toastr.error('Lỗi: ' + error.message);
-                })
-                .finally(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                });
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    })
+                    .then(async response => {
+                        console.log('Response status:', response.status);
+                        const contentType = response.headers.get('content-type');
+                        console.log('Content-Type:', contentType);
+
+                        let body;
+                        if (contentType && contentType.includes('application/json')) {
+                            body = await response.json();
+                        } else {
+                            const text = await response.text();
+                            console.error('Response is not JSON:', text.substring(0, 500));
+                            body = {
+                                success: false,
+                                message: 'Server returned invalid response'
+                            };
+                        }
+                        return {
+                            status: response.status,
+                            body
+                        };
+                    })
+                    .then(({
+                        status,
+                        body
+                    }) => {
+                        console.log('Response body:', body);
+                        if (status === 200 && body.success) {
+                            toastr.success('Cập nhật bảng đấu thành công!');
+                            setTimeout(() => {
+                                closeEditGroupModal();
+                                localStorage.setItem('activeTab', 'brackets');
+                                location.reload();
+                            }, 1500);
+                        } else {
+                            toastr.error(body.message || 'Lỗi cập nhật');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Fetch error:', error);
+                        toastr.error('Lỗi: ' + error.message);
+                    })
+                    .finally(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    });
             });
         }
 
         // Initialize match forms when page loads
-         document.addEventListener('DOMContentLoaded', function() {
-             setupCategorySelectListener();
-             initializeCreateMatchForm();
-             initializeEditMatchForm();
-             updateGroupFilter();
-             loadRankings();
-         });
+        document.addEventListener('DOMContentLoaded', function() {
+            setupCategorySelectListener();
+            initializeCreateMatchForm();
+            initializeEditMatchForm();
+            updateGroupFilter();
+            loadRankings();
+        });
 
         // ===== RANKINGS/LEADERBOARD FUNCTIONS =====
 
@@ -2856,176 +3000,270 @@
         }
 
         function exportRankingsExcel() {
-             const tournamentId = {!! $tournament->id ?? 0 !!};
-             const categoryId = document.getElementById('filterCategory')?.value || '';
-             const groupId = document.getElementById('filterGroup')?.value || '';
+            const tournamentId = {!! $tournament->id ?? 0 !!};
+            const categoryId = document.getElementById('filterCategory')?.value || '';
+            const groupId = document.getElementById('filterGroup')?.value || '';
 
-             const params = new URLSearchParams();
-             if (categoryId) params.append('category_id', categoryId);
-             if (groupId) params.append('group_id', groupId);
+            const params = new URLSearchParams();
+            if (categoryId) params.append('category_id', categoryId);
+            if (groupId) params.append('group_id', groupId);
 
-             const url =
-                 `/homeyard/tournaments/${tournamentId}/rankings/export${params.toString() ? '?' + params.toString() : ''}`;
-             window.location.href = url;
-         }
+            const url =
+                `/homeyard/tournaments/${tournamentId}/rankings/export${params.toString() ? '?' + params.toString() : ''}`;
+            window.location.href = url;
+        }
 
-         // ✅ MANUAL DRAW FUNCTIONS
-         function openManualDrawModal(categoryId, tournamentId) {
-             const modal = document.getElementById('manualDrawModal');
-             const container = document.getElementById('manualDrawContainer');
-             container.innerHTML = '<p style="text-align:center;">⏳ Đang tải dữ liệu...</p>';
-             modal.style.display = 'block';
+        // ✅ MANUAL DRAW FUNCTIONS
+        function openManualDrawModal(categoryId, tournamentId) {
+            const modal = document.getElementById('manualDrawModal');
+            const container = document.getElementById('manualDrawContainer');
+            container.innerHTML = '<p style="text-align:center;">⏳ Đang tải dữ liệu...</p>';
+            modal.style.display = 'block';
 
-             // Lấy danh sách VĐV và bảng
-             fetch(`/homeyard/tournaments/${tournamentId}/manual-draw?category_id=${categoryId}`)
-                 .then(res => res.json())
-                 .then(data => {
-                     if (data.success) {
-                         renderManualDraw(data, categoryId, tournamentId);
-                     } else {
-                         container.innerHTML = `<p style="color:red;">${data.message || 'Lỗi tải dữ liệu'}</p>`;
-                     }
-                 })
-                 .catch(err => {
-                     container.innerHTML = `<p style="color:red;">Lỗi: ${err.message}</p>`;
-                 });
-         }
+            // Lấy danh sách VĐV và bảng
+            fetch(`/homeyard/tournaments/${tournamentId}/manual-draw?category_id=${categoryId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        renderManualDraw(data, categoryId, tournamentId);
+                    } else {
+                        container.innerHTML = `<p style="color:red;">${data.message || 'Lỗi tải dữ liệu'}</p>`;
+                    }
+                })
+                .catch(err => {
+                    container.innerHTML = `<p style="color:red;">Lỗi: ${err.message}</p>`;
+                });
+        }
 
-         function closeManualDrawModal() {
-             document.getElementById('manualDrawModal').style.display = 'none';
-         }
+        function closeManualDrawModal() {
+            document.getElementById('manualDrawModal').style.display = 'none';
+        }
 
-         function renderManualDraw(data, categoryId, tournamentId) {
-             const { athletes, groups } = data;
-             const container = document.getElementById('manualDrawContainer');
+        function renderManualDraw(data, categoryId, tournamentId) {
+            const {
+                athletes,
+                groups
+            } = data;
+            const container = document.getElementById('manualDrawContainer');
 
-             let html = '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-height: 600px; overflow-y: auto;">';
-             
-             // Danh sách VĐV (trái)
-             html += '<div><h4>🏃 Vận Động Viên</h4><div id="athletesList" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:300px;">';
-             athletes.forEach(athlete => {
-                 html += `<div draggable="true" data-athlete-id="${athlete.id}" class="athlete-item" style="padding:8px; margin:5px 0; background:white; border:1px solid #ddd; border-radius:4px; cursor:move; user-select:none;">
+            let html =
+                '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-height: 600px; overflow-y: auto;">';
+
+            // Danh sách VĐV (trái)
+            html +=
+                '<div><h4>🏃 Vận Động Viên</h4><div id="athletesList" style="background:#f9f9f9; padding:10px; border-radius:8px; min-height:300px;">';
+            athletes.forEach(athlete => {
+                html += `<div draggable="true" data-athlete-id="${athlete.id}" class="athlete-item" style="padding:8px; margin:5px 0; background:white; border:1px solid #ddd; border-radius:4px; cursor:move; user-select:none;">
                      ${athlete.athlete_name}
                  </div>`;
-             });
-             html += '</div></div>';
+            });
+            html += '</div></div>';
 
-             // Danh sách bảng (phải)
-             html += '<div><h4>📊 Bảng Đấu</h4><div id="groupsList" style="display:flex; flex-direction:column; gap:10px;">';
-             groups.forEach(group => {
-                 const current = group.current_participants || 0;
-                 const max = group.max_participants || 0;
-                 html += `<div class="group-drop-zone" data-group-id="${group.id}" style="background:#e3f2fd; padding:10px; border:2px dashed #2196F3; border-radius:8px; min-height:150px; overflow-y:auto;">
+            // Danh sách bảng (phải)
+            html += '<div><h4>📊 Bảng Đấu</h4><div id="groupsList" style="display:flex; flex-direction:column; gap:10px;">';
+            groups.forEach(group => {
+                const current = group.current_participants || 0;
+                const max = group.max_participants || 0;
+                html += `<div class="group-drop-zone" data-group-id="${group.id}" style="background:#e3f2fd; padding:10px; border:2px dashed #2196F3; border-radius:8px; min-height:150px; overflow-y:auto;">
                      <strong>${group.group_name}</strong> <span style="color:#666;">(${current}/${max})</span>
                      <div class="group-athletes" style="margin-top:5px; min-height:120px;"></div>
                  </div>`;
-             });
-             html += '</div></div></div>';
+            });
+            html += '</div></div></div>';
 
-             // Nút save
-             html += `<div style="margin-top:20px; text-align:right;">
+            // Nút save
+            html += `<div style="margin-top:20px; text-align:right;">
                  <button class="btn btn-success" onclick="saveManualDraw(${categoryId}, ${tournamentId})">💾 Lưu kết quả</button>
                  <button class="btn btn-secondary" onclick="closeManualDrawModal()">❌ Hủy</button>
              </div>`;
 
-             container.innerHTML = html;
-             setupDragDrop();
-         }
+            container.innerHTML = html;
+            setupDragDrop();
+        }
 
-         function setupDragDrop() {
-             const athleteItems = document.querySelectorAll('.athlete-item');
-             const dropZones = document.querySelectorAll('.group-drop-zone');
+        function setupDragDrop() {
+            const athleteItems = document.querySelectorAll('.athlete-item');
+            const dropZones = document.querySelectorAll('.group-drop-zone');
 
-             athleteItems.forEach(item => {
-                 item.addEventListener('dragstart', (e) => {
-                     e.dataTransfer.effectAllowed = 'move';
-                     e.dataTransfer.setData('athleteId', item.dataset.athleteId);
-                 });
-             });
+            athleteItems.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('athleteId', item.dataset.athleteId);
+                });
+            });
 
-             dropZones.forEach(zone => {
-                 zone.addEventListener('dragover', (e) => {
-                     e.preventDefault();
-                     e.dataTransfer.dropEffect = 'move';
-                     zone.style.backgroundColor = '#bbdefb';
-                 });
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    zone.style.backgroundColor = '#bbdefb';
+                });
 
-                 zone.addEventListener('dragleave', (e) => {
-                     if (e.target === zone) {
-                         zone.style.backgroundColor = '#e3f2fd';
-                     }
-                 });
+                zone.addEventListener('dragleave', (e) => {
+                    if (e.target === zone) {
+                        zone.style.backgroundColor = '#e3f2fd';
+                    }
+                });
 
-                 zone.addEventListener('drop', (e) => {
-                     e.preventDefault();
-                     const athleteId = e.dataTransfer.getData('athleteId');
-                     const athleteItem = document.querySelector(`[data-athlete-id="${athleteId}"]`);
-                     
-                     if (athleteItem) {
-                         const groupContainer = zone.querySelector('.group-athletes');
-                         const clone = athleteItem.cloneNode(true);
-                         clone.style.cursor = 'grab';
-                         clone.addEventListener('dragstart', (e) => {
-                             e.dataTransfer.effectAllowed = 'move';
-                             e.dataTransfer.setData('athleteId', athleteId);
-                         });
-                         groupContainer.appendChild(clone);
-                     }
-                     zone.style.backgroundColor = '#e3f2fd';
-                 });
-             });
-         }
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    const athleteId = e.dataTransfer.getData('athleteId');
+                    const athleteItem = document.querySelector(`[data-athlete-id="${athleteId}"]`);
 
-         function saveManualDraw(categoryId, tournamentId) {
-             const assignedAthletes = {};
-             const dropZones = document.querySelectorAll('.group-drop-zone');
+                    if (athleteItem) {
+                        const groupContainer = zone.querySelector('.group-athletes');
+                        const clone = athleteItem.cloneNode(true);
+                        clone.style.cursor = 'grab';
+                        clone.addEventListener('dragstart', (e) => {
+                            e.dataTransfer.effectAllowed = 'move';
+                            e.dataTransfer.setData('athleteId', athleteId);
+                        });
+                        groupContainer.appendChild(clone);
+                    }
+                    zone.style.backgroundColor = '#e3f2fd';
+                });
+            });
+        }
 
-             dropZones.forEach(zone => {
-                 const groupId = zone.dataset.groupId;
-                 const athletes = zone.querySelectorAll('[data-athlete-id]');
-                 assignedAthletes[groupId] = Array.from(athletes).map(a => a.dataset.athleteId);
-             });
+        function saveManualDraw(categoryId, tournamentId) {
+            const assignedAthletes = {};
+            const dropZones = document.querySelectorAll('.group-drop-zone');
 
-             fetch(`/homeyard/tournaments/${tournamentId}/manual-draw-save`, {
-                 method: 'POST',
-                 headers: {
-                     'Content-Type': 'application/json',
-                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                 },
-                 body: JSON.stringify({
-                     category_id: categoryId,
-                     assignments: assignedAthletes
-                 })
-             })
-             .then(res => res.json())
-             .then(data => {
-                 if (data.success) {
-                     toastr.success('✅ ' + data.message);
-                     closeManualDrawModal();
-                     loadDrawResults(categoryId, tournamentId);
-                 } else {
-                     toastr.error('❌ ' + data.message);
-                 }
-             })
-             .catch(err => toastr.error('❌ ' + err.message));
-         }
-        </script>
+            dropZones.forEach(zone => {
+                const groupId = zone.dataset.groupId;
+                const athletes = zone.querySelectorAll('[data-athlete-id]');
+                assignedAthletes[groupId] = Array.from(athletes).map(a => a.dataset.athleteId);
+            });
 
-        <!-- MODAL: BỐC THĂM THỦ CÔNG -->
-        <div id="manualDrawModal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
-            <div style="background-color: var(--bg-white); margin: 2% auto; padding: 2rem; border-radius: var(--radius-xl); width: 95%; max-width: 1000px; box-shadow: var(--shadow-lg);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">📋 Bốc Thăm Thủ Công</h2>
-                    <button style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="closeManualDrawModal()">×</button>
-                </div>
-                <div style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
-                    <p style="margin: 0; font-size: 0.9rem;">💡 <strong>Hướng dẫn:</strong> Kéo vận động viên từ bên trái sang bảng đấu ở bên phải để chia bảng. Bạn có thể kéo lại để thay đổi.</p>
-                </div>
-                <div id="manualDrawContainer"></div>
+            fetch(`/homeyard/tournaments/${tournamentId}/manual-draw-save`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        category_id: categoryId,
+                        assignments: assignedAthletes
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        toastr.success('✅ ' + data.message);
+                        closeManualDrawModal();
+                        loadDrawResults(categoryId, tournamentId);
+                    } else {
+                        toastr.error('❌ ' + data.message);
+                    }
+                })
+                .catch(err => toastr.error('❌ ' + err.message));
+        }
+
+        // ===== DOUBLES CATEGORY HANDLER FUNCTIONS =====
+        const DOUBLES_TYPES = ['double_men', 'double_women', 'double_mixed'];
+
+        function handleAddAthleteCategoryChange() {
+            const categorySelect = document.getElementById('addAthleteCategory');
+            const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+            const categoryType = selectedOption.dataset.categoryType || '';
+            const partnerSection = document.getElementById('addAthletePartnerSection');
+            const partnerNameInput = document.getElementById('addAthletePartnerName');
+
+            if (DOUBLES_TYPES.includes(categoryType)) {
+                // Show partner section with animation
+                partnerSection.style.display = 'block';
+                partnerSection.style.opacity = '0';
+                partnerSection.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    partnerSection.style.transition = 'all 0.3s ease';
+                    partnerSection.style.opacity = '1';
+                    partnerSection.style.transform = 'translateY(0)';
+                }, 10);
+
+                // Make partner name required
+                partnerNameInput.setAttribute('required', 'required');
+            } else {
+                // Hide partner section
+                partnerSection.style.transition = 'all 0.3s ease';
+                partnerSection.style.opacity = '0';
+                partnerSection.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    partnerSection.style.display = 'none';
+                }, 300);
+
+                // Remove required
+                partnerNameInput.removeAttribute('required');
+
+                // Clear partner fields
+                document.getElementById('addAthletePartnerName').value = '';
+                document.getElementById('addAthletePartnerEmail').value = '';
+                document.getElementById('addAthletePartnerPhone').value = '';
+                document.getElementById('addPartnerNameError').style.display = 'none';
+            }
+        }
+
+        function handleEditAthleteCategoryChange() {
+            const categorySelect = document.getElementById('editAthleteCategory');
+            const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+            const categoryType = selectedOption.dataset.categoryType || '';
+            const partnerSection = document.getElementById('editAthletePartnerSection');
+            const partnerNameInput = document.getElementById('editAthletePartnerName');
+
+            if (DOUBLES_TYPES.includes(categoryType)) {
+                // Show partner section with animation
+                partnerSection.style.display = 'block';
+                partnerSection.style.opacity = '0';
+                partnerSection.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    partnerSection.style.transition = 'all 0.3s ease';
+                    partnerSection.style.opacity = '1';
+                    partnerSection.style.transform = 'translateY(0)';
+                }, 10);
+
+                // Make partner name required
+                partnerNameInput.setAttribute('required', 'required');
+            } else {
+                // Hide partner section
+                partnerSection.style.transition = 'all 0.3s ease';
+                partnerSection.style.opacity = '0';
+                partnerSection.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    partnerSection.style.display = 'none';
+                }, 300);
+
+                // Remove required
+                partnerNameInput.removeAttribute('required');
+
+                // Clear partner fields
+                document.getElementById('editAthletePartnerName').value = '';
+                document.getElementById('editAthletePartnerEmail').value = '';
+                document.getElementById('editAthletePartnerPhone').value = '';
+                document.getElementById('editPartnerNameError').style.display = 'none';
+            }
+        }
+    </script>
+
+    <!-- MODAL: BỐC THĂM THỦ CÔNG -->
+    <div id="manualDrawModal"
+        style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
+        <div
+            style="background-color: var(--bg-white); margin: 2% auto; padding: 2rem; border-radius: var(--radius-xl); width: 95%; max-width: 1000px; box-shadow: var(--shadow-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 700;">📋 Bốc Thăm Thủ Công</h2>
+                <button
+                    style="background: none; border: none; font-size: 28px; cursor: pointer; color: #666; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;"
+                    onclick="closeManualDrawModal()">×</button>
             </div>
+            <div
+                style="background: #fff3cd; border: 1px solid #ffc107; padding: 12px; border-radius: 4px; margin-bottom: 20px;">
+                <p style="margin: 0; font-size: 0.9rem;">💡 <strong>Hướng dẫn:</strong> Kéo vận động viên từ bên trái sang
+                    bảng đấu ở bên phải để chia bảng. Bạn có thể kéo lại để thay đổi.</p>
+            </div>
+            <div id="manualDrawContainer"></div>
         </div>
+    </div>
 
-        <!-- MODAL: THÊM VĐV -->
+    <!-- MODAL: THÊM VĐV -->
     <div id="addAthleteModal"
         style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); overflow-y: auto;">
         <div
@@ -3039,7 +3277,8 @@
 
             @if ($tournament && $tournament->is_ocr)
                 <!-- Show message only for OCR tournaments -->
-                <div style="background-color: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 20px; margin-bottom: 20px; color: #92400E; text-align: center;">
+                <div
+                    style="background-color: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 20px; margin-bottom: 20px; color: #92400E; text-align: center;">
                     <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
                     <h3 style="margin: 0 0 1rem 0; font-weight: 700; font-size: 1.1rem;">Giải Đấu Tính Điểm OCR</h3>
                     <p style="margin: 0 0 1rem 0; line-height: 1.6;">
@@ -3050,42 +3289,75 @@
                     </p>
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <button type="button" class="btn btn-secondary" style="width: 100%;" onclick="closeAddAthleteModal()">❌ Đóng</button>
+                    <button type="button" class="btn btn-secondary" style="width: 100%;"
+                        onclick="closeAddAthleteModal()">❌ Đóng</button>
                 </div>
             @else
                 <!-- Show form only for non-OCR tournaments -->
                 <form id="addAthleteForm">
                     <div class="form-group">
                         <label class="form-label">Tên VĐV *</label>
-                        <input type="text" name="athlete_name" class="form-input" placeholder="Nhập tên vận động viên"
-                            required>
+                        <input type="text" name="athlete_name" class="form-input"
+                            placeholder="Nhập tên vận động viên" required>
                     </div>
 
                     <div class="grid grid-2">
                         <div class="form-group">
                             <label class="form-label">Email *</label>
-                            <input type="email" name="email" class="form-input" placeholder="VD: athlete@example.com"
-                                required>
+                            <input type="email" name="email" class="form-input"
+                                placeholder="VD: athlete@example.com" required>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Số điện thoại *</label>
-                            <input type="tel" name="phone" class="form-input" placeholder="VD: 0123456789" required>
+                            <input type="tel" name="phone" class="form-input" placeholder="VD: 0123456789"
+                                required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Nội dung thi đấu *</label>
-                        <select name="category_id" class="form-select" required>
+                        <select name="category_id" class="form-select" required id="addAthleteCategory"
+                            onchange="handleAddAthleteCategoryChange()">
                             <option value="">-- Chọn nội dung --</option>
                             @if ($tournament && $tournament->categories)
                                 @foreach ($tournament->categories as $category)
-                                    <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                    <option value="{{ $category->id }}"
+                                        data-category-type="{{ $category->category_type }}">
+                                        {{ $category->category_name }}</option>
                                 @endforeach
                             @else
                                 <option value="">Chưa có nội dung. Vui lòng tạo nội dung thi đấu trước.</option>
                             @endif
                         </select>
+                    </div>
+
+                    <!-- Partner Section (for doubles) -->
+                    <div id="addAthletePartnerSection"
+                        style="display: none; margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 2px dashed #e5e7eb;">
+                        <h4
+                            style="margin: 0 0 15px 0; color: #1f2937; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                            👥 Thông tin Đồng đội
+                        </h4>
+
+                        <div class="form-group">
+                            <label class="form-label">Tên đồng đội *</label>
+                            <input type="text" name="partner_name" id="addAthletePartnerName" class="form-input"
+                                placeholder="Nhập tên đồng đội của bạn">
+                            <div id="addPartnerNameError" style="color: #ef4444; font-size: 0.85rem; margin-top: 4px; display: none;"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Email đồng đội</label>
+                            <input type="email" name="partner_email" id="addAthletePartnerEmail" class="form-input"
+                                placeholder="Nhập email đồng đội (tuỳ chọn)">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Số điện thoại đồng đội</label>
+                            <input type="tel" name="partner_phone" id="addAthletePartnerPhone" class="form-input"
+                                placeholder="Nhập SĐT đồng đội (tuỳ chọn)">
+                        </div>
                     </div>
 
                     <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -3105,14 +3377,16 @@
             <div style="font-size: 48px; margin-bottom: 1rem;">⚠️</div>
             <h2 style="margin: 0 0 1rem 0; font-size: 1.3rem; font-weight: 700; color: #DC2626;">Yêu Cầu Tài Khoản</h2>
             <p id="ocrAccountMessage" style="margin: 1rem 0; font-size: 1rem; color: #666; line-height: 1.6;"></p>
-            <div style="background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 12px; margin: 1.5rem 0; border-radius: 4px; text-align: left;">
+            <div
+                style="background-color: #FEF3C7; border-left: 4px solid #F59E0B; padding: 12px; margin: 1.5rem 0; border-radius: 4px; text-align: left;">
                 <p style="margin: 0; font-size: 0.95rem; color: #92400E;">
                     <strong>💡 Giải pháp:</strong><br>
-                    Vận động viên cần đăng ký tài khoản trong hệ thống trước khi tham gia giải đấu này. 
+                    Vận động viên cần đăng ký tài khoản trong hệ thống trước khi tham gia giải đấu này.
                     Sau đó, cung cấp email đã đăng ký cho ban tổ chức để thêm vào danh sách.
                 </p>
             </div>
-            <button type="button" class="btn btn-primary" onclick="closeOcrAccountRequiredModal()" style="width: 100%; margin-top: 1rem;">
+            <button type="button" class="btn btn-primary" onclick="closeOcrAccountRequiredModal()"
+                style="width: 100%; margin-top: 1rem;">
                 ✅ Tôi đã hiểu
             </button>
         </div>
@@ -3205,12 +3479,14 @@
                 <div class="grid grid-2">
                     <div class="form-group">
                         <label class="form-label">Số VĐV tối đa *</label>
-                        <input type="number" id="editCategoryMaxParticipants" name="max_participants" class="form-input" min="4" max="128" required>
+                        <input type="number" id="editCategoryMaxParticipants" name="max_participants"
+                            class="form-input" min="4" max="128" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Giải thưởng (VNĐ)</label>
-                        <input type="number" id="editCategoryPrize" name="prize_money" class="form-input" min="0">
+                        <input type="number" id="editCategoryPrize" name="prize_money" class="form-input"
+                            min="0">
                     </div>
                 </div>
 
@@ -3258,7 +3534,8 @@
                 <div class="grid grid-2">
                     <div class="form-group">
                         <label class="form-label">Số thứ tự vòng *</label>
-                        <input type="number" id="editRoundNumber" name="round_number" class="form-input" min="1" max="20" required>
+                        <input type="number" id="editRoundNumber" name="round_number" class="form-input"
+                            min="1" max="20" required>
                     </div>
 
                     <div class="form-group">
@@ -3325,32 +3602,37 @@
 
                     <div class="form-group">
                         <label class="form-label">Tên bảng (VD: A, B, C) *</label>
-                        <input type="text" id="editGroupName" name="group_name" class="form-input" placeholder="VD: Bảng A" required>
+                        <input type="text" id="editGroupName" name="group_name" class="form-input"
+                            placeholder="VD: Bảng A" required>
                     </div>
                 </div>
 
                 <div class="grid grid-3">
                     <div class="form-group">
                         <label class="form-label">Mã bảng (VD: A, GRP1) *</label>
-                        <input type="text" id="editGroupCode" name="group_code" class="form-input" placeholder="VD: A" required>
+                        <input type="text" id="editGroupCode" name="group_code" class="form-input"
+                            placeholder="VD: A" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Số VĐV *</label>
-                        <input type="number" id="editGroupMaxParticipants" name="max_participants" class="form-input" min="2" max="128" required>
+                        <input type="number" id="editGroupMaxParticipants" name="max_participants"
+                            class="form-input" min="2" max="128" required>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label">Số người lọt vào vòng sau *</label>
-                        <input type="number" id="editGroupAdvancing" name="advancing_count" class="form-input" min="1" required
-                            title="Ví dụ: Bảng 4 VĐV, nhập 2 = top 2 tiến lên vòng tứ kết">
-                        <small style="color: #666; margin-top: 0.25rem; display: block;">VD: Bảng có 4 VĐV, nhập 2 = top 2 tiến lên vòng tiếp theo</small>
+                        <input type="number" id="editGroupAdvancing" name="advancing_count" class="form-input"
+                            min="1" required title="Ví dụ: Bảng 4 VĐV, nhập 2 = top 2 tiến lên vòng tứ kết">
+                        <small style="color: #666; margin-top: 0.25rem; display: block;">VD: Bảng có 4 VĐV, nhập 2 = top 2
+                            tiến lên vòng tiếp theo</small>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label class="form-label">Ghi chú</label>
-                    <textarea id="editGroupDescription" name="description" class="form-input" placeholder="Ghi chú về bảng đấu (tuỳ chọn)" rows="3"></textarea>
+                    <textarea id="editGroupDescription" name="description" class="form-input"
+                        placeholder="Ghi chú về bảng đấu (tuỳ chọn)" rows="3"></textarea>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
@@ -3400,14 +3682,44 @@
 
                 <div class="form-group">
                     <label class="form-label">Nội dung thi đấu *</label>
-                    <select id="editAthleteCategory" name="category_id" class="form-select" required>
+                    <select id="editAthleteCategory" name="category_id" class="form-select" required
+                        onchange="handleEditAthleteCategoryChange()">
                         <option value="">-- Chọn nội dung --</option>
                         @if ($tournament && $tournament->categories)
                             @foreach ($tournament->categories as $category)
-                                <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                <option value="{{ $category->id }}"
+                                    data-category-type="{{ $category->category_type }}">{{ $category->category_name }}
+                                </option>
                             @endforeach
                         @endif
                     </select>
+                </div>
+
+                <!-- Partner Section (for doubles) -->
+                <div id="editAthletePartnerSection"
+                    style="display: none; margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 2px dashed #e5e7eb;">
+                    <h4
+                        style="margin: 0 0 15px 0; color: #1f2937; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                        👥 Thông tin Đồng đội</h4>
+
+                    <div class="form-group">
+                        <label class="form-label">Tên đồng đội *</label>
+                        <input type="text" name="partner_name" id="editAthletePartnerName" class="form-input"
+                            placeholder="Nhập tên đồng đội của bạn">
+                        <div id="editPartnerNameError" style="color: #ef4444; font-size: 0.85rem; margin-top: 4px; display: none;"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Email đồng đội</label>
+                        <input type="email" name="partner_email" id="editAthletePartnerEmail" class="form-input"
+                            placeholder="Nhập email đồng đội (tuỳ chọn)">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Số điện thoại đồng đội</label>
+                        <input type="tel" name="partner_phone" id="editAthletePartnerPhone" class="form-input"
+                            placeholder="Nhập SĐT đồng đội (tuỳ chọn)">
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">

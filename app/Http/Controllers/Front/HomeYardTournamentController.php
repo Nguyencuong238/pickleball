@@ -368,6 +368,9 @@ class HomeYardTournamentController extends Controller
                 'email' => 'required|email',
                 'phone' => 'required|string|max:20',
                 'category_id' => 'required|exists:tournament_categories,id',
+                'partner_name' => 'nullable|string|max:255',
+                'partner_email' => 'nullable|email',
+                'partner_phone' => 'nullable|string|max:20',
             ]);
 
             \Log::info('Validation passed', $validated);
@@ -385,7 +388,36 @@ class HomeYardTournamentController extends Controller
 
             $userId = $athleteUser ? $athleteUser->id : auth()->id();  // Use athlete's user if exists, else organizer
             
-            $athlete = TournamentAthlete::create([
+            // Create partner athlete if partner info is provided
+            $partnerId = null;
+            if (!empty($validated['partner_name'])) {
+                // Try to find user by partner email if provided
+                $partnerUser = null;
+                if (!empty($validated['partner_email'])) {
+                    $partnerUser = User::where('email', $validated['partner_email'])->first();
+                }
+
+                $partnerData = [
+                    'tournament_id' => $tournament->id,
+                    'category_id' => $validated['category_id'],
+                    'user_id' => $partnerUser ? $partnerUser->id : auth()->id(),
+                    'athlete_name' => $validated['partner_name'],
+                    'email' => $validated['partner_email'] ?? '',
+                    'phone' => $validated['partner_phone'] ?? '',
+                    'status' => 'approved',  // Home yard organizer adds athletes as approved
+                    'payment_status' => 'pending',
+                ];
+
+                $partner = TournamentAthlete::create($partnerData);
+                $partnerId = $partner->id;
+
+                \Log::info('Partner athlete created', ['id' => $partner->id]);
+
+                // Log activity for partner
+                ActivityLog::log("VĐV đồng đội '{$partner->athlete_name}' được thêm vào giải đấu '{$tournament->name}'", 'TournamentAthlete', $partner->id);
+            }
+            
+            $athleteData = [
                 'tournament_id' => $tournament->id,
                 'category_id' => $validated['category_id'],
                 'user_id' => $userId,  // Try to link to actual athlete user by email, fallback to organizer
@@ -394,7 +426,20 @@ class HomeYardTournamentController extends Controller
                 'phone' => $validated['phone'],
                 'status' => 'approved',  // Home yard organizer adds athletes as approved
                 'payment_status' => 'pending',
-            ]);
+            ];
+
+            // Add partner_id if created (for doubles)
+            if (!empty($partnerId)) {
+                $athleteData['partner_id'] = $partnerId;
+            }
+
+            $athlete = TournamentAthlete::create($athleteData);
+
+            // Update partner to reference back to the main athlete (bidirectional relationship)
+            if (!empty($partnerId)) {
+                TournamentAthlete::where('id', $partnerId)->update(['partner_id' => $athlete->id]);
+                \Log::info('Partner athlete updated with back-reference', ['partner_id' => $partnerId, 'main_athlete_id' => $athlete->id]);
+            }
 
             \Log::info('Athlete created', ['id' => $athlete->id]);
 
@@ -433,9 +478,68 @@ class HomeYardTournamentController extends Controller
                 'email' => 'required|email',
                 'phone' => 'required|string|max:20',
                 'category_id' => 'required|exists:tournament_categories,id',
+                'partner_name' => 'nullable|string|max:255',
+                'partner_email' => 'nullable|email',
+                'partner_phone' => 'nullable|string|max:20',
             ]);
 
-            $athlete->update($validated);
+            $updateData = [
+                'athlete_name' => $validated['athlete_name'],
+                'email' => $validated['email'],
+                'phone' => $validated['phone'],
+                'category_id' => $validated['category_id'],
+            ];
+
+            // Handle partner info update
+            if (!empty($validated['partner_name'])) {
+                // Check if athlete already has a partner
+                if ($athlete->partner_id) {
+                    // Update existing partner
+                    $partner = TournamentAthlete::find($athlete->partner_id);
+                    if ($partner) {
+                        $partner->update([
+                            'athlete_name' => $validated['partner_name'],
+                            'email' => $validated['partner_email'] ?? '',
+                            'phone' => $validated['partner_phone'] ?? '',
+                            'category_id' => $validated['category_id'],
+                        ]);
+                        \Log::info('Partner athlete updated', ['id' => $partner->id]);
+                    }
+                } else {
+                    // Create new partner if doesn't exist
+                    $partnerUser = null;
+                    if (!empty($validated['partner_email'])) {
+                        $partnerUser = User::where('email', $validated['partner_email'])->first();
+                    }
+
+                    $partnerData = [
+                        'tournament_id' => $tournament->id,
+                        'category_id' => $validated['category_id'],
+                        'user_id' => $partnerUser ? $partnerUser->id : auth()->id(),
+                        'athlete_name' => $validated['partner_name'],
+                        'email' => $validated['partner_email'] ?? '',
+                        'phone' => $validated['partner_phone'] ?? '',
+                        'status' => 'approved',
+                        'payment_status' => 'pending',
+                    ];
+
+                    $partner = TournamentAthlete::create($partnerData);
+                    $updateData['partner_id'] = $partner->id;
+
+                    \Log::info('Partner athlete created during update', ['id' => $partner->id]);
+                }
+            } else {
+                // If partner info is not provided and athlete has a partner, keep the existing partner_id
+                // This allows partial updates without affecting partner relationship
+            }
+
+            $athlete->update($updateData);
+
+            // Update partner to reference back to the main athlete (bidirectional relationship)
+            if (!empty($updateData['partner_id'])) {
+                TournamentAthlete::where('id', $updateData['partner_id'])->update(['partner_id' => $athlete->id]);
+                \Log::info('Partner athlete updated with back-reference during update', ['partner_id' => $updateData['partner_id'], 'main_athlete_id' => $athlete->id]);
+            }
 
             \Log::info('Athlete updated', ['id' => $athlete->id]);
 
@@ -453,6 +557,26 @@ class HomeYardTournamentController extends Controller
             ], 422);
         } catch (\Exception $e) {
             \Log::error('Update error: ' . $e->getMessage() . ' | ' . $e->getTraceAsString());
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function getAthlete(Tournament $tournament, TournamentAthlete $athlete)
+    {
+        $this->authorize('update', $tournament);
+
+        try {
+            // Load partner relationship
+            $athlete->load('partner');
+
+            return response()->json([
+                'success' => true,
+                'athlete' => $athlete
+            ]);
+        } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi: ' . $e->getMessage()

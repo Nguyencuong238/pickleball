@@ -183,6 +183,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('/tournaments/{tournament_id}/config', [HomeYardTournamentController::class, 'configTournament'])->name('tournaments.config');
     Route::post('tournaments/bulk-delete', [HomeYardTournamentController::class, 'bulkDelete'])->name('tournaments.bulk-delete');
     Route::post('tournaments/{tournament}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');
+    Route::get('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'getAthlete'])->name('tournaments.athletes.get');
     Route::put('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'updateAthlete'])->name('tournaments.athletes.update');
     Route::delete('tournaments/{tournament}/athletes/{athlete}', [HomeYardTournamentController::class, 'removeAthlete'])->name('tournaments.athletes.remove');
     Route::patch('tournaments/{tournament}/athletes/{athlete}/status', [HomeYardTournamentController::class, 'updateAthleteStatus'])->name('tournaments.athletes.updateStatus');

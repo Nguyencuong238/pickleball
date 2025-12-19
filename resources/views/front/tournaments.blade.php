@@ -386,23 +386,9 @@
                                                 <span
                                                     class="prize-amount">{{ $tournament->prizes ? number_format($tournament->prizes, 0, '.', ',') . ' VNĐ' : 'N/A' }}</span>
                                             </div>
-                                            @if ($tournament->is_watch == 1)
-                                                <button class="btn btn-primary btn-sm tournament-register-btn" onclick="event.preventDefault(); event.stopPropagation(); openDetailModal({{ $tournament->id }})">
-                                                    Xem chi tiết
-                                                </button>
-                                            @else
-                                                @if (!$tournament->user_registered)
-                                                    <button class="btn btn-primary btn-sm tournament-register-btn"
-                                                        onclick="event.preventDefault(); openRegisterModal({{ $tournament->id }}, '{{ $tournament->name }}');">
-                                                        Đăng ký ngay
-                                                    </button>
-                                                @else
-                                                    <button class="btn btn-secondary btn-sm tournament-register-btn" disabled
-                                                        style="opacity: 0.6; cursor: not-allowed;">
-                                                        Chờ xét duyệt
-                                                    </button>
-                                                @endif
-                                            @endif
+                                            <a href="{{ route('tournaments-detail', $tournament->id) }}" class="btn btn-primary btn-sm tournament-register-btn" style="text-decoration: none; display: inline-block;">
+                                                Xem ngay
+                                            </a>
                                         </div>
                                     </div>
                                 </a>
