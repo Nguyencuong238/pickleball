@@ -333,7 +333,7 @@ $stadiumImage = $stadium->getFirstMediaUrl('banner') ?? asset('assets/images/cou
                                     <div class="info-icon">⏰</div>
                                     <div class="info-content">
                                         <div class="info-label">Giờ mở cửa</div>
-                                        <div class="info-value">{{ $stadium->opening_hours ?? '05:00 - 23:00' }}</div>
+                                        <div class="info-value">{{ $stadium->opening_time . ' - ' . $stadium->closing_time }}</div>
                                     </div>
                                 </div>
                                 <div class="info-box">

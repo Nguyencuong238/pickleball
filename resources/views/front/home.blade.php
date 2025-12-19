@@ -207,7 +207,7 @@
                             <div class="court-info">
                                 <div class="info-item">
                                     <span class="info-label">Giờ mở cửa:</span>
-                                    <span class="info-value">{{ $stadium->opening_hours ?? '06:00 - 22:00' }}</span>
+                                    <span class="info-value">{{ $stadium->opening_time . ' - ' . $stadium->closing_time }}</span>
                                 </div>
                                 <div class="info-item">
                                     <span class="info-label">Giá thuê:</span>

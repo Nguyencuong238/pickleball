@@ -33,7 +33,7 @@
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Giờ Hoạt
                     Động</label>
                 <input type="text" name="opening_hours" class="form-control"
-                    value="{{ $stadium->opening_hours ?? old('opening_hours') }}" placeholder="VD: 06:00 - 22:00"
+                    value="{{ old('opening_hours', $stadium->opening_hours) }}" placeholder="VD: 06:00 - 22:00"
                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
             </div>
         </div>

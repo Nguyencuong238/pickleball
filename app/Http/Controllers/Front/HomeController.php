@@ -102,9 +102,18 @@ class HomeController extends Controller
                 ];
             }
 
+            // Get stadium opening hours
+            $stadium = $court->stadium;
+            $openingHours = $stadium->opening_time . ' - ' . $stadium->closing_time;
+            
+            // Parse opening hours to get start and end hours
+            preg_match('/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/', $openingHours, $matches);
+            $startHour = isset($matches[1]) ? (int)$matches[1] : 6;
+            $endHour = isset($matches[3]) ? (int)$matches[3] : 22;
+
             // Generate time slots with pricing from court_pricing table
             $timeSlots = [];
-            for ($hour = 5; $hour < 21; $hour++) {
+            for ($hour = $startHour; $hour < $endHour; $hour++) {
                 $slotTime = sprintf('%02d:00', $hour);
                 $slotDateTime = \DateTime::createFromFormat('H:i', $slotTime);
 

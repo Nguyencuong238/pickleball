@@ -23,7 +23,7 @@ class StadiumResource extends JsonResource
             'phone' => $this->phone,
             'email' => $this->email,
             'website' => $this->website,
-            'image' => $this->image,
+            'image' => $this->getFirstMedia('banner') ? $this->getFirstMediaUrl('banner') : '',
             'latitude' => $this->latitude,
             'longitude' => $this->longitude,
             'opening_hours' => $this->opening_hours,
@@ -40,6 +40,8 @@ class StadiumResource extends JsonResource
             'verified' => $this->verified,
             'province_id' => $this->province_id,
             'user_id' => $this->user_id,
+            'opening_time' => $this->opening_time,
+            'closing_time' => $this->closing_time,
             
             // Relationships
             'province' => new ProvinceResource($this->whenLoaded('province')),
