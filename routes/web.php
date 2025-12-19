@@ -13,6 +13,7 @@ use App\Http\Controllers\Front\RoundController;
 use App\Http\Controllers\Front\GroupController;
 use App\Http\Controllers\Front\BookingInstructorController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DebugController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\UserPermissionController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -45,8 +46,11 @@ use App\Http\Controllers\Front\RefereeProfileController;
 |
 */
 
+// Debug routes (outside middleware groups)
+Route::get('/debug/check-athletes/{categoryId?}', [DebugController::class, 'checkAthletes'])->name('debug.check-athletes');
+
 Route::get('/athlete-debug', function() {
-    $user = auth()->user();
+     $user = auth()->user();
     return response()->json([
         'user' => $user ? [
             'id' => $user->id,
@@ -273,6 +277,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('athlete-management/category/{tournament_id}/{category_id}', [AthleteManagementController::class, 'getCategoryStatistics'])->name('athlete-management.category');
     Route::delete('athlete-management/athlete/{athlete_id}', [AthleteManagementController::class, 'deleteAthlete'])->name('athlete-management.delete');
     Route::put('athlete-management/athlete/{athlete_id}', [AthleteManagementController::class, 'updateAthlete'])->name('athlete-management.update');
+
     Route::get('athlete-management/debug', function() {
         $user = auth()->user();
         $tournaments = \App\Models\Tournament::where('user_id', $user->id)->with('athletes')->get();

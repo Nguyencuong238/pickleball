@@ -1568,13 +1568,41 @@
                 groupCard.className = 'group-card';
 
                 let athletesHtml = '';
-                group.athletes.forEach((athlete, position) => {
+                const processed = new Set();
+                let pairNumber = 1;
+
+                group.athletes.forEach((athlete) => {
+                    // Skip if already processed (as partner)
+                    if (processed.has(athlete.id)) {
+                        return;
+                    }
+
                     const seedBadge = athlete.seed_number ?
                         `<span class="badge badge-warning">⭐ #${athlete.seed_number}</span>` :
                         '';
+
+                    // If athlete has a partner, display as pair
+                    if (athlete.partner_id) {
+                        const partner = group.athletes.find(a => a.id === athlete.partner_id);
+                        if (partner) {
+                            processed.add(athlete.id);
+                            processed.add(partner.id);
+                            athletesHtml += `
+                                <li style="background: #f0f9ff; padding: 12px; margin: 8px 0; border-radius: 6px; border-left: 3px solid #3b82f6;">
+                                    <strong style="color: #1e40af;">👥 Cặp ${pairNumber}</strong><br>
+                                    <span style="color: #374151;">1️⃣ ${athlete.name}</span> ${seedBadge}<br>
+                                    <span style="color: #374151;">2️⃣ ${partner.name}</span>
+                                </li>
+                            `;
+                            pairNumber++;
+                            return;
+                        }
+                    }
+
+                    // Single athlete (no partner)
                     athletesHtml += `
                         <li>
-                            <span>${position + 1}. ${athlete.name}</span>
+                            <span>${athlete.name}</span>
                             ${seedBadge}
                         </li>
                     `;

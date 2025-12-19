@@ -363,15 +363,25 @@ class HomeYardTournamentController extends Controller
         }
 
         try {
-            $validated = $request->validate([
+            // Determine if this is a double category
+            $category = TournamentCategory::where('id', $request->input('category_id'))
+                ->where('tournament_id', $tournament->id)
+                ->first();
+            
+            $isDoubleCategory = $category && strpos($category->category_type, 'double') !== false;
+
+            // Build validation rules - partner is required for doubles
+            $rules = [
                 'athlete_name' => 'required|string|max:255',
                 'email' => 'required|email',
                 'phone' => 'required|string|max:20',
                 'category_id' => 'required|exists:tournament_categories,id',
-                'partner_name' => 'nullable|string|max:255',
+                'partner_name' => $isDoubleCategory ? 'required|string|max:255' : 'nullable|string|max:255',
                 'partner_email' => 'nullable|email',
                 'partner_phone' => 'nullable|string|max:20',
-            ]);
+            ];
+
+            $validated = $request->validate($rules);
 
             \Log::info('Validation passed', $validated);
 
@@ -473,15 +483,25 @@ class HomeYardTournamentController extends Controller
         $this->authorize('update', $tournament);
 
         try {
-            $validated = $request->validate([
+            // Determine if this is a double category
+            $category = TournamentCategory::where('id', $request->input('category_id'))
+                ->where('tournament_id', $tournament->id)
+                ->first();
+            
+            $isDoubleCategory = $category && strpos($category->category_type, 'double') !== false;
+
+            // Build validation rules - partner is required for doubles
+            $rules = [
                 'athlete_name' => 'required|string|max:255',
                 'email' => 'required|email',
                 'phone' => 'required|string|max:20',
                 'category_id' => 'required|exists:tournament_categories,id',
-                'partner_name' => 'nullable|string|max:255',
+                'partner_name' => $isDoubleCategory ? 'required|string|max:255' : 'nullable|string|max:255',
                 'partner_email' => 'nullable|email',
                 'partner_phone' => 'nullable|string|max:20',
-            ]);
+            ];
+
+            $validated = $request->validate($rules);
 
             $updateData = [
                 'athlete_name' => $validated['athlete_name'],
@@ -1460,6 +1480,7 @@ class HomeYardTournamentController extends Controller
             $approvedAthletes = TournamentAthlete::where('tournament_id', $tournament->id)
                 ->where('category_id', $categoryId)
                 ->where('status', 'approved')
+                ->with(['category', 'partner']) // ✅ Load category + partner relationship
                 ->get();
 
             if ($approvedAthletes->isEmpty()) {
@@ -1481,23 +1502,89 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
 
-            // ✅ VALIDATE: Kiểm tra tổng sức chứa của các bảng
-            $totalCapacity = $existingGroups->sum('max_participants');
-            $totalAthletes = $approvedAthletes->count();
+            // ✅ KIỂM TRA LOẠI CATEGORY TRƯỚC (không phải sau)
+             $isDouble = $this->isDoubleCategory($categoryId, $tournament);
+             
+             // ✅ Tính sức chứa: Với đấu đôi, 1 bảng với max_participants=4 chỉ chứa 2 cặp (4 VĐV = 2 cặp)
+             if ($isDouble) {
+                 $totalCapacity = intval($existingGroups->sum('max_participants') / 2);
+             } else {
+                 $totalCapacity = $existingGroups->sum('max_participants');
+             }
 
-            if ($totalAthletes > $totalCapacity) {
-                return response()->json([
-                    'success' => false,
-                    'message' => "Không đủ chỗ trống. Bạn có {$totalAthletes} VĐV nhưng các bảng chỉ có sức chứa {$totalCapacity}. Vui lòng tạo thêm bảng hoặc tăng số VĐV tối đa của bảng."
-                ], 422);
-            }
+             $firstAthlete = $approvedAthletes->first();
+             $categoryType = $firstAthlete?->category?->category_type ?? 'unknown';
+             
+             Log::info('Draw check', [
+                 'category_id' => $categoryId,
+                 'is_double' => $isDouble,
+                 'category_type' => $categoryType,
+                 'total_athletes' => $approvedAthletes->count(),
+                 'total_capacity' => $totalCapacity
+             ]);
 
-            // Xử lý bốc thăm
-            if ($drawMethod === 'auto') {
-                $this->drawAthletesByRandom($approvedAthletes, $existingGroups);
-            } elseif ($drawMethod === 'seeded') {
-                $this->drawAthletesBySeeding($approvedAthletes, $existingGroups);
-            }
+
+
+             // Xử lý bốc thăm
+             if ($isDouble) {
+                 // Bốc thăm đấu đôi
+                 $pairs = $this->getPairsFromAthletes($approvedAthletes);
+
+                 Log::info('Pairs extracted', [
+                     'total_pairs' => count($pairs),
+                     'approved_athletes' => $approvedAthletes->count()
+                 ]);
+
+                 if (empty($pairs)) {
+                     return response()->json([
+                         'success' => false,
+                         'message' => 'Không có cặp nào hợp lệ. Vui lòng đảm bảo tất cả VĐV đều có partner.'
+                     ], 422);
+                 }
+                 
+                 // Check if any athletes don't have a partner (which shouldn't happen with proper validation)
+                 $athletesWithoutPartner = $approvedAthletes->where('partner_id', null)->pluck('athlete_name')->toArray();
+                 if (!empty($athletesWithoutPartner)) {
+                     return response()->json([
+                         'success' => false,
+                         'message' => 'Các VĐV sau đây chưa có đồng đội: ' . implode(', ', $athletesWithoutPartner) . '. Vui lòng thêm đồng đội trước khi bốc thăm.'
+                     ], 422);
+                 }
+
+                 // ✅ VALIDATE: Kiểm tra số cặp không vượt sức chứa
+                 // Sức chứa đã tính toán đúng ở trên (chia đôi cho double)
+                 $totalPairs = count($pairs);
+
+                 if ($totalPairs > $totalCapacity) {
+                     return response()->json([
+                         'success' => false,
+                         'message' => "Không đủ chỗ trống. Bạn có {$totalPairs} cặp nhưng các bảng chỉ có sức chứa {$totalCapacity} cặp. Vui lòng tạo thêm bảng hoặc tăng số VĐV tối đa của bảng."
+                     ], 422);
+                 }
+
+                 if ($drawMethod === 'auto') {
+                     $this->drawPairsByRandom($pairs, $existingGroups);
+                 } elseif ($drawMethod === 'seeded') {
+                     $this->drawPairsBySeeding($pairs, $existingGroups);
+                 }
+             } else {
+                 // Bốc thăm đấu đơn (VĐV lẻ)
+                 // ✅ VALIDATE: Kiểm tra tổng sức chứa của các bảng (chỉ cho single)
+                 $totalAthletes = $approvedAthletes->count();
+
+                 if ($totalAthletes > $totalCapacity) {
+                     return response()->json([
+                         'success' => false,
+                         'message' => "Không đủ chỗ trống. Bạn có {$totalAthletes} VĐV nhưng các bảng chỉ có sức chứa {$totalCapacity}. Vui lòng tạo thêm bảng hoặc tăng số VĐV tối đa của bảng."
+                     ], 422);
+                 }
+
+                 if ($drawMethod === 'auto') {
+                     $this->drawAthletesByRandom($approvedAthletes, $existingGroups);
+                 } elseif ($drawMethod === 'seeded') {
+                     $this->drawAthletesBySeeding($approvedAthletes, $existingGroups);
+                 }
+             }
 
             // Refresh groups from DB để lấy dữ liệu mới nhất sau update
             $refreshedGroups = Group::where('tournament_id', $tournament->id)
@@ -1520,6 +1607,326 @@ class HomeYardTournamentController extends Controller
                 'success' => false,
                 'message' => 'Lỗi khi bốc thăm: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Kiểm tra xem category có phải đấu đôi hay không
+     */
+    private function isDoubleCategory($categoryId, $tournament)
+    {
+        $category = TournamentCategory::where('id', $categoryId)
+            ->where('tournament_id', $tournament->id)
+            ->first();
+        
+        if (!$category) {
+            Log::warning('Category not found', ['category_id' => $categoryId, 'tournament_id' => $tournament->id]);
+            return false;
+        }
+        
+        $categoryType = $category->category_type;
+        $isDouble = strpos($categoryType, 'double') !== false;
+        
+        // ✅ DEBUG: Print for checking
+        error_log("=== CATEGORY CHECK ===");
+        error_log("Category ID: {$categoryId}");
+        error_log("Category Type: '{$categoryType}'");
+        error_log("Contains 'double': " . ($isDouble ? 'YES' : 'NO'));
+        error_log("====================");
+        
+        Log::info('Category check', [
+            'category_id' => $categoryId,
+            'category_type' => $categoryType,
+            'is_double' => $isDouble
+        ]);
+        
+        return $isDouble;
+    }
+
+    /**
+     * Lấy danh sách cặp (pairs) từ danh sách VĐV đấu đôi
+     */
+    private function getPairsFromAthletes($athletes)
+    {
+        $pairs = [];
+        $processed = [];
+
+        foreach ($athletes as $athlete) {
+            // Bỏ qua nếu VĐV này đã được xử lý (là partner của VĐV khác)
+            if (in_array($athlete->id, $processed)) {
+                continue;
+            }
+
+            // Nếu có partner
+            if ($athlete->partner_id && $athlete->partner) {
+                $pairs[] = [
+                    'primary' => $athlete,
+                    'partner' => $athlete->partner,
+                    'pair_name' => $athlete->athlete_name . ' - ' . $athlete->partner->athlete_name
+                ];
+                $processed[] = $athlete->id;
+                $processed[] = $athlete->partner_id;
+            } else {
+                // VĐV đơn (không có partner) - tạo cặp ngẫu nhiên hoặc báo lỗi
+                Log::warning('Athlete without partner', [
+                    'athlete_id' => $athlete->id,
+                    'athlete_name' => $athlete->athlete_name
+                ]);
+            }
+        }
+
+        return $pairs;
+    }
+
+    /**
+     * Bốc thăm đấu đôi ngẫu nhiên
+     */
+    private function drawPairsByRandom($pairs, $groups)
+    {
+        // Xáo trộn danh sách cặp
+        $shuffled = collect($pairs)->shuffle();
+
+        // Reset group collection index
+        $groupsCollection = $groups->values();
+        $groupIndex = 0;
+        $drawCount = 0;
+
+        Log::info('Starting drawPairsByRandom', [
+            'total_pairs' => count($shuffled),
+            'total_groups' => $groupsCollection->count()
+        ]);
+
+        foreach ($shuffled as $pair) {
+             $group = $groupsCollection[$groupIndex % $groupsCollection->count()];
+
+             // ✅ Cập nhật group_id cho cả 2 VĐV bằng SQL trực tiếp
+             DB::table('tournament_athletes')
+                 ->where('id', $pair['primary']->id)
+                 ->update([
+                     'group_id' => $group->id,
+                     'seed_number' => null
+                 ]);
+
+             DB::table('tournament_athletes')
+                 ->where('id', $pair['partner']->id)
+                 ->update([
+                     'group_id' => $group->id,
+                     'seed_number' => null
+                 ]);
+
+             Log::info('Pair assigned', [
+                 'pair' => $pair['pair_name'],
+                 'primary_id' => $pair['primary']->id,
+                 'partner_id' => $pair['partner']->id,
+                 'group_id' => $group->id
+             ]);
+
+             $drawCount++;
+
+            Log::info('Draw pair - Random', [
+                'pair' => $pair['pair_name'],
+                'athlete1_id' => $pair['primary']->id,
+                'athlete2_id' => $pair['partner']->id,
+                'category_id' => $pair['primary']->category_id,
+                'group_id' => $group->id,
+                'group_name' => $group->group_name
+            ]);
+
+            // Tạo GroupStanding cho cặp (chỉ 1 record)
+            // Hoặc tạo 2 record tùy theo yêu cầu nghiệp vụ
+            GroupStanding::updateOrCreate(
+                [
+                    'group_id' => $group->id,
+                    'athlete_id' => $pair['primary']->id,
+                ],
+                [
+                    'rank_position' => 0,
+                    'matches_played' => 0,
+                    'matches_won' => 0,
+                    'matches_lost' => 0,
+                    'matches_drawn' => 0,
+                    'win_rate' => 0,
+                    'points' => 0,
+                    'sets_won' => 0,
+                    'sets_lost' => 0,
+                    'sets_differential' => 0,
+                    'games_won' => 0,
+                    'games_lost' => 0,
+                    'games_differential' => 0,
+                    'is_advanced' => false,
+                ]
+            );
+
+            // Nếu tính điểm riêng từng VĐV, tạo thêm record cho partner
+            GroupStanding::updateOrCreate(
+                [
+                    'group_id' => $group->id,
+                    'athlete_id' => $pair['partner']->id,
+                ],
+                [
+                    'rank_position' => 0,
+                    'matches_played' => 0,
+                    'matches_won' => 0,
+                    'matches_lost' => 0,
+                    'matches_drawn' => 0,
+                    'win_rate' => 0,
+                    'points' => 0,
+                    'sets_won' => 0,
+                    'sets_lost' => 0,
+                    'sets_differential' => 0,
+                    'games_won' => 0,
+                    'games_lost' => 0,
+                    'games_differential' => 0,
+                    'is_advanced' => false,
+                ]
+            );
+
+            $groupIndex++;
+        }
+
+        Log::info('Random draw pairs completed', [
+            'total_pairs' => $drawCount,
+            'total_athletes' => $drawCount * 2,
+            'total_groups' => $groupsCollection->count()
+        ]);
+
+        // Cập nhật số lượng VĐV hiện tại trong từng bảng
+        foreach ($groupsCollection as $group) {
+            $count = TournamentAthlete::where('group_id', $group->id)->count();
+            $group->update(['current_participants' => $count]);
+
+            Log::info('Group participants updated (pairs)', [
+                'group_id' => $group->id,
+                'group_name' => $group->group_name,
+                'participants_count' => $count
+            ]);
+        }
+    }
+
+    /**
+     * Bốc thăm đấu đôi theo hạt giống
+     */
+    private function drawPairsBySeeding($pairs, $groups)
+    {
+        // Sắp xếp cặp theo position của VĐV chính (primary)
+        $sorted = collect($pairs)
+            ->sortBy(fn($pair) => $pair['primary']->position ?? 0)
+            ->values();
+
+        $groupsCollection = $groups->values();
+        $groupIndex = 0;
+        $ascending = true;
+        $drawCount = 0;
+
+        foreach ($sorted as $index => $pair) {
+            $group = $groupsCollection[$groupIndex];
+
+            // ✅ Cập nhật group_id và seed_number bằng SQL trực tiếp
+            DB::table('tournament_athletes')
+                ->where('id', $pair['primary']->id)
+                ->update([
+                    'group_id' => $group->id,
+                    'seed_number' => $index + 1
+                ]);
+
+            DB::table('tournament_athletes')
+                ->where('id', $pair['partner']->id)
+                ->update([
+                    'group_id' => $group->id,
+                    'seed_number' => $index + 1
+                ]);
+
+            $drawCount++;
+
+            Log::info('Draw pair - Seeded', [
+                'pair' => $pair['pair_name'],
+                'athlete1_id' => $pair['primary']->id,
+                'athlete2_id' => $pair['partner']->id,
+                'category_id' => $pair['primary']->category_id,
+                'group_id' => $group->id,
+                'group_name' => $group->group_name,
+                'seed_number' => $index + 1
+            ]);
+
+            // Tạo GroupStanding
+            GroupStanding::updateOrCreate(
+                [
+                    'group_id' => $group->id,
+                    'athlete_id' => $pair['primary']->id,
+                ],
+                [
+                    'rank_position' => 0,
+                    'matches_played' => 0,
+                    'matches_won' => 0,
+                    'matches_lost' => 0,
+                    'matches_drawn' => 0,
+                    'win_rate' => 0,
+                    'points' => 0,
+                    'sets_won' => 0,
+                    'sets_lost' => 0,
+                    'sets_differential' => 0,
+                    'games_won' => 0,
+                    'games_lost' => 0,
+                    'games_differential' => 0,
+                    'is_advanced' => false,
+                ]
+            );
+
+            GroupStanding::updateOrCreate(
+                [
+                    'group_id' => $group->id,
+                    'athlete_id' => $pair['partner']->id,
+                ],
+                [
+                    'rank_position' => 0,
+                    'matches_played' => 0,
+                    'matches_won' => 0,
+                    'matches_lost' => 0,
+                    'matches_drawn' => 0,
+                    'win_rate' => 0,
+                    'points' => 0,
+                    'sets_won' => 0,
+                    'sets_lost' => 0,
+                    'sets_differential' => 0,
+                    'games_won' => 0,
+                    'games_lost' => 0,
+                    'games_differential' => 0,
+                    'is_advanced' => false,
+                ]
+            );
+
+            // Snake draft
+            if ($ascending) {
+                $groupIndex++;
+                if ($groupIndex >= $groups->count()) {
+                    $groupIndex = $groups->count() - 1;
+                    $ascending = false;
+                }
+            } else {
+                $groupIndex--;
+                if ($groupIndex < 0) {
+                    $groupIndex = 0;
+                    $ascending = true;
+                }
+            }
+        }
+
+        Log::info('Seeded draw pairs completed', [
+            'total_pairs' => $drawCount,
+            'total_athletes' => $drawCount * 2,
+            'total_groups' => $groupsCollection->count()
+        ]);
+
+        // Cập nhật số lượng VĐV hiện tại trong từng bảng
+        foreach ($groupsCollection as $group) {
+            $count = TournamentAthlete::where('group_id', $group->id)->count();
+            $group->update(['current_participants' => $count]);
+
+            Log::info('Group participants updated (pairs)', [
+                'group_id' => $group->id,
+                'group_name' => $group->group_name,
+                'participants_count' => $count
+            ]);
         }
     }
 
@@ -1816,7 +2223,8 @@ class HomeYardTournamentController extends Controller
                         'id' => $athlete->id,
                         'name' => $athlete->athlete_name,
                         'seed_number' => $athlete->seed_number,
-                        'position' => $athlete->position
+                        'position' => $athlete->position,
+                        'partner_id' => $athlete->partner_id
                     ];
                 })->toArray()
             ];
