@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TournamentAthlete extends Model
 {
@@ -12,6 +13,7 @@ class TournamentAthlete extends Model
     protected $fillable = [
         'tournament_id',
         'category_id',
+        'partner_id',
         'user_id',
         'athlete_name',
         'email',
@@ -34,18 +36,45 @@ class TournamentAthlete extends Model
         'position' => 'integer',
     ];
 
-    public function tournament()
+    public function tournament(): BelongsTo
     {
         return $this->belongsTo(Tournament::class);
     }
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function category()
+    public function category(): BelongsTo
     {
         return $this->belongsTo(TournamentCategory::class, 'category_id', 'id');
+    }
+
+    /**
+     * Get the partner athlete (for doubles).
+     */
+    public function partner(): BelongsTo
+    {
+        return $this->belongsTo(TournamentAthlete::class, 'partner_id');
+    }
+
+    /**
+     * Check if athlete has a partner (for doubles).
+     */
+    public function hasPartner(): bool
+    {
+        return !is_null($this->partner_id);
+    }
+
+    /**
+     * Get pair display name (for doubles).
+     */
+    public function getPairNameAttribute(): string
+    {
+        if (!$this->hasPartner()) {
+            return $this->athlete_name;
+        }
+        return $this->athlete_name . ' / ' . ($this->partner->athlete_name ?? 'Unknown');
     }
 }

@@ -650,7 +650,9 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                                             $statusText = ' (Hết chỗ)';
                                         }
                                     @endphp
-                                    <option value="{{ $category->id }}" @if (!$isAvailable) disabled @endif>
+                                    <option value="{{ $category->id }}"
+                                            data-category-type="{{ $category->category_type }}"
+                                            @if (!$isAvailable) disabled @endif>
                                         {{ $category->category_name }}
                                         @if ($category->age_group && $category->age_group !== 'open')
                                             ({{ $category->age_group }})
@@ -662,6 +664,50 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                         </select>
                         <div id="category_id_error"
                             style="color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: none;"></div>
+                    </div>
+
+                    <!-- Partner Info Section (for doubles) -->
+                    <div id="partnerSection" style="display: none; margin-bottom: 25px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 2px dashed #e5e7eb;">
+                        <h4 style="margin: 0 0 15px 0; color: #1f2937; font-size: 1rem; display: flex; align-items: center; gap: 8px;">
+                            👥 Thông tin Đồng đội
+                        </h4>
+
+                        <!-- Partner Name -->
+                        <div style="margin-bottom: 15px;">
+                            <label for="partner_name" style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 0.9rem;">
+                                Tên đồng đội <span style="color: #ef4444;">*</span>
+                            </label>
+                            <input type="text" id="partner_name" name="partner_name"
+                                placeholder="Nhập tên đồng đội của bạn"
+                                style="width: 100%; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
+                                onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                            <div id="partner_name_error" style="color: #ef4444; font-size: 0.8rem; margin-top: 4px; display: none;"></div>
+                        </div>
+
+                        <!-- Partner Email -->
+                        <div style="margin-bottom: 15px;">
+                            <label for="partner_email" style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 0.9rem;">
+                                Email đồng đội
+                            </label>
+                            <input type="email" id="partner_email" name="partner_email"
+                                placeholder="Nhập email đồng đội (tuỳ chọn)"
+                                style="width: 100%; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
+                                onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                        </div>
+
+                        <!-- Partner Phone -->
+                        <div>
+                            <label for="partner_phone" style="display: block; font-weight: 600; color: #1f2937; margin-bottom: 8px; font-size: 0.9rem;">
+                                Số điện thoại đồng đội
+                            </label>
+                            <input type="tel" id="partner_phone" name="partner_phone"
+                                placeholder="Nhập SĐT đồng đội (tuỳ chọn)"
+                                style="width: 100%; padding: 10px 14px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.9rem; font-family: inherit; transition: all 0.3s ease; box-sizing: border-box;"
+                                onfocus="this.style.borderColor='var(--primary-color)'; this.style.boxShadow='0 0 0 3px rgba(236, 72, 153, 0.1)'"
+                                onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -733,6 +779,9 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
 @section('js')
     <script src="{{ asset('assets/js/tournament-detail.js') }}"></script>
     <script>
+        // Doubles category types
+        const DOUBLES_TYPES = ['double_men', 'double_women', 'double_mixed'];
+
         function openDetailModal() {
             const modal = document.getElementById('detailModal');
             modal.style.display = 'flex';
@@ -760,7 +809,60 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
             document.getElementById('email_error').style.display = 'none';
             document.getElementById('phone_error').style.display = 'none';
             document.getElementById('category_id_error').style.display = 'none';
+            // Hide partner section
+            const partnerSection = document.getElementById('partnerSection');
+            partnerSection.style.display = 'none';
+            document.getElementById('partner_name_error').style.display = 'none';
         }
+
+        // Handle category selection change for doubles
+        function handleCategoryChange() {
+            const categorySelect = document.getElementById('category_id');
+            const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+            const categoryType = selectedOption.dataset.categoryType || '';
+            const partnerSection = document.getElementById('partnerSection');
+            const partnerNameInput = document.getElementById('partner_name');
+
+            if (DOUBLES_TYPES.includes(categoryType)) {
+                // Show partner section with animation
+                partnerSection.style.display = 'block';
+                partnerSection.style.opacity = '0';
+                partnerSection.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    partnerSection.style.transition = 'all 0.3s ease';
+                    partnerSection.style.opacity = '1';
+                    partnerSection.style.transform = 'translateY(0)';
+                }, 10);
+
+                // Make partner name required
+                partnerNameInput.setAttribute('required', 'required');
+            } else {
+                // Hide partner section
+                partnerSection.style.transition = 'all 0.3s ease';
+                partnerSection.style.opacity = '0';
+                partnerSection.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    partnerSection.style.display = 'none';
+                }, 300);
+
+                // Remove required
+                partnerNameInput.removeAttribute('required');
+
+                // Clear partner fields
+                document.getElementById('partner_name').value = '';
+                document.getElementById('partner_email').value = '';
+                document.getElementById('partner_phone').value = '';
+                document.getElementById('partner_name_error').style.display = 'none';
+            }
+        }
+
+        // Add event listener for category change
+        document.addEventListener('DOMContentLoaded', function() {
+            const categorySelect = document.getElementById('category_id');
+            if (categorySelect) {
+                categorySelect.addEventListener('change', handleCategoryChange);
+            }
+        });
 
         function submitRegisterForm() {
             console.log('submitRegisterForm called!');
@@ -771,6 +873,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
             document.getElementById('email_error').style.display = 'none';
             document.getElementById('phone_error').style.display = 'none';
             document.getElementById('category_id_error').style.display = 'none';
+            document.getElementById('partner_name_error').style.display = 'none';
 
             const athleteNameEl = document.getElementById('athlete_name');
             const emailEl = document.getElementById('email');
@@ -789,11 +892,17 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
             const phone = phoneEl.value.trim();
             const categoryId = categoryEl.value.trim();
 
+            // Get category type to check if doubles
+            const selectedOption = categoryEl.options[categoryEl.selectedIndex];
+            const categoryType = selectedOption.dataset.categoryType || '';
+            const isDoubles = DOUBLES_TYPES.includes(categoryType);
+
             console.log('Form values:', {
                 athleteName,
                 email,
                 phone,
-                categoryId
+                categoryId,
+                isDoubles
             });
 
             let hasError = false;
@@ -819,6 +928,16 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                 hasError = true;
             }
 
+            // Validate partner name for doubles categories
+            if (isDoubles) {
+                const partnerName = document.getElementById('partner_name').value.trim();
+                if (!partnerName) {
+                    document.getElementById('partner_name_error').textContent = 'Vui lòng nhập tên đồng đội';
+                    document.getElementById('partner_name_error').style.display = 'block';
+                    hasError = true;
+                }
+            }
+
             console.log('Validation errors:', hasError);
             if (hasError) {
                 console.log('Form has errors, returning');
@@ -836,6 +955,13 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                 category_id: categoryId,
                 tournament_id: {{ $tournament->id }}
             };
+
+            // Add partner data for doubles
+            if (isDoubles) {
+                payload.partner_name = document.getElementById('partner_name').value.trim();
+                payload.partner_email = document.getElementById('partner_email').value.trim();
+                payload.partner_phone = document.getElementById('partner_phone').value.trim();
+            }
 
             console.log('Submitting registration:', payload);
 

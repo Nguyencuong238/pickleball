@@ -2392,6 +2392,37 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
 
+            // Get category to check if doubles
+            $category = TournamentCategory::find($validated['category_id']);
+
+            if ($category && $category->isDoubles()) {
+                // For doubles: validate that selected athletes have partners
+                if (!$athlete1->hasPartner()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'VĐV 1 chưa có đồng đội cho nội dung đôi'
+                    ], 422);
+                }
+
+                if (!$athlete2->hasPartner()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'VĐV 2 chưa có đồng đội cho nội dung đôi'
+                    ], 422);
+                }
+
+                // Validate pairs don't overlap (athlete from pair1 shouldn't be in pair2)
+                $pair1Ids = [$athlete1->id, $athlete1->partner_id];
+                $pair2Ids = [$athlete2->id, $athlete2->partner_id];
+
+                if (array_intersect($pair1Ids, $pair2Ids)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Hai cặp đấu không được có chung VĐV'
+                    ], 422);
+                }
+            }
+
             // Validate referee is in tournament referee pool (if provided)
             $refereeId = $validated['referee_id'] ?? null;
             $refereeName = null;
@@ -2412,9 +2443,14 @@ class HomeYardTournamentController extends Controller
                 ->count();
             $matchNumber = 'M' . ($matchCount + 1);
 
-            // Get athlete names (prioritize athlete_name from tournament_athletes)
-            $athlete1Name = $athlete1->athlete_name ?? ($athlete1->user ? $athlete1->user->name : 'Unknown');
-            $athlete2Name = $athlete2->athlete_name ?? ($athlete2->user ? $athlete2->user->name : 'Unknown');
+            // Get athlete names (for doubles use pair name, for singles use individual name)
+            if ($category && $category->isDoubles()) {
+                $athlete1Name = $athlete1->pair_name;
+                $athlete2Name = $athlete2->pair_name;
+            } else {
+                $athlete1Name = $athlete1->athlete_name ?? ($athlete1->user ? $athlete1->user->name : 'Unknown');
+                $athlete2Name = $athlete2->athlete_name ?? ($athlete2->user ? $athlete2->user->name : 'Unknown');
+            }
 
             // Create match
             $match = MatchModel::create([
@@ -3304,7 +3340,40 @@ class HomeYardTournamentController extends Controller
         try {
             $this->authorize('update', $tournament);
 
-            // Get approved athletes for this category
+            // Get category to check type
+            $category = TournamentCategory::findOrFail($categoryId);
+
+            if ($category->isDoubles()) {
+                // For doubles: return pairs (athletes with partners)
+                $pairs = TournamentAthlete::where('tournament_id', $tournament->id)
+                    ->where('category_id', $categoryId)
+                    ->where('status', 'approved')
+                    ->whereNotNull('partner_id')
+                    ->with('partner:id,athlete_name')
+                    ->orderBy('athlete_name')
+                    ->get()
+                    ->map(function ($athlete) {
+                        return [
+                            'primary_athlete_id' => $athlete->id,
+                            'partner_id' => $athlete->partner_id,
+                            'pair_name' => $athlete->pair_name,
+                        ];
+                    })
+                    // Filter to avoid duplicates (A/B and B/A)
+                    ->filter(function ($pair) {
+                        return $pair['primary_athlete_id'] < $pair['partner_id'];
+                    })
+                    ->values();
+
+                return response()->json([
+                    'success' => true,
+                    'category_type' => $category->category_type,
+                    'is_doubles' => true,
+                    'pairs' => $pairs
+                ]);
+            }
+
+            // For singles: return individual athletes
             $athletes = TournamentAthlete::where('tournament_id', $tournament->id)
                 ->where('category_id', $categoryId)
                 ->where('status', 'approved')
@@ -3313,6 +3382,8 @@ class HomeYardTournamentController extends Controller
 
             return response()->json([
                 'success' => true,
+                'category_type' => $category->category_type,
+                'is_doubles' => false,
                 'athletes' => $athletes
             ]);
         } catch (\Exception $e) {

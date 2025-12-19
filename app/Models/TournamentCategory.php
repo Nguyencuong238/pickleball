@@ -84,4 +84,12 @@ class TournamentCategory extends Model
     {
         return max(0, $this->max_participants - $this->current_participants);
     }
+
+    /**
+     * Check if this category is a doubles category.
+     */
+    public function isDoubles(): bool
+    {
+        return in_array($this->category_type, ['double_men', 'double_women', 'double_mixed']);
+    }
 }
