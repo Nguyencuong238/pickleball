@@ -583,9 +583,9 @@ class HomeController extends Controller
         ]);
     }
     
-    public function tournamentsDetail($tournament_id)
+    public function tournamentsDetail($tournament_slug)
     {
-        $tournament = Tournament::with('categories')->findOrFail($tournament_id);
+        $tournament = Tournament::with('categories')->where('slug', $tournament_slug)->firstOrFail();
 
         $registered = DB::table('tournament_athletes')
         ->where('tournament_id', $tournament->id)

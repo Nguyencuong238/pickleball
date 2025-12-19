@@ -9,12 +9,12 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
     <meta name="description" content="{{ substr($tournament->description, 0, 160) ?: $tournament->name . ' - Giải đấu Pickleball chuyên nghiệp. Đăng ký tham gia ngay trên OnePickleball.' }}">
     <meta name="keywords" content="giải đấu {{ $tournament->name }}, pickleball, {{ $tournament->location }}, đăng ký giải đấu">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ route('tournaments-detail', $tournament->id) }}">
+    <link rel="canonical" href="{{ route('tournaments-detail', $tournament->slug) }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ $tournament->name }} - Giải Đấu Pickleball">
     <meta property="og:description" content="{{ substr($tournament->description, 0, 160) ?: 'Giải đấu Pickleball - Tham gia ngay trên OnePickleball' }}">
     <meta property="og:image" content="{{ $bannerImage }}">
-    <meta property="og:url" content="{{ route('tournaments-detail', $tournament->id) }}">
+    <meta property="og:url" content="{{ route('tournaments-detail', $tournament->slug) }}">
     <meta property="og:site_name" content="OnePickleball">
     <meta property="og:locale" content="vi_VN">
     <meta name="twitter:card" content="summary_large_image">
@@ -397,7 +397,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                                     ->get();
                             @endphp
                             @forelse($relatedTournaments as $related)
-                                <a href="{{ route('tournaments-detail', $related->id) }}" class="related-item">
+                                <a href="{{ route('tournaments-detail', $related->slug) }}" class="related-item">
                                     <div class="related-image">
                                         @php
                                             $media = $related->getFirstMedia('banner');

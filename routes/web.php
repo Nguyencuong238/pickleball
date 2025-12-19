@@ -92,7 +92,7 @@ Route::get('/news', [HomeController::class, 'news'])->name('news');
 Route::get('/news/{slug}', [FrontNewsController::class, 'show'])->name('news.show');
 Route::get('/page/{page}', [PageController::class, 'show'])->name('page.show');
 Route::get('/courts-detail/{stadium_id}', [HomeController::class, 'courtsDetail'])->name('courts-detail');
-Route::get('/tournaments-detail/{tournament_id}', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
+Route::get('/tournaments-detail/{tournament_slug}', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
 Route::get('/instructors', [HomeController::class, 'instructors'])->name('instructors');
 Route::get('/instructors/{id}', [HomeController::class, 'instructorDetail'])->name('instructors.detail');
 Route::get('/course', [HomeController::class, 'course'])->name('course');

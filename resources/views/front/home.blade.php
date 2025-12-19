@@ -131,7 +131,7 @@
                                         🏆 Giải thưởng hấp dẫn
                                     @endif
                                 </span>
-                                <a href="{{ route('tournaments-detail', $tournament->id) }}"
+                                <a href="{{ route('tournaments-detail', $tournament->slug) }}"
                                     class="btn btn-primary btn-sm">
                                     @if ($tournament->start_date->isPast())
                                         Xem chi tiết

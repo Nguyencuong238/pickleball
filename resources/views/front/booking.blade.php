@@ -258,7 +258,7 @@
                     button.type = 'button';
                     button.className = 'slot-btn' + (slot.is_booked ||slot.is_pending ? ' disabled' : '');
 
-                    const priceDisplay = slot.price ? (slot.price / 1000).toFixed(0) + 'k' : '0k';
+                    const priceDisplay = slot.price.toLocaleString('vi-VN') + 'đ';
                     const statusText = slot.is_booked ? 'Đã đặt' : (slot.is_pending ? 'Đang chờ' : priceDisplay);
 
                     button.innerHTML =

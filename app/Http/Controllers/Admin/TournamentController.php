@@ -8,6 +8,7 @@ use App\Models\TournamentAthlete;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class TournamentController extends Controller
 {
@@ -125,6 +126,9 @@ class TournamentController extends Controller
         }
 
         $data['user_id'] = auth()->id();
+        
+        // Generate slug from name
+        $data['slug'] = Str::slug($request->name, '-');
 
         $tournament = Tournament::create($data);
 
@@ -214,6 +218,11 @@ class TournamentController extends Controller
         // Handle checkbox - convert to integer
         $data['is_watch'] = $request->has('is_watch') ? 1 : 0;
         $data['is_ocr'] = $request->has('is_ocr') ? 1 : 0;
+
+        // Generate slug from name if name changed
+        if ($request->has('name')) {
+            $data['slug'] = Str::slug($request->name, '-');
+        }
 
         // Sync gallery images
         $tournament->syncMediaCollection('gallery', 'gallery', $request);

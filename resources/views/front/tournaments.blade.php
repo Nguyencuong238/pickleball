@@ -325,7 +325,7 @@
                     <div class="tournaments-grid" id="tournamentsGrid">
                         @forelse($tournaments as $tournament)
                             <div class="tournament-item" data-tournament-id="{{ $tournament->id }}">
-                                <a href="{{ route('tournaments-detail', $tournament->id) }}" class="tournament-link">
+                                <a href="{{ route('tournaments-detail', $tournament->slug) }}" class="tournament-link">
                                     <div class="tournament-image">
                                         @php
                                             $media = $tournament->getFirstMedia('banner');
