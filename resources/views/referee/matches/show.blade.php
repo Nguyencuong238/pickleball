@@ -198,10 +198,10 @@
                             </div>
 
                             <div class="score-controls" v-if="!isMatchCompleted">
-                                <button class="btn-score add" @click="rallyWon('left')" :disabled="status !== 'playing'">
+                                <button class="btn-score add" @click="rallyWon('left')">
                                     <span>+</span> Thắng rally
                                 </button>
-                                <button class="btn-score subtract" @click="adjustScore('left', -1)" :disabled="status !== 'playing'">
+                                <button class="btn-score subtract" @click="adjustScore('left', -1)">
                                     <span>-</span> Trừ điểm
                                 </button>
                             </div>
@@ -290,10 +290,10 @@
                             </div>
 
                             <div class="score-controls" v-if="!isMatchCompleted">
-                                <button class="btn-score add" @click="rallyWon('right')" :disabled="status !== 'playing'">
+                                <button class="btn-score add" @click="rallyWon('right')">
                                     <span>+</span> Thắng rally
                                 </button>
-                                <button class="btn-score subtract" @click="adjustScore('right', -1)" :disabled="status !== 'playing'">
+                                <button class="btn-score subtract" @click="adjustScore('right', -1)">
                                     <span>-</span> Trừ điểm
                                 </button>
                             </div>
@@ -634,6 +634,7 @@
         const MATCH_DATA = @json($matchData);
 
         const API_ENDPOINTS = {
+            start: "{{ route('referee.matches.start', $match) }}",
             syncEvents: "{{ route('referee.matches.sync-events', $match) }}",
             endMatch: "{{ route('referee.matches.end', $match) }}",
             getState: "{{ route('referee.matches.state', $match) }}",
@@ -1279,8 +1280,21 @@
                     }
                 }
 
-                function startMatch() {
+                async function startMatch() {
                     status.value = 'playing'
+
+                    // AJAX: Update server status to in_progress
+                    try {
+                        await fetch(API_ENDPOINTS.start, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': CSRF_TOKEN
+                            }
+                        })
+                    } catch (error) {
+                        console.error('Failed to start match:', error)
+                    }
 
                     if (gameMode.value === 'doubles') {
                         serving.serverNumber = 2
