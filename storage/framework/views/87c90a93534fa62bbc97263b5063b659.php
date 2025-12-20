@@ -824,84 +824,11 @@ unset($__errorArgs, $__bag); ?>
                             trận mới</button>
 
                         <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Danh sách trận đấu</h4>
-                        <?php if($tournament && $tournament->matches && $tournament->matches->count() > 0): ?>
-                            <div style="overflow-x: auto;">
-                                <table style="width: 100%; border-collapse: collapse;">
-                                    <thead style="background: #f5f5f5;">
-                                        <tr>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
-                                                VĐV 1</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
-                                                VĐV 2</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
-                                                Nội dung</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
-                                                Vòng</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
-                                                Thời gian</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
-                                                Trạng thái</th>
-                                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
-                                                Hành động</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php $__currentLoopData = $tournament->matches; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $match): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <tr style="border-bottom: 1px solid #ddd;">
-                                                <td style="padding: 10px;">
-                                                    <?php echo e($match->athlete1->getPairNameAttribute() ?? 'N/A'); ?> </td>
-                                                <td style="padding: 10px;">
-                                                    <?php echo e($match->athlete2->getPairNameAttribute() ?? 'N/A'); ?></td>
-                                                <td style="padding: 10px;">
-                                                    <?php echo e($match->category->category_name ?? 'N/A'); ?></td>
-                                                <td style="padding: 10px;"><?php echo e($match->round->round_name ?? 'N/A'); ?>
-
-                                                </td>
-                                                <td style="padding: 10px;">
-                                                    <?php echo e($match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('d/m/Y') : ''); ?>
-
-                                                    <?php echo e($match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : ''); ?>
-
-                                                </td>
-                                                <td style="padding: 10px;">
-                                                    <?php if($match->status === 'scheduled'): ?>
-                                                        <span class="badge badge-warning">⏳ Chờ thi đấu</span>
-                                                    <?php elseif($match->status === 'ready'): ?>
-                                                        <span class="badge badge-info">📋 Sẵn sàng</span>
-                                                    <?php elseif($match->status === 'in_progress'): ?>
-                                                        <span class="badge badge-danger">🔴 Đang diễn ra</span>
-                                                    <?php elseif($match->status === 'completed'): ?>
-                                                        <span class="badge badge-success">✅ Hoàn thành</span>
-                                                    <?php elseif($match->status === 'cancelled'): ?>
-                                                        <span class="badge badge-secondary">❌ Hủy</span>
-                                                    <?php elseif($match->status === 'postponed'): ?>
-                                                        <span class="badge badge-warning">⏸️ Hoãn lại</span>
-                                                    <?php else: ?>
-                                                        <span class="badge badge-secondary"><?php echo e($match->status); ?></span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td style="padding: 10px;">
-                                                    <!-- <button class="btn btn-warning btn-sm"
-                                                            onclick="openEditMatchModal(<?php echo e($match->id); ?>, '<?php echo e($match->athlete1_id); ?>', '<?php echo e($match->athlete2_id); ?>', '<?php echo e($match->category_id); ?>', '<?php echo e($match->round_id); ?>', '<?php echo e($match->match_date ? \Carbon\Carbon::parse($match->match_date)->format('Y-m-d') : ''); ?>', '<?php echo e($match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : ''); ?>', '<?php echo e($match->group_id); ?>', '<?php echo e($match->status); ?>', '<?php echo e($match->referee_id); ?>')">✏️</button> -->
-                                                    <form method="POST"
-                                                        action="<?php echo e(route('homeyard.tournaments.matches.destroy', [$tournament->id, $match->id])); ?>"
-                                                        style="display: inline;">
-                                                        <?php echo csrf_field(); ?>
-                                                        <?php echo method_field('DELETE'); ?>
-                                                        <button type="submit" class="btn btn-danger btn-sm"
-                                                            onclick="return confirm('Xác nhận xóa?')">🗑️</button>
-                                                    </form>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php else: ?>
-                            <div style="text-align: center; padding: 2rem; color: #999;">
-                                <p>Chưa có trận đấu nào. Hãy tạo trận mới ở trên.</p>
-                            </div>
-                        <?php endif; ?>
+                         <div id="matchesTableContainer">
+                             <div style="text-align: center; padding: 2rem; color: #999;">
+                                 <p>⏳ Đang tải dữ liệu...</p>
+                             </div>
+                         </div>
                     </div>
                 </div>
             </div>
@@ -1435,12 +1362,129 @@ unset($__errorArgs, $__bag); ?>
                 activeButton.classList.add('active');
             }
 
+            // ✅ Load matches khi page load
+            loadAllMatches();
+
             // Initialize draw functionality
             initializeDraw();
 
             // Initialize athlete form handler
             initializeAthleteForm();
         });
+
+        // ✅ Load all matches dynamically
+        function loadAllMatches() {
+            const container = document.getElementById('matchesTableContainer');
+            const tournamentId = <?php echo e($tournament->id ?? 0); ?>;
+            
+            if (!container) return;
+            
+            // Try to fetch fresh data from server first
+            fetch(`/homeyard/tournaments/${tournamentId}/matches`, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                // If not ok and not a redirect (for turbolinks/html response), use fallback
+                if (!response.ok || !response.headers.get('content-type')?.includes('application/json')) {
+                    // Use the data already on the page
+                    const matches = <?php echo json_encode($tournament->matches ?? [], 15, 512) ?>;
+                    if (matches && matches.length > 0) {
+                        renderMatchesTable(matches);
+                    } else {
+                        container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #999;"><p>Chưa có trận đấu nào. Hãy tạo trận mới ở trên.</p></div>';
+                    }
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data && data.matches && data.matches.length > 0) {
+                    renderMatchesTable(data.matches);
+                } else if (data) {
+                    container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #999;"><p>Chưa có trận đấu nào. Hãy tạo trận mới ở trên.</p></div>';
+                }
+            })
+            .catch(error => {
+                console.error('Error loading matches:', error);
+                // Fallback to page data
+                const matches = <?php echo json_encode($tournament->matches ?? [], 15, 512) ?>;
+                if (matches && matches.length > 0) {
+                    renderMatchesTable(matches);
+                } else {
+                    container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #999;"><p>Chưa có trận đấu nào. Hãy tạo trận mới ở trên.</p></div>';
+                }
+            });
+        }
+
+        // ✅ Render matches table
+        function renderMatchesTable(matches) {
+            const container = document.getElementById('matchesTableContainer');
+            
+            if (!matches || matches.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 2rem; color: #999;"><p>Chưa có trận đấu nào. Hãy tạo trận mới ở trên.</p></div>';
+                return;
+            }
+
+            let html = `<div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead style="background: #f5f5f5;">
+                        <tr>
+                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">VĐV 1</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">VĐV 2</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Nội dung</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Vòng</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Thời gian</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Trạng thái</th>
+                            <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+
+            matches.forEach(match => {
+                const statusBadge = getStatusBadge(match.status);
+                const matchDate = match.match_date ? new Date(match.match_date).toLocaleDateString('vi-VN') : '';
+                const matchTime = match.match_time || '';
+                
+                html += `<tr style="border-bottom: 1px solid #ddd;">
+                    <td style="padding: 10px;">${match.athlete1_name || 'N/A'}</td>
+                    <td style="padding: 10px;">${match.athlete2_name || 'N/A'}</td>
+                    <td style="padding: 10px;">${match.category?.category_name || 'N/A'}</td>
+                    <td style="padding: 10px;">${match.round?.round_name || 'N/A'}</td>
+                    <td style="padding: 10px;">${matchDate} ${matchTime}</td>
+                    <td style="padding: 10px;">${statusBadge}</td>
+                    <td style="padding: 10px;">
+                        <button class="btn btn-warning btn-sm" onclick="openEditMatchModal(${match.id}, '${match.athlete1_id}', '${match.athlete2_id}', '${match.category_id}', '${match.round_id || ''}', '${match.match_date || ''}', '${match.match_time || ''}', '${match.group_id || ''}', '${match.status}', '${match.referee_id || ''}')">✏️ Sửa</button>
+                        <form method="POST" action="/homeyard/tournaments/${match.tournament_id}/matches/${match.id}" style="display: inline;">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
+                        </form>
+                    </td>
+                </tr>`;
+            });
+
+            html += `    </tbody>
+                </table>
+            </div>`;
+
+            container.innerHTML = html;
+        }
+
+        // ✅ Get status badge HTML
+        function getStatusBadge(status) {
+            const badges = {
+                'scheduled': '<span class="badge badge-warning">⏳ Chờ thi đấu</span>',
+                'ready': '<span class="badge badge-info">📋 Sẵn sàng</span>',
+                'in_progress': '<span class="badge badge-danger">🔴 Đang diễn ra</span>',
+                'completed': '<span class="badge badge-success">✅ Hoàn thành</span>',
+                'cancelled': '<span class="badge badge-secondary">❌ Hủy</span>',
+                'postponed': '<span class="badge badge-warning">⏸️ Hoãn lại</span>',
+            };
+            return badges[status] || `<span class="badge badge-secondary">${status}</span>`;
+        }
 
         // Draw/Lottery Functionality
         function initializeDraw() {
@@ -1559,9 +1603,17 @@ unset($__errorArgs, $__bag); ?>
                             return response.json();
                         })
                         .then(data => {
+                            console.log('Draw response:', data);
                             if (data.success) {
                                 toastr.success('✅ ' + data.message);
                                 displayResults(data.athletes);
+                                
+                                // ✅ Reload trang để load matches tự động
+                                console.log('Scheduling page reload...');
+                                setTimeout(() => {
+                                    console.log('Reloading page now...');
+                                    window.location.reload();
+                                }, 1500);
                             } else {
                                 toastr.error('❌ ' + data.message);
                             }
@@ -2421,10 +2473,7 @@ unset($__errorArgs, $__bag); ?>
                             setTimeout(() => {
                                 closeCreateMatchModal();
                                 createMatchForm.reset();
-
-                                // Switch to matchManagement tab and reload page
-                                localStorage.setItem('activeTab', 'matchManagement');
-                                location.reload();
+                                loadAllMatches(); // ✅ Reload matches table
                             }, 1500);
                         } else {
                             toastr.error(data.message || 'Lỗi không xác định');
@@ -2506,15 +2555,14 @@ unset($__errorArgs, $__bag); ?>
                             setTimeout(() => {
                                 closeEditMatchModal();
                                 editMatchForm.reset();
-                                localStorage.setItem('activeTab', 'matchManagement');
-                                location.reload();
+                                loadAllMatches(); // ✅ Reload matches table
                             }, 1500);
                         } else {
                             toastr.error(data.message || 'Lỗi không xác định');
                         }
                     })
                     .catch(error => {
-                        toastr.error(erro.message || 'Lỗi không xác định');
+                        toastr.error(error.message || 'Lỗi không xác định');
                     })
                     .finally(() => {
                         submitBtn.disabled = false;

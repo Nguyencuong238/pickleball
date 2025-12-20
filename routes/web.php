@@ -244,6 +244,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
 
     // Match Management
     Route::post('tournaments/{tournament}/matches', [HomeYardTournamentController::class, 'storeMatch'])->name('tournaments.matches.store');
+    Route::get('tournaments/{tournament}/matches', [HomeYardTournamentController::class, 'getMatches'])->name('tournaments.matches.index');
     Route::get('tournaments/{tournament}/matches/{match}', [HomeYardTournamentController::class, 'getMatch'])
         ->where('match', '[0-9]+')
         ->name('tournaments.matches.show');
