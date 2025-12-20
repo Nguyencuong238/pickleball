@@ -8,6 +8,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <link rel="stylesheet" href="{{ asset('css/referee.css') }}">
+
+    <style>
+        .completed-results {
+            width: 50%;
+            margin-top: 10px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
 </head>
 <body>
     <div id="app">
@@ -77,8 +86,25 @@
                 </div>
             </header>
 
+            <!-- Completed Match Results -->
+            <div v-if="isMatchCompleted" class="completed-results" style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-card); border-radius: var(--radius-lg); border: 2px solid var(--success);">
+                <h3 style="color: var(--success); margin-bottom: 1rem; text-align: center;">🏆 TRẬN ĐẤU ĐÃ KẾT THÚC</h3>
+                <div style="text-align: center; margin-bottom: 1rem;">
+                    <div style="margin-bottom: 16px;">
+                        <div class="tournament-name">@{{ MATCH_DATA.tournament.name }}</div>
+                    <div class="tournament-round"><span>@{{ MATCH_DATA.round.name }}</span> - @{{ gameMode === 'singles' ? 'Đơn' : 'Đôi' }}</div>
+                    </div>
+                    <div style="font-size: 1.5rem; color: var(--text-white); margin-bottom: 0.5rem;">
+                        Người thắng: <strong style="color: var(--accent);">@{{ matchWinnerName }}</strong>
+                    </div>
+                    <div style="font-size: 1.25rem; color: var(--text-light);">
+                        Tỉ số: @{{ MATCH_DATA.setScores?.map(s => s.athlete1 + '-' + s.athlete2).join(', ') || 'N/A' }}
+                    </div>
+                    
+                </div>
+            </div>
             <!-- Main Content -->
-            <div class="main-content">
+            <div class="main-content" v-else>
                 <!-- Left Panel - Scoreboard -->
                 <div class="scoreboard-panel">
                     <!-- Score Call Display -->
@@ -274,18 +300,7 @@
                         </div>
                     </div>
 
-                    <!-- Completed Match Results -->
-                    <div v-if="isMatchCompleted" class="completed-results" style="margin-top: 2rem; padding: 1.5rem; background: var(--bg-card); border-radius: var(--radius-lg); border: 2px solid var(--success);">
-                        <h3 style="color: var(--success); margin-bottom: 1rem; text-align: center;">🏆 TRẬN ĐẤU ĐÃ KẾT THÚC</h3>
-                        <div style="text-align: center; margin-bottom: 1rem;">
-                            <div style="font-size: 1.5rem; color: var(--text-white); margin-bottom: 0.5rem;">
-                                Người thắng: <strong style="color: var(--accent);">@{{ matchWinnerName }}</strong>
-                            </div>
-                            <div style="font-size: 1.25rem; color: var(--text-light);">
-                                Tỉ số: @{{ MATCH_DATA.setScores?.map(s => s.athlete1 + '-' + s.athlete2).join(', ') || 'N/A' }}
-                            </div>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Right Panel - Controls -->
@@ -617,6 +632,7 @@
     <script>
         // Match data from server
         const MATCH_DATA = @json($matchData);
+
         const API_ENDPOINTS = {
             syncEvents: "{{ route('referee.matches.sync-events', $match) }}",
             endMatch: "{{ route('referee.matches.end', $match) }}",
