@@ -648,6 +648,12 @@
                             ⚠️ Sau khi bốc thăm, bạn có thể bốc lại bất cứ lúc nào
                         </div>
 
+                        <!-- Cảnh báo trận đấu đã được lên lịch -->
+                        <div id="matchScheduledWarning" style="display: none; background: #fee2e2; border: 2px solid #ef4444; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                            <p style="margin: 0; color: #991b1b; font-weight: 600;">🚫 Không thể bốc thăm lại</p>
+                            <p style="margin: 5px 0 0 0; color: #dc2626; font-size: 0.95rem;">Các bảng này đã có trận đấu ở trạng thái chờ thi đấu hoặc sẵn sàng. Vui lòng hoàn thành hoặc hủy các trận đấu trước khi bốc thăm lại.</p>
+                        </div>
+
                         <div class="grid grid-3">
                             <div class="form-group">
                                 <label class="form-label">Chọn nội dung thi đấu *</label>
@@ -1362,6 +1368,33 @@
             const drawMethod = document.getElementById('drawMethod');
             const groupSelect = document.getElementById('groupSelect');
             const tournamentId = {{ $tournament->id ?? 0 }};
+            const matchWarning = document.getElementById('matchScheduledWarning');
+
+            // ✅ Hàm check xem có trận đấu ở status scheduled/ready không
+            const checkScheduledMatches = async (categoryId) => {
+                try {
+                    const response = await fetch(`/homeyard/tournaments/${tournamentId}/check-scheduled-matches?category_id=${categoryId}`);
+                    const data = await response.json();
+                    
+                    const hasScheduledMatches = data.has_scheduled_matches || false;
+                    
+                    if (hasScheduledMatches) {
+                        matchWarning.style.display = 'block';
+                        resetBtn.disabled = true;
+                        resetBtn.title = 'Không thể bốc lại khi có trận đấu ở trạng thái chờ thi đấu hoặc sẵn sàng';
+                        resetBtn.style.opacity = '0.5';
+                        resetBtn.style.cursor = 'not-allowed';
+                    } else {
+                        matchWarning.style.display = 'none';
+                        resetBtn.disabled = false;
+                        resetBtn.title = '';
+                        resetBtn.style.opacity = '1';
+                        resetBtn.style.cursor = 'pointer';
+                    }
+                } catch (error) {
+                    console.error('Error checking scheduled matches:', error);
+                }
+            };
 
             // ✅ Hàm cập nhật hiển thị nút
             const updateDrawButtonsDisplay = () => {
@@ -1381,6 +1414,7 @@
             categorySelect.addEventListener('change', function() {
                 if (this.value) {
                     loadDrawResults(this.value, tournamentId);
+                    checkScheduledMatches(this.value); // ✅ Check trạng thái matches khi chọn category
                 }
             });
 

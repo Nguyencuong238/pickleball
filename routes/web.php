@@ -238,6 +238,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     // Draw/Lottery for athletes
     Route::post('tournaments/{tournament}/draw', [HomeYardTournamentController::class, 'drawAthletes'])->name('tournaments.draw');
     Route::get('tournaments/{tournament}/draw-results', [HomeYardTournamentController::class, 'getDrawResults'])->name('tournaments.draw-results');
+    Route::get('tournaments/{tournament}/check-scheduled-matches', [HomeYardTournamentController::class, 'checkScheduledMatches'])->name('tournaments.check-scheduled-matches');
     Route::post('tournaments/{tournament}/reset-draw', [HomeYardTournamentController::class, 'resetDraw'])->name('tournaments.reset-draw');
     Route::get('tournaments/{tournament}/manual-draw', [HomeYardTournamentController::class, 'getManualDraw'])->name('tournaments.manual-draw');
     Route::post('tournaments/{tournament}/manual-draw-save', [HomeYardTournamentController::class, 'saveManualDraw'])->name('tournaments.manual-draw.save');

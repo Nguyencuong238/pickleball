@@ -1507,6 +1507,21 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
 
+            // ✅ KIỂM TRA: Nếu trận đấu của bảng ở status scheduled hoặc ready thì không cho bốc thăm lại
+            $groupIds = $existingGroups->pluck('id')->toArray();
+            $hasScheduledOrReadyMatches = MatchModel::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->whereIn('group_id', $groupIds)
+                ->whereIn('status', ['scheduled', 'ready'])
+                ->exists();
+
+            if ($hasScheduledOrReadyMatches) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể bốc thăm lại. Các bảng này đã có trận đấu ở trạng thái scheduled hoặc ready. Vui lòng hoàn thành hoặc hủy các trận đấu trước.'
+                ], 422);
+            }
+
             // ✅ KIỂM TRA LOẠI CATEGORY TRƯỚC (không phải sau)
             $isDouble = $this->isDoubleCategory($categoryId, $tournament);
 
@@ -2356,6 +2371,51 @@ class HomeYardTournamentController extends Controller
     /**
      * Xóa kết quả bốc thăm (reset)
      */
+    /**
+     * Check xem có trận đấu ở status scheduled hoặc ready không
+     */
+    public function checkScheduledMatches(Request $request, Tournament $tournament)
+    {
+        try {
+            $this->authorize('update', $tournament);
+
+            $categoryId = $request->input('category_id');
+
+            if (!$categoryId) {
+                return response()->json([
+                    'success' => false,
+                    'has_scheduled_matches' => false,
+                    'message' => 'category_id is required'
+                ], 422);
+            }
+
+            // Lấy danh sách bảng cho category này
+            $groupIds = Group::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->pluck('id')
+                ->toArray();
+
+            // Kiểm tra có trận đấu ở status scheduled hoặc ready không
+            $hasScheduledMatches = MatchModel::where('tournament_id', $tournament->id)
+                ->where('category_id', $categoryId)
+                ->whereIn('group_id', $groupIds)
+                ->whereIn('status', ['scheduled', 'ready'])
+                ->exists();
+
+            return response()->json([
+                'success' => true,
+                'has_scheduled_matches' => $hasScheduledMatches
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Check scheduled matches error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'has_scheduled_matches' => false,
+                'message' => 'Lỗi khi kiểm tra: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function resetDraw(Request $request, Tournament $tournament)
     {
         try {
