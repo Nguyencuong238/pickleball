@@ -118,18 +118,18 @@ class RefereeController extends Controller
     }
 
     /**
-     * Start a match
+     * Start a match (AJAX)
      */
-    public function startMatch(MatchModel $match): RedirectResponse
+    public function startMatch(MatchModel $match): JsonResponse
     {
         $referee = auth()->user();
 
         if (!$match->isAssignedToReferee($referee)) {
-            return back()->with('error', 'You are not assigned to this match');
+            return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        if ($match->status !== 'scheduled') {
-            return back()->with('error', 'Match cannot be started');
+        if (!in_array($match->status, ['scheduled', 'ready'])) {
+            return response()->json(['error' => 'Match already started'], 400);
         }
 
         $match->update([
@@ -139,7 +139,10 @@ class RefereeController extends Controller
 
         ActivityLog::log("Trận đấu #{$match->id} bắt đầu bởi trọng tài", 'Match', $match->id);
 
-        return back()->with('success', 'Match started');
+        return response()->json([
+            'success' => true,
+            'status' => 'in_progress',
+        ]);
     }
 
     /**
