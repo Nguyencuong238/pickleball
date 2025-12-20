@@ -1086,57 +1086,26 @@
 
                 <form id="editMatchForm">
                     <input type="hidden" id="editMatchId" name="match_id" value="">
+                    <input type="hidden" id="editAthlete1" name="athlete1_id" value="">
+                    <input type="hidden" id="editAthlete2" name="athlete2_id" value="">
+                    <input type="hidden" id="editCategory" name="category_id" value="">
 
-                    <div class="grid grid-2">
-                        <div class="form-group">
-                            <label class="form-label">VĐV 1 *</label>
-                            <select id="editAthlete1" name="athlete1_id" class="form-select" required>
-                                <option value="">-- Chọn VĐV --</option>
-                                @if ($tournament && $tournament->athletes)
-                                    @foreach ($tournament->athletes as $athlete)
-                                        <option value="{{ $athlete->id }}">{{ $athlete->athlete_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">VĐV 2 *</label>
-                            <select id="editAthlete2" name="athlete2_id" class="form-select" required>
-                                <option value="">-- Chọn VĐV --</option>
-                                @if ($tournament && $tournament->athletes)
-                                    @foreach ($tournament->athletes as $athlete)
-                                        <option value="{{ $athlete->id }}">{{ $athlete->athlete_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
+                    <div class="form-group" style="padding: 12px; background: #f0f0f0; border-radius: 6px; margin-bottom: 20px;">
+                        <p style="margin: 0; color: #666; font-size: 0.9rem;">
+                            <strong>ℹ️ Thông tin cơ bản:</strong> Không thể thay đổi VĐV và nội dung thi đấu sau khi tạo trận đấu.
+                        </p>
                     </div>
 
-                    <div class="grid grid-2">
-                        <div class="form-group">
-                            <label class="form-label">Nội dung thi đấu (Category) *</label>
-                            <select id="editCategory" name="category_id" class="form-select" required>
-                                <option value="">-- Chọn nội dung --</option>
-                                @if ($tournament && $tournament->categories)
-                                    @foreach ($tournament->categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->category_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-
-                        <div class="form-group">
-                            <label class="form-label">Vòng đấu (Round) *</label>
-                            <select id="editRound" name="round_id" class="form-select" required>
-                                <option value="">-- Chọn vòng --</option>
-                                @if ($tournament && $tournament->rounds)
-                                    @foreach ($tournament->rounds as $round)
-                                        <option value="{{ $round->id }}">{{ $round->round_name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
+                    <div class="form-group">
+                        <label class="form-label">Vòng đấu (Round) *</label>
+                        <select id="editRound" name="round_id" class="form-select" required>
+                            <option value="">-- Chọn vòng --</option>
+                            @if ($tournament && $tournament->rounds)
+                                @foreach ($tournament->rounds as $round)
+                                    <option value="{{ $round->id }}">{{ $round->round_name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
                     </div>
 
                     <!-- Ngày + Giờ bắt đầu -->
@@ -2263,8 +2232,6 @@
         function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId,
             status, refereeId) {
             document.getElementById('editMatchId').value = matchId;
-            document.getElementById('editAthlete1').value = athlete1Id;
-            document.getElementById('editAthlete2').value = athlete2Id;
             document.getElementById('editCategory').value = categoryId;
             document.getElementById('editRound').value = roundId;
             document.getElementById('editMatchDate').value = matchDate || '';
@@ -2272,6 +2239,10 @@
             document.getElementById('editMatchGroup').value = groupId || '';
             document.getElementById('editStatus').value = status || 'scheduled';
             document.getElementById('editRefereeId').value = refereeId || '';
+
+            // Set athlete and category as hidden values
+            document.getElementById('editAthlete1').value = athlete1Id;
+            document.getElementById('editAthlete2').value = athlete2Id;
 
             const modal = document.getElementById('editMatchModal');
             if (modal) {
@@ -3328,26 +3299,26 @@
         }
 
         function handleEditAthleteCategoryChange() {
-            const categorySelect = document.getElementById('editAthleteCategory');
-            const selectedOption = categorySelect.options[categorySelect.selectedIndex];
-            const categoryType = selectedOption.dataset.categoryType || '';
-            const partnerSection = document.getElementById('editAthletePartnerSection');
-            const partnerNameInput = document.getElementById('editAthletePartnerName');
+             const categorySelect = document.getElementById('editAthleteCategory');
+             const selectedOption = categorySelect.options[categorySelect.selectedIndex];
+             const categoryType = selectedOption.dataset.categoryType || '';
+             const partnerSection = document.getElementById('editAthletePartnerSection');
+             const partnerNameInput = document.getElementById('editAthletePartnerName');
 
-            if (DOUBLES_TYPES.includes(categoryType)) {
-                // Show partner section with animation
-                partnerSection.style.display = 'block';
-                partnerSection.style.opacity = '0';
-                partnerSection.style.transform = 'translateY(-10px)';
-                setTimeout(() => {
-                    partnerSection.style.transition = 'all 0.3s ease';
-                    partnerSection.style.opacity = '1';
-                    partnerSection.style.transform = 'translateY(0)';
-                }, 10);
+             if (DOUBLES_TYPES.includes(categoryType)) {
+                 // Show partner section with animation
+                 partnerSection.style.display = 'block';
+                 partnerSection.style.opacity = '0';
+                 partnerSection.style.transform = 'translateY(-10px)';
+                 setTimeout(() => {
+                     partnerSection.style.transition = 'all 0.3s ease';
+                     partnerSection.style.opacity = '1';
+                     partnerSection.style.transform = 'translateY(0)';
+                 }, 10);
 
-                // Make partner name required
-                partnerNameInput.setAttribute('required', 'required');
-            } else {
+                 // Make partner name required
+                 partnerNameInput.setAttribute('required', 'required');
+             } else {
                 // Hide partner section
                 partnerSection.style.transition = 'all 0.3s ease';
                 partnerSection.style.opacity = '0';
