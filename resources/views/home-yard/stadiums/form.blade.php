@@ -155,9 +155,17 @@
 
 
             <div class="form-group">
-                <label class="form-label">Địa chỉ maps</label>
+                <label class="form-label">Link google maps</label>
+                <input type="url" name="maps_link" class="form-input"
+                    value="{{ old('maps_link', $stadium->maps_link) }}" placeholder="https://maps.google.com/...">
+                <small style="color: #64748b; margin-top: 8px; display: block;">Nhập đường dẫn Google Maps của sân</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Nhúng google maps</label>
                 <input type="text" name="maps_address" id="maps_address" class="form-input"
-                    value="{{ old('maps_address', $stadium->maps_address) }}">
+                    value="{{ old('maps_address', $stadium->maps_address) }}" placeholder='<iframe src="https://www.google.com/maps/embed?...'>
+                <small style="color: #64748b; margin-top: 8px; display: block;">Nhập nhúng bản đồ Google Maps của sân</small>
             </div>
             <div id="google-maps"></div>
 

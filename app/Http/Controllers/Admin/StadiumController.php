@@ -38,7 +38,8 @@ class StadiumController extends Controller
             'court_surface' => 'nullable|string|max:255',
             'opening_hours' => 'nullable|string',
             'amenities' => 'nullable|array',
-            'regulations' => 'nullable|string'
+            'regulations' => 'nullable|string',
+            'maps_link' => 'nullable|string|url'
         ]);
 
         $data = $request->only([
@@ -52,6 +53,7 @@ class StadiumController extends Controller
             'opening_hours',
             'amenities',
             'regulations',
+            'maps_link',
         ]);
 
         $data['status'] = $request->status ? 'active' : 'inactive';

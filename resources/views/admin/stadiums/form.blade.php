@@ -101,6 +101,15 @@
             <small style="color: #64748b; margin-top: 4px; display: block;">Nhập các quy định chi tiết của sân</small>
         </div>
 
+        <!-- Maps Link -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Google Maps Link</label>
+            <input type="url" name="maps_link" class="form-control"
+                value="{{ $stadium->maps_link ?? old('maps_link') }}" placeholder="https://maps.app.goo.gl/..."
+                style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+            <small style="color: #64748b; margin-top: 4px; display: block;">Nhập đường dẫn Google Maps của sân</small>
+        </div>
+
         <!-- Utilities -->
         <div style="margin-bottom: 20px;">
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Tiện Ích </label>
