@@ -1020,6 +1020,32 @@
                         </select>
                     </div>
 
+                    <!-- Best Of (Number of Sets) -->
+                    <div class="form-group">
+                        <label class="form-label">Số set (Best of) *</label>
+                        <select name="best_of" class="form-select" required>
+                            <option value="1">Best of 1 (1 set)</option>
+                            <option value="3" selected>Best of 3 (3 set)</option>
+                            <option value="5">Best of 5 (5 set)</option>
+                        </select>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">
+                            Số set tối đa trong trận đấu (ví dụ: best of 3 = ai thắng 2 set trước thì thắng)
+                        </small>
+                    </div>
+
+                    <!-- Points Per Set -->
+                    <div class="form-group">
+                        <label class="form-label">Số điểm 1 set *</label>
+                        <select name="points_per_set" class="form-select" required>
+                            <option value="11" selected>11 điểm (tiêu chuẩn)</option>
+                            <option value="15">15 điểm</option>
+                            <option value="21">21 điểm</option>
+                        </select>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">
+                            Số điểm cần đạt để thắng 1 set (phải hơn đối thủ 2 điểm)
+                        </small>
+                    </div>
+
                     <!-- Chọn bảng/nhóm -->
                     <div class="form-group">
                         <label class="form-label">👥 Bảng/Nhóm (Group)</label>
@@ -1112,6 +1138,32 @@
                                 @endforeach
                             @endif
                         </select>
+                    </div>
+
+                    <!-- Best Of (Number of Sets) -->
+                    <div class="form-group">
+                        <label class="form-label">Số set (Best of) *</label>
+                        <select id="editBestOf" name="best_of" class="form-select" required>
+                            <option value="1">Best of 1 (1 set)</option>
+                            <option value="3">Best of 3 (3 set)</option>
+                            <option value="5">Best of 5 (5 set)</option>
+                        </select>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">
+                            Số set tối đa trong trận đấu
+                        </small>
+                    </div>
+
+                    <!-- Points Per Set -->
+                    <div class="form-group">
+                        <label class="form-label">Số điểm 1 set *</label>
+                        <select id="editPointsPerSet" name="points_per_set" class="form-select" required>
+                            <option value="11">11 điểm (tiêu chuẩn)</option>
+                            <option value="15">15 điểm</option>
+                            <option value="21">21 điểm</option>
+                        </select>
+                        <small style="color: var(--text-light); font-size: 0.75rem;">
+                            Số điểm cần đạt để thắng 1 set
+                        </small>
                     </div>
 
                     <!-- Ngày + Giờ bắt đầu -->
@@ -1329,7 +1381,7 @@
                     <td style="padding: 10px;">${matchDate} ${matchTime}</td>
                     <td style="padding: 10px;">${statusBadge}</td>
                     <td style="padding: 10px;">
-                        <button class="btn btn-warning btn-sm" onclick="openEditMatchModal(${match.id}, '${match.athlete1_id}', '${match.athlete2_id}', '${match.category_id}', '${match.round_id || ''}', '${match.match_date || ''}', '${match.match_time || ''}', '${match.group_id || ''}', '${match.status}', '${match.referee_id || ''}')">✏️ Sửa</button>
+                        <button class="btn btn-warning btn-sm" onclick="openEditMatchModal(${match.id}, '${match.athlete1_id}', '${match.athlete2_id}', '${match.category_id}', '${match.round_id || ''}', '${match.match_date || ''}', '${match.match_time || ''}', '${match.group_id || ''}', '${match.status}', '${match.referee_id || ''}', '${match.best_of || 3}', '${match.points_per_set || 11}')">✏️ Sửa</button>
                         <form method="POST" action="/homeyard/tournaments/${match.tournament_id}/matches/${match.id}" style="display: inline;">
                             <input type="hidden" name="_method" value="DELETE">
                             <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
@@ -2264,15 +2316,28 @@
 
         // Open Edit Match Modal
         function openEditMatchModal(matchId, athlete1Id, athlete2Id, categoryId, roundId, matchDate, matchTime, groupId,
-            status, refereeId) {
+            status, refereeId, bestOf, pointsPerSet) {
             document.getElementById('editMatchId').value = matchId;
             document.getElementById('editCategory').value = categoryId;
             document.getElementById('editRound').value = roundId;
-            document.getElementById('editMatchDate').value = matchDate || '';
+
+            // Convert ISO date (2025-12-21T17:00:00.000000Z) to YYYY-MM-DD format
+            if (matchDate) {
+                const dateObj = new Date(matchDate);
+                const year = dateObj.getFullYear();
+                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dateObj.getDate()).padStart(2, '0');
+                document.getElementById('editMatchDate').value = `${year}-${month}-${day}`;
+            } else {
+                document.getElementById('editMatchDate').value = '';
+            }
+
             document.getElementById('editMatchTime').value = matchTime || '';
             document.getElementById('editMatchGroup').value = groupId || '';
             document.getElementById('editStatus').value = status || 'scheduled';
             document.getElementById('editRefereeId').value = refereeId || '';
+            document.getElementById('editBestOf').value = bestOf || 3;
+            document.getElementById('editPointsPerSet').value = pointsPerSet || 11;
 
             // Set athlete and category as hidden values
             document.getElementById('editAthlete1').value = athlete1Id;
@@ -2350,6 +2415,8 @@
                     tournament_id: tournamentId,
                     status: formData.get('status'),
                     referee_id: refereeId || null,
+                    best_of: formData.get('best_of') || 3,
+                    points_per_set: formData.get('points_per_set') || 11,
                 };
 
                 console.log('Creating match with data:', data);
@@ -2436,6 +2503,8 @@
                     group_id: groupId || null,
                     status: status || 'scheduled',
                     referee_id: refereeId || null,
+                    best_of: formData.get('best_of') || 3,
+                    points_per_set: formData.get('points_per_set') || 11,
                 };
 
                 fetch(`/homeyard/tournaments/${tournamentId}/matches/${matchId}`, {

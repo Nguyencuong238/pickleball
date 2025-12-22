@@ -359,4 +359,121 @@ class BookingController extends Controller
         
         return $totalPrice;
     }
+
+    public function getAvailableSlots(Court $court, Request $request)
+    {
+        try {
+            $date = $request->query('date');
+            
+            if (!$date) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ngày không hợp lệ'
+                ]);
+            }
+
+            // Parse the booking date
+            $bookingDate = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+            $dayOfWeek = $bookingDate->dayOfWeek;
+
+            // Get booked slots for this date
+            $bookings = Booking::where('court_id', $court->id)
+                ->where('booking_date', $date)
+                ->where('status', '!=', 'cancelled')
+                ->get(['start_time', 'end_time', 'status']);
+
+            $bookedSlots = [];
+            foreach ($bookings as $booking) {
+                $bookedSlots[] = [
+                    'start_time' => $booking->start_time,
+                    'end_time' => $booking->end_time,
+                    'status' => $booking->status
+                ];
+            }
+
+            // Get stadium opening hours
+            $stadium = $court->stadium;
+            $openingHours = $stadium->opening_time . ' - ' . $stadium->closing_time;
+
+            // Parse opening hours to get start and end hours
+            preg_match('/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/', $openingHours, $matches);
+            $startHour = isset($matches[1]) ? (int)$matches[1] : 6;
+            $endHour = isset($matches[3]) ? (int)$matches[3] : 22;
+
+            // Generate time slots with pricing from court_pricing table
+            $timeSlots = [];
+            for ($hour = $startHour; $hour < $endHour; $hour++) {
+                $slotTime = sprintf('%02d:00', $hour);
+                $slotDateTime = \DateTime::createFromFormat('H:i', $slotTime);
+
+                // Get pricing for this hour
+                $pricing = CourtPricing::where('court_id', $court->id)
+                    ->where('is_active', true)
+                    ->where(function ($query) use ($bookingDate) {
+                        $query->whereNull('valid_from')
+                              ->orWhere('valid_from', '<=', $bookingDate);
+                    })
+                    ->where(function ($query) use ($bookingDate) {
+                        $query->whereNull('valid_to')
+                              ->orWhere('valid_to', '>=', $bookingDate);
+                    })
+                    ->where(function ($query) use ($slotDateTime) {
+                        $query->whereRaw('TIME(start_time) <= ?', [$slotDateTime->format('H:i:s')])
+                              ->whereRaw('TIME(end_time) > ?', [$slotDateTime->format('H:i:s')]);
+                    })
+                    ->where(function ($query) use ($dayOfWeek) {
+                        $query->whereNull('days_of_week')
+                              ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                    })
+                    ->orderByRaw('TIME(start_time) DESC')
+                    ->first();
+
+                // Use pricing if found, otherwise use court's rental_price
+                $price = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 0);
+
+                // Check if this slot is booked
+                $isBooked = false;
+                $isPending = false;
+                $nextHour = $hour + 1;
+                $nextSlotTime = sprintf('%02d:00', $nextHour);
+                
+                foreach ($bookedSlots as $booked) {
+                    $bookedStart = \DateTime::createFromFormat('H:i:s', $booked['start_time']);
+                    $bookedEnd = \DateTime::createFromFormat('H:i:s', $booked['end_time']);
+                    $currentSlotStart = $slotDateTime;
+                    $currentSlotEnd = \DateTime::createFromFormat('H:i', $nextSlotTime);
+                    
+                    // Check if there's any overlap
+                    if ($currentSlotStart < $bookedEnd && $currentSlotEnd > $bookedStart && $booked['status'] != 'cancelled') {
+                        if($booked['status'] == 'pending') {
+                            $isPending = true;
+                        } else {
+                            $isBooked = true;
+                        }
+                        break;
+                    }
+                }
+
+                $timeSlots[] = [
+                    'time' => $slotTime,
+                    'hour' => $hour,
+                    'end_hour' => $nextHour,
+                    'price' => $price,
+                    'is_booked' => $isBooked,
+                    'is_pending' => $isPending,
+                ];
+            }
+
+            return response()->json([
+                'success' => true,
+                'available_slots' => $timeSlots,
+                'booked_slots' => $bookedSlots,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể lấy dữ liệu khoảng thời gian: ' . $e->getMessage()
+            ]);
+        }
+    }
 }

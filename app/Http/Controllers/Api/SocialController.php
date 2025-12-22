@@ -17,27 +17,12 @@ class SocialController extends Controller
         $query = Social::query();
 
         // Search by name
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Filter by status
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Filter by type
-        if ($request->has('type')) {
-            $query->where('type', $request->type);
-        }
-
-        // Sort
-        $sort = $request->get('sort', 'event_date');
-        $direction = $request->get('direction', 'desc');
-        $query->orderBy($sort, $direction);
-
         // Pagination
-        $per_page = $request->get('per_page', 15);
+        $per_page = $request->input('per_page', 15);
         $socials = $query->paginate($per_page);
 
         return SocialResource::collection($socials)

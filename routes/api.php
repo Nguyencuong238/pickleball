@@ -163,7 +163,6 @@ Route::prefix('community')->group(function () {
 Route::prefix('stadiums')->group(function () {
     Route::get('', [StadiumController::class, 'index']);
     Route::get('{id}', [StadiumController::class, 'show']);
-    
 });
 
 // Tournaments API
@@ -203,6 +202,9 @@ Route::prefix('bookings')->middleware('auth:api')->group(function () {
     Route::delete('{id}', [BookingController::class, 'destroy']);
     Route::post('booking', [BookingController::class, 'bookingCourt']);
 });
+
+//Court
+Route::get('court/{court:id}/available-slots', [BookingController::class, 'getAvailableSlots']);
 
 /*
 |--------------------------------------------------------------------------
