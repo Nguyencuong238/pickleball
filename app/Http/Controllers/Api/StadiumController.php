@@ -27,13 +27,13 @@ class StadiumController extends Controller
         }
 
         // Sort
-        $sort = $request->get('sort', 'name');
-        $direction = $request->get('direction', 'asc');
-        $query->orderBy($sort, $direction);
+        if($request->sort && in_array($request->sort, ['name', 'created_at'])) {
+            $query->orderBy($request->sort, $request->input('direction', 'asc'));
+        }
+        
 
         // Pagination
-        $per_page = $request->get('per_page', 15);
-        $stadiums = $query->paginate($per_page);
+        $stadiums = $query->paginate( $request->input('per_page', 15));
 
         return StadiumResource::collection($stadiums)
             ->response()
