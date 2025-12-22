@@ -663,7 +663,7 @@
 
                 const currentGame = ref(MATCH_DATA.currentGame || 1)
                 const totalGames = ref(MATCH_DATA.bestOf || 3)
-                const winScore = ref(11)
+                const winScore = ref(MATCH_DATA.pointsPerSet || 11)
 
                 // Build players array based on game mode
                 const buildPlayersArray = (athlete, isDoubles) => {

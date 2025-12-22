@@ -36,6 +36,7 @@ class MatchModel extends Model
         'actual_end_time',
         'status',
         'best_of',
+        'points_per_set',
         'set_scores',  // JSON array: [{"set": 1, "athlete1": 11, "athlete2": 7}, ...]
         'final_score',
         'notes',
@@ -61,6 +62,7 @@ class MatchModel extends Model
         'athlete1_score' => 'integer',
         'athlete2_score' => 'integer',
         'best_of' => 'integer',
+        'points_per_set' => 'integer',
         'bracket_position' => 'integer',
         // Match control casts
         'match_state' => 'array',
@@ -320,6 +322,7 @@ class MatchModel extends Model
             'status' => $this->status,
             'isCompleted' => $this->isCompleted(),
             'bestOf' => $this->best_of,
+            'pointsPerSet' => $this->points_per_set ?? 11,
             'gameMode' => $isDoubles ? 'doubles' : 'singles',
 
             'tournament' => [

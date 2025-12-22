@@ -3074,6 +3074,8 @@ class HomeYardTournamentController extends Controller
                 'match_time' => 'nullable|date_format:H:i',
                 'status' => 'nullable|in:scheduled,ready,in_progress,completed,cancelled,postponed,bye',
                 'referee_id' => 'nullable|exists:users,id',
+                'best_of' => 'nullable|integer|in:1,3,5',
+                'points_per_set' => 'nullable|integer|in:11,15,21',
             ]);
 
             // Ensure both athletes are from this tournament
@@ -3192,6 +3194,8 @@ class HomeYardTournamentController extends Controller
                 'match_time' => $validated['match_time'],
                 'referee_id' => $refereeId,
                 'referee_name' => $refereeName,
+                'best_of' => $validated['best_of'] ?? 3,
+                'points_per_set' => $validated['points_per_set'] ?? 11,
             ]);
 
             Log::info('Match created', ['match_id' => $match->id, 'referee_id' => $refereeId]);
@@ -3305,10 +3309,12 @@ class HomeYardTournamentController extends Controller
                 'category_id' => 'required|exists:tournament_categories,id',
                 'round_id' => 'required|exists:rounds,id',
                 'match_date' => 'nullable|date_format:Y-m-d',
-                'match_time' => 'nullable|date_format:H:i',
+                'match_time' => 'nullable|date_format:H:i:s',
                 'group_id' => 'nullable|exists:groups,id',
                 'status' => 'nullable|in:scheduled,ready,in_progress,completed,cancelled,postponed,bye',
                 'referee_id' => 'nullable|exists:users,id',
+                'best_of' => 'nullable|integer|in:1,3,5',
+                'points_per_set' => 'nullable|integer|in:11,15,21',
             ]);
 
             // Validate referee is in tournament referee pool (if provided)
