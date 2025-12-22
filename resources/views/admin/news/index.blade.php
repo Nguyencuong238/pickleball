@@ -10,7 +10,15 @@
                     <div class="alert alert-success">{{ session('success') }}</div>
                 @endif
 
-                <div class="mb-3 text-end">
+                <div class="mb-3 d-flex gap-2 justify-content-between align-items-center">
+                    <form method="GET" action="{{ route('admin.news.index') }}" class="d-flex gap-2" style="flex: 0 0 auto; width: auto;">
+                        <input type="text" name="search" class="form-control form-control-sm" placeholder="Tìm kiếm..." 
+                            value="{{ request('search') }}" style="width: 250px;">
+                        <button type="submit" class="btn btn-sm btn-secondary">Tìm</button>
+                        @if (request('search'))
+                            <a href="{{ route('admin.news.index') }}" class="btn btn-sm btn-outline-secondary">Xóa</a>
+                        @endif
+                    </form>
                     <a href="{{ route('admin.news.create') }}" class="btn btn-primary">Thêm</a>
                 </div>
 

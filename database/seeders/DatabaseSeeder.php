@@ -46,6 +46,7 @@ class DatabaseSeeder extends Seeder
             ProvinceSeeder::class,
             PermissionSeeder::class,
             CategorySeeder::class,
+            NewsSeeder::class,
             InstructorSeeder::class,
             VideoSeeder::class,
         ]);

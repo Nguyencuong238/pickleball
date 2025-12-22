@@ -16,9 +16,16 @@ class NewsController extends Controller
         $this->middleware(['auth', 'role:admin']); // chỉ admin
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $news = News::latest()->paginate(10);
+        $query = News::query();
+
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where('title', 'like', "%{$search}%");
+        }
+
+        $news = $query->latest()->paginate(10)->appends($request->query());
         return view('admin.news.index', compact('news'));
     }
 
