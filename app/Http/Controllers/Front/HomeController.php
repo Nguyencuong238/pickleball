@@ -40,7 +40,7 @@ class HomeController extends Controller
         $upcomingTournaments = Tournament::query()
             // ->where('status', 'active')
             ->where('start_date', '>=', now())
-            ->select('id', 'name', 'slug', 'description', 'location', 'start_date', 'end_date', 'prizes', 'price', 'max_participants', 'status')
+            ->select('id', 'name', 'slug', 'description', 'location', 'start_date', 'end_date', 'prizes', 'price', 'max_participants', 'status', 'is_watch')
             ->orderBy('start_date', 'asc')
             ->limit(6)
             ->get();

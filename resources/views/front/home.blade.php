@@ -74,8 +74,8 @@
             <div class="tournaments-grid">
                 @forelse($upcomingTournaments as $tournament)
                     <div class="tournament-card">
-                        <div class="tournament-image">
-                            <img src="{{ $tournament->getFirstMediaUrl('banner') }}" alt="{{ $tournament->name }}">
+                        <div class="tournament-image" onclick="window.location.href='{{ route('tournaments-detail', $tournament->slug) }}'" style="cursor: pointer;">
+                            <img src="{{ $tournament->getFirstMediaUrl('banner') }}" alt="{{ $tournament->name }}" style="cursor: pointer;">
                             @php
                                 $now = now();
                                 $startDate = $tournament->start_date;
@@ -103,7 +103,7 @@
                                     @endif
                                 </span>
                             </div>
-                            <h3 class="tournament-title">{{ $tournament->name }}</h3>
+                            <h3 class="tournament-title"><a href="{{ route('tournaments-detail', $tournament->slug) }}">{{ $tournament->name }}</a></h3>
                             {{-- <p class="tournament-description">{{ Str::limit($tournament->description, 100) }}</p> --}}
                             <div class="tournament-meta">
                                 <div class="meta-item">
@@ -133,7 +133,7 @@
                                 </span>
                                 <a href="{{ route('tournaments-detail', $tournament->slug) }}"
                                     class="btn btn-primary btn-sm">
-                                    @if ($tournament->start_date->isPast())
+                                    @if ($tournament->is_watch == 1 || $tournament->start_date->isPast())
                                         Xem chi tiết
                                     @else
                                         Đăng ký ngay
