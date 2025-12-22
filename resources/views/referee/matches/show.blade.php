@@ -16,6 +16,10 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        .btn-score.sideout {
+            grid-column: 1 / 3;
+        }
     </style>
 </head>
 <body>
@@ -148,8 +152,7 @@
                                 <div class="team-score">@{{ teams.left.score }}</div>
                                 <div class="score-label">Điểm số</div>
                                 <div class="server-number-display" v-if="serving.team === 'left' && gameMode === 'doubles'">
-                                    <span class="server-label">Server</span>
-                                    <span class="server-value">@{{ serving.serverNumber }}</span>
+                                    <span class="server-value">@{{ teams.left.players[serving.serverIndex].name }}</span>
                                 </div>
                             </div>
 
@@ -199,10 +202,13 @@
 
                             <div class="score-controls" v-if="!isMatchCompleted">
                                 <button class="btn-score add" @click="rallyWon('left')">
-                                    <span>+</span> Thắng rally
+                                    <span>+</span> Cộng điểm
                                 </button>
                                 <button class="btn-score subtract" @click="adjustScore('left', -1)">
                                     <span>-</span> Trừ điểm
+                                </button>
+                                <button class="btn-score sideout" @click="recordFault" v-if="serving.team === 'left'">
+                                   @{{ serving.serverIndex == 0 ? '2-END' : 'Side Out' }}
                                 </button>
                             </div>
                         </div>
@@ -240,8 +246,7 @@
                                 <div class="team-score">@{{ teams.right.score }}</div>
                                 <div class="score-label">Điểm số</div>
                                 <div class="server-number-display" v-if="serving.team === 'right' && gameMode === 'doubles'">
-                                    <span class="server-label">Server</span>
-                                    <span class="server-value">@{{ serving.serverNumber }}</span>
+                                    <span class="server-value">@{{ teams.right.players[serving.serverIndex].name }}</span>
                                 </div>
                             </div>
 
@@ -291,10 +296,13 @@
 
                             <div class="score-controls" v-if="!isMatchCompleted">
                                 <button class="btn-score add" @click="rallyWon('right')">
-                                    <span>+</span> Thắng rally
+                                    <span>+</span> Cộng điểm
                                 </button>
                                 <button class="btn-score subtract" @click="adjustScore('right', -1)">
                                     <span>-</span> Trừ điểm
+                                </button>
+                                <button class="btn-score sideout" @click="recordFault" v-if="serving.team === 'right'">
+                                   @{{ serving.serverIndex == 0 ? '2-END' : 'Side Out' }}
                                 </button>
                             </div>
                         </div>
@@ -373,15 +381,15 @@
                                     </svg>
                                     Hoàn Tác
                                 </button>
-                                <button class="btn-quick fault" @click="recordFault" :disabled="status !== 'playing'">
+                                <!-- <button class="btn-quick fault" @click="recordFault" :disabled="status !== 'playing'">
                                     <svg class="icon" viewBox="0 0 24 24">
                                         <circle cx="12" cy="12" r="10"/>
                                         <line x1="15" y1="9" x2="9" y2="15"/>
                                         <line x1="9" y1="9" x2="15" y2="15"/>
                                     </svg>
                                     Lỗi Giao
-                                </button>
-                                <button class="btn-quick" @click="manualSwitchServer" :disabled="status !== 'playing' || gameMode === 'singles'">
+                                </button> -->
+                                <!-- <button class="btn-quick" @click="manualSwitchServer" :disabled="status !== 'playing' || gameMode === 'singles'">
                                     <svg class="icon" viewBox="0 0 24 24">
                                         <polyline points="17 1 21 5 17 9"/>
                                         <path d="M3 11V9a4 4 0 0 1 4-4h14"/>
@@ -389,7 +397,7 @@
                                         <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
                                     </svg>
                                     Đổi Server
-                                </button>
+                                </button> -->
                                 <button class="btn-quick" @click="requestTimeout" :disabled="status !== 'playing'">
                                     <svg class="icon" viewBox="0 0 24 24">
                                         <circle cx="12" cy="12" r="10"/>
