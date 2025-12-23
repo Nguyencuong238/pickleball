@@ -24,7 +24,7 @@ class NewsController extends Controller
 
         // Filter by category/type
         if ($request->filled('category')) {
-            $query->where('id', $request->category);
+            $query->where('category_id', $request->category);
         }
 
         // Pagination
