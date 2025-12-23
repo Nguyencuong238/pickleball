@@ -168,6 +168,14 @@
                             @enderror
                         </div>
 
+                        {{-- Hidden referral code field --}}
+                        @if(isset($refCode) && $refCode)
+                        <input type="hidden" name="ref" value="{{ $refCode }}">
+                        <div class="alert" style="padding: 10px; background: #d1fae5; border: 1px solid #6ee7b7; border-radius: 6px; color: #065f46; margin-bottom: 15px; font-size: 13px;">
+                            ✓ Bạn được giới thiệu bởi một thành viên khác!
+                        </div>
+                        @endif
+
                         <div class="form-group">
                             <label class="form-label">Mật khẩu</label>
                             <div class="password-input-wrapper">

@@ -5,7 +5,9 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
 use App\Models\Tournament;
+use App\Models\User;
 use App\Observers\TournamentObserver;
+use App\Observers\UserObserver;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,9 @@ class AppServiceProvider extends ServiceProvider
     {
         // Register Tournament Observer
         Tournament::observe(TournamentObserver::class);
+        
+        // Register User Observer
+        User::observe(UserObserver::class);
 
         if ($this->app->environment('production')) {
             \URL::forceScheme('https');

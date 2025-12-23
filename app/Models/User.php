@@ -41,6 +41,8 @@ class User extends Authenticatable implements JWTSubject
         'community_score',
         'total_oprs',
         'opr_level',
+        'referral_code',
+        'referred_by',
     ];
 
     /**
@@ -533,5 +535,25 @@ class User extends Authenticatable implements JWTSubject
     public function getMatchesOfficiatedCount(): int
     {
         return $this->refereeMatches()->where('status', 'completed')->count();
+    }
+
+    /**
+     * Get referrals made by this user
+     */
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(Referral::class, 'referrer_id');
+    }
+
+    /**
+     * Get referral stats
+     */
+    public function getReferralStats()
+    {
+        return [
+            'total' => $this->referrals()->count(),
+            'completed' => $this->referrals()->where('status', 'completed')->count(),
+            'pending' => $this->referrals()->where('status', 'pending')->count(),
+        ];
     }
 }

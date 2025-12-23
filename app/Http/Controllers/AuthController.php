@@ -4,9 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Referral;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Laravel\Socialite\Facades\Socialite;
+use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
@@ -16,9 +18,10 @@ class AuthController extends Controller
         return view('auth.login');
     }
 
-    public function showRegister()
+    public function showRegister(Request $request)
     {
-        return view('auth.login');
+        $refCode = $request->query('ref');
+        return view('auth.login', ['refCode' => $refCode]);
     }
 
     // ---------- REGISTER ----------
@@ -37,6 +40,18 @@ class AuthController extends Controller
             'terms.required' => 'Bạn phải chấp nhận Điều khoản dịch vụ.'
         ]);
 
+        // Generate unique referral code
+        $referralCode = $this->generateUniqueReferralCode();
+
+        // Check if referral code is provided
+        $referredBy = null;
+        if ($req->has('ref') && $req->ref) {
+            $referrer = User::where('referral_code', $req->ref)->first();
+            if ($referrer) {
+                $referredBy = $referrer->id;
+            }
+        }
+
         $user = User::create([
             'name' => $req->name,
             'email' => $req->email,
@@ -44,12 +59,39 @@ class AuthController extends Controller
             'password' => Hash::make($req->password),
             'role_type' => 'user',
             'status' => 'pending',
+            'referral_code' => $referralCode,
+            'referred_by' => $referredBy,
         ]);
+
+        // Create referral record if referred by someone
+        if ($referredBy) {
+            $referrer = User::find($referredBy);
+            Referral::create([
+                'referrer_id' => $referredBy,
+                'referrer_name' => $referrer->name,
+                'referred_user_id' => $user->id,
+                'status' => 'completed',
+                'referred_at' => now(),
+                'completed_at' => now(),
+            ]);
+        }
 
         // Log the user in
         Auth::login($user);
 
         return redirect('/user/profile/edit')->with('success', 'Đăng ký thành công! Vui lòng hoàn thành hồ sơ của bạn.');
+    }
+
+    /**
+     * Generate a unique referral code
+     */
+    private function generateUniqueReferralCode(): string
+    {
+        do {
+            $code = strtoupper(Str::random(8));
+        } while (User::where('referral_code', $code)->exists());
+        
+        return $code;
     }
 
 

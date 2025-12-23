@@ -31,7 +31,13 @@ class ProfileController extends Controller
             ->latest()
             ->first();
 
-        return view('user.profile.edit', compact('user', 'provinces', 'hasPassword', 'permissionRequest'));
+        // Get referral stats
+        $referralStats = $user->getReferralStats();
+        
+        // Get referral details
+        $referralDetails = $user->referrals()->with('referredUser')->latest()->get();
+
+        return view('user.profile.edit', compact('user', 'provinces', 'hasPassword', 'permissionRequest', 'referralStats', 'referralDetails'));
     }
 
     /**

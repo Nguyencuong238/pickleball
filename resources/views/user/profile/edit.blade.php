@@ -337,6 +337,133 @@
         font-size: 0.9rem;
     }
 
+    .referral-section {
+        background: linear-gradient(135deg, #e0f7f4 0%, #f0fffe 100%);
+        border: 1px solid #a7f3d0;
+        border-radius: 12px;
+        padding: 20px;
+    }
+
+    .referral-link-container {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        flex-wrap: wrap;
+    }
+
+    .referral-link-input {
+        flex: 1;
+        min-width: 250px;
+        padding: 12px 16px;
+        border: 1px solid #6ee7b7;
+        border-radius: 8px;
+        background: white;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        word-break: break-all;
+    }
+
+    .btn-copy {
+        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        color: white;
+        padding: 12px 20px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        white-space: nowrap;
+    }
+
+    .btn-copy:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 217, 181, 0.3);
+    }
+
+    .btn-copy.copied {
+        background: #10b981;
+    }
+
+    .referral-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-top: 20px;
+    }
+
+    .stat-box {
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        border: 1px solid #d1d5db;
+    }
+
+    .stat-number {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #00D9B5;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    .referral-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .referral-table thead {
+        background: #f9fafb;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .referral-table th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        color: #374151;
+        font-size: 0.9rem;
+    }
+
+    .referral-table td {
+        padding: 12px;
+        border-bottom: 1px solid #e5e7eb;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .referral-table tbody tr:hover {
+        background: #f3f4f6;
+    }
+
+    .referral-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .referral-badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .referral-badge.completed {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .referral-date {
+        color: #9ca3af;
+        font-size: 0.85rem;
+    }
+
     @media (max-width: 768px) {
         .avatar-section {
             flex-direction: column;
@@ -508,6 +635,91 @@
          </form>
      </div>
 
+     {{-- Referral Section --}}
+     <div class="profile-card">
+         <h4>💼 Chia Sẻ Liên Kết Referral</h4>
+         <div class="referral-section">
+             @if($user->referral_code)
+             <p style="margin: 0 0 10px 0; color: #065f46; font-weight: 500;">Chia sẻ link dưới đây để bạn bè có thể đăng ký qua bạn</p>
+             <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 0.85rem;">Mã của bạn: <strong style="color: #00D9B5;">{{ $user->referral_code }}</strong></p>
+             
+             <div class="referral-link-container">
+                 <input type="text" id="referralLink" class="referral-link-input" readonly value="{{ url('/register?ref=' . $user->referral_code) }}">
+                 <button type="button" class="btn-copy" onclick="copyReferralLink()">
+                     <span id="copyText">📋 Copy Link</span>
+                 </button>
+             </div>
+
+             <div style="margin-top: 15px; padding: 12px; background: #f0fffe; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 0.9rem; color: #065f46;">
+                 <strong>✓ Mã của bạn:</strong> {{ $user->referral_code }}<br>
+                 <span style="font-size: 0.85rem;">Gửi cho bạn bè để họ biết ai giới thiệu họ</span>
+             </div>
+             @else
+             <div style="padding: 15px; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; color: #991b1b;">
+                 <strong>⚠️ Lỗi:</strong> Mã referral chưa được tạo. Vui lòng liên hệ admin.
+             </div>
+             @endif
+             
+             @if($referralStats)
+             <div class="referral-stats">
+                 <div class="stat-box">
+                     <div class="stat-number">{{ $referralStats['total'] }}</div>
+                     <div class="stat-label">Tổng Lời Mời</div>
+                 </div>
+                 <div class="stat-box">
+                     <div class="stat-number">{{ $referralStats['completed'] }}</div>
+                     <div class="stat-label">Đã Hoàn Thành</div>
+                 </div>
+                 <div class="stat-box">
+                     <div class="stat-number">{{ $referralStats['pending'] }}</div>
+                     <div class="stat-label">Đang Chờ</div>
+                 </div>
+             </div>
+             @endif
+
+             {{-- Referral Details Table --}}
+             @if($referralDetails && $referralDetails->count() > 0)
+             <div style="margin-top: 25px;">
+                 <h5 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 15px;">Danh Sách Người Được Giới Thiệu</h5>
+                 <div style="overflow-x: auto;">
+                     <table class="referral-table">
+                         <thead>
+                             <tr>
+                                 <th>Người Đăng Ký</th>
+                                 <th>Email</th>
+                                 <th>Ngày Đăng Ký</th>
+                                 <th>Trạng Thái</th>
+                             </tr>
+                         </thead>
+                         <tbody>
+                             @foreach($referralDetails as $referral)
+                             <tr>
+                                 <td>
+                                     <strong>{{ $referral->referredUser->name }}</strong>
+                                 </td>
+                                 <td>{{ $referral->referredUser->email }}</td>
+                                 <td>
+                                     <span class="referral-date">{{ $referral->referred_at->format('d/m/Y H:i') }}</span>
+                                 </td>
+                                 <td>
+                                     <span class="referral-badge {{ $referral->status }}">
+                                         {{ $referral->status === 'completed' ? '✓ Đã hoàn thành' : '⏳ Đang chờ' }}
+                                     </span>
+                                 </td>
+                             </tr>
+                             @endforeach
+                         </tbody>
+                     </table>
+                 </div>
+             </div>
+             @else
+             <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; color: #6b7280; text-align: center;">
+                 Bạn chưa có ai được giới thiệu. Chia sẻ link của bạn để bắt đầu!
+             </div>
+             @endif
+         </div>
+     </div>
+
      {{-- Permission Request Section --}}
      <div class="profile-card">
          <h4>Đăng Ký Quyền</h4>
@@ -662,6 +874,34 @@
          .catch(error => {
              const errorDiv = document.getElementById('permissionError');
              errorDiv.innerHTML = '<div class="permission-error">' + error.message + '</div>';
+         });
+     }
+
+     // Referral Link Copy Function
+     function copyReferralLink() {
+         const referralLink = document.getElementById('referralLink');
+         const copyBtn = document.querySelector('.btn-copy');
+         const copyText = document.getElementById('copyText');
+         
+         // Select text
+         referralLink.select();
+         referralLink.setSelectionRange(0, 99999);
+         
+         // Copy to clipboard
+         navigator.clipboard.writeText(referralLink.value).then(() => {
+             // Show feedback
+             copyText.textContent = '✓ Đã Copy!';
+             copyBtn.classList.add('copied');
+             
+             // Reset after 2 seconds
+             setTimeout(() => {
+                 copyText.textContent = '📋 Copy Link';
+                 copyBtn.classList.remove('copied');
+             }, 2000);
+             
+             toastr.success('Liên kết referral đã được sao chép!');
+         }).catch(err => {
+             toastr.error('Không thể sao chép liên kết');
          });
      }
 </script>
