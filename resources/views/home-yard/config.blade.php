@@ -1380,14 +1380,16 @@
                     <td style="padding: 10px;">${match.round?.round_name || 'N/A'}</td>
                     <td style="padding: 10px;">${matchDate} ${matchTime}</td>
                     <td style="padding: 10px;">${statusBadge}</td>
-                    <td style="padding: 10px;">
-                        <button class="btn btn-warning btn-sm" onclick="openEditMatchModal(${match.id}, '${match.athlete1_id}', '${match.athlete2_id}', '${match.category_id}', '${match.round_id || ''}', '${match.match_date || ''}', '${match.match_time || ''}', '${match.group_id || ''}', '${match.status}', '${match.referee_id || ''}', '${match.best_of || 3}', '${match.points_per_set || 11}')">✏️ Sửa</button>
-                        <form method="POST" action="/homeyard/tournaments/${match.tournament_id}/matches/${match.id}" style="display: inline;">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
-                        </form>
-                    </td>
+                    <td style="padding: 10px; display: flex; gap: 5px; align-items: center;">
+                        <div style="width: 70px;">
+                            ${match.status === 'completed' ? '' : `<button class="btn btn-warning btn-sm" onclick="openEditMatchModal(${match.id}, '${match.athlete1_id}', '${match.athlete2_id}', '${match.category_id}', '${match.round_id || ''}', '${match.match_date || ''}', '${match.match_time || ''}', '${match.group_id || ''}', '${match.status}', '${match.referee_id || ''}', '${match.best_of || 3}', '${match.points_per_set || 11}')">✏️ Sửa</button>`}
+                        </div>
+                         <form method="POST" action="/homeyard/tournaments/${match.tournament_id}/matches/${match.id}" style="display: inline;">
+                             <input type="hidden" name="_method" value="DELETE">
+                             <input type="hidden" name="_token" value="${document.querySelector('meta[name="csrf-token"]').content}">
+                             <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Xác nhận xóa?')">🗑️ Xóa</button>
+                         </form>
+                     </td>
                 </tr>`;
             });
 
