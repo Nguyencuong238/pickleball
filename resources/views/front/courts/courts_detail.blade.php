@@ -9,12 +9,12 @@ $stadiumImage = $stadium->getFirstMediaUrl('banner') ?? asset('assets/images/cou
     <meta name="description" content="Sân {{ $stadium->name }} - {{ $stadium->address }}. Đặt sân Pickleball chất lượng cao. {{ $stadium->description ? substr($stadium->description, 0, 100) : '' }}">
     <meta name="keywords" content="{{ $stadium->name }}, sân pickleball, {{ $stadium->address }}, đặt sân online">
     <meta name="robots" content="index, follow">
-    <link rel="canonical" href="{{ route('courts-detail', $stadium->id) }}">
+    <link rel="canonical" href="{{ route('courts-detail', $stadium) }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ $stadium->name }} - Sân Pickleball">
     <meta property="og:description" content="Đặt sân Pickleball tại {{ $stadium->name }} - {{ $stadium->address }}">
     <meta property="og:image" content="{{ $stadiumImage }}">
-    <meta property="og:url" content="{{ route('courts-detail', $stadium->id) }}">
+    <meta property="og:url" content="{{ route('courts-detail', $stadium) }}">
     <meta property="og:site_name" content="OnePickleball">
     <meta property="og:locale" content="vi_VN">
     <meta name="twitter:card" content="summary_large_image">
@@ -661,7 +661,7 @@ $stadiumImage = $stadium->getFirstMediaUrl('banner') ?? asset('assets/images/cou
                         <h3 class="card-title">Sân gần đây</h3>
                         <div class="related-list">
                             @foreach ($relatedStadiums as $item)
-                                <a href="{{ route('courts-detail', $item->id) }}" class="related-item">
+                                <a href="{{ route('courts-detail', $item) }}" class="related-item">
                                     <div class="related-image">
                                         <img src="{{ $item->getFirstMediaUrl('banner') }}" alt="{{ $item->name }}">
                                     </div>

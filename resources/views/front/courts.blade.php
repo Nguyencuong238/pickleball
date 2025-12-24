@@ -333,7 +333,7 @@
                         @forelse($stadiums as $stadium)
                             <!-- Court Card -->
                             <div class="court-card">
-                                <a href="{{ route('courts-detail', $stadium->id) }}" class="court-link">
+                                <a href="{{ route('courts-detail', $stadium) }}" class="court-link">
                                     <div class="court-image">
                                         @php
                                             $bannerUrl =

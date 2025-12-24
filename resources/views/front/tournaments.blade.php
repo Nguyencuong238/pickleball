@@ -386,7 +386,7 @@
                                                 <span
                                                     class="prize-amount">{{ $tournament->prizes ? number_format($tournament->prizes, 0, '.', ',') . ' VNĐ' : 'N/A' }}</span>
                                             </div>
-                                            <a href="{{ route('tournaments-detail', $tournament->id) }}" class="btn btn-primary btn-sm tournament-register-btn" style="text-decoration: none; display: inline-block;">
+                                            <a href="{{ route('tournaments-detail', $tournament->slug) }}" class="btn btn-primary btn-sm tournament-register-btn" style="text-decoration: none; display: inline-block;">
                                                 Xem ngay
                                             </a>
                                         </div>

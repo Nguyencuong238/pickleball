@@ -174,13 +174,13 @@
                             @endphp
                             <img src="{{ $bannerUrl }}" alt="{{ $stadium->name }}">
                             <div class="court-overlay">
-                                <a href="{{ route('courts-detail', $stadium->id) }}" class="btn btn-white btn-sm">Xem chi
+                                <a href="{{ route('courts-detail', $stadium) }}" class="btn btn-white btn-sm">Xem chi
                                     tiết</a>
                             </div>
                         </div>
                         <div class="court-content">
                             <div class="court-header">
-                                <h3 class="court-name">{{ $stadium->name }}</h3>
+                                <h3 class="court-name"><a href="{{ route('courts-detail', $stadium) }}">{{ $stadium->name }}</a></h3>
                                 <div class="court-rating">
                                     <span class="rating-star">⭐</span>
                                     <span class="rating-value">4.8</span>
@@ -214,7 +214,7 @@
                                     <span class="info-value highlight">150.000đ - 300.000đ/giờ</span>
                                 </div>
                             </div>
-                            <a href="{{ route('courts-detail', $stadium->id) }}" class="btn btn-primary btn-block">Xem
+                            <a href="{{ route('courts-detail', $stadium) }}" class="btn btn-primary btn-block">Xem
                                 chi tiết</a>
                         </div>
                     </div>

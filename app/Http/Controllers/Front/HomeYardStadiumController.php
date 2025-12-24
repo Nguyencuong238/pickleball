@@ -8,6 +8,7 @@ use App\Models\Province;
 use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Str;
 
 class HomeYardStadiumController extends Controller
 {
@@ -63,19 +64,20 @@ class HomeYardStadiumController extends Controller
             'maps_link',
         ]);
 
+        $data['slug'] = Str::slug($request->name);
         $data['user_id'] = auth()->id();
-         $stadium = Stadium::create($data);
-         
-         // Log activity
-         ActivityLog::log("Sân '{$stadium->name}' được tạo", 'Stadium', $stadium->id);
+        $stadium = Stadium::create($data);
 
-         // Sync gallery images
-         $stadium->syncMediaCollection('gallery', 'gallery', $request);
+        // Log activity
+        ActivityLog::log("Sân '{$stadium->name}' được tạo", 'Stadium', $stadium->id);
 
-         // Sync banner image
-         $stadium->syncMediaCollection('banner', 'banner', $request);
+        // Sync gallery images
+        $stadium->syncMediaCollection('gallery', 'gallery', $request);
 
-         return redirect()->route('homeyard.stadiums.index')->with('success', 'Stadium created successfully.');
+        // Sync banner image
+        $stadium->syncMediaCollection('banner', 'banner', $request);
+
+        return redirect()->route('homeyard.stadiums.index')->with('success', 'Stadium created successfully.');
     }
 
     public function edit(Stadium $stadium)
@@ -137,11 +139,11 @@ class HomeYardStadiumController extends Controller
     public function destroy(Stadium $stadium)
     {
         $this->checkOwnership($stadium);
-        
+
         // Delete all media collections
         $stadium->clearMediaCollection('gallery');
         $stadium->clearMediaCollection('banner');
-        
+
         $stadium->delete();
 
         return redirect()->route('homeyard.stadiums.index')->with('success', 'Stadium deleted successfully.');
