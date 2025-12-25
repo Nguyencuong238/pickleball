@@ -51,6 +51,46 @@ class BookingController extends Controller
     }
 
     /**
+     * Get booking history for authenticated user with date filters
+     */
+    public function history(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d',
+            'status' => 'nullable|string',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $query = Booking::where('user_id', Auth::id());
+
+        // Filter by start_date
+        if ($request->filled('start_date') && $request->start_date) {
+            $query->where('booking_date', '>=', $request->start_date);
+        }
+
+        // Filter by end_date
+        if ($request->filled('end_date') && $request->end_date) {
+            $query->where('booking_date', '<=', $request->end_date);
+        }
+
+        // Pagination
+        $per_page = $request->get('per_page', 15);
+        $bookings = $query->with('court', 'court.stadium:id,name,slug')->latest()->paginate($per_page);
+
+        return response()->json([
+            'success' => true,
+            'data' => $bookings->items(),
+            'pagination' => [
+                'total' => $bookings->total(),
+                'per_page' => $bookings->perPage(),
+                'current_page' => $bookings->currentPage(),
+                'last_page' => $bookings->lastPage(),
+            ]
+        ]);
+    }
+
+    /**
      * Create new booking
      */
     public function store(Request $request)

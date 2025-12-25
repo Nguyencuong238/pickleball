@@ -103,7 +103,7 @@ Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('adm
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/booking/{stadium:id}', [HomeController::class, 'booking'])->name('booking');
+Route::get('/booking/{stadium}', [HomeController::class, 'booking'])->name('booking');
 Route::get('/courts', [HomeController::class, 'courts'])->name('courts');
 Route::get('/tournaments', [HomeController::class, 'tournaments'])->name('tournaments');
 Route::get('/social', [HomeController::class, 'social'])->name('social');

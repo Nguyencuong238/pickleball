@@ -205,8 +205,7 @@ class HomeController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        if($validation->fails())
-        {
+        if ($validation->fails()) {
             return response()->json([
                 'success' => false,
                 'message' => $validation->errors()->first()
@@ -217,28 +216,31 @@ class HomeController extends Controller
         $court = Court::findOrFail($request->court_id);
 
         // Calculate duration in hours
-        $startTime = \DateTime::createFromFormat('H:i', $request->start_time);
-        
+        $startHour = substr($request->start_time, 0, 2);
+
         $durationHours = (int) $request->duration_hours;
-        $endTime = $startTime->modify('+' . $durationHours . ' hours');
+        $endHour = $startHour + $durationHours;
+        $closingHour = substr($court->stadium->closing_time, 0, 2);
+
+        if($endHour > $closingHour) {
+            $endHour = $closingHour;
+            $durationHours = $closingHour - $startHour;
+        }
+        $endTime = sprintf('%02d:00', $endHour);
 
         // Recalculate total price on server side with multi-price support
         $totalPrice = $this->calculateBookingTotalPrice(
-            $court->id, 
-            $request->booking_date, 
-            $request->start_time, 
+            $court->id,
+            $request->booking_date,
+            $request->start_time,
             $durationHours
         );
-
-        $hourlyRate = (int) ($totalPrice / $durationHours);
-        // Calculate service fee (5% of total price)
-        $serviceFee = (int) round($totalPrice * 0.05);
 
         // Check if slot is already booked
         $existingBooking = Booking::where('court_id', $request->court_id)
             ->where('booking_date', $request->booking_date)
             ->where('status', '!=', 'cancelled')
-            ->whereRaw("TIME(start_time) < ? AND TIME(end_time) > ?", [$endTime->format('H:i'), $request->start_time])
+            ->whereRaw("TIME(start_time) < ? AND TIME(end_time) > ?", [$endTime, $request->start_time])
             ->first();
 
         if ($existingBooking) {
@@ -257,12 +259,12 @@ class HomeController extends Controller
             'customer_email' => $request->customer_email,
             'booking_date' => $request->booking_date,
             'start_time' => $request->start_time,
-            'end_time' => $endTime->format('H:i'),
+            'end_time' => $endTime,
             'duration_hours' => $durationHours,
-            'hourly_rate' => $hourlyRate,
+            'hourly_rate' => (int) $request->hourly_rate,
             'total_price' => $totalPrice,
-            'service_fee' => $serviceFee,
-            'status' => 'pending',
+            'service_fee' => $totalPrice * 0.05,
+            'status' => $request->status ?? 'pending',
             'payment_method' => $request->payment_method,
             'notes' => $request->notes ?? null,
         ]);
@@ -276,7 +278,6 @@ class HomeController extends Controller
                 'status' => $booking->status,
             ]
         ]);
-        
     }
 
     /**

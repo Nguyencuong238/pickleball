@@ -197,6 +197,7 @@ Route::prefix('news')->group(function () {
 // Court Bookings API
 Route::prefix('bookings')->middleware('auth:api')->group(function () {
     Route::get('list', [BookingController::class, 'index']);
+    Route::get('history', [BookingController::class, 'history']);
     Route::get('{id}', [BookingController::class, 'show']);
     Route::patch('{id}', [BookingController::class, 'update']);
     Route::delete('{id}', [BookingController::class, 'destroy']);

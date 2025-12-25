@@ -116,18 +116,15 @@ $stadiumImage = $stadium->getFirstMediaUrl('banner') ?? asset('assets/images/cou
                         <div class="hero-status">
                             <span class="status-dot status-open"></span>
                             @php
-                                $openingHours = explode('-', $stadium->opening_hours);
-                                $closingTime = trim($openingHours[1] ?? '');
-                                $startTime = trim($openingHours[0] ?? '');
                                 $currentTime = now()->format('H:i');
-                                $isOpen = $currentTime >= $startTime && $currentTime <= $closingTime;
+                                $isOpen = $currentTime >= $stadium->start_time && $currentTime <= $stadium->closing_time;
                             @endphp
                             <span>
                                 @if ($isOpen)
                                     Đang mở cửa
                                 @else
                                     Đã đóng cửa
-                                @endif • Đóng cửa lúc {{ $closingTime }}
+                                @endif • Đóng cửa lúc {{ $stadium->closing_time }}
                             </span>
                         </div>
                     </div>
