@@ -4098,13 +4098,22 @@ class HomeYardTournamentController extends Controller
             // Get category to check type
             $category = TournamentCategory::findOrFail($categoryId);
 
+            // Get group_id from request (optional parameter)
+            $groupId = request()->query('group_id');
+
             if ($category->isDoubles()) {
                 // For doubles: return pairs (athletes with partners)
-                $pairs = TournamentAthlete::where('tournament_id', $tournament->id)
+                $query = TournamentAthlete::where('tournament_id', $tournament->id)
                     ->where('category_id', $categoryId)
                     ->where('status', 'approved')
-                    ->whereNotNull('partner_id')
-                    ->with('partner:id,athlete_name')
+                    ->whereNotNull('partner_id');
+
+                // Filter by group if group_id is provided
+                if ($groupId) {
+                    $query->where('group_id', $groupId);
+                }
+
+                $pairs = $query->with('partner:id,athlete_name')
                     ->orderBy('athlete_name')
                     ->get()
                     ->map(function ($athlete) {
@@ -4129,10 +4138,16 @@ class HomeYardTournamentController extends Controller
             }
 
             // For singles: return individual athletes
-            $athletes = TournamentAthlete::where('tournament_id', $tournament->id)
+            $query = TournamentAthlete::where('tournament_id', $tournament->id)
                 ->where('category_id', $categoryId)
-                ->where('status', 'approved')
-                ->orderBy('athlete_name')
+                ->where('status', 'approved');
+
+            // Filter by group if group_id is provided
+            if ($groupId) {
+                $query->where('group_id', $groupId);
+            }
+
+            $athletes = $query->orderBy('athlete_name')
                 ->get(['id', 'athlete_name']);
 
             return response()->json([

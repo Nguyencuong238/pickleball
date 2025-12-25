@@ -990,10 +990,19 @@
                         </select>
                     </div>
 
-                    <!-- Bước 2: Chọn VĐV/Cặp thuộc nội dung thi đấu đó -->
+                    <!-- Bước 2: Chọn bảng/nhóm -->
+                    <div class="form-group">
+                        <label class="form-label">👥 Bước 2: Chọn bảng/nhóm (tuỳ chọn)</label>
+                        <select id="matchGroupSelect" name="group_id" class="form-select" disabled>
+                            <option value="">-- Chọn nội dung thi đấu trước --</option>
+                        </select>
+                        <small style="color: #666; margin-top: 0.25rem; display: block;">Nếu không chọn bảng, sẽ hiển thị tất cả VĐV/cặp của nội dung. Nếu chọn bảng, chỉ hiển thị VĐV/cặp của bảng đó.</small>
+                    </div>
+
+                    <!-- Bước 3: Chọn VĐV/Cặp thuộc nội dung thi đấu đó -->
                     <div class="grid grid-2">
                         <div class="form-group">
-                            <label class="form-label" id="athlete1Label">👤 Bước 2: Chọn VĐV 1 *</label>
+                            <label class="form-label" id="athlete1Label">👤 Bước 3: Chọn VĐV 1 *</label>
                             <select id="athlete1Select" name="athlete1_id" class="form-select" required disabled>
                                 <option value="">-- Hãy chọn nội dung thi đấu trước --</option>
                             </select>
@@ -1044,14 +1053,6 @@
                         <small style="color: var(--text-light); font-size: 0.75rem;">
                             Số điểm cần đạt để thắng 1 set (phải hơn đối thủ 2 điểm)
                         </small>
-                    </div>
-
-                    <!-- Chọn bảng/nhóm -->
-                    <div class="form-group">
-                        <label class="form-label">👥 Bảng/Nhóm (Group)</label>
-                        <select id="matchGroupSelect" name="group_id" class="form-select" disabled>
-                            <option value="">-- Chọn nội dung thi đấu trước --</option>
-                        </select>
                     </div>
 
                     <!-- Ngày + Giờ bắt đầu -->
@@ -2121,6 +2122,8 @@
             const modal = document.getElementById('createMatchModal');
             if (modal) {
                 modal.style.display = 'block';
+                // Initialize form listeners when modal opens
+                initializeCreateMatchForm();
             }
         }
 
@@ -2139,8 +2142,6 @@
         // Handle category selection in match modal
         function setupCategorySelectListener() {
             const categorySelect = document.getElementById('matchCategoryId');
-            const athlete1Select = document.getElementById('athlete1Select');
-            const athlete2Select = document.getElementById('athlete2Select');
             const groupSelect = document.getElementById('matchGroupSelect');
             const tournamentId = {!! $tournament->id ?? 0 !!};
 
@@ -2150,35 +2151,39 @@
                 // Add new listener
                 categorySelect.addEventListener('change', handleCategoryChange);
             }
+
+            // Setup group select listener
+            if (groupSelect) {
+                groupSelect.removeEventListener('change', handleGroupChange);
+                groupSelect.addEventListener('change', handleGroupChange);
+            }
         }
 
-        function handleCategoryChange() {
+        // Handle group selection change
+        function handleGroupChange() {
             const categorySelect = document.getElementById('matchCategoryId');
+            const groupSelect = document.getElementById('matchGroupSelect');
+            
+            if (categorySelect && categorySelect.value) {
+                const groupId = groupSelect.value || null;
+                console.log('Group changed - categoryId:', categorySelect.value, 'groupId:', groupId);
+                loadAthletesByCategory(categorySelect.value, groupId);
+            }
+        }
+
+        function loadAthletesByCategory(categoryId, groupId = null) {
             const athlete1Select = document.getElementById('athlete1Select');
             const athlete2Select = document.getElementById('athlete2Select');
             const athlete1Label = document.getElementById('athlete1Label');
             const athlete2Label = document.getElementById('athlete2Label');
-            const groupSelect = document.getElementById('matchGroupSelect');
             const tournamentId = {!! $tournament->id ?? 0 !!};
 
-            if (!categorySelect.value) {
-                // Reset if no category selected
-                athlete1Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
-                athlete2Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
-                athlete1Select.disabled = true;
-                athlete2Select.disabled = true;
-                athlete1Label.textContent = '👤 Bước 2: Chọn VĐV 1 *';
-                athlete2Label.textContent = '👤 Chọn VĐV 2 *';
-
-                groupSelect.innerHTML = '<option value="">-- Chọn nội dung thi đấu trước --</option>';
-                groupSelect.disabled = true;
-                return;
+            let url = `/homeyard/tournaments/${tournamentId}/categories/${categoryId}/athletes`;
+            if (groupId) {
+                url += `?group_id=${groupId}`;
             }
 
-            const categoryId = categorySelect.value;
-
-            // Fetch athletes/pairs for category
-            fetch(`/homeyard/tournaments/${tournamentId}/categories/${categoryId}/athletes`, {
+            fetch(url, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest'
                     }
@@ -2187,7 +2192,6 @@
                 .then(data => {
                     if (data.success) {
                         if (data.is_doubles) {
-                            // Doubles category: show pairs
                             athlete1Label.textContent = '👥 Bước 2: Chọn Cặp 1 *';
                             athlete2Label.textContent = '👥 Chọn Cặp 2 *';
 
@@ -2201,15 +2205,13 @@
                                 athlete1Select.disabled = false;
                                 athlete2Select.disabled = false;
                             } else {
-                                athlete1Select.innerHTML =
-                                    '<option value="">Chưa có cặp VĐV nào (cần đăng ký đồng đội)</option>';
-                                athlete2Select.innerHTML =
-                                    '<option value="">Chưa có cặp VĐV nào (cần đăng ký đồng đội)</option>';
+                                const msg = groupId ? 'Bảng này chưa có cặp VĐV nào' : 'Chưa có cặp VĐV nào (cần đăng ký đồng đội)';
+                                athlete1Select.innerHTML = `<option value="">${msg}</option>`;
+                                athlete2Select.innerHTML = `<option value="">${msg}</option>`;
                                 athlete1Select.disabled = true;
                                 athlete2Select.disabled = true;
                             }
                         } else {
-                            // Singles category: show individual athletes
                             athlete1Label.textContent = '👤 Bước 2: Chọn VĐV 1 *';
                             athlete2Label.textContent = '👤 Chọn VĐV 2 *';
 
@@ -2218,15 +2220,14 @@
                                     `<option value="${athlete.id}">${athlete.athlete_name}</option>`
                                 ).join('');
 
-                                athlete1Select.innerHTML =
-                                `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
-                                athlete2Select.innerHTML =
-                                `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
+                                athlete1Select.innerHTML = `<option value="">-- Chọn VĐV 1 --</option>${athleteOptions}`;
+                                athlete2Select.innerHTML = `<option value="">-- Chọn VĐV 2 --</option>${athleteOptions}`;
                                 athlete1Select.disabled = false;
                                 athlete2Select.disabled = false;
                             } else {
-                                athlete1Select.innerHTML = '<option value="">Không có VĐV nào</option>';
-                                athlete2Select.innerHTML = '<option value="">Không có VĐV nào</option>';
+                                const msg = groupId ? 'Bảng này chưa có VĐV nào' : 'Không có VĐV nào';
+                                athlete1Select.innerHTML = `<option value="">${msg}</option>`;
+                                athlete2Select.innerHTML = `<option value="">${msg}</option>`;
                                 athlete1Select.disabled = true;
                                 athlete2Select.disabled = true;
                             }
@@ -2245,6 +2246,31 @@
                     athlete1Select.disabled = true;
                     athlete2Select.disabled = true;
                 });
+        }
+
+        function handleCategoryChange() {
+            const categorySelect = document.getElementById('matchCategoryId');
+            const athlete1Select = document.getElementById('athlete1Select');
+            const athlete2Select = document.getElementById('athlete2Select');
+            const groupSelect = document.getElementById('matchGroupSelect');
+            const tournamentId = {!! $tournament->id ?? 0 !!};
+
+            if (!categorySelect.value) {
+                // Reset if no category selected
+                athlete1Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                athlete2Select.innerHTML = '<option value="">-- Hãy chọn nội dung thi đấu trước --</option>';
+                athlete1Select.disabled = true;
+                athlete2Select.disabled = true;
+
+                groupSelect.innerHTML = '<option value="">-- Chọn nội dung thi đấu trước --</option>';
+                groupSelect.disabled = true;
+                return;
+            }
+
+            const categoryId = categorySelect.value;
+
+            // Load athletes without group filter first
+            loadAthletesByCategory(categoryId);
 
             // Fetch groups for category
             console.log('Fetching groups for categoryId:', categoryId);
