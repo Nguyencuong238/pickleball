@@ -411,9 +411,8 @@ class HomeController extends Controller
         ]);
     }
 
-    public function courtsDetail($stadium_id)
+    public function courtsDetail(Stadium $stadium)
     {
-        $stadium = Stadium::findOrFail($stadium_id);
         $stadium->is_favorited = false;
         if(auth()->check()) {
             $stadium->is_favorited = auth()->user()->favoriteStadiums()->where('stadium_id', $stadium->id)->exists();

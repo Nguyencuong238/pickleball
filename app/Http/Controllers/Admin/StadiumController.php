@@ -56,6 +56,7 @@ class StadiumController extends Controller
             'maps_link',
         ]);
 
+        $data['slug'] = Str::slug($request->name);
         $data['status'] = $request->status ? 'active' : 'inactive';
         $data['is_featured'] = $request->is_featured ? 1 : 0;
         $data['is_verified'] = $request->is_verified ? 1 : 0;
