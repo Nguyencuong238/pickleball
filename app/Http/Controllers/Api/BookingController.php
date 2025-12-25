@@ -20,17 +20,17 @@ class BookingController extends Controller
         $query = Booking::where('user_id', Auth::id());
 
         // Filter by status
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Filter by court
-        if ($request->has('court_id')) {
+        if ($request->filled('court_id')) {
             $query->where('court_id', $request->court_id);
         }
 
         // Filter by date
-        if ($request->has('date')) {
+        if ($request->filled('date')) {
             $query->whereDate('booking_date', $request->date);
         }
 
@@ -211,7 +211,7 @@ class BookingController extends Controller
         ]);
 
         // Recalculate if times changed
-        if ($request->has('start_time') && $request->has('end_time')) {
+        if ($request->filled('start_time') && $request->filled('end_time')) {
             $startTime = \Carbon\Carbon::createFromFormat('H:i', $request->start_time);
             $endTime = \Carbon\Carbon::createFromFormat('H:i', $request->end_time);
             $duration = $endTime->diffInMinutes($startTime) / 60;
