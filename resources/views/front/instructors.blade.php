@@ -173,7 +173,7 @@
                         </div>
                         <div class="coach-content">
                             <h3 class="coach-name">
-                                <a href="{{ route('instructors.detail', $instructor->id) }}">{{ $instructor->name }}</a>
+                                <a href="{{ route('instructors.detail', $instructor) }}">{{ $instructor->name }}</a>
                             </h3>
                             <div class="coach-experience">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -204,7 +204,7 @@
                                 </div>
                             </div>
                             <div class="coach-actions">
-                                <a href="{{ route('instructors.detail', $instructor->id) }}"
+                                <a href="{{ route('instructors.detail', $instructor) }}"
                                     class="btn btn-primary btn-sm">Xem chi tiết</a>
                                 <button class="btn btn-outline btn-sm btn-favorite" title="Yêu thích">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

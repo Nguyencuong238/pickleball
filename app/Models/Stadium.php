@@ -14,6 +14,11 @@ class Stadium extends Model implements HasMedia
 
     protected $guarded = [];
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     protected $defaultOpeningTime = '00:00';
     protected $defaultClosingTime = '24:00';
 

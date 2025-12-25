@@ -14,6 +14,11 @@ class Tournament extends Model implements HasMedia
 
     protected $guarded = [];
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',

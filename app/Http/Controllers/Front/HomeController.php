@@ -583,9 +583,9 @@ class HomeController extends Controller
         ]);
     }
     
-    public function tournamentsDetail($tournament_slug)
+    public function tournamentsDetail(Tournament $tournament)
     {
-        $tournament = Tournament::with('categories')->where('slug', $tournament_slug)->firstOrFail();
+        $tournament->load('categories');
 
         $registered = DB::table('tournament_athletes')
         ->where('tournament_id', $tournament->id)
@@ -782,9 +782,9 @@ class HomeController extends Controller
         return view('front.instructors', compact('instructors'));
     }
 
-    public function instructorDetail($id)
+    public function instructorDetail(Instructor $instructor)
     {
-        $instructor = Instructor::with([
+        $instructor->load([
             'province',
             'experiences',
             'certifications',
@@ -792,7 +792,7 @@ class HomeController extends Controller
             'packages',
             'schedules',
             'reviews',
-        ])->findOrFail($id);
+        ]);
         
         // Get similar instructors (same province, limit 3)
         $similarInstructors = Instructor::with('province')

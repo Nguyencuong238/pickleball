@@ -419,7 +419,7 @@
                                      </div>
                                  </div>
                              </div>
-                             <a href="{{ route('instructors.detail', $video->instructor->id) }}" class="btn btn-outline btn-sm btn-block">Xem hồ sơ</a>
+                             <a href="{{ route('instructors.detail', $video->instructor) }}" class="btn btn-outline btn-sm btn-block">Xem hồ sơ</a>
                          @else
                              <div class="instructor-profile">
                                  <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23CCCCCC'/%3E%3Ctext x='40' y='48' font-size='28' text-anchor='middle' fill='white'%3E%3F%3C/text%3E%3C/svg%3E"
