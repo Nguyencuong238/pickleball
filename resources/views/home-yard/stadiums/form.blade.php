@@ -21,8 +21,30 @@
 
                 <div class="form-group">
                     <label class="form-label">Giờ Hoạt Động</label>
-                    <input type="text" name="opening_hours" class="form-input"
-                        value="{{ old('opening_hours', $stadium->opening_hours) }}" placeholder="VD: 06:00 - 22:00">
+                    <div style="display: flex; gap: 10px; align-items: flex-end;">
+                        <div style="flex: 1;">
+                            <select name="opening_time" class="form-input" id="opening_time">
+                                <option value="">-- Chọn giờ bắt đầu --</option>
+                                @for ($i = 0; $i < 24; $i++)
+                                    <option value="{{ sprintf('%02d:00', $i) }}" 
+                                        {{ old('opening_time', $stadium->opening_time) == sprintf('%02d:00', $i) ? 'selected' : '' }}>
+                                        {{ sprintf('%02d:00', $i) }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                        <div style="flex: 1;">
+                            <select name="closing_time" class="form-input" id="closing_time">
+                                <option value="">-- Chọn giờ kết thúc --</option>
+                                @for ($i = 1; $i <= 24; $i++)
+                                    <option value="{{ sprintf('%02d:00', $i % 24 == 0 ? 24 : $i % 24) }}" 
+                                        {{ old('closing_time', $stadium->closing_time) == sprintf('%02d:00', $i % 24 == 0 ? 24 : $i % 24) ? 'selected' : '' }}>
+                                        {{ sprintf('%02d:00', $i % 24 == 0 ? 24 : $i % 24) }}
+                                    </option>
+                                @endfor
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 

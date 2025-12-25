@@ -306,7 +306,7 @@
         background: var(--bg-white);
         border-radius: var(--radius-xl);
         padding: 2rem;
-        max-width: 600px;
+        max-width: 640px;
         width: 90%;
         max-height: 90vh;
         overflow-y: auto;
@@ -740,7 +740,7 @@
                                 <div class="court-schedule">
                                     <div class="schedule-title">Mô Tả</div>
                                     <div style="padding: 0.5rem 0; font-size: 0.75rem; color: var(--text-secondary);">
-                                        {{ $court->description ?: 'Không có mô tả' }}
+                                        {{ Str::words(strip_tags($court->description), 15) ?: 'Không có mô tả' }}
                                     </div>
                                 </div>
 
@@ -752,9 +752,9 @@
                                     <button class="btn btn-secondary btn-sm" onclick="openEditCourt({{ $court->id }})">
                                         ✏️
                                     </button>
-                                    <button class="btn btn-ghost btn-sm">
+                                    {{-- <button class="btn btn-ghost btn-sm">
                                         ⚙️
-                                    </button>
+                                    </button> --}}
                                 </div>
                             </div>
                         @empty
@@ -846,7 +846,8 @@
                     <div id="addPricingContainer" style="margin-top: 1rem;">
                         <!-- Pricing items will be added here dynamically -->
                     </div>
-                    <button type="button" class="btn btn-secondary btn-sm" onclick="addPricingTierToAdd()" style="margin-top: 1rem;">➕ Thêm Giá Theo Thời Gian</button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="addPricingTierToAdd()" 
+                        style="margin-top: 1rem;">➕ Thêm Giá Theo Thời Gian</button>
                 </div>
             </form>
             <div class="modal-footer">
@@ -1106,21 +1107,46 @@
             }
         }
 
+        // Generate time options for select
+        function generateTimeOptions() {
+            let options = '';
+            for (let i = 0; i < 24; i++) {
+                const time = sprintf('%02d:00', i);
+                options += `<option value="${time}">${time}</option>`;
+            }
+            return options;
+        }
+
+        // Helper function for sprintf
+        function sprintf(format, ...args) {
+            return format.replace(/%02d/g, () => {
+                const val = args.shift();
+                return String(val).padStart(2, '0');
+            });
+        }
+
         // Add new pricing tier for Edit modal
         function addPricingTier() {
             const container = document.getElementById('pricingContainer');
             const tierId = `tier_${Date.now()}`;
+            const timeOptions = generateTimeOptions();
             
             const tierHtml = `
                 <div class="pricing-tier" id="${tierId}">
                     <div class="pricing-tier-grid">
                         <div class="form-group" style="margin: 0;">
                             <label class="form-label" style="font-size: 0.7rem;">Từ (giờ)</label>
-                            <input type="time" class="form-input pricing-start-time" data-tier-id="${tierId}" placeholder="08:00" required>
+                            <select class="form-input pricing-start-time" data-tier-id="${tierId}" required>
+                                <option value="">-- Giờ bắt đầu --</option>
+                                ${timeOptions}
+                            </select>
                         </div>
                         <div class="form-group" style="margin: 0;">
                             <label class="form-label" style="font-size: 0.7rem;">Đến (giờ)</label>
-                            <input type="time" class="form-input pricing-end-time" data-tier-id="${tierId}" placeholder="17:00" required>
+                            <select class="form-input pricing-end-time" data-tier-id="${tierId}" required>
+                                <option value="">-- Giờ kết thúc --</option>
+                                ${timeOptions}
+                            </select>
                         </div>
                         <div class="form-group" style="margin: 0;">
                             <label class="form-label" style="font-size: 0.7rem;">Giá (VND/giờ)</label>
@@ -1138,17 +1164,24 @@
         function addPricingTierToAdd() {
             const container = document.getElementById('addPricingContainer');
             const tierId = `add_tier_${Date.now()}`;
+            const timeOptions = generateTimeOptions();
             
             const tierHtml = `
                 <div class="pricing-tier" id="${tierId}">
                     <div class="pricing-tier-grid">
                         <div class="form-group" style="margin: 0;">
                             <label class="form-label" style="font-size: 0.7rem;">Từ (giờ)</label>
-                            <input type="time" class="form-input pricing-start-time" data-tier-id="${tierId}" placeholder="08:00" required>
+                            <select class="form-input pricing-start-time" data-tier-id="${tierId}" required>
+                                <option value="">-- Giờ bắt đầu --</option>
+                                ${timeOptions}
+                            </select>
                         </div>
                         <div class="form-group" style="margin: 0;">
                             <label class="form-label" style="font-size: 0.7rem;">Đến (giờ)</label>
-                            <input type="time" class="form-input pricing-end-time" data-tier-id="${tierId}" placeholder="17:00" required>
+                            <select class="form-input pricing-end-time" data-tier-id="${tierId}" required>
+                                <option value="">-- Giờ kết thúc --</option>
+                                ${timeOptions}
+                            </select>
                         </div>
                         <div class="form-group" style="margin: 0;">
                             <label class="form-label" style="font-size: 0.7rem;">Giá (VND/giờ)</label>
@@ -1202,6 +1235,8 @@
 
         // Load pricing tiers for a court
         function loadPricingTiers(courtId) {
+            const timeOptions = generateTimeOptions();
+            
             fetch(`/homeyard/courts/${courtId}/pricing`)
                 .then(response => response.json())
                 .then(data => {
@@ -1216,11 +1251,17 @@
                                     <div class="pricing-tier-grid">
                                         <div class="form-group" style="margin: 0;">
                                             <label class="form-label" style="font-size: 0.7rem;">Từ (giờ)</label>
-                                            <input type="time" class="form-input pricing-start-time" data-tier-id="${tierId}" data-pricing-id="${price.id}" value="${price.start_time}" required>
+                                            <select class="form-input pricing-start-time" data-tier-id="${tierId}" data-pricing-id="${price.id}" required>
+                                                <option value="">-- Giờ bắt đầu --</option>
+                                                ${timeOptions}
+                                            </select>
                                         </div>
                                         <div class="form-group" style="margin: 0;">
                                             <label class="form-label" style="font-size: 0.7rem;">Đến (giờ)</label>
-                                            <input type="time" class="form-input pricing-end-time" data-tier-id="${tierId}" data-pricing-id="${price.id}" value="${price.end_time}" required>
+                                            <select class="form-input pricing-end-time" data-tier-id="${tierId}" data-pricing-id="${price.id}" required>
+                                                <option value="">-- Giờ kết thúc --</option>
+                                                ${timeOptions}
+                                            </select>
                                         </div>
                                         <div class="form-group" style="margin: 0;">
                                             <label class="form-label" style="font-size: 0.7rem;">Giá (VND/giờ)</label>
@@ -1231,6 +1272,10 @@
                                 </div>
                             `;
                             container.insertAdjacentHTML('beforeend', tierHtml);
+                            
+                            // Set selected values after HTML is inserted
+                            document.querySelector(`#${tierId} .pricing-start-time`).value = price.start_time;
+                            document.querySelector(`#${tierId} .pricing-end-time`).value = price.end_time;
                         });
                     }
                 })

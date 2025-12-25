@@ -1336,15 +1336,7 @@ class HomeYardTournamentController extends Controller
         try {
             $pricing = $court->activePricing()
                 ->select('id', 'start_time', 'end_time', 'price_per_hour', 'is_active')
-                ->get()
-                ->map(function ($p) {
-                    return [
-                        'id' => $p->id,
-                        'start_time' => $p->start_time->format('H:i') ?? '',
-                        'end_time' => $p->end_time->format('H:i') ?? '',
-                        'price_per_hour' => $p->price_per_hour,
-                    ];
-                });
+                ->get();
 
             return response()->json([
                 'success' => true,
@@ -1424,13 +1416,22 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function bookings(Request $request)
+    public function bookings(Request $request, $stadiumId = null)
     {
         $stadiums = Stadium::where('user_id', auth()->id())->get();
-        $courts = Court::whereIn('stadium_id', $stadiums->pluck('id'))->where('is_active', 1)->get();
+
+        if($stadiumId) {
+            $currentStadium = $stadiums->where('id', $stadiumId)->first();
+        }
+
+        if(empty($currentStadium)) { 
+            $currentStadium = $stadiums->first();
+        }
+
+        $courts = Court::with('stadium')->where('stadium_id', $currentStadium->id)->where('is_active', 1)->get();
         $date = $request->date ?? now()->format('Y-m-d');
 
-        return view('home-yard.tournaments.bookings', compact('courts', 'date'));
+        return view('home-yard.tournaments.bookings', compact('courts', 'date', 'stadiums', 'currentStadium'));
     }
 
     /**
@@ -2726,10 +2727,17 @@ class HomeYardTournamentController extends Controller
         $court = Court::findOrFail($request->court_id);
 
         // Calculate duration in hours
-        $startTime = \DateTime::createFromFormat('H:i', $request->start_time);
+        $startHour = substr($request->start_time, 0, 2);
 
         $durationHours = (int) $request->duration_hours;
-        $endTime = $startTime->modify('+' . $durationHours . ' hours');
+        $endHour = $startHour + $durationHours;
+        $closingHour = substr($court->stadium->closing_time, 0, 2);
+
+        if($endHour > $closingHour) {
+            $endHour = $closingHour;
+            $durationHours = $closingHour - $startHour;
+        }
+        $endTime = sprintf('%02d:00', $endHour);
 
         // Recalculate total price on server side with multi-price support
         $totalPrice = $this->calculateBookingTotalPrice(
@@ -2743,7 +2751,7 @@ class HomeYardTournamentController extends Controller
         $existingBooking = Booking::where('court_id', $request->court_id)
             ->where('booking_date', $request->booking_date)
             ->where('status', '!=', 'cancelled')
-            ->whereRaw("TIME(start_time) < ? AND TIME(end_time) > ?", [$endTime->format('H:i'), $request->start_time])
+            ->whereRaw("TIME(start_time) < ? AND TIME(end_time) > ?", [$endTime, $request->start_time])
             ->first();
 
         if ($existingBooking) {
@@ -2762,7 +2770,7 @@ class HomeYardTournamentController extends Controller
             'customer_email' => $request->customer_email,
             'booking_date' => $request->booking_date,
             'start_time' => $request->start_time,
-            'end_time' => $endTime->format('H:i'),
+            'end_time' => $endTime,
             'duration_hours' => $durationHours,
             'hourly_rate' => (int) $request->hourly_rate,
             'total_price' => $totalPrice,
@@ -2840,10 +2848,10 @@ class HomeYardTournamentController extends Controller
         ]);
     }
 
-    public function getBookingStats(Request $request)
+    public function getBookingStats($stadiumId)
     {
-        $stadiums = Stadium::where('user_id', auth()->id())->pluck('id');
-        $courtsOfUser = Court::whereIn('stadium_id', $stadiums)->pluck('id');
+        $stadium = Stadium::where('user_id', auth()->id())->where('id', $stadiumId)->first();
+        $courtsOfUser = Court::where('stadium_id', $stadium->id)->pluck('id');
 
         // Get current month's bookings
         $startOfMonth = now()->startOfMonth()->toDateString();
@@ -2918,11 +2926,11 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function searchBookings(Request $request)
+    public function searchBookings(Request $request, $stadiumId)
     {
         try {
-            $stadiums = Stadium::where('user_id', auth()->id())->pluck('id');
-            $courtsOfUser = Court::whereIn('stadium_id', $stadiums)->pluck('id');
+            $stadium = Stadium::where('user_id', auth()->id())->where('id', $stadiumId)->first();
+            $courtsOfUser = Court::where('stadium_id', $stadium->id)->pluck('id');
 
             $search = $request->query('search', '');
             $status = $request->query('status', '');
@@ -2970,7 +2978,7 @@ class HomeYardTournamentController extends Controller
                 ->paginate($perPage, ['*'], 'page', $page);
 
             // Get unique courts for filter dropdown
-            $courts = Court::whereIn('stadium_id', $stadiums)
+            $courts = $stadium->courts()
                 ->where('is_active', true)
                 ->select('id', 'court_name')
                 ->orderBy('court_name')

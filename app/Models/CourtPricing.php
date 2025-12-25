@@ -42,22 +42,6 @@ class CourtPricing extends Model
     }
 
     /**
-     * Get start_time as a Carbon time object for formatting.
-     */
-    public function getStartTimeAttribute($value)
-    {
-        return $value ? Carbon::createFromFormat('H:i:s', $value) : null;
-    }
-
-    /**
-     * Get end_time as a Carbon time object for formatting.
-     */
-    public function getEndTimeAttribute($value)
-    {
-        return $value ? Carbon::createFromFormat('H:i:s', $value) : null;
-    }
-
-    /**
      * Check if this pricing is currently valid.
      */
     public function isValid(): bool
@@ -97,9 +81,9 @@ class CourtPricing extends Model
      */
     public function coversTime(\DateTime $time): bool
     {
-        $timeStr = $time->format('H:i:s');
-        $startStr = $this->start_time ? $this->start_time->format('H:i:s') : '00:00:00';
-        $endStr = $this->end_time ? $this->end_time->format('H:i:s') : '23:59:59';
+        $timeStr = $time->format('H:i');
+        $startStr = $this->start_time ?? '00:00';
+        $endStr = $this->end_time ?? '24:00';
 
         return $timeStr >= $startStr && $timeStr < $endStr;
     }
@@ -113,8 +97,8 @@ class CourtPricing extends Model
             return $this->description;
         }
 
-        $startTime = $this->start_time ? $this->start_time->format('H:i') : '00:00';
-        $endTime = $this->end_time ? $this->end_time->format('H:i') : '23:59';
+        $startTime = $this->start_time ?? '00:00';
+        $endTime = $this->end_time ?? '24:00';
 
         return "{$startTime} - {$endTime}";
     }

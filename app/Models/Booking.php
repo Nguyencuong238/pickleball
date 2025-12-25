@@ -34,6 +34,8 @@ class Booking extends Model
         'hourly_rate' => 'integer',
         'total_price' => 'integer',
         'service_fee' => 'integer',
+        'start_time' => 'string',
+        'end_time' => 'string',
     ];
 
     /**
