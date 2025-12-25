@@ -237,7 +237,7 @@
 @endsection
 
 @section('content')
-<div class="profile-hero">
+<div class="profile-hero" style="margin-top: 90px">
     <div class="profile-container">
         <a href="{{ route('academy.referees.index') }}" class="back-link">
             ← Quay lại danh sách trọng tài

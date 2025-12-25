@@ -58,10 +58,15 @@ class AuthController extends Controller
             'phone' => $req->phone,
             'password' => Hash::make($req->password),
             'role_type' => 'user',
-            'status' => 'pending',
+            'status' => 'approved',
             'referral_code' => $referralCode,
             'referred_by' => $referredBy,
         ]);
+
+        // Assign 'user' role to the newly registered user
+        if (!$user->roles()->exists()) {
+            $user->syncRoles([2]); // Role ID 2 is 'user'
+        }
 
         // Create referral record if referred by someone
         if ($referredBy) {
