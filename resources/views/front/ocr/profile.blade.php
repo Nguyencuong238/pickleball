@@ -320,7 +320,7 @@
                 <div class="profile-stats">
                     <div class="profile-stat">
                         <div class="profile-stat-value">{{ number_format($user->total_oprs, 0) }}</div>
-                        <div class="profile-stat-label">OPRS</div>
+                        <div class="profile-stat-label">OPS</div>
                     </div>
                     <div class="profile-stat">
                         <div class="profile-stat-value">#{{ $globalRank }}</div>

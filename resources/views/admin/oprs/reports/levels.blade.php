@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'OPRS Level Distribution Report')
+@section('title', 'OPS Level Distribution Report')
 
 @section('content')
 <div class="container-fluid py-4">
@@ -23,7 +23,7 @@
                             <tr>
                                 <th>Level</th>
                                 <th>Name</th>
-                                <th>OPRS Range</th>
+                                <th>OPS Range</th>
                                 <th>Players</th>
                                 <th>Percentage</th>
                                 <th>Distribution</th>
@@ -68,7 +68,7 @@
                 <div class="card-body">
                     <div class="mb-4">
                         <h3 class="text-center text-primary">{{ $total }}</h3>
-                        <p class="text-center text-muted">Total Players with OPRS</p>
+                        <p class="text-center text-muted">Total Players with OPS</p>
                     </div>
 
                     <hr>

@@ -2,7 +2,7 @@
 
 <div class="oprs-score-card">
     <div class="oprs-header">
-        <h3 class="oprs-title">OPRS Score</h3>
+        <h3 class="oprs-title">OPS Score</h3>
         <x-oprs.level-badge :level="$user->opr_level" />
     </div>
 

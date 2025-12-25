@@ -1,6 +1,6 @@
 @extends('layouts.front')
 
-@section('title', 'Cộng Đồng - OPRS')
+@section('title', 'Cộng Đồng - OPS')
 
 @section('css')
 <style>
@@ -331,7 +331,7 @@
             <div class="stats-main">
                 <h3>Điểm Cộng Đồng Của Bạn</h3>
                 <div class="stats-value">{{ number_format($user->community_score, 0) }}</div>
-                <div class="stats-contrib">Đóng góp {{ number_format($user->community_score * 0.1, 2) }} vào OPRS</div>
+                <div class="stats-contrib">Đóng góp {{ number_format($user->community_score * 0.1, 2) }} vào OPS</div>
             </div>
             <div class="stats-secondary">
                 <div class="stats-label">Hoạt Động Tháng Này</div>

@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'OPRS Activity Management')
+@section('title', 'OPS Activity Management')
 
 @section('content')
 <div class="container-fluid py-4">

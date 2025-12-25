@@ -1,14 +1,14 @@
 @extends('admin.layouts.app')
 
-@section('title', 'OPRS Dashboard')
+@section('title', 'OPS Dashboard')
 
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>OPRS Dashboard</h1>
+        <h1>OPS Dashboard</h1>
         <form action="{{ route('admin.oprs.recalculate') }}" method="POST" class="d-inline">
             @csrf
-            <button type="submit" class="btn btn-outline-primary" onclick="return confirm('Recalculate OPRS for all users?')">
+            <button type="submit" class="btn btn-outline-primary" onclick="return confirm('Recalculate OPS for all users?')">
                 [REFRESH] Recalculate All
             </button>
         </form>
@@ -107,7 +107,7 @@
                             <tr>
                                 <th>#</th>
                                 <th>Player</th>
-                                <th>OPRS</th>
+                                <th>OPS</th>
                                 <th>Level</th>
                             </tr>
                         </thead>

@@ -281,8 +281,8 @@
                 <li class="nav-item dropdown">
                     <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*') && !request()->routeIs('ocr.matches.list') && !request()->routeIs('ocr.ocr-matches')) active @endif">Bảng xếp hạng</a>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ route('ocr.index') }}" class="dropdown-item">Tổng quan OPRS</a></li>
-                        <li><a href="{{ route('ocr.leaderboard') }}" class="dropdown-item">Bảng xếp hạng OPRS</a></li>
+                        <li><a href="{{ route('ocr.index') }}" class="dropdown-item">Tổng quan OPS</a></li>
+                        <li><a href="{{ route('ocr.leaderboard') }}" class="dropdown-item">Bảng xếp hạng OPS</a></li>
                         <li><a href="{{ route('ocr.ocr-matches') }}" class="dropdown-item">Trận đấu OCR</a></li>
                         @auth
                             <li><a href="{{ route('ocr.profile', auth()->user()) }}" class="dropdown-item">Hồ sơ của tôi</a></li>
@@ -336,7 +336,7 @@
                         </div>
                         <div class="dropdown-info">
                             <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
-                                Hồ sơ OPRS
+                                Hồ sơ OPS
                             </a>
                             <a href="{{ route('user.profile.edit') }}" class="nav-link">
                                 Chỉnh sửa hồ sơ
