@@ -165,7 +165,8 @@
 
             <div class="courts-grid">
                 <!-- Court 1 -->
-                @foreach ($featuredStadiums as $stadium)
+                @forelse ($featuredStadiums as $stadium)
+                    @if($stadium && $stadium->id)
                     <div class="court-card">
                         <div class="court-image">
                             @php
@@ -174,13 +175,13 @@
                             @endphp
                             <img src="{{ $bannerUrl }}" alt="{{ $stadium->name }}">
                             <div class="court-overlay">
-                                <a href="{{ route('courts-detail', $stadium) }}" class="btn btn-white btn-sm">Xem chi
+                                <a href="{{ route('courts-detail', $stadium->id) }}" class="btn btn-white btn-sm">Xem chi
                                     tiết</a>
                             </div>
                         </div>
                         <div class="court-content">
                             <div class="court-header">
-                                <h3 class="court-name"><a href="{{ route('courts-detail', $stadium) }}">{{ $stadium->name }}</a></h3>
+                                <h3 class="court-name"><a href="{{ route('courts-detail', $stadium->id) }}">{{ $stadium->name }}</a></h3>
                                 <div class="court-rating">
                                     <span class="rating-star">⭐</span>
                                     <span class="rating-value">4.8</span>
@@ -196,13 +197,19 @@
                             <div class="court-features">
                                 <span class="feature-tag">🏟️ {{ $stadium->courts->count() }} sân</span>
                                 
-                                @if (is_array($stadium->amenities) || is_object($stadium->amenities))
-                                    @foreach ($stadium->amenities as $amenity)
-                                        <span class="feature-tag">{{ $amenity }}</span>
-                                    @endforeach
-                                @elseif ($stadium->amenities)
-                                    <span class="feature-tag">{{ $stadium->amenities }}</span>
-                                @endif
+                                @php
+                                    $amenities = $stadium->amenities;
+                                    // Decode if it's a JSON string
+                                    if (is_string($amenities)) {
+                                        $amenities = json_decode($amenities, true);
+                                    }
+                                    $amenities = is_array($amenities) ? array_slice($amenities, 0, 3) : [];
+                                @endphp
+                                
+                                @forelse ($amenities as $amenity)
+                                    <span class="feature-tag">✓ {{ $amenity }}</span>
+                                @empty
+                                @endforelse
                             </div>
                             <div class="court-info">
                                 <div class="info-item">
@@ -214,11 +221,16 @@
                                     <span class="info-value highlight">150.000đ - 300.000đ/giờ</span>
                                 </div>
                             </div>
-                            <a href="{{ route('courts-detail', $stadium) }}" class="btn btn-primary btn-block">Xem
+                            <a href="{{ route('courts-detail', $stadium->id) }}" class="btn btn-primary btn-block">Xem
                                 chi tiết</a>
                         </div>
                     </div>
-                @endforeach
+                    @endif
+                @empty
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                        <p style="font-size: 18px; color: #666;">Hiện chưa có sân thi đấu nào</p>
+                    </div>
+                @endforelse
             </div>
 
             <div class="section-cta">
