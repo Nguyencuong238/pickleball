@@ -417,7 +417,7 @@
                 <p>{{ $user->email }}</p>
                 <span class="role-badge">👤 Người Dùng Thường</span>
                 <hr>
-                <a href="{{ route('user.profile.edit') }}" class="edit-profile-btn">CChỉnh sửa hồ sơ</a>
+                <a href="{{ route('user.profile.edit') }}" class="edit-profile-btn">Chỉnh sửa hồ sơ</a>
             </div>
 
             <div class="stats-card">
@@ -465,6 +465,14 @@
                     <h5>Tìm Sân</h5>
                     <p>Duyệt các sân pickleball có sẵn gần bạn.</p>
                     <a href="{{ route('courts') }}" class="menu-btn">Xem Sân →</a>
+                </div>
+
+                <!-- Clubs & Groups -->
+                <div class="menu-card">
+                    <div class="icon-box icon-box-blue">👥</div>
+                    <h5>Câu Lạc Bộ & Nhóm</h5>
+                    <p>Tạo hoặc tham gia câu lạc bộ và nhóm pickleball.</p>
+                    <a href="{{ route('clubs.index') }}" class="menu-btn">Xem Câu Lạc Bộ →</a>
                 </div>
             </div>
 

@@ -34,6 +34,7 @@ use App\Http\Controllers\SocialController;
 use App\Http\Controllers\Front\ProfileController;
 use App\Http\Controllers\Front\RefereeController;
 use App\Http\Controllers\Front\RefereeProfileController;
+use App\Http\Controllers\ClubController;
 
 /*
 |--------------------------------------------------------------------------
@@ -179,6 +180,9 @@ Route::middleware('auth')->group(function () {
          Route::post('/', [\App\Http\Controllers\Front\PermissionRequestController::class, 'store'])->name('store');
      });
 });
+
+// Club & Group Routes
+Route::resource('clubs', ClubController::class)->middleware('auth');
 
 // Instructor favorite routes (without auth middleware - controller checks auth internally)
 Route::middleware('web')->group(function () {
