@@ -35,6 +35,7 @@ use App\Http\Controllers\Front\ProfileController;
 use App\Http\Controllers\Front\RefereeController;
 use App\Http\Controllers\Front\RefereeProfileController;
 use App\Http\Controllers\ClubController;
+use App\Http\Controllers\ClubActivityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -182,7 +183,20 @@ Route::middleware('auth')->group(function () {
 });
 
 // Club & Group Routes
-Route::resource('clubs', ClubController::class)->middleware('auth');
+Route::middleware('auth')->group(function () {
+    Route::resource('clubs', ClubController::class);
+    
+    // Club Activities Routes
+    Route::prefix('clubs/{club}/activities')->name('clubs.activities.')->group(function () {
+        Route::get('/', [ClubActivityController::class, 'index'])->name('index');
+        Route::get('create', [ClubActivityController::class, 'create'])->name('create');
+        Route::post('/', [ClubActivityController::class, 'store'])->name('store');
+        Route::get('{activity}/edit', [ClubActivityController::class, 'edit'])->name('edit');
+        Route::put('{activity}', [ClubActivityController::class, 'update'])->name('update');
+        Route::delete('{activity}', [ClubActivityController::class, 'destroy'])->name('destroy');
+        Route::get('{activity}', [ClubActivityController::class, 'show'])->name('show');
+    });
+});
 
 // Instructor favorite routes (without auth middleware - controller checks auth internally)
 Route::middleware('web')->group(function () {

@@ -357,10 +357,21 @@
 
             <!-- Các Hoạt Động -->
             <div class="section-card">
-                <h2 class="section-title">📅 Các Hoạt Động</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid #f3f4f6;">
+                    <h2 class="section-title" style="margin: 0; border: none; padding: 0;">📅 Các Hoạt Động</h2>
+                    @if(Auth::id() === $club->user_id)
+                        <a href="{{ route('clubs.activities.index', $club) }}" style="padding: 8px 16px; background: #dbeafe; color: #0284c7; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem;">
+                            ➕ Xem & Quản Lý
+                        </a>
+                    @else
+                        <a href="{{ route('clubs.activities.index', $club) }}" style="padding: 8px 16px; background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%); color: white; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 0.85rem;">
+                            📋 Xem Tất Cả
+                        </a>
+                    @endif
+                </div>
                 @if($club->activities->count() > 0)
                     <div class="activities-list">
-                        @foreach($club->activities as $activity)
+                        @foreach($club->activities->take(3) as $activity)
                             <div class="activity-item">
                                 <div class="activity-title">{{ $activity->title }}</div>
                                 <div class="activity-date">
@@ -375,10 +386,22 @@
                             </div>
                         @endforeach
                     </div>
+                    @if($club->activities->count() > 3)
+                        <div style="text-align: center; margin-top: 15px;">
+                            <a href="{{ route('clubs.activities.index', $club) }}" style="color: #00D9B5; font-weight: 600; text-decoration: none;">
+                                Xem tất cả {{ $club->activities->count() }} hoạt động →
+                            </a>
+                        </div>
+                    @endif
                 @else
                     <div class="empty-message">
                         <i class="fas fa-calendar-alt" style="font-size: 2rem; margin-bottom: 10px;"></i>
                         <p>Chưa có hoạt động nào</p>
+                        @if(Auth::id() === $club->user_id)
+                            <a href="{{ route('clubs.activities.create', $club) }}" style="color: #00D9B5; font-weight: 600; text-decoration: none; margin-top: 10px; display: inline-block;">
+                                ➕ Tạo hoạt động đầu tiên
+                            </a>
+                        @endif
                     </div>
                 @endif
             </div>

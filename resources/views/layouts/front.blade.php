@@ -293,7 +293,7 @@
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*')) active @endif">Academy</a>
+                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*')) active @endif">Cộng đồng</a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
