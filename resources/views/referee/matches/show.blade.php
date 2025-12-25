@@ -16,10 +16,6 @@
             margin-left: auto;
             margin-right: auto;
         }
-
-        .btn-score.sideout {
-            grid-column: 1 / 3;
-        }
     </style>
 </head>
 <body>

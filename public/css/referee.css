@@ -655,7 +655,8 @@
         .score-controls {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 20px;
+            width: 100%;
         }
 
         .btn-score {
@@ -675,12 +676,25 @@
         .btn-score.add {
             background: linear-gradient(135deg, var(--success) 0%, #059669 100%);
             color: white;
+            height: 46px;
+            font-size: 13px;
+            flex: 0 0 calc(50% - 6px);
         }
 
         .btn-score.subtract {
             background: var(--bg-darker);
             border: 1px solid var(--border-color);
             color: var(--text-muted);
+            height: 46px;
+            font-size: 13px;
+            flex: 0 0 calc(50% - 6px);
+        }
+
+        .btn-score.sideout {
+            height: 56px;
+            font-size: 16px;
+            grid-column: 1 / -1;
+            width: 100%;
         }
 
         .btn-score:hover {
