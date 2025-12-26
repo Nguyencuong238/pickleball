@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Court;
 use App\Models\CourtPricing;
@@ -76,11 +77,11 @@ class BookingController extends Controller
 
         // Pagination
         $per_page = $request->get('per_page', 15);
-        $bookings = $query->with('court', 'court.stadium:id,name,slug')->latest()->paginate($per_page);
+        $bookings = $query->with('court.stadium', 'court')->latest()->paginate($per_page);
 
         return response()->json([
             'success' => true,
-            'data' => $bookings->items(),
+            'data' => BookingResource::collection($bookings->items()),
             'pagination' => [
                 'total' => $bookings->total(),
                 'per_page' => $bookings->perPage(),

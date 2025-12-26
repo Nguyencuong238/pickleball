@@ -171,6 +171,26 @@
         background-color: #fff;
     }
 
+    @media (max-width: 1024px) {
+        .nav-menu li {
+            width: 100%;
+            box-shadow: 0 1px 2px 0 rgb(24 204 174 / 20%);
+            padding-right: 1rem;
+            padding-left: 1rem;
+        }
+        .nav-menu .nav-link::after {
+            background: none;
+            left: inherit;
+            top: 11px;
+        }
+        .login-register-btn {
+            box-shadow: none !important;
+            display: flex;
+            gap: 10px;
+            padding: 10px 1rem !important;
+        }
+    }
+
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .user-profile {
@@ -307,8 +327,6 @@
                 @guest
                     <li class="mobile-only login-register-btn">
                         <a href="/login" class="btn btn-outline" >Đăng nhập</a>
-                    </li>
-                    <li class="mobile-only login-register-btn">
                         <a href="/register" class="btn btn-primary" >Đăng ký</a>
                     </li>
                 @endguest

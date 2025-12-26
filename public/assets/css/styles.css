@@ -1264,7 +1264,7 @@ ul {
         box-shadow: 0 10px 40px rgba(0, 217, 181, 0.1);
         border-bottom: 1px solid rgba(0, 217, 181, 0.1);
         width: 100%;
-        max-width: 500px;
+        max-width: 400px;
         z-index: 10;
     }
 
