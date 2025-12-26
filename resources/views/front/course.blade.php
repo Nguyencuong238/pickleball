@@ -243,7 +243,7 @@
                             <div class="video-info">
                                 <span class="video-category">{{ $video->category->name ?? 'Chưa phân loại' }}</span>
                                 <h3 class="video-title">
-                                    <a href="{{ route('course.detail', $video->id) }}">{{ $video->name }}</a>
+                                    <a href="{{ route('course.detail', $video->slug ?? $video->id) }}">{{ $video->name }}</a>
                                 </h3>
                                 <p class="video-description">{{ $video->description ?? '' }}</p>
                                 <div class="video-meta">
@@ -288,7 +288,7 @@
                             <div class="video-info">
                                 <span class="video-category">{{ $video->category->name ?? 'Chưa phân loại' }}</span>
                                 <h3 class="video-title">
-                                    <a href="{{ route('course.detail', $video->id) }}">{{ $video->name }}</a>
+                                    <a href="{{ route('course.detail', $video->slug ?? $video->id) }}">{{ $video->name }}</a>
                                 </h3>
                                 <div class="video-stats">
                                     <span
@@ -364,7 +364,7 @@
                                     class="course-level {{ strtolower($video->level ?? 'beginner') }}">{{ ucfirst($video->level ?? 'Người mới') }}</span>
                             </div>
                             <h3 class="course-title">
-                                <a href="{{ route('course.detail', $video->id) }}">{{ $video->name }}</a>
+                                <a href="{{ route('course.detail', $video->slug ?? $video->id) }}">{{ $video->name }}</a>
                             </h3>
                             <p class="course-excerpt">{{ $video->description ?? '' }}</p>
                             <div class="course-footer">

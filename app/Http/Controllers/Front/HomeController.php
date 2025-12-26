@@ -909,9 +909,12 @@ class HomeController extends Controller
         ]);
     }
 
-    public function courseDetail($id)
+    public function courseDetail($slug)
     {
-        $video = Video::with('category')->findOrFail($id);
+        $video = Video::with('category')
+            ->where('slug', $slug)
+            ->orWhere('id', $slug) // Fallback to ID for backward compatibility
+            ->firstOrFail();
         
         // Get related videos (same category, limit 5)
         $relatedVideos = Video::where('category_id', $video->category_id)

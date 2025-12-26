@@ -116,12 +116,12 @@ Route::get('/tournaments/{tournament}', [HomeController::class, 'tournamentsDeta
 Route::get('/instructors', [HomeController::class, 'instructors'])->name('instructors');
 Route::get('/instructors/{instructor}', [HomeController::class, 'instructorDetail'])->name('instructors.detail');
 Route::get('/course', [HomeController::class, 'course'])->name('course');
-Route::get('/course/{id}', [HomeController::class, 'courseDetail'])->name('course.detail');
+Route::get('/course/{slug}', [HomeController::class, 'courseDetail'])->name('course.detail');
 
 // Academy Public Routes
 Route::prefix('academy')->name('academy.')->group(function () {
     Route::get('referees', [RefereeProfileController::class, 'index'])->name('referees.index');
-    Route::get('referees/{referee}', [RefereeProfileController::class, 'show'])->name('referees.show');
+    Route::get('referees/{referee:slug}', [RefereeProfileController::class, 'show'])->name('referees.show');
 });
 
 // Booking API for front-end

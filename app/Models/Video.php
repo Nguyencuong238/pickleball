@@ -9,7 +9,7 @@ class Video extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'image', 'description', 'video_link', 'category_id', 'instructor_id', 'duration', 'level', 'views_count', 'rating', 'rating_count', 'chapters'];
+    protected $fillable = ['name', 'slug', 'image', 'description', 'video_link', 'category_id', 'instructor_id', 'duration', 'level', 'views_count', 'rating', 'rating_count', 'chapters'];
 
     protected $casts = [
         'chapters' => 'array',

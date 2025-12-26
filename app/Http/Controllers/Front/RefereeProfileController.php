@@ -42,10 +42,13 @@ class RefereeProfileController extends Controller
     /**
      * Display referee profile detail
      */
-    public function show(User $referee): View
+    public function show(Request $request, $slug): View
     {
-        // Verify user has referee role
-        if (!$referee->hasRole('referee')) {
+        $referee = User::where('slug', $slug)
+            ->orWhere('id', $slug) // Fallback to ID for backward compatibility
+            ->first();
+        
+        if (!$referee || !$referee->hasRole('referee')) {
             abort(404, 'Referee not found');
         }
 

@@ -206,7 +206,10 @@
                     </div>
 
                     <!-- Chapters -->
-                    @if ($video->chapters && count($video->chapters) > 0)
+                    @php
+                        $chapters = is_array($video->chapters) ? $video->chapters : (is_string($video->chapters) ? json_decode($video->chapters, true) : []);
+                    @endphp
+                    @if (!empty($chapters) && count($chapters) > 0)
                         <div class="video-chapters-card">
                             <h3 class="card-title">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -220,7 +223,7 @@
                                 Chương trong video
                             </h3>
                             <div class="chapters-list">
-                                @foreach ($video->chapters as $index => $chapter)
+                                @foreach ($chapters as $index => $chapter)
                                     <button class="chapter-item {{ $index === 0 ? 'active' : '' }}" data-time="{{ $chapter['time'] ?? 0 }}">
                                         <span class="chapter-time">{{ $chapter['start_time'] ?? '00:00' }}</span>
                                         <span class="chapter-title">{{ $chapter['title'] ?? '' }}</span>
@@ -440,7 +443,7 @@
                         <h3 class="sidebar-card-title">Video liên quan</h3>
                         <div class="related-videos-list">
                             @forelse ($relatedVideos as $relatedVideo)
-                                <a href="{{ route('course.detail', $relatedVideo->id) }}" class="related-video-item">
+                                <a href="{{ route('course.detail', $relatedVideo->slug ?? $relatedVideo->id) }}" class="related-video-item">
                                     <div class="related-thumbnail">
                                         <img src="{{ $relatedVideo->image ? asset('storage/' . $relatedVideo->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 160 90%27%3E%3Cdefs%3E%3ClinearGradient id=%27rv1%27 x1=%270%25%27 y1=%270%25%27 x2=%27100%25%27 y2=%27100%25%27%3E%3Cstop offset=%270%25%27 style=%27stop-color:%23FF8E53;stop-opacity:1%27 /%3E%3Cstop offset=%27100%25%27 style=%27stop-color:%23FE6B8B;stop-opacity:1%27 /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill=%27url(%23rv1)%27 width=%27160%27 height=%2790%27/%3E%3Cpolygon points=%2770,45 90,32 90,58%27 fill=%27rgba(255,255,255,0.9)%27/%3E%3C/svg%3E' }}" alt="{{ $relatedVideo->name }}">
                                         <span class="duration">{{ $relatedVideo->duration ?? '0:00' }}</span>
