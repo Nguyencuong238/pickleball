@@ -19,9 +19,6 @@ class Stadium extends Model implements HasMedia
         return 'slug';
     }
 
-    protected $defaultOpeningTime = '00:00';
-    protected $defaultClosingTime = '24:00';
-
     protected $casts = [
         'amenities' => 'array',
         'utilities' => 'array',
@@ -33,8 +30,6 @@ class Stadium extends Model implements HasMedia
         'is_featured' => 'boolean',
         'is_premium' => 'boolean',
     ];
-
-    protected $appends = ['opening_time', 'closing_time'];
 
     public function registerMediaCollections(): void
     {
@@ -100,29 +95,5 @@ class Stadium extends Model implements HasMedia
         }
     }
 
-    /**
-     * Get opening time from opening_hours (format: "00:00 - 24:00")
-     */
-    public function getOpeningTimeAttribute()
-    {
-        if (!$this->opening_hours) {
-            return $this->defaultOpeningTime;
-        }
-        
-        preg_match('/(\d{1,2}):(\d{2})/', $this->opening_hours, $matches);
-        return $matches[0] ?? $this->defaultOpeningTime;
-    }
 
-    /**
-     * Get closing time from opening_hours (format: "00:00 - 24:00")
-     */
-    public function getClosingTimeAttribute()
-    {
-        if (!$this->opening_hours) {
-            return $this->defaultClosingTime;
-        }
-        
-        preg_match('/(\d{1,2}):(\d{2})\s*$/', substr($this->opening_hours, strpos($this->opening_hours, '-') + 1), $matches);
-        return $matches[0] < $this->defaultOpeningTime ? $matches[0] : $this->defaultClosingTime;
-    }
 }

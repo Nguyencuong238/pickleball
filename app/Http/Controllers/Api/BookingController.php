@@ -20,23 +20,63 @@ class BookingController extends Controller
         $query = Booking::where('user_id', Auth::id());
 
         // Filter by status
-        if ($request->has('status')) {
+        if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
         // Filter by court
-        if ($request->has('court_id')) {
+        if ($request->filled('court_id')) {
             $query->where('court_id', $request->court_id);
         }
 
         // Filter by date
-        if ($request->has('date')) {
+        if ($request->filled('date')) {
             $query->whereDate('booking_date', $request->date);
         }
 
         // Pagination
         $per_page = $request->get('per_page', 10);
         $bookings = $query->with('court')->orderBy('booking_date', 'desc')->paginate($per_page);
+
+        return response()->json([
+            'success' => true,
+            'data' => $bookings->items(),
+            'pagination' => [
+                'total' => $bookings->total(),
+                'per_page' => $bookings->perPage(),
+                'current_page' => $bookings->currentPage(),
+                'last_page' => $bookings->lastPage(),
+            ]
+        ]);
+    }
+
+    /**
+     * Get booking history for authenticated user with date filters
+     */
+    public function history(Request $request)
+    {
+        $request->validate([
+            'start_date' => 'nullable|date_format:Y-m-d',
+            'end_date' => 'nullable|date_format:Y-m-d',
+            'status' => 'nullable|string',
+            'per_page' => 'nullable|integer|min:1|max:100',
+        ]);
+
+        $query = Booking::where('user_id', Auth::id());
+
+        // Filter by start_date
+        if ($request->filled('start_date') && $request->start_date) {
+            $query->where('booking_date', '>=', $request->start_date);
+        }
+
+        // Filter by end_date
+        if ($request->filled('end_date') && $request->end_date) {
+            $query->where('booking_date', '<=', $request->end_date);
+        }
+
+        // Pagination
+        $per_page = $request->get('per_page', 15);
+        $bookings = $query->with('court', 'court.stadium:id,name,slug')->latest()->paginate($per_page);
 
         return response()->json([
             'success' => true,
@@ -171,7 +211,7 @@ class BookingController extends Controller
         ]);
 
         // Recalculate if times changed
-        if ($request->has('start_time') && $request->has('end_time')) {
+        if ($request->filled('start_time') && $request->filled('end_time')) {
             $startTime = \Carbon\Carbon::createFromFormat('H:i', $request->start_time);
             $endTime = \Carbon\Carbon::createFromFormat('H:i', $request->end_time);
             $duration = $endTime->diffInMinutes($startTime) / 60;

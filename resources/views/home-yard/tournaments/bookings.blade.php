@@ -576,7 +576,16 @@
             <!-- Tabs -->
             <div class="card fade-in">
                 <div class="card-header" style="flex-wrap: wrap; gap: 1rem">
+                    <div style="display: flex; gap: 1rem; align-items:center;">
                     <h3 class="card-title" style="white-space: nowrap">Quản Lý Đặt Sân</h3>
+                    <select id="stadiumSelect" class="form-select" onchange="changeStadium(this.value)" style="flex: 1;">
+                        @foreach($stadiums as $stadium)
+                            <option value="{{ $stadium->id }}" {{ $currentStadium->id == $stadium->id ? 'selected' : '' }}>
+                                {{ $stadium->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    </div>
                     <div class="card-actions">
                         <button class="btn btn-secondary btn-sm">📥 Xuất Excel</button>
                         <button class="btn btn-primary btn-sm" onclick="openNewBookingModal()">
@@ -611,24 +620,13 @@
                             <div class="time-slots-container">
                                 <div class="time-labels">
                                     <div class="time-label" style="height: 40px;"></div>
-                                    <div class="time-label">06:00</div>
-                                    <div class="time-label">07:00</div>
-                                    <div class="time-label">08:00</div>
-                                    <div class="time-label">09:00</div>
-                                    <div class="time-label">10:00</div>
-                                    <div class="time-label">11:00</div>
-                                    <div class="time-label">12:00</div>
-                                    <div class="time-label">13:00</div>
-                                    <div class="time-label">14:00</div>
-                                    <div class="time-label">15:00</div>
-                                    <div class="time-label">16:00</div>
-                                    <div class="time-label">17:00</div>
-                                    <div class="time-label">18:00</div>
-                                    <div class="time-label">19:00</div>
-                                    <div class="time-label">20:00</div>
-                                    <div class="time-label">21:00</div>
-                                    <div class="time-label">22:00</div>
-                                    <div class="time-label">23:00</div>
+                                    @php
+                                        $openingHour = (int) explode(':', $currentStadium->opening_time ?? '00:00')[0];
+                                        $closingHour = (int) explode(':', $currentStadium->closing_time ?? '24:00')[0];
+                                    @endphp
+                                    @for ($hour = $openingHour; $hour < $closingHour; $hour++)
+                                        <div class="time-label">{{ sprintf('%02d:00', $hour) }}</div>
+                                    @endfor
                                 </div>
 
                                 <div class="courts-grid">
@@ -738,7 +736,7 @@
                 </div>
                 <div class="form-group">
                     <label class="form-label">Chọn sân *</label>
-                    <select class="form-select" name="court_id" required onchange="updateCourtRate()">
+                    <select class="form-select" name="court_id" required onchange="updateStartTimeOptions(); updateCourtRate();">
                         <option value="">Chọn sân</option>
                         @forelse($courts as $court)
                             <option value="{{ $court->id }}">{{ $court->court_name }} - {{ ucfirst(str_replace('-', ' ', $court->court_type)) }} {{ ucfirst(str_replace('-', ' ', $court->surface_type)) }}</option>
@@ -755,24 +753,6 @@
                     <label class="form-label">Giờ bắt đầu *</label>
                     <select class="form-select" name="start_time" required onchange="updateCourtRate()">
                         <option value="">Chọn giờ</option>
-                        <option value="06:00">06:00</option>
-                        <option value="07:00">07:00</option>
-                        <option value="08:00">08:00</option>
-                        <option value="09:00">09:00</option>
-                        <option value="10:00">10:00</option>
-                        <option value="11:00">11:00</option>
-                        <option value="12:00">12:00</option>
-                        <option value="13:00">13:00</option>
-                        <option value="14:00">14:00</option>
-                        <option value="15:00">15:00</option>
-                        <option value="16:00">16:00</option>
-                        <option value="17:00">17:00</option>
-                        <option value="18:00">18:00</option>
-                        <option value="19:00">19:00</option>
-                        <option value="20:00">20:00</option>
-                        <option value="21:00">21:00</option>
-                        <option value="22:00">22:00</option>
-                        <option value="23:00">23:00</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -927,9 +907,18 @@
     </div>
 @endsection
 @section('js')
-    <script>
-        // Tab switching
-        function switchTabBooking(tabName) {
+     <script>
+         // Change stadium and reload page
+         function changeStadium(stadiumId) {
+             if (stadiumId === '') {
+                 window.location.href = '{{ route('homeyard.bookings') }}';
+             } else {
+                 window.location.href = '{{ route('homeyard.bookings', '') }}' + '/' + stadiumId;
+             }
+         }
+
+         // Tab switching
+         function switchTabBooking(tabName) {
             document.querySelectorAll('.tab-content-booking').forEach(content => {
                 content.classList.remove('active');
             });
@@ -951,6 +940,11 @@
         let courtsData = {};
         let bookingsData = [];
         let currentSelectedDate = '{{$date}}';
+        const openingTime = "{{$currentStadium->opening_time ?? '00:00'}}";
+        const closingTime = "{{$currentStadium->closing_time ?? '24:00'}}";
+        
+        const openingHour = parseInt(openingTime?.split(':')[0] || '0');
+        const closingHour = parseInt(closingTime?.split(':')[0] || '24');
 
         function initCourtsData() {
              const form = document.getElementById('bookingForm');
@@ -959,22 +953,51 @@
                  try {
                      const courts = JSON.parse(courstsJson);
                      courts.forEach(court => {
-                         // Default pricing: 150k per hour (can be customized based on court type)
                          courtsData[court.id] = {
                              id: court.id,
                              name: court.court_name,
-                             hourly_rate: court.rental_price  // Default rate
+                             hourly_rate: court.rental_price,  // Default rate
+                             opening_time: court.stadium?.opening_time || '00:00',
+                             closing_time: court.stadium?.closing_time || '24:00'
                          };
                      });
                      // Initialize date picker with current selected date
                      updateCalendarDatePicker(currentSelectedDate);
                      // Load calendar for today
                      loadCalendarData(currentSelectedDate);
-                 } catch (e) {
+                     } catch (e) {
                      
-                 }
+                     }
              }
-         }
+        }
+
+        // Generate time options for a court based on opening and closing time
+        function generateTimeOptions(courtId) {
+            const court = courtsData[courtId];
+            
+            if (!court) return '';
+            
+            let options = '<option value="">Chọn giờ</option>';
+            
+            for (let hour = openingHour; hour < closingHour; hour++) {
+                const timeStr = String(hour).padStart(2, '0') + ':00';
+                options += `<option value="${timeStr}">${timeStr}</option>`;
+            }
+            
+            return options;
+        }
+
+        // Update start time options when court is selected
+        function updateStartTimeOptions() {
+            const courtId = document.querySelector('select[name="court_id"]').value;
+            const startTimeSelect = document.querySelector('select[name="start_time"]');
+            
+            if (!courtId || !startTimeSelect) {
+                return;
+            }
+            
+            startTimeSelect.innerHTML = generateTimeOptions(courtId);
+        }
 
         // Format date with day name
         function formatDateDisplay(dateStr) {
@@ -1043,7 +1066,7 @@
                 `;
 
                 // Generate time slots from 6:00 to 21:00
-                for (let hour = 6; hour < 24; hour++) {
+                for (let hour = openingHour; hour < closingHour; hour++) {
                     const timeStr = String(hour).padStart(2, '0') + ':00';
                     const isBooked = isTimeSlotBooked(court.id, timeStr);
                     const slotClass = isBooked ? 'booked' : 'available';
@@ -1081,6 +1104,7 @@
             
             // Then pre-fill court and start time
             form.querySelector('select[name="court_id"]').value = court;
+            updateStartTimeOptions();
             form.querySelector('select[name="start_time"]').value = time;
             form.querySelector('input[name="booking_date"]').value = date;
             
@@ -1273,6 +1297,8 @@
             calculateTotal();
             
             document.getElementById('newBookingModal').classList.add('active');
+
+            updateStartTimeOptions();
         }
 
         // Open modal without resetting form (used when pre-filling from calendar)
@@ -1524,7 +1550,7 @@
 
         // Load and update booking statistics
         function loadBookingStats() {
-            fetch(`/homeyard/bookings/stats`, {
+            fetch(`/homeyard/bookings/stats/{{$currentStadium->id}}`, {
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
                     'Accept': 'application/json',
@@ -1651,7 +1677,7 @@
                 page: page
             });
 
-            fetch(`/homeyard/bookings/search?${params}`, {
+            fetch(`/homeyard/bookings/search/{{$currentStadium->id}}?${params}`, {
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
                     'Accept': 'application/json',

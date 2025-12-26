@@ -103,7 +103,7 @@ Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('adm
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/booking/{stadium:id}', [HomeController::class, 'booking'])->name('booking');
+Route::get('/booking/{stadium}', [HomeController::class, 'booking'])->name('booking');
 Route::get('/courts', [HomeController::class, 'courts'])->name('courts');
 Route::get('/tournaments', [HomeController::class, 'tournaments'])->name('tournaments');
 Route::get('/social', [HomeController::class, 'social'])->name('social');
@@ -241,13 +241,13 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::put('courts/{court}', [HomeYardTournamentController::class, 'updateCourt'])->name('courts.update');
     Route::get('courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('courts.available-slots');
     Route::post('courts/bulk-delete', [HomeYardTournamentController::class, 'deleteCourts'])->name('courts.bulk-delete');
-    Route::get('bookings', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
+    Route::get('bookings/{stadiumId?}', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
     Route::post('bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('bookings.store');
     Route::post('bookings/calculate-price', [HomeYardTournamentController::class, 'calculateBookingPrice'])->name('bookings.calculate-price');
     Route::get('bookings/by-date', [HomeYardTournamentController::class, 'getBookingsByDate'])->name('bookings.by-date');
-    Route::get('bookings/stats', [HomeYardTournamentController::class, 'getBookingStats'])->name('bookings.stats');
+    Route::get('bookings/stats/{stadiumId}', [HomeYardTournamentController::class, 'getBookingStats'])->name('bookings.stats');
     Route::get('bookings/all', [HomeYardTournamentController::class, 'getAllBookings'])->name('bookings.all');
-    Route::get('bookings/search', [HomeYardTournamentController::class, 'searchBookings'])->name('bookings.search');
+    Route::get('bookings/search/{stadiumId}', [HomeYardTournamentController::class, 'searchBookings'])->name('bookings.search');
     Route::get('bookings/{bookingId}', [HomeYardTournamentController::class, 'getBookingDetails'])->name('bookings.show');
     Route::put('bookings/{bookingId}/cancel', [HomeYardTournamentController::class, 'cancelBooking'])->name('bookings.cancel');
     Route::delete('bookings/{bookingId}', [HomeYardTournamentController::class, 'deleteBooking'])->name('bookings.delete');
