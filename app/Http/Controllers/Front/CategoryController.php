@@ -17,8 +17,16 @@ class CategoryController extends Controller
     /**
      * Store a newly created category in storage.
      */
-    public function store(Request $request, Tournament $tournament)
+    public function store(Request $request, $tournament_id)
     {
+        $tournament = Tournament::find($tournament_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
+        }
+
         \Log::info('CategoryController@store called', [
             'tournament_id' => $tournament->id,
             'user_id' => auth()->id(),
@@ -57,8 +65,23 @@ class CategoryController extends Controller
     /**
      * Update the specified category in storage.
      */
-    public function update(Request $request, Tournament $tournament, TournamentCategory $category)
+    public function update(Request $request, $tournament_id, $category_id)
     {
+        $tournament = Tournament::find($tournament_id);
+        $category = TournamentCategory::find($category_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
+        }
+        
+        if (!$category || $category->tournament_id !== $tournament->id) {
+            return redirect()
+                ->route('homeyard.tournaments.config', $tournament->id)
+                ->with('error', 'Nội dung thi đấu không tồn tại');
+        }
+
         \Log::info('CategoryController@update called', [
             'method' => $request->method(),
             'content_type' => $request->header('Content-Type'),
@@ -67,10 +90,6 @@ class CategoryController extends Controller
         ]);
 
         $this->authorize('update', $tournament);
-
-        if ($category->tournament_id !== $tournament->id) {
-            abort(403);
-        }
 
         try {
             $validated = $request->validate([
@@ -113,13 +132,24 @@ class CategoryController extends Controller
     /**
      * Remove the specified category from storage.
      */
-    public function destroy(Tournament $tournament, TournamentCategory $category)
+    public function destroy($tournament_id, $category_id)
     {
-        $this->authorize('update', $tournament);
-
-        if ($category->tournament_id !== $tournament->id) {
-            abort(403);
+        $tournament = Tournament::find($tournament_id);
+        $category = TournamentCategory::find($category_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
         }
+        
+        if (!$category || $category->tournament_id !== $tournament->id) {
+            return redirect()
+                ->route('homeyard.tournaments.config', $tournament->id)
+                ->with('error', 'Nội dung thi đấu không tồn tại');
+        }
+
+        $this->authorize('update', $tournament);
 
         $categoryName = $category->category_name;
         $category->delete();

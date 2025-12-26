@@ -330,7 +330,13 @@ class HomeYardTournamentController extends Controller
                 },
                 'referees'
             ])
-            ->firstOrFail();
+            ->first();
+
+        if (!$tournament) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
+        }
 
         // Get courts for all stadiums owned by this user
         $courts = Court::whereHas('stadium', function ($query) use ($user) {
@@ -348,8 +354,10 @@ class HomeYardTournamentController extends Controller
         return view('home-yard.config', compact('user', 'courts', 'tournament', 'athletes', 'categories', 'referees'));
     }
 
-    public function addAthlete(Request $request, Tournament $tournament)
+    public function addAthlete(Request $request, $tournament_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
+        
         \Log::info('addAthlete called', [
             'tournament_id' => $tournament->id,
             'all_inputs' => $request->all(),
@@ -483,8 +491,11 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function updateAthlete(Request $request, Tournament $tournament, TournamentAthlete $athlete)
+    public function updateAthlete(Request $request, $tournament_id, $athlete_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
+        $athlete = TournamentAthlete::findOrFail($athlete_id);
+        
         $this->authorize('update', $tournament);
 
         try {
@@ -589,8 +600,11 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function getAthlete(Tournament $tournament, TournamentAthlete $athlete)
+    public function getAthlete($tournament_id, $athlete_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
+        $athlete = TournamentAthlete::findOrFail($athlete_id);
+        
         $this->authorize('update', $tournament);
 
         try {
@@ -609,8 +623,11 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function removeAthlete(Tournament $tournament, TournamentAthlete $athlete)
+    public function removeAthlete($tournament_id, $athlete_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
+        $athlete = TournamentAthlete::findOrFail($athlete_id);
+        
         $this->authorize('update', $tournament);
         $athlete->delete();
 
@@ -624,8 +641,11 @@ class HomeYardTournamentController extends Controller
         return redirect()->back()->with('success', 'Athlete removed successfully.');
     }
 
-    public function updateAthleteStatus(Request $request, Tournament $tournament, TournamentAthlete $athlete)
+    public function updateAthleteStatus(Request $request, $tournament_id, $athlete_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
+        $athlete = TournamentAthlete::findOrFail($athlete_id);
+        
         $this->authorize('update', $tournament);
 
         $request->validate([
@@ -637,8 +657,11 @@ class HomeYardTournamentController extends Controller
         return redirect()->back()->with('success', 'Athlete status updated successfully.');
     }
 
-    public function approveAthlete(Tournament $tournament, TournamentAthlete $athlete)
+    public function approveAthlete($tournament_id, $athlete_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
+        $athlete = TournamentAthlete::findOrFail($athlete_id);
+        
         $this->authorize('update', $tournament);
 
         $athlete->update(['status' => 'approved']);
@@ -646,8 +669,11 @@ class HomeYardTournamentController extends Controller
         return redirect()->back()->with('success', "Vận động viên {$athlete->athlete_name} đã được duyệt.");
     }
 
-    public function rejectAthlete(Tournament $tournament, TournamentAthlete $athlete)
+    public function rejectAthlete($tournament_id, $athlete_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
+        $athlete = TournamentAthlete::findOrFail($athlete_id);
+        
         $this->authorize('update', $tournament);
 
         $athlete->update(['status' => 'rejected']);
@@ -1236,8 +1262,9 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function saveCourts(Request $request, Tournament $tournament)
+    public function saveCourts(Request $request, $tournament_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
         $this->authorize('update', $tournament);
 
         $request->validate([
@@ -1437,9 +1464,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Bốc thăm chia bảng cho một nội dung thi đấu
      */
-    public function drawAthletes(Request $request, Tournament $tournament)
+    public function drawAthletes(Request $request, $tournament_id)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             $categoryId = $request->input('category_id');
@@ -2348,8 +2376,9 @@ class HomeYardTournamentController extends Controller
     /**
      * Lấy kết quả bốc thăm
      */
-    public function getDrawResults(Request $request, Tournament $tournament)
+    public function getDrawResults(Request $request, $tournament_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
         $categoryId = $request->input('category_id');
 
         if (!$categoryId) {
@@ -2375,9 +2404,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Check xem có trận đấu ở status scheduled hoặc ready không
      */
-    public function checkScheduledMatches(Request $request, Tournament $tournament)
+    public function checkScheduledMatches(Request $request, $tournament_id)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             $categoryId = $request->input('category_id');
@@ -2417,9 +2447,10 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function resetDraw(Request $request, Tournament $tournament)
+    public function resetDraw(Request $request, $tournament_id)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             $categoryId = $request->input('category_id');
@@ -2464,9 +2495,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Lấy dữ liệu cho bốc thăm thủ công
      */
-    public function getManualDraw(Request $request, Tournament $tournament)
+    public function getManualDraw(Request $request, $tournament_id)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             $categoryId = $request->input('category_id');
@@ -2541,9 +2573,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Lưu kết quả bốc thăm thủ công
      */
-    public function saveManualDraw(Request $request, Tournament $tournament)
+    public function saveManualDraw(Request $request, $tournament_id)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             $categoryId = $request->input('category_id');
@@ -2606,9 +2639,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Xuất danh sách VĐV ra CSV
      */
-    public function exportAthletes(Tournament $tournament)
+    public function exportAthletes($tournament_id)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             // Kiểm tra quyền
             $this->authorize('view', $tournament);
 
@@ -3067,9 +3101,10 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function storeMatch(Request $request, Tournament $tournament)
+    public function storeMatch(Request $request, $tournament_id)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             $validated = $request->validate([
@@ -3232,9 +3267,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Get all matches for a tournament (for AJAX)
      */
-    public function getMatches(Tournament $tournament)
+    public function getMatches($tournament_id)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             $matches = MatchModel::where('tournament_id', $tournament->id)
@@ -3257,9 +3293,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Get match data (for AJAX)
      */
-    public function getMatch(Tournament $tournament, $match)
+    public function getMatch($tournament_id, $match)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             // Resolve match by ID with referee relationship
@@ -3289,9 +3326,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Update a match (scores, status, and calculate winner)
      */
-    public function updateMatch(Request $request, Tournament $tournament, $match)
+    public function updateMatch(Request $request, $tournament_id, $match)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             // Resolve match by ID
@@ -4053,9 +4091,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Delete a match
      */
-    public function destroyMatch(Tournament $tournament, $match)
+    public function destroyMatch($tournament_id, $match)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             // Resolve match by ID
@@ -4098,9 +4137,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Get athletes of a specific category
      */
-    public function getCategoryAthletes(Tournament $tournament, $categoryId)
+    public function getCategoryAthletes($tournament_id, $categoryId)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             // Get category to check type
@@ -4176,9 +4216,10 @@ class HomeYardTournamentController extends Controller
     /**
      * Get groups for a specific category
      */
-    public function getCategoryGroups(Tournament $tournament, $categoryId)
+    public function getCategoryGroups($tournament_id, $categoryId)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('update', $tournament);
 
             // Get groups for this category
@@ -4204,9 +4245,10 @@ class HomeYardTournamentController extends Controller
      * Get rankings/leaderboard data
      * Sorts by: Points (desc) > Wins (desc) > Games Differential (desc)
      */
-    public function getRankings(Tournament $tournament, Request $request)
+    public function getRankings($tournament_id, Request $request)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('view', $tournament);
 
             $categoryId = $request->query('category_id');
@@ -4341,9 +4383,10 @@ class HomeYardTournamentController extends Controller
         }
     }
 
-    public function exportRankingsExcel(Tournament $tournament, Request $request)
+    public function exportRankingsExcel($tournament_id, Request $request)
     {
         try {
+            $tournament = Tournament::findOrFail($tournament_id);
             $this->authorize('view', $tournament);
 
             $categoryId = $request->query('category_id');
@@ -4944,8 +4987,9 @@ class HomeYardTournamentController extends Controller
     /**
      * Add referee to tournament (AJAX)
      */
-    public function addReferee(Request $request, Tournament $tournament)
+    public function addReferee(Request $request, $tournament_id)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
         $this->authorize('update', $tournament);
 
         $request->validate([
@@ -4984,8 +5028,11 @@ class HomeYardTournamentController extends Controller
     /**
      * Remove referee from tournament (AJAX)
      */
-    public function removeReferee(Request $request, Tournament $tournament, User $referee)
+    public function removeReferee(Request $request, $tournament_id, $referee)
     {
+        $tournament = Tournament::findOrFail($tournament_id);
+        $referee = User::findOrFail($referee);
+        
         $this->authorize('update', $tournament);
 
         try {

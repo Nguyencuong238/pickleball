@@ -18,8 +18,16 @@ class GroupController extends Controller
     /**
      * Store a newly created group in storage.
      */
-    public function store(Request $request, Tournament $tournament)
+    public function store(Request $request, $tournament_id)
     {
+        $tournament = Tournament::find($tournament_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
+        }
+
         $this->authorize('update', $tournament);
 
         $validated = $request->validate([
@@ -58,8 +66,23 @@ class GroupController extends Controller
     /**
      * Update the specified group in storage.
      */
-    public function update(Request $request, Tournament $tournament, Group $group)
+    public function update(Request $request, $tournament_id, $group_id)
     {
+        $tournament = Tournament::find($tournament_id);
+        $group = Group::find($group_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
+        }
+        
+        if (!$group || $group->tournament_id !== $tournament->id) {
+            return redirect()
+                ->route('homeyard.tournaments.config', $tournament->id)
+                ->with('error', 'Bảng đấu không tồn tại');
+        }
+
         \Log::info('GroupController@update called', [
             'method' => $request->method(),
             'content_type' => $request->header('Content-Type'),
@@ -68,10 +91,6 @@ class GroupController extends Controller
         ]);
 
         $this->authorize('update', $tournament);
-
-        if ($group->tournament_id !== $tournament->id) {
-            abort(403);
-        }
 
         try {
             $validated = $request->validate([
@@ -131,13 +150,24 @@ class GroupController extends Controller
     /**
      * Remove the specified group from storage.
      */
-    public function destroy(Tournament $tournament, Group $group)
+    public function destroy($tournament_id, $group_id)
     {
-        $this->authorize('update', $tournament);
-
-        if ($group->tournament_id !== $tournament->id) {
-            abort(403);
+        $tournament = Tournament::find($tournament_id);
+        $group = Group::find($group_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
         }
+        
+        if (!$group || $group->tournament_id !== $tournament->id) {
+            return redirect()
+                ->route('homeyard.tournaments.config', $tournament->id)
+                ->with('error', 'Bảng đấu không tồn tại');
+        }
+
+        $this->authorize('update', $tournament);
 
         $groupName = $group->group_name;
         $group->delete();

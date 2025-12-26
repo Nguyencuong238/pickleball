@@ -18,8 +18,16 @@ class RoundController extends Controller
     /**
      * Store a newly created round in storage.
      */
-    public function store(Request $request, Tournament $tournament)
+    public function store(Request $request, $tournament_id)
     {
+        $tournament = Tournament::find($tournament_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
+        }
+
         $this->authorize('update', $tournament);
 
         $validated = $request->validate([
@@ -54,8 +62,23 @@ class RoundController extends Controller
     /**
      * Update the specified round in storage.
      */
-    public function update(Request $request, Tournament $tournament, Round $round)
+    public function update(Request $request, $tournament_id, $round_id)
     {
+        $tournament = Tournament::find($tournament_id);
+        $round = Round::find($round_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
+        }
+        
+        if (!$round || $round->tournament_id !== $tournament->id) {
+            return redirect()
+                ->route('homeyard.tournaments.config', $tournament->id)
+                ->with('error', 'Vòng đấu không tồn tại');
+        }
+
         \Log::info('RoundController@update called', [
             'method' => $request->method(),
             'content_type' => $request->header('Content-Type'),
@@ -64,10 +87,6 @@ class RoundController extends Controller
         ]);
 
         $this->authorize('update', $tournament);
-
-        if ($round->tournament_id !== $tournament->id) {
-            abort(403);
-        }
 
         try {
             $validated = $request->validate([
@@ -111,13 +130,24 @@ class RoundController extends Controller
     /**
      * Remove the specified round from storage.
      */
-    public function destroy(Tournament $tournament, Round $round)
+    public function destroy($tournament_id, $round_id)
     {
-        $this->authorize('update', $tournament);
-
-        if ($round->tournament_id !== $tournament->id) {
-            abort(403);
+        $tournament = Tournament::find($tournament_id);
+        $round = Round::find($round_id);
+        
+        if (!$tournament || $tournament->user_id !== auth()->id()) {
+            return redirect()
+                ->route('homeyard.tournaments.index')
+                ->with('error', 'Giải đấu không tồn tại hoặc bạn không có quyền truy cập');
         }
+        
+        if (!$round || $round->tournament_id !== $tournament->id) {
+            return redirect()
+                ->route('homeyard.tournaments.config', $tournament->id)
+                ->with('error', 'Vòng đấu không tồn tại');
+        }
+
+        $this->authorize('update', $tournament);
 
         $roundName = $round->round_name;
         $round->delete();
