@@ -178,16 +178,27 @@
             padding-right: 1rem;
             padding-left: 1rem;
         }
-        .nav-menu .nav-link::after {
-            background: none;
-            left: inherit;
-            top: 11px;
+        .nav-item.dropdown > .dropdown-toggle::after {
+            display: none !important;
         }
         .login-register-btn {
             box-shadow: none !important;
             display: flex;
             gap: 10px;
             padding: 10px 1rem !important;
+        }
+        .arrow-btn {
+            position: absolute;
+            right: 1rem;
+            top: 10px;
+            color: var(--text-secondary);
+        }
+        .dropdown-menu li {
+            padding: 0;
+        }
+        .dropdown-menu li:last-child {
+            border: 0;
+            box-shadow: none;
         }
     }
 
@@ -287,10 +298,11 @@
                 </a>
             </div>
             
-            <ul class="nav-menu">
+            <ul class="nav-menu" id="nav-menu">
                 <li><a href="/" class="nav-link @if(request()->routeIs('home')) active @endif">Trang chủ</a></li>
                 <li class="nav-item dropdown">
                     <a href="{{ route('courts') }}" class="nav-link dropdown-toggle @if(request()->routeIs('courts') || request()->routeIs('social')) active @endif">Sân thi đấu</a>
+                    <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('courts') }}" class="dropdown-item">Danh sách sân</a></li>
                         <li><a href="{{ route('social') }}" class="dropdown-item">Lịch thi đấu Social</a></li>
@@ -300,6 +312,7 @@
                 <li><a href="{{ route('ocr.matches.list') }}" class="nav-link @if(request()->routeIs('ocr.matches.list')) active @endif">Trận đấu</a></li>
                 <li class="nav-item dropdown">
                     <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*') && !request()->routeIs('ocr.matches.list') && !request()->routeIs('ocr.ocr-matches')) active @endif">Bảng xếp hạng</a>
+                    <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('ocr.index') }}" class="dropdown-item">Tổng quan OPS</a></li>
                         <li><a href="{{ route('ocr.leaderboard') }}" class="dropdown-item">Bảng xếp hạng OPS</a></li>
@@ -312,7 +325,8 @@
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*') || request()->routeIs('ocr.community.index') || request()->routeIs('clubs.*')) active @endif">Cộng đồng</a>
+                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*') || request()->routeIs('ocr.community.index')) active @endif">Cộng đồng</a>
+                    <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
@@ -528,8 +542,9 @@
             "hideMethod": "fadeOut"
         };
 
-        // Close user dropdown when clicking outside
+        // Close dropdowns when clicking outside
         document.addEventListener('click', function(event) {
+            // Close user dropdown
             const userDropdownContainer = document.querySelector('.user-dropdown-container');
             if (userDropdownContainer && userDropdownContainer.classList.contains('active')) {
                 if (!userDropdownContainer.contains(event.target)) {
@@ -537,10 +552,12 @@
                 }
             }
 
-            // Trigger click on mobile-menu-toggle when clicking outside
+            // Close mobile menu
             const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-            if (mobileMenuToggle && mobileMenuToggle.classList.contains('active')) {
-                if (event.target !== mobileMenuToggle && !mobileMenuToggle.contains(event.target)) {
+            const navMenu = document.getElementById('nav-menu');
+            
+            if (mobileMenuToggle && navMenu && mobileMenuToggle.classList.contains('active')) {
+                if (!mobileMenuToggle.contains(event.target) && !navMenu.contains(event.target)) {
                     mobileMenuToggle.click();
                 }
             }

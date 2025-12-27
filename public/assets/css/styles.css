@@ -1254,13 +1254,13 @@ ul {
         position: fixed;
         top: 75px;
         right: 0;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 249, 250, 0.99));
+        background: #e5ffff;
         flex-direction: column;
         gap: 0;
         padding: 0;
         max-height: 0;
         overflow-y: auto;
-        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.4s ease;
         box-shadow: 0 10px 40px rgba(0, 217, 181, 0.1);
         border-bottom: 1px solid rgba(0, 217, 181, 0.1);
         width: 100%;
@@ -1271,22 +1271,17 @@ ul {
     .nav-menu.active {
         max-height: calc(100vh - 80px);
         overflow-y: auto;
-        gap: 10px;
         padding: 1rem 0;
     }
 
     .nav-menu li {
         padding: 0;
-        border-bottom: 1px solid rgba(0, 217, 181, 0.08);
-    }
-
-    .nav-menu li:last-child {
-        border-bottom: none;
+        border-bottom: 1px solid rgba(0, 217, 181, 0.25);
     }
 
     .nav-menu .nav-link {
-        display: block;
-        padding: 0.5rem;
+        display: inline-block;
+        padding: 0.8rem 0.5rem;
         color: var(--text-secondary);
         font-weight: 500;
         font-size: 0.95rem;
@@ -1329,7 +1324,7 @@ ul {
         position: static;
         background-color: rgba(0, 217, 181, 0.05);
         box-shadow: none;
-        padding: 0.5rem 0 0.5rem 2rem;
+        padding: 0.5rem 0;
         margin-top: 0;
         border-radius: 0;
         display: none;
@@ -1339,10 +1334,6 @@ ul {
         display: block;
     }
 
-    .nav-item.dropdown .dropdown-menu .dropdown-item {
-        padding: 0.5rem 1rem;
-        font-size: 0.875rem;
-    }
     .mobile-only {
         display: block;
     }

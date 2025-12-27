@@ -208,9 +208,11 @@
             const bookingDate = document.getElementById('bookingDate');
             const slotsGrid = document.getElementById('slotsGrid');
             const selectedSlot = document.getElementById('selectedSlot');
+            const durationSelect = document.getElementById('durationHours');
             const hourlyRate = document.getElementById('hourlyRate');
             const bookingForm = document.getElementById('bookingForm');
             let timeSlots = [];
+            let closingHour = 22; // Default closing hour
 
             // Load available time slots from API
             async function loadAvailableSlots() {
@@ -232,6 +234,10 @@
 
                     if (result.success && result.available_slots) {
                         timeSlots = result.available_slots;
+                        // Extract closing hour from the last slot
+                        if (timeSlots.length > 0) {
+                            closingHour = timeSlots[timeSlots.length - 1].end_hour;
+                        }
                         generateTimeSlots();
                     } else {
                         slotsGrid.innerHTML =
@@ -277,11 +283,39 @@
                 });
             }
 
+            function updateDurationOptions(startHour) {
+                // Calculate maximum duration based on closing hour
+                const maxDuration = closingHour - startHour;
+                
+                // Hide/show duration options
+                const options = durationSelect.querySelectorAll('option');
+                options.forEach(option => {
+                    const duration = parseInt(option.value);
+                    if (duration > 0 && duration > maxDuration) {
+                        option.hidden = true;
+                    } else if (duration > 0) {
+                        option.hidden = false;
+                    }
+                });
+                
+                // Reset duration to first available option if current is hidden
+                if (durationSelect.selectedIndex > 0 && durationSelect.options[durationSelect.selectedIndex].hidden) {
+                    durationSelect.value = '';
+                    for (let i = 1; i < options.length; i++) {
+                        if (!options[i].hidden) {
+                            durationSelect.value = options[i].value;
+                            break;
+                        }
+                    }
+                }
+            }
+
             function selectSlot(slot, buttonElement) {
                 document.querySelectorAll('.slot-btn:not(.disabled)').forEach(btn => btn.classList.remove(
                 'active'));
                 buttonElement.classList.add('active');
                 selectedSlot.value = slot.time;
+                updateDurationOptions(slot.hour);
                 updateSummary();
             }
 

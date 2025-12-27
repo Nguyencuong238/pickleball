@@ -445,7 +445,6 @@ class BookingController extends Controller
             $timeSlots = [];
             for ($hour = $startHour; $hour < $endHour; $hour++) {
                 $slotTime = sprintf('%02d:00', $hour);
-                $slotDateTime = \DateTime::createFromFormat('H:i', $slotTime);
 
                 // Get pricing for this hour
                 $pricing = CourtPricing::where('court_id', $court->id)
@@ -458,9 +457,9 @@ class BookingController extends Controller
                         $query->whereNull('valid_to')
                               ->orWhere('valid_to', '>=', $bookingDate);
                     })
-                    ->where(function ($query) use ($slotDateTime) {
-                        $query->whereRaw('TIME(start_time) <= ?', [$slotDateTime->format('H:i:s')])
-                              ->whereRaw('TIME(end_time) > ?', [$slotDateTime->format('H:i:s')]);
+                    ->where(function ($query) use ($slotTime) {
+                        $query->whereRaw('start_time <= ?', [$slotTime])
+                              ->whereRaw('end_time > ?', [$slotTime]);
                     })
                     ->where(function ($query) use ($dayOfWeek) {
                         $query->whereNull('days_of_week')
@@ -479,13 +478,12 @@ class BookingController extends Controller
                 $nextSlotTime = sprintf('%02d:00', $nextHour);
                 
                 foreach ($bookedSlots as $booked) {
-                    $bookedStart = \DateTime::createFromFormat('H:i:s', $booked['start_time']);
-                    $bookedEnd = \DateTime::createFromFormat('H:i:s', $booked['end_time']);
-                    $currentSlotStart = $slotDateTime;
-                    $currentSlotEnd = \DateTime::createFromFormat('H:i', $nextSlotTime);
+                    $bookedStart = $booked['start_time'];
+                    $bookedEnd = $booked['end_time'];
+                    $currentSlotEnd = $nextSlotTime;
                     
                     // Check if there's any overlap
-                    if ($currentSlotStart < $bookedEnd && $currentSlotEnd > $bookedStart && $booked['status'] != 'cancelled') {
+                    if ($slotTime < $bookedEnd && $currentSlotEnd > $bookedStart && $booked['status'] != 'cancelled') {
                         if($booked['status'] == 'pending') {
                             $isPending = true;
                         } else {
