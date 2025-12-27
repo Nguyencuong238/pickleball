@@ -49,6 +49,7 @@ class DatabaseSeeder extends Seeder
             NewsSeeder::class,
             InstructorSeeder::class,
             VideoSeeder::class,
+            ClubSeeder::class,
         ]);
 
         // ============================================

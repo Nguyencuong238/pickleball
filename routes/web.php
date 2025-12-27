@@ -183,8 +183,15 @@ Route::middleware('auth')->group(function () {
 });
 
 // Club & Group Routes
+Route::get('clubs', [ClubController::class, 'index'])->name('clubs.index');
+Route::get('clubs/{club}', [ClubController::class, 'show'])->name('clubs.show');
+
 Route::middleware('auth')->group(function () {
-    Route::resource('clubs', ClubController::class);
+    Route::get('clubs/create', [ClubController::class, 'create'])->name('clubs.create');
+    Route::post('clubs', [ClubController::class, 'store'])->name('clubs.store');
+    Route::get('clubs/{club}/edit', [ClubController::class, 'edit'])->name('clubs.edit');
+    Route::put('clubs/{club}', [ClubController::class, 'update'])->name('clubs.update');
+    Route::delete('clubs/{club}', [ClubController::class, 'destroy'])->name('clubs.destroy');
     
     // Club Activities Routes
     Route::prefix('clubs/{club}/activities')->name('clubs.activities.')->group(function () {

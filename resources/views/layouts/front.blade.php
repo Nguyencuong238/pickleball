@@ -312,11 +312,12 @@
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*') || request()->routeIs('ocr.community.index')) active @endif">Cộng đồng</a>
+                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*') || request()->routeIs('ocr.community.index') || request()->routeIs('clubs.*')) active @endif">Cộng đồng</a>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
                         <li><a href="{{ route('academy.referees.index') }}" class="dropdown-item">Trọng tài</a></li>
+                        <li><a href="{{ route('clubs.index') }}" class="dropdown-item">Nhóm & CLB</a></li>
                         @auth
                             <li><a href="{{ route('ocr.community.index') }}" class="dropdown-item">Community Hub</a></li>
                         @endauth

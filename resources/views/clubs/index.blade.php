@@ -188,13 +188,72 @@
             gap: 20px;
         }
     }
+
+    /* Pagination Styles */
+    .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+        margin-top: 40px;
+        padding: 20px;
+    }
+
+    .pagination li {
+        list-style: none;
+    }
+
+    .pagination a,
+    .pagination span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 40px;
+        height: 40px;
+        padding: 0 8px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        font-size: 0.9rem;
+        color: #6b7280;
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .pagination a:hover {
+        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        color: white;
+        border-color: #00D9B5;
+    }
+
+    .pagination .active span {
+        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        color: white;
+        border-color: #00D9B5;
+    }
+
+    .pagination .disabled span {
+        color: #d1d5db;
+        cursor: not-allowed;
+        background: #f9fafb;
+    }
+
+    .pagination li.active a {
+        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        color: white;
+        border-color: #00D9B5;
+    }
 </style>
 
 <div class="clubs-container">
     <div class="clubs-header">
         <h2>🏆 Câu Lạc Bộ & Nhóm Pickleball</h2>
         <p>Khám phá, tham gia hoặc tạo câu lạc bộ và nhóm của bạn</p>
-        <a href="{{ route('clubs.create') }}" class="btn-create">+ Tạo Câu Lạc Bộ/Nhóm</a>
+        @auth
+            <a href="{{ route('clubs.create') }}" class="btn-create">+ Tạo Câu Lạc Bộ/Nhóm</a>
+        @else
+            <button class="btn-create" onclick="alertLogin()" style="cursor: pointer; opacity: 0.7;">+ Tạo Câu Lạc Bộ/Nhóm</button>
+        @endauth
     </div>
 
     @if($clubs->count() > 0)
@@ -238,19 +297,34 @@
         </div>
 
         <!-- Pagination -->
-        <div style="text-align: center;">
-            {{ $clubs->links() }}
+        <div style="text-align: center; margin-top: 30px;">
+            {{ $clubs->links('vendor.pagination.custom-clubs') }}
         </div>
     @else
         <div class="empty-state">
             <i class="fas fa-inbox"></i>
             <h3>Chưa có câu lạc bộ/nhóm nào</h3>
             <p>Hãy tạo câu lạc bộ/nhóm đầu tiên của bạn hoặc chờ để tham gia!</p>
-            <a href="{{ route('clubs.create') }}" class="btn-view" style="display: inline-block; margin-top: 20px; padding: 12px 30px;">
-                + Tạo Câu Lạc Bộ/Nhóm
-            </a>
+            @auth
+                <a href="{{ route('clubs.create') }}" class="btn-view" style="display: inline-block; margin-top: 20px; padding: 12px 30px;">
+                    + Tạo Câu Lạc Bộ/Nhóm
+                </a>
+            @else
+                <button onclick="alertLogin()" class="btn-view" style="display: inline-block; margin-top: 20px; padding: 12px 30px; cursor: pointer;">
+                    + Tạo Câu Lạc Bộ/Nhóm
+                </button>
+            @endauth
         </div>
     @endif
 </div>
+
+<script>
+    function alertLogin() {
+        const result = confirm('Vui lòng đăng nhập để tạo câu lạc bộ/nhóm!\n\nClick OK để đăng nhập');
+        if (result) {
+            window.location.href = '{{ route("login") }}';
+        }
+    }
+</script>
 
 @endsection
