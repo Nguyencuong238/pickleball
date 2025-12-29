@@ -50,6 +50,7 @@ class DatabaseSeeder extends Seeder
             InstructorSeeder::class,
             VideoSeeder::class,
             ClubSeeder::class,
+            QuizSeeder::class,
         ]);
 
         // ============================================

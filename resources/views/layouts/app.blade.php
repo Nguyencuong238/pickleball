@@ -457,6 +457,10 @@
                 <i class="fas fa-clipboard-list"></i> Đăng Ký Học
             </a>
 
+            <a href="{{ route('admin.quizzes.index') }}" class="nav-link {{ request()->routeIs('admin.quizzes.*') ? 'active' : '' }}">
+                <i class="fas fa-question-circle"></i> Quiz
+            </a>
+
             <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
             
             <p style="padding: 0 20px; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">OCR</p>

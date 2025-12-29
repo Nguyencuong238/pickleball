@@ -324,7 +324,7 @@
                     </ul>
                 </li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*') || request()->routeIs('ocr.community.index')) active @endif">Cộng đồng</a>
+                    <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*') || request()->routeIs('ocr.community.index') || request()->routeIs('quiz.*')) active @endif">Cộng đồng</a>
                     <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
@@ -332,6 +332,7 @@
                         <li><a href="{{ route('academy.referees.index') }}" class="dropdown-item">Trọng tài</a></li>
                         <li><a href="{{ route('clubs.index') }}" class="dropdown-item">Nhóm & CLB</a></li>
                         @auth
+                            <li><a href="{{ route('quiz.index') }}" class="dropdown-item">Quiz Pickleball</a></li>
                             <li><a href="{{ route('ocr.community.index') }}" class="dropdown-item">Community Hub</a></li>
                         @endauth
                     </ul>

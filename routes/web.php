@@ -27,6 +27,7 @@ use App\Http\Controllers\Admin\InstructorRegistrationController;
 use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\OcrDisputeController;
 use App\Http\Controllers\Admin\OcrBadgeController;
+use App\Http\Controllers\Admin\QuizController;
 use App\Http\Controllers\Api\MediaUploadController;
 use App\Http\Controllers\Front\OcrController;
 use App\Http\Controllers\FavoriteController;
@@ -117,6 +118,14 @@ Route::get('/instructors', [HomeController::class, 'instructors'])->name('instru
 Route::get('/instructors/{instructor}', [HomeController::class, 'instructorDetail'])->name('instructors.detail');
 Route::get('/course', [HomeController::class, 'course'])->name('course');
 Route::get('/course/{slug}', [HomeController::class, 'courseDetail'])->name('course.detail');
+
+// Quiz Routes
+Route::prefix('quiz')->name('quiz.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Front\QuizController::class, 'index'])->name('index');
+    Route::get('/questions', [\App\Http\Controllers\Front\QuizController::class, 'getQuestions'])->name('questions');
+    Route::post('/submit', [\App\Http\Controllers\Front\QuizController::class, 'submitQuiz'])->name('submit');
+    Route::get('/{id}', [\App\Http\Controllers\Front\QuizController::class, 'show'])->name('show');
+});
 
 // Academy Public Routes
 Route::prefix('academy')->name('academy.')->group(function () {
@@ -428,6 +437,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('instructors', InstructorController::class);
     Route::resource('instructor-registrations', InstructorRegistrationController::class)->only(['index', 'destroy']);
     Route::resource('videos', VideoController::class);
+    Route::resource('quizzes', QuizController::class);
 
     // OCR Dispute Management
     Route::prefix('ocr')->name('ocr.')->group(function () {
