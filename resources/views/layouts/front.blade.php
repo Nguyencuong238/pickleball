@@ -31,7 +31,6 @@
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/booking.css') }}">
     <!-- Toastr CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -341,7 +340,7 @@
 
                 @guest
                     <li class="mobile-only login-register-btn">
-                        <a href="/login" class="btn btn-outline" >Đăng nhập</a>
+                        <a href="/login" class="btn btn-outline" style="border-color: #57e9dc;" >Đăng nhập</a>
                         <a href="/register" class="btn btn-primary" >Đăng ký</a>
                     </li>
                 @endguest
@@ -409,7 +408,7 @@
                     </div>
                 @else
                     <div class="nav-actions">
-                        <a href="/login" class="btn btn-outline" style="width: 120px">Đăng nhập</a>
+                        <a href="/login" class="btn btn-outline" style="border-color: #57e9dc;width: 120px;">Đăng nhập</a>
                         <a href="/register" class="btn btn-primary" style="width: 100px">Đăng ký</a>
                     </div>
                 @endauth
