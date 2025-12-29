@@ -184,7 +184,6 @@ Route::middleware('auth')->group(function () {
 
 // Club & Group Routes
 Route::get('clubs', [ClubController::class, 'index'])->name('clubs.index');
-Route::get('clubs/{club}', [ClubController::class, 'show'])->name('clubs.show');
 
 Route::middleware('auth')->group(function () {
     Route::get('clubs/create', [ClubController::class, 'create'])->name('clubs.create');
@@ -204,6 +203,8 @@ Route::middleware('auth')->group(function () {
         Route::get('{activity}', [ClubActivityController::class, 'show'])->name('show');
     });
 });
+
+Route::get('clubs/{club}', [ClubController::class, 'show'])->name('clubs.show');
 
 // Instructor favorite routes (without auth middleware - controller checks auth internally)
 Route::middleware('web')->group(function () {
