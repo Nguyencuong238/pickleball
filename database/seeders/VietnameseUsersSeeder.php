@@ -70,8 +70,8 @@ class VietnameseUsersSeeder extends Seeder
             $user = User::create([
                 'name' => $name,
                 'slug' => Str::slug($name) . '-' . uniqid(),
-                'email' => Str::slug($name, '.') . '@example.com',
-                'phone' => '09' . rand(10000000, 99999999),
+                'email' => Str::slug($name, '.') . '@gmail.com',
+                'phone' => '09' . str_pad(rand(0, 99999999), 8, '0', STR_PAD_LEFT),
                 'password' => Hash::make('password'),
                 'email_verified_at' => now(),
                 'status' => 'approved',
