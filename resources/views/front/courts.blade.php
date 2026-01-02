@@ -349,8 +349,8 @@
                                             @endif
                                             @if ($stadium->is_premium)
                                                 <span class="badge badge-premium">👑 Premium</span>
-                                            @else
-                                                <span class="badge badge-available">✓ Còn chỗ</span>
+                                            {{-- @else
+                                                <span class="badge badge-available">✓ Còn chỗ</span> --}}
                                             @endif
                                         </div>
                                         <button type="button" class="favorite-btn @if(in_array($stadium->id, $userFavorites)) active @endif" data-stadium-id="{{ $stadium->id }}"

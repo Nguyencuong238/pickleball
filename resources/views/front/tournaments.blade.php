@@ -340,9 +340,9 @@
                                                     '%3C/text%3E%3C/svg%3E';
                                         @endphp
                                         <img src="{{ $imageUrl }}" alt="{{ $tournament->name }}">
-                                        <div class="tournament-badges">
+                                        {{-- <div class="tournament-badges">
                                             <span class="badge badge-status status-open">Đang mở</span>
-                                        </div>
+                                        </div> --}}
                                         <div class="tournament-overlay">
                                             <span class="overlay-text">Xem chi tiết →</span>
                                         </div>
