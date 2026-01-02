@@ -370,6 +370,9 @@
                             </svg>
                         </div>
                         <div class="dropdown-info">
+                            <a href="{{ route('user.referral.index') }}" class="nav-link">
+                                💼 Giới thiệu người dùng
+                            </a>
                             <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
                                 Hồ sơ OPS
                             </a>

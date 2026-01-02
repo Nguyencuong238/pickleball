@@ -635,90 +635,7 @@
          </form>
      </div>
 
-     {{-- Referral Section --}}
-     <div class="profile-card">
-         <h4>💼 Chia Sẻ Liên Kết Referral</h4>
-         <div class="referral-section">
-             @if($user->referral_code)
-             <p style="margin: 0 0 10px 0; color: #065f46; font-weight: 500;">Chia sẻ link dưới đây để bạn bè có thể đăng ký qua bạn</p>
-             <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 0.85rem;">Mã của bạn: <strong style="color: #00D9B5;">{{ $user->referral_code }}</strong></p>
-             
-             <div class="referral-link-container">
-                 <input type="text" id="referralLink" class="referral-link-input" readonly value="{{ url('/register?ref=' . $user->referral_code) }}">
-                 <button type="button" class="btn-copy" onclick="copyReferralLink()">
-                     <span id="copyText">📋 Copy Link</span>
-                 </button>
-             </div>
 
-             <div style="margin-top: 15px; padding: 12px; background: #f0fffe; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 0.9rem; color: #065f46;">
-                 <strong>✓ Mã của bạn:</strong> {{ $user->referral_code }}<br>
-                 <span style="font-size: 0.85rem;">Gửi cho bạn bè để họ biết ai giới thiệu họ</span>
-             </div>
-             @else
-             <div style="padding: 15px; background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; color: #991b1b;">
-                 <strong>⚠️ Lỗi:</strong> Mã referral chưa được tạo. Vui lòng liên hệ admin.
-             </div>
-             @endif
-             
-             @if($referralStats)
-             <div class="referral-stats">
-                 <div class="stat-box">
-                     <div class="stat-number">{{ $referralStats['total'] }}</div>
-                     <div class="stat-label">Tổng Lời Mời</div>
-                 </div>
-                 <div class="stat-box">
-                     <div class="stat-number">{{ $referralStats['completed'] }}</div>
-                     <div class="stat-label">Đã Hoàn Thành</div>
-                 </div>
-                 <div class="stat-box">
-                     <div class="stat-number">{{ $referralStats['pending'] }}</div>
-                     <div class="stat-label">Đang Chờ</div>
-                 </div>
-             </div>
-             @endif
-
-             {{-- Referral Details Table --}}
-             @if($referralDetails && $referralDetails->count() > 0)
-             <div style="margin-top: 25px;">
-                 <h5 style="font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 15px;">Danh Sách Người Được Giới Thiệu</h5>
-                 <div style="overflow-x: auto;">
-                     <table class="referral-table">
-                         <thead>
-                             <tr>
-                                 <th>Người Đăng Ký</th>
-                                 <th>Email</th>
-                                 <th>Ngày Đăng Ký</th>
-                                 <th>Trạng Thái</th>
-                             </tr>
-                         </thead>
-                         <tbody>
-                             @foreach($referralDetails as $referral)
-                             <tr>
-                                 <td>
-                                     <strong>{{ $referral->referredUser->name }}</strong>
-                                 </td>
-                                 <td>{{ $referral->referredUser->email }}</td>
-                                 <td>
-                                     <span class="referral-date">{{ $referral->referred_at->format('d/m/Y H:i') }}</span>
-                                 </td>
-                                 <td>
-                                     <span class="referral-badge {{ $referral->status }}">
-                                         {{ $referral->status === 'completed' ? '✓ Đã hoàn thành' : '⏳ Đang chờ' }}
-                                     </span>
-                                 </td>
-                             </tr>
-                             @endforeach
-                         </tbody>
-                     </table>
-                 </div>
-             </div>
-             @else
-             <div style="margin-top: 20px; padding: 15px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; color: #6b7280; text-align: center;">
-                 Bạn chưa có ai được giới thiệu. Chia sẻ link của bạn để bắt đầu!
-             </div>
-             @endif
-         </div>
-     </div>
 
      {{-- Permission Request Section --}}
      <div class="profile-card">
@@ -788,7 +705,7 @@
          if (file) {
              // Validate file size (2MB max)
              if (file.size > 2 * 1024 * 1024) {
-                 toastr.error('Kích thước file tối đa là 2MB.');
+                 toastr.error('Kích thước file tối đa là 2MB. Ảnh của bạn quá lớn, vui lòng chọn ảnh khác.');
                  this.value = '';
                  return;
              }
@@ -803,13 +720,25 @@
 
              const reader = new FileReader();
              reader.onload = function(e) {
-                 const preview = document.getElementById('avatar-preview');
-                 // XSS safe: create image element instead of using innerHTML
-                 const img = document.createElement('img');
+                 const img = new Image();
+                 img.onload = function() {
+                     // Validate image dimensions (max 2000x2000)
+                     if (img.width > 2000 || img.height > 2000) {
+                         toastr.error('Kích thước ảnh tối đa là 2000x2000 pixels. Ảnh của bạn quá lớn, vui lòng chọn ảnh khác.');
+                         document.getElementById('avatar-input').value = '';
+                         return;
+                     }
+
+                     // Show preview
+                     const preview = document.getElementById('avatar-preview');
+                     const imgElement = document.createElement('img');
+                     imgElement.src = e.target.result;
+                     imgElement.alt = 'Avatar';
+                     preview.innerHTML = '';
+                     preview.appendChild(imgElement);
+                     toastr.success('Ảnh đã được chọn. Nhấn cập nhật để lưu thay đổi.');
+                 };
                  img.src = e.target.result;
-                 img.alt = 'Avatar';
-                 preview.innerHTML = '';
-                 preview.appendChild(img);
              };
              reader.readAsDataURL(file);
          }
@@ -877,32 +806,6 @@
          });
      }
 
-     // Referral Link Copy Function
-     function copyReferralLink() {
-         const referralLink = document.getElementById('referralLink');
-         const copyBtn = document.querySelector('.btn-copy');
-         const copyText = document.getElementById('copyText');
-         
-         // Select text
-         referralLink.select();
-         referralLink.setSelectionRange(0, 99999);
-         
-         // Copy to clipboard
-         navigator.clipboard.writeText(referralLink.value).then(() => {
-             // Show feedback
-             copyText.textContent = '✓ Đã Copy!';
-             copyBtn.classList.add('copied');
-             
-             // Reset after 2 seconds
-             setTimeout(() => {
-                 copyText.textContent = '📋 Copy Link';
-                 copyBtn.classList.remove('copied');
-             }, 2000);
-             
-             toastr.success('Liên kết referral đã được sao chép!');
-         }).catch(err => {
-             toastr.error('Không thể sao chép liên kết');
-         });
-     }
+
 </script>
 @endsection

@@ -185,6 +185,11 @@ Route::middleware('auth')->group(function () {
          Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
      });
 
+     // User Referral Routes
+     Route::prefix('user/referral')->name('user.referral.')->group(function () {
+         Route::get('/', [\App\Http\Controllers\Front\ReferralController::class, 'index'])->name('index');
+     });
+
      // Permission Request Routes
      Route::prefix('user/permission-request')->name('user.permission-request.')->group(function () {
          Route::post('/', [\App\Http\Controllers\Front\PermissionRequestController::class, 'store'])->name('store');
