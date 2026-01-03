@@ -51,6 +51,8 @@ class DatabaseSeeder extends Seeder
             VideoSeeder::class,
             ClubSeeder::class,
             QuizSeeder::class,
+            SkillDomainSeeder::class,
+            SkillQuestionSeeder::class,
         ]);
 
         // ============================================
@@ -596,6 +598,8 @@ class DatabaseSeeder extends Seeder
         $this->command->info('   - Matches: ' . MatchModel::count());
         $this->command->info('   - Standings: ' . GroupStanding::count());
         $this->command->info('   - Payments: ' . Payment::count());
+        $this->command->info('   - Skill Domains: ' . \App\Models\SkillDomain::count());
+        $this->command->info('   - Skill Questions: ' . \App\Models\SkillQuestion::count());
         $this->command->newLine();
         $this->command->info('🎾 Tournament: Giải Pickleball Mở Rộng TP.HCM 2025');
         $this->command->info('📍 Venue: Sân Pickleball Thảo Điền');

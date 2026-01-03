@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\NewsController;
 use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\RefereeController;
 use App\Http\Controllers\Api\RefereeProfileController;
+use App\Http\Controllers\Api\SkillQuizController;
 
 /*
 |--------------------------------------------------------------------------
@@ -226,6 +227,22 @@ Route::prefix('referee')->middleware('auth:api')->group(function () {
 Route::prefix('referees')->group(function () {
     Route::get('', [RefereeProfileController::class, 'index']);
     Route::get('{referee}', [RefereeProfileController::class, 'show']);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Skill Assessment Quiz Routes
+|--------------------------------------------------------------------------
+*/
+
+// Skill Quiz Routes (authenticated)
+Route::middleware('auth:api')->prefix('skill-quiz')->name('api.skill-quiz.')->group(function () {
+    Route::get('eligibility', [SkillQuizController::class, 'eligibility'])->name('eligibility');
+    Route::post('start', [SkillQuizController::class, 'start'])->name('start');
+    Route::get('attempt/{id}', [SkillQuizController::class, 'attempt'])->name('attempt');
+    Route::post('answer', [SkillQuizController::class, 'answer'])->name('answer');
+    Route::post('submit', [SkillQuizController::class, 'submit'])->name('submit');
+    Route::get('result/{id}', [SkillQuizController::class, 'result'])->name('result');
 });
 
 /*

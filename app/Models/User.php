@@ -44,6 +44,9 @@ class User extends Authenticatable implements JWTSubject
         'opr_level',
         'referral_code',
         'referred_by',
+        'last_skill_quiz_at',
+        'skill_quiz_count',
+        'elo_is_provisional',
     ];
 
     /**
@@ -71,6 +74,8 @@ class User extends Authenticatable implements JWTSubject
         'challenge_score' => 'decimal:2',
         'community_score' => 'decimal:2',
         'total_oprs' => 'decimal:2',
+        'last_skill_quiz_at' => 'datetime',
+        'elo_is_provisional' => 'boolean',
     ];
 
     /**
@@ -556,5 +561,49 @@ class User extends Authenticatable implements JWTSubject
             'completed' => $this->referrals()->where('status', 'completed')->count(),
             'pending' => $this->referrals()->where('status', 'pending')->count(),
         ];
+    }
+
+    // ==================== Skill Quiz Relationships ====================
+
+    /**
+     * Get skill quiz attempts for this user
+     */
+    public function skillQuizAttempts(): HasMany
+    {
+        return $this->hasMany(SkillQuizAttempt::class);
+    }
+
+    /**
+     * Get completed skill quiz attempts
+     */
+    public function completedSkillQuizAttempts(): HasMany
+    {
+        return $this->skillQuizAttempts()->where('status', SkillQuizAttempt::STATUS_COMPLETED);
+    }
+
+    /**
+     * Get the latest completed skill quiz attempt
+     */
+    public function latestSkillQuizAttempt(): ?SkillQuizAttempt
+    {
+        return $this->completedSkillQuizAttempts()
+            ->latest('completed_at')
+            ->first();
+    }
+
+    /**
+     * Check if user has completed a skill quiz
+     */
+    public function hasCompletedSkillQuiz(): bool
+    {
+        return $this->skill_quiz_count > 0;
+    }
+
+    /**
+     * Check if user has a provisional ELO (from quiz, not matches)
+     */
+    public function hasProvisionalElo(): bool
+    {
+        return $this->elo_is_provisional ?? true;
     }
 }

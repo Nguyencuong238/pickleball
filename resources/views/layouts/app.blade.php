@@ -461,8 +461,21 @@
                 <i class="fas fa-question-circle"></i> Quiz
             </a>
 
+            <a href="{{ route('admin.skill-quiz.dashboard') }}" class="nav-link {{ request()->routeIs('admin.skill-quiz.*') ? 'active' : '' }}">
+                <i class="fas fa-chart-bar"></i> Skill Assessment
+                @php
+                    $flaggedQuizCount = \App\Models\SkillQuizAttempt::whereNotNull('flags')
+                        ->whereRaw('JSON_LENGTH(flags) > 0')
+                        ->where('status', 'completed')
+                        ->count();
+                @endphp
+                @if($flaggedQuizCount > 0)
+                    <span class="badge bg-danger rounded-pill ms-auto">{{ $flaggedQuizCount }}</span>
+                @endif
+            </a>
+
             <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
-            
+
             <p style="padding: 0 20px; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">OCR</p>
 
             <a href="{{ route('admin.ocr.matches.index') }}" class="nav-link {{ request()->routeIs('admin.ocr.matches.*') ? 'active' : '' }}">

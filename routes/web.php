@@ -127,6 +127,20 @@ Route::prefix('quiz')->name('quiz.')->group(function () {
     Route::get('/{id}', [\App\Http\Controllers\Front\QuizController::class, 'show'])->name('show');
 });
 
+// Skill Assessment Quiz Routes (authenticated)
+Route::middleware('auth')->prefix('skill-quiz')->name('skill-quiz.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Front\SkillQuizController::class, 'index'])->name('index');
+    Route::get('/start', [\App\Http\Controllers\Front\SkillQuizController::class, 'start'])->name('start');
+    Route::get('/quiz', [\App\Http\Controllers\Front\SkillQuizController::class, 'quiz'])->name('quiz');
+    Route::get('/result/{id}', [\App\Http\Controllers\Front\SkillQuizController::class, 'result'])->name('result');
+});
+
+// Skill Quiz AJAX Routes (Web routes for authenticated users)
+Route::prefix('api/skill-quiz')->name('web.skill-quiz.')->middleware('auth')->group(function () {
+    Route::post('answer', [\App\Http\Controllers\Api\SkillQuizController::class, 'answer'])->name('answer');
+    Route::post('submit', [\App\Http\Controllers\Api\SkillQuizController::class, 'submit'])->name('submit');
+});
+
 // Academy Public Routes
 Route::prefix('academy')->name('academy.')->group(function () {
     Route::get('referees', [RefereeProfileController::class, 'index'])->name('referees.index');
@@ -477,6 +491,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         // Activity Management
         Route::get('activities', [\App\Http\Controllers\Admin\OprsActivityController::class, 'index'])->name('activities.index');
         Route::delete('activities/{activity}', [\App\Http\Controllers\Admin\OprsActivityController::class, 'destroy'])->name('activities.destroy');
+    });
+
+    // Skill Quiz Admin Routes
+    Route::prefix('skill-quiz')->name('skill-quiz.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SkillQuizController::class, 'dashboard'])->name('dashboard');
+        Route::get('attempts', [\App\Http\Controllers\Admin\SkillQuizController::class, 'index'])->name('index');
+        Route::get('attempts/{attempt}', [\App\Http\Controllers\Admin\SkillQuizController::class, 'show'])->name('show');
+        Route::post('attempts/{attempt}/adjust-elo', [\App\Http\Controllers\Admin\SkillQuizController::class, 'adjustElo'])->name('adjust-elo');
+        Route::post('attempts/{attempt}/mark-reviewed', [\App\Http\Controllers\Admin\SkillQuizController::class, 'markReviewed'])->name('mark-reviewed');
     });
 });
 

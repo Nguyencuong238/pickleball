@@ -8,6 +8,8 @@ use App\Models\Tournament;
 use App\Models\User;
 use App\Observers\TournamentObserver;
 use App\Observers\UserObserver;
+use App\Services\SkillQuizService;
+use App\Services\OprsService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -16,7 +18,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Register SkillQuizService as singleton
+        $this->app->singleton(SkillQuizService::class, function ($app) {
+            return new SkillQuizService($app->make(OprsService::class));
+        });
     }
 
     /**
