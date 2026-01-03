@@ -126,11 +126,16 @@ class TournamentController extends Controller
         }
 
         $data['user_id'] = auth()->id();
-        
-        // Generate slug from name
-        $data['slug'] = Str::slug($request->name, '-');
-
         $tournament = Tournament::create($data);
+
+        // Generate slug from name
+        $slug = Str::slug($request->name);
+        if(Tournament::where('slug', $slug)->exists()) {
+            $slug .= '-'. $tournament->id;
+        }
+
+        $tournament->slug = $slug;
+        $tournament->save();
 
         // Create categories from selected types
         if ($request->has('category_types') && is_array($request->category_types)) {
@@ -220,9 +225,11 @@ class TournamentController extends Controller
         $data['is_ocr'] = $request->has('is_ocr') ? 1 : 0;
 
         // Generate slug from name if name changed
-        if ($request->has('name')) {
-            $data['slug'] = Str::slug($request->name, '-');
+        $slug = Str::slug($request->name);
+        if(Tournament::where('slug', $slug)->where('id', '<>', $tournament->id)->exists()) {
+            $slug .= '-'. $tournament->id;
         }
+        $data['slug'] = $slug;
 
         // Sync gallery images
         $tournament->syncMediaCollection('gallery', 'gallery', $request);

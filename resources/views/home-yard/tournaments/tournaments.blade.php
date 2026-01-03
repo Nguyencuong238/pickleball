@@ -488,9 +488,9 @@
                     <button class="btn btn-secondary" onclick="exportToExcel()">
                         📊 Xuất Excel
                     </button>
-                    <button class="btn btn-ghost" onclick="toggleView()">
+                    {{-- <button class="btn btn-ghost" onclick="toggleView()">
                         <span id="viewIcon">📋</span> Chuyển chế độ xem
-                    </button>
+                    </button> --}}
                 </div>
             </div>
 
@@ -573,7 +573,7 @@
                         $formatText = !empty($formatTexts) ? implode(', ', $formatTexts) : 'Không xác định';
                     @endphp
 
-                    <div class="tournament-card fade-in" data-tournament-id="{{ $item->id }}" data-status="{{ $statusText }}" data-format="{{ $formatText }}"
+                    <div class="tournament-card fade-in" data-tournament-id="{{ $item->id }}" data-tournament-slug="{{ $item->slug }}" data-status="{{ $statusText }}" data-format="{{ $formatText }}"
                         data-location="{{ $item->location ?? 'N/A' }}" data-name="{{ $item->name }}"
                         data-date="{{ strtotime($item->start_date) }}">
                         <input type="checkbox" class="tournament-checkbox" onchange="updateBulkActions()">
@@ -1211,22 +1211,24 @@
         });
 
         // Tournament Detail Modal Functions
-        function openTournamentModal(tournamentId) {
-            const modal = document.getElementById('detailModal');
+         function openTournamentModal(tournamentId) {
+             const modal = document.getElementById('detailModal');
+             const card = document.querySelector(`[data-tournament-id="${tournamentId}"]`);
+             const slug = card ? card.getAttribute('data-tournament-slug') : tournamentId;
 
-            // Fetch tournament details via AJAX
-            fetch(`/homeyard/tournaments/${tournamentId}`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    modal.innerHTML = data.html;
-                    modal.classList.add('show');
-                });
-        }
+             // Fetch tournament details via AJAX
+             fetch(`/homeyard/tournaments/${slug}`, {
+                     headers: {
+                         'Accept': 'application/json',
+                         'X-Requested-With': 'XMLHttpRequest'
+                     }
+                 })
+                 .then(response => response.json())
+                 .then(data => {
+                     modal.innerHTML = data.html;
+                     modal.classList.add('show');
+                 });
+         }
 
         function closeDetailModal() {
             const modal = document.getElementById('detailModal');
@@ -1234,37 +1236,39 @@
         }
 
         // Tournament Edit Modal Functions
-        function openEditModal(tournamentId) {
-            const modal = document.getElementById('editModal');
+         function openEditModal(tournamentId) {
+             const modal = document.getElementById('editModal');
+             const card = document.querySelector(`[data-tournament-id="${tournamentId}"]`);
+             const slug = card ? card.getAttribute('data-tournament-slug') : tournamentId;
 
-            // Fetch tournament data for editing
-            fetch(`/homeyard/tournaments/${tournamentId}/edit`, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    modal.innerHTML = data.html;
-                    modal.classList.add('show');
-                    
-                    // Initialize Select2 for tournament categories after modal loaded
-                    setTimeout(() => {
-                        const categorySelect = document.getElementById('editTournament_categories');
-                        if (categorySelect) {
-                            $(categorySelect).select2({
-                                placeholder: 'Chọn một hoặc nhiều loại giải...',
-                                allowClear: true,
-                                width: '100%',
-                                language: 'vi',
-                                closeOnSelect: false,
-                                dropdownParent: modal
-                            });
-                        }
-                    }, 100);
-                });
-        }
+             // Fetch tournament data for editing
+             fetch(`/homeyard/tournaments/${slug}/edit`, {
+                     headers: {
+                         'Accept': 'application/json',
+                         'X-Requested-With': 'XMLHttpRequest'
+                     }
+                 })
+                 .then(response => response.json())
+                 .then(data => {
+                     modal.innerHTML = data.html;
+                     modal.classList.add('show');
+                     
+                     // Initialize Select2 for tournament categories after modal loaded
+                     setTimeout(() => {
+                         const categorySelect = document.getElementById('editTournament_categories');
+                         if (categorySelect) {
+                             $(categorySelect).select2({
+                                 placeholder: 'Chọn một hoặc nhiều loại giải...',
+                                 allowClear: true,
+                                 width: '100%',
+                                 language: 'vi',
+                                 closeOnSelect: false,
+                                 dropdownParent: modal
+                             });
+                         }
+                     }, 100);
+                 });
+         }
 
         function closeEditModal() {
             const modal = document.getElementById('editModal');
