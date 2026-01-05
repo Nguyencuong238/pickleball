@@ -37,6 +37,7 @@ use App\Http\Controllers\Front\RefereeController;
 use App\Http\Controllers\Front\RefereeProfileController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\ClubActivityController;
+use App\Http\Controllers\WalletController;
 
 /*
 |--------------------------------------------------------------------------
@@ -206,11 +207,17 @@ Route::middleware('auth')->group(function () {
          Route::get('/', [\App\Http\Controllers\Front\ReferralController::class, 'index'])->name('index');
      });
 
+     // User Wallet Routes
+     Route::prefix('user/wallet')->name('user.wallet.')->group(function () {
+         Route::get('/', [WalletController::class, 'index'])->name('index');
+         Route::get('/{id}', [WalletController::class, 'show'])->name('show');
+     });
+
      // Permission Request Routes
      Route::prefix('user/permission-request')->name('user.permission-request.')->group(function () {
          Route::post('/', [\App\Http\Controllers\Front\PermissionRequestController::class, 'store'])->name('store');
      });
-});
+     });
 
 // Club & Group Routes
 Route::get('clubs', [ClubController::class, 'index'])->name('clubs.index');

@@ -606,4 +606,57 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->elo_is_provisional ?? true;
     }
+
+    // ==================== Wallet Relationships ====================
+
+    /**
+     * Get user's wallet
+     */
+    public function wallet()
+    {
+        return $this->hasOne(UserWallet::class);
+    }
+
+    /**
+     * Get user's point transactions
+     */
+    public function pointTransactions(): HasMany
+    {
+        return $this->hasMany(UserPointTransaction::class);
+    }
+
+    /**
+     * Get or create user's wallet
+     */
+    public function getOrCreateWallet(): UserWallet
+    {
+        return $this->wallet()->firstOrCreate(
+            ['user_id' => $this->id],
+            ['points' => 0]
+        );
+    }
+
+    /**
+     * Get user's current points
+     */
+    public function getPoints(): int
+    {
+        return $this->getOrCreateWallet()->points;
+    }
+
+    /**
+     * Add points to user's wallet
+     */
+    public function addPoints(int $points, string $type = 'earn', string $description = '', array $metadata = []): void
+    {
+        $this->getOrCreateWallet()->addPoints($points, $type, $description, $metadata);
+    }
+
+    /**
+     * Deduct points from user's wallet
+     */
+    public function deductPoints(int $points, string $type = 'use', string $description = '', array $metadata = []): bool
+    {
+        return $this->getOrCreateWallet()->deductPoints($points, $type, $description, $metadata);
+    }
 }

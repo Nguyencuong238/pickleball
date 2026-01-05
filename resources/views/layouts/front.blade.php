@@ -371,6 +371,9 @@
                             </svg>
                         </div>
                         <div class="dropdown-info">
+                            <a href="{{ route('user.wallet.index') }}" class="nav-link">
+                                💰 Ví điểm ({{ auth()->user()->getPoints() }})
+                            </a>
                             <a href="{{ route('user.referral.index') }}" class="nav-link">
                                 💼 Giới thiệu người dùng
                             </a>
