@@ -13,8 +13,13 @@ use Illuminate\Support\Str;
 class AuthController extends Controller
 {
     // ---------- SHOW FORM ----------
-    public function showLogin()
+    public function showLogin(Request $request)
     {
+        // Store intended redirect URL if provided
+        if ($request->has('redirect')) {
+            session()->put('url.intended', $request->input('redirect'));
+        }
+
         return view('auth.login');
     }
 
@@ -113,6 +118,12 @@ class AuthController extends Controller
 
             // Lấy user vừa login
             $user = auth()->user();
+
+            // Check for intended redirect URL
+            $intended = session()->pull('url.intended');
+            if ($intended) {
+                return redirect($intended);
+            }
 
             // Redirect theo role
             if ($user->hasRole('admin')) {

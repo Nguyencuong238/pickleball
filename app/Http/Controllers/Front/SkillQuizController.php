@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Models\SkillDomain;
 use App\Models\SkillQuizAttempt;
 use App\Services\SkillQuizService;
 use Illuminate\Http\Request;
@@ -17,11 +18,27 @@ class SkillQuizController extends Controller
     ) {}
 
     /**
-     * Quiz landing page - check eligibility
+     * Quiz landing page - check eligibility or show preview for guests
      */
     public function index(Request $request): View
     {
         $user = $request->user();
+
+        // Guest mode: show preview with domain overview
+        if (!$user) {
+            $domains = SkillDomain::active()->ordered()->with('activeQuestions')->get();
+
+            return view('front.skill-quiz.index', [
+                'isGuest' => true,
+                'domains' => $domains,
+                'eligibility' => null,
+                'inProgress' => null,
+                'user' => null,
+                'history' => [],
+            ]);
+        }
+
+        // Authenticated user: check eligibility
         $eligibility = $this->quizService->canTakeQuiz($user);
 
         // Check for in-progress attempt
@@ -33,6 +50,8 @@ class SkillQuizController extends Controller
         $history = $this->quizService->getUserHistory($user, 5);
 
         return view('front.skill-quiz.index', [
+            'isGuest' => false,
+            'domains' => null,
             'eligibility' => $eligibility,
             'inProgress' => $inProgress,
             'user' => $user,

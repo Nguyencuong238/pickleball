@@ -127,9 +127,11 @@ Route::prefix('quiz')->name('quiz.')->group(function () {
     Route::get('/{id}', [\App\Http\Controllers\Front\QuizController::class, 'show'])->name('show');
 });
 
-// Skill Assessment Quiz Routes (authenticated)
+// Skill Assessment Quiz - Public route (preview for guests)
+Route::get('/skill-quiz', [\App\Http\Controllers\Front\SkillQuizController::class, 'index'])->name('skill-quiz.index');
+
+// Skill Assessment Quiz - Protected routes (require auth)
 Route::middleware('auth')->prefix('skill-quiz')->name('skill-quiz.')->group(function () {
-    Route::get('/', [\App\Http\Controllers\Front\SkillQuizController::class, 'index'])->name('index');
     Route::get('/start', [\App\Http\Controllers\Front\SkillQuizController::class, 'start'])->name('start');
     Route::get('/quiz', [\App\Http\Controllers\Front\SkillQuizController::class, 'quiz'])->name('quiz');
     Route::get('/result/{id}', [\App\Http\Controllers\Front\SkillQuizController::class, 'result'])->name('result');
