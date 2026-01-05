@@ -383,7 +383,8 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
 Route::middleware(['auth', 'role:referee'])->prefix('referee')->name('referee.')->group(function () {
     Route::get('dashboard', [RefereeController::class, 'dashboard'])->name('dashboard');
     Route::get('matches', [RefereeController::class, 'matches'])->name('matches.index');
-    Route::get('matches/{match}', [RefereeController::class, 'show'])->name('matches.show');
+    Route::get('matches/{match:slug}', [RefereeController::class, 'show'])->name('matches.show');
+    Route::get('matches-id/{match}', [RefereeController::class, 'show'])->name('matches.show.id');
     Route::post('matches/{match}/start', [RefereeController::class, 'startMatch'])->name('matches.start');
     Route::put('matches/{match}/update-score', [RefereeController::class, 'updateScore'])->name('matches.update-score');
 
@@ -397,7 +398,8 @@ Route::middleware(['auth', 'role:referee'])->prefix('referee')->name('referee.')
 Route::prefix('ocr')->name('ocr.')->group(function () {
     Route::get('/', [OcrController::class, 'index'])->name('index');
     Route::get('/leaderboard', [OcrController::class, 'leaderboard'])->name('leaderboard');
-    Route::get('/profile/{user}', [OcrController::class, 'profile'])->name('profile');
+    Route::get('/profile/{user:slug}', [OcrController::class, 'profile'])->name('profile');
+    Route::get('/profile-id/{user}', [OcrController::class, 'profile'])->name('profile.id');
     Route::get('/matches-list', [OcrController::class, 'matchesList'])->name('matches.list');
     Route::get('/ocr-matches', [OcrController::class, 'ocrMatches'])->name('ocr-matches');
     Route::get('/search-users', [OcrController::class, 'searchUsers'])->name('search-users')->middleware('auth');
@@ -405,7 +407,8 @@ Route::prefix('ocr')->name('ocr.')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/matches', [OcrController::class, 'matchIndex'])->name('matches.index');
         Route::get('/matches/create', [OcrController::class, 'matchCreate'])->name('matches.create');
-        Route::get('/matches/{match}', [OcrController::class, 'matchShow'])->name('matches.show');
+        Route::get('/matches/{match:slug}', [OcrController::class, 'matchShow'])->name('matches.show');
+        Route::get('/matches-id/{match}', [OcrController::class, 'matchShow'])->name('matches.show.id');
 
         // Challenge System Routes
         Route::get('/challenges', [OcrController::class, 'challenges'])->name('challenges.index');

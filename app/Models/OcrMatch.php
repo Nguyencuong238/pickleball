@@ -17,6 +17,7 @@ class OcrMatch extends Model implements HasMedia
 
     protected $fillable = [
         'match_type',
+        'slug',
         'challenger_id',
         'challenger_partner_id',
         'opponent_id',
@@ -66,6 +67,28 @@ class OcrMatch extends Model implements HasMedia
     // Match type constants
     public const TYPE_SINGLES = 'singles';
     public const TYPE_DOUBLES = 'doubles';
+
+    protected static function boot(): void
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (!$model->slug) {
+                $model->slug = $model->generateSlug();
+            }
+        });
+    }
+
+    private function generateSlug(): string
+    {
+        $slug = 'match-' . uniqid() . '-' . rand(1000, 9999);
+        
+        while (self::where('slug', $slug)->exists()) {
+            $slug = 'match-' . uniqid() . '-' . rand(1000, 9999);
+        }
+        
+        return $slug;
+    }
 
     // Relationships
     public function challenger(): BelongsTo
