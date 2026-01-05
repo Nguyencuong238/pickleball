@@ -221,6 +221,9 @@ Route::prefix('referee')->middleware('auth:api')->group(function () {
     Route::get('matches/{match}', [RefereeController::class, 'showMatch']);
     Route::post('matches/{match}/start', [RefereeController::class, 'startMatch']);
     Route::put('matches/{match}/score', [RefereeController::class, 'updateScore']);
+    Route::post('matches/{match}/sync-events', [RefereeController::class, 'syncEvents']);
+    Route::post('matches/{match}/end', [RefereeController::class, 'endMatch']);
+    Route::get('matches/{match}/state', [RefereeController::class, 'getMatchState']);
 });
 
 // Public Referee endpoints (no auth required)

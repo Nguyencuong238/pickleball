@@ -570,8 +570,8 @@ class SkillQuizService
         // Update Elo rank
         $user->updateEloRank();
 
-        // Trigger OPRS recalculation
-        $this->oprsService->recalculateAfterMatch($user);
+        // Trigger OPRS recalculation (updates opr_level)
+        $this->oprsService->recalculateAfterSkillQuiz($user, $attempt->id);
     }
 
     /**
