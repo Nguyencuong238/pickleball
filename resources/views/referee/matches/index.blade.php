@@ -86,7 +86,7 @@
                                 </td>
                                 <td>{{ $match->final_score ?? '-' }}</td>
                                 <td>
-                                    <a href="{{ route('referee.matches.show', $match->id) }}" class="btn btn-primary btn-sm">
+                                    <a href="{{ route('referee.matches.show', $match) }}" class="btn btn-primary btn-sm">
                                         👁️ Xem
                                     </a>
                                 </td>
