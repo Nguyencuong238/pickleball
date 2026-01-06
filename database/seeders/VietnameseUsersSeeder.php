@@ -76,6 +76,7 @@ class VietnameseUsersSeeder extends Seeder
                 'email_verified_at' => now(),
                 'status' => 'approved',
                 'role_type' => 'user',
+                'elo_rating' => rand(800, 1500),
             ]);
 
             $user->assignRole('athlete');
