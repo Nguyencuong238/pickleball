@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'OPS Challenge Management')
+@section('title', 'OPRS Challenge Management')
 
 @section('content')
 <div class="container-fluid py-4">

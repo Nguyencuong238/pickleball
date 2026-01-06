@@ -1,11 +1,11 @@
 @extends('admin.layouts.app')
 
-@section('title', 'OPS User Management')
+@section('title', 'OPRS User Management')
 
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>OPS User Management</h1>
+        <h1>OPRS User Management</h1>
         <a href="{{ route('admin.oprs.dashboard') }}" class="btn btn-outline-secondary">
             [ARROW_LEFT] Back to Dashboard
         </a>
@@ -45,7 +45,7 @@
                 <thead>
                     <tr>
                         <th>User</th>
-                        <th>OPS</th>
+                        <th>OPRS</th>
                         <th>Level</th>
                         <th>Elo</th>
                         <th>Challenge</th>

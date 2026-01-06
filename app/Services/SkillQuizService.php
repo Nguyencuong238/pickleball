@@ -20,7 +20,7 @@ class SkillQuizService
     public const RECOMMENDED_MIN = 480;       // 8 min
     public const RECOMMENDED_MAX = 600;       // 10 min
     public const MAX_TIME_SECONDS = 900;      // 15 min
-    public const TIMEOUT_SECONDS = 1200;      // 20 min
+    public const TIMEOUT_SECONDS = 1800;      // 30 min
 
     // ELO constants
     public const MIN_ELO = 850;

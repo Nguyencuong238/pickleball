@@ -1,6 +1,6 @@
 @extends('layouts.front')
 
-@section('title', 'Trung Tâm Thử Thách - OPS')
+@section('title', 'Trung Tâm Thử Thách - OPRS')
 
 @section('css')
 <style>
@@ -329,7 +329,7 @@
             <div class="stats-main">
                 <h3>Điểm Thử Thách Của Bạn</h3>
                 <div class="stats-value">{{ number_format($user->challenge_score, 0) }}</div>
-                <div class="stats-contrib">Đóng góp {{ number_format($user->challenge_score * 0.2, 2) }} vào OPS</div>
+                <div class="stats-contrib">Đóng góp {{ number_format($user->challenge_score * 0.2, 2) }} vào OPRS</div>
             </div>
             <div class="stats-secondary">
                 <div class="stats-label">Tổng Thử Thách Đã Vượt Qua</div>

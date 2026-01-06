@@ -1,7 +1,7 @@
 @props(['breakdown'])
 
 <div class="oprs-breakdown-chart">
-    <h3 class="chart-title">Phân Tích OPS</h3>
+    <h3 class="chart-title">Phân Tích OPRS</h3>
 
     <div class="chart-components">
         {{-- Elo Component --}}
@@ -43,7 +43,7 @@
 
     {{-- Total --}}
     <div class="chart-total">
-        <span class="total-label">Tổng OPS</span>
+        <span class="total-label">Tổng OPRS</span>
         <span class="total-value">{{ number_format($breakdown['total'], 0) }}</span>
     </div>
 </div>

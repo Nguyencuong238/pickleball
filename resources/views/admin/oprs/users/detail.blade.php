@@ -1,11 +1,11 @@
 @extends('admin.layouts.app')
 
-@section('title', 'OPS Detail - ' . $user->name)
+@section('title', 'OPRS Detail - ' . $user->name)
 
 @section('content')
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>{{ $user->name }} - OPS Detail</h1>
+        <h1>{{ $user->name }} - OPRS Detail</h1>
         <a href="{{ route('admin.oprs.users.index') }}" class="btn btn-outline-secondary">
             [ARROW_LEFT] Back to Users
         </a>
@@ -27,13 +27,13 @@
                         <span class="badge bg-primary fs-3">{{ $user->opr_level }}</span>
                     </h4>
                     <h2 class="text-center text-primary">{{ number_format($user->total_oprs, 0) }}</h2>
-                    <p class="text-center text-muted">Total OPS</p>
+                    <p class="text-center text-muted">Total OPRS</p>
                 </div>
             </div>
 
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">OPS Breakdown</h5>
+                    <h5 class="mb-0">OPRS Breakdown</h5>
                 </div>
                 <div class="card-body">
                     <div class="mb-3">
@@ -96,7 +96,7 @@
             {{-- OPRS History --}}
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0">OPS History (Recent 20)</h5>
+                    <h5 class="mb-0">OPRS History (Recent 20)</h5>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm">
