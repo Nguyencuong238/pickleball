@@ -531,6 +531,28 @@
         </form>
     </div>
 
+         {{-- Permission Request Section --}}
+     <div class="profile-card">
+         <h4>Đăng Ký Quyền</h4>
+         <p style="color: #6b7280; margin-bottom: 20px;">Nâng cấp tài khoản của bạn bằng cách đăng ký để trở thành chủ sân, chủ giải hoặc trọng tài.</p>
+         
+         @if($permissionRequest)
+             @if($permissionRequest->status === 'pending')
+                 <button type="button" class="btn" style="background: #fbbf24; color: #92400e; cursor: not-allowed;" disabled>
+                     ⏳ Chờ Xét Duyệt
+                 </button>
+             @elseif($permissionRequest->status === 'approved')
+                 <button type="button" class="btn" style="background: #d1fae5; color: #065f46; cursor: not-allowed;" disabled>
+                     ✓ Bạn Đã Đăng Ký Quyền
+                 </button>
+             @elseif($permissionRequest->status === 'rejected')
+                 <button type="button" class="btn btn-info" onclick="openPermissionModal()">Đăng Ký Quyền Lại</button>
+             @endif
+         @else
+             <button type="button" class="btn btn-primary" onclick="openPermissionModal()">Đăng Ký Quyền</button>
+         @endif
+     </div>
+
     {{-- Basic Info Section --}}
     <div class="profile-card">
         <h4>Thông Tin Cơ Bản</h4>
@@ -637,27 +659,7 @@
 
 
 
-     {{-- Permission Request Section --}}
-     <div class="profile-card">
-         <h4>Đăng Ký Quyền</h4>
-         <p style="color: #6b7280; margin-bottom: 20px;">Nâng cấp tài khoản của bạn bằng cách đăng ký để trở thành chủ sân, chủ giải hoặc trọng tài.</p>
-         
-         @if($permissionRequest)
-             @if($permissionRequest->status === 'pending')
-                 <button type="button" class="btn" style="background: #fbbf24; color: #92400e; cursor: not-allowed;" disabled>
-                     ⏳ Chờ Xét Duyệt
-                 </button>
-             @elseif($permissionRequest->status === 'approved')
-                 <button type="button" class="btn" style="background: #d1fae5; color: #065f46; cursor: not-allowed;" disabled>
-                     ✓ Bạn Đã Đăng Ký Quyền
-                 </button>
-             @elseif($permissionRequest->status === 'rejected')
-                 <button type="button" class="btn btn-info" onclick="openPermissionModal()">Đăng Ký Quyền Lại</button>
-             @endif
-         @else
-             <button type="button" class="btn btn-info" onclick="openPermissionModal()">Đăng Ký Quyền</button>
-         @endif
-     </div>
+
 
      {{-- Permission Modal --}}
      <div id="permissionModal" class="modal">
@@ -682,6 +684,14 @@
                      <div class="permission-info">
                          <label for="trọng-tài">Trọng Tài</label>
                          <p>Phân công làm trọng tài cho các giải đấu</p>
+                     </div>
+                 </div>
+
+                 <div class="permission-item">
+                     <input type="checkbox" id="chuyen-gia-host" name="permissions" value="expert_host">
+                     <div class="permission-info">
+                         <label for="chuyen-gia-host">Chuyên Gia & Host</label>
+                         <p>Xác minh trình độ ELO của người chơi</p>
                      </div>
                  </div>
 

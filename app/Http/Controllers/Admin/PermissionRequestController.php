@@ -86,6 +86,7 @@ class PermissionRequestController extends Controller
          return match($permission) {
              'home_yard' => Role::findByName('home_yard'),
              'referee' => Role::findByName('referee'),
+             'expert_host' => Role::findByName('expert_host'),
              default => null
          };
      }
