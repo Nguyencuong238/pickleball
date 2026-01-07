@@ -579,10 +579,10 @@ function copyReferralLink() {
 function recordSocialActivity(activityType) {
     // Open social link in new tab
     const socialLinks = {
-        'join_group': 'https://www.facebook.com/groups/onepickleball',
-        'follow_fb': 'https://www.facebook.com/search/top?q=onepickleball',
+        'join_group': 'https://www.facebook.com/groups/congdongonepickleball',
+        'follow_fb': 'https://www.facebook.com/onepickleballvn/',
         'follow_youtube': 'https://www.youtube.com/@OnePickleballvn',
-        'follow_tiktok': 'https://www.tiktok.com/@onepickleball1',
+        'follow_tiktok': 'https://www.tiktok.com/@onepickleball4',
     };
 
     if (socialLinks[activityType]) {

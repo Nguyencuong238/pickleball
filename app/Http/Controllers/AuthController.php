@@ -37,11 +37,13 @@ class AuthController extends Controller
             'email'     => 'required|email|unique:users,email',
             'phone'     => 'nullable|regex:/^\d{10,11}$/',
             'password'  => 'required|min:6|confirmed',
+            'ref_code'  => 'nullable|exists:users,referral_code',
             'terms'     => 'required'
         ], [
             'email.unique' => 'Email này đã được sử dụng. Vui lòng chọn email khác.',
             'phone.regex' => 'Số điện thoại phải gồm 10 hoặc 11 chữ số.',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
+            'ref_code.exists' => 'Mã giới thiệu không hợp lệ.',
             'terms.required' => 'Bạn phải chấp nhận Điều khoản dịch vụ.'
         ]);
 
@@ -50,7 +52,15 @@ class AuthController extends Controller
 
         // Check if referral code is provided
         $referredBy = null;
-        if ($req->has('ref') && $req->ref) {
+        if ($req->has('ref_code') && $req->ref_code) {
+            $referrer = User::where('referral_code', $req->ref_code)->first();
+            if ($referrer) {
+                $referredBy = $referrer->id;
+            }
+        }
+        
+        // Also check for 'ref' parameter (from URL for backward compatibility)
+        if (!$referredBy && $req->has('ref') && $req->ref) {
             $referrer = User::where('referral_code', $req->ref)->first();
             if ($referrer) {
                 $referredBy = $referrer->id;

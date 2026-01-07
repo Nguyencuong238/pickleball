@@ -161,20 +161,28 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Số điện thoại</label>
-                            <input type="tel" class="form-input" name="phone" placeholder="Nhập số điện thoại" value="{{ old('phone') }}">
-                            @error('phone')
-                                <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
-                            @enderror
-                        </div>
+                             <label class="form-label">Số điện thoại</label>
+                             <input type="tel" class="form-input" name="phone" placeholder="Nhập số điện thoại" value="{{ old('phone') }}">
+                             @error('phone')
+                                 <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                             @enderror
+                         </div>
 
-                        {{-- Hidden referral code field --}}
-                        @if(isset($refCode) && $refCode)
-                        <input type="hidden" name="ref" value="{{ $refCode }}">
-                        <div class="alert" style="padding: 10px; background: #d1fae5; border: 1px solid #6ee7b7; border-radius: 6px; color: #065f46; margin-bottom: 15px; font-size: 13px;">
-                            ✓ Bạn được giới thiệu bởi một thành viên khác!
-                        </div>
-                        @endif
+                         <div class="form-group">
+                             <label class="form-label">Mã giới thiệu (tùy chọn)</label>
+                             <input type="text" class="form-input" name="ref_code" placeholder="Nhập mã giới thiệu từ bạn" value="{{ old('ref_code', request('ref', '')) }}">
+                             @error('ref_code')
+                                 <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                             @enderror
+                         </div>
+
+                         {{-- Hidden referral code field --}}
+                         @if(isset($refCode) && $refCode)
+                         <input type="hidden" name="ref" value="{{ $refCode }}">
+                         <div class="alert" style="padding: 10px; background: #d1fae5; border: 1px solid #6ee7b7; border-radius: 6px; color: #065f46; margin-bottom: 15px; font-size: 13px;">
+                             ✓ Bạn được giới thiệu bởi một thành viên khác!
+                         </div>
+                         @endif
 
                         <div class="form-group">
                             <label class="form-label">Mật khẩu</label>
