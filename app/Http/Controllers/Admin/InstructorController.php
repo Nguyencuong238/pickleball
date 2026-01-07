@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Instructor;
 use App\Models\Province;
+use App\Models\User;
 use App\Models\InstructorExperience;
 use App\Models\InstructorCertification;
 use App\Models\InstructorTeachingMethod;
@@ -14,6 +15,8 @@ use App\Models\InstructorSchedule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class InstructorController extends Controller
 {
@@ -68,6 +71,26 @@ class InstructorController extends Controller
             }
 
             $instructor = Instructor::create($data);
+
+            // Auto-create user account for instructor
+            if (!empty($data['email'])) {
+                $user = User::where('email', $data['email'])->first();
+
+                if (!$user) {
+                    // Create new user account
+                    $user = User::create([
+                        'name' => $data['name'],
+                        'email' => $data['email'],
+                        'phone' => $data['phone'] ?? null,
+                        'password' => Hash::make(Str::random(12)),
+                        'status' => 'approved',
+                    ]);
+                }
+
+                // Assign instructor role and link to instructor
+                $user->assignRole('instructor');
+                $instructor->update(['user_id' => $user->id]);
+            }
 
             // Kinh nghiệm giảng dạy
             if ($request->has('experiences')) {
@@ -219,6 +242,26 @@ class InstructorController extends Controller
             }
 
             $instructor->update($data);
+
+            // Auto-link user account for instructor if not linked
+            if (!$instructor->user_id && !empty($data['email'])) {
+                $user = User::where('email', $data['email'])->first();
+
+                if (!$user) {
+                    // Create new user account
+                    $user = User::create([
+                        'name' => $data['name'],
+                        'email' => $data['email'],
+                        'phone' => $data['phone'] ?? null,
+                        'password' => Hash::make(Str::random(12)),
+                        'status' => 'approved',
+                    ]);
+                }
+
+                // Assign instructor role and link to instructor
+                $user->assignRole('instructor');
+                $instructor->update(['user_id' => $user->id]);
+            }
 
             // Delete existing related records
             $instructor->experiences()->delete();

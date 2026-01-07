@@ -14,6 +14,7 @@ class OprsHistory extends Model
     public const REASON_ADMIN_ADJUSTMENT = 'admin_adjustment';
     public const REASON_INITIAL_CALCULATION = 'initial_calculation';
     public const REASON_SKILL_QUIZ = 'skill_quiz';
+    public const REASON_ELO_VERIFIED = 'elo_verified';
 
     protected $fillable = [
         'user_id',
@@ -52,6 +53,7 @@ class OprsHistory extends Model
             self::REASON_ADMIN_ADJUSTMENT => 'Admin adjustment',
             self::REASON_INITIAL_CALCULATION => 'Initial OPRS calculation',
             self::REASON_SKILL_QUIZ => 'Skill assessment quiz completed',
+            self::REASON_ELO_VERIFIED => 'ELO verified by verifier',
             default => 'Unknown',
         };
     }
@@ -70,6 +72,7 @@ class OprsHistory extends Model
             self::REASON_ADMIN_ADJUSTMENT,
             self::REASON_INITIAL_CALCULATION,
             self::REASON_SKILL_QUIZ,
+            self::REASON_ELO_VERIFIED,
         ];
     }
 

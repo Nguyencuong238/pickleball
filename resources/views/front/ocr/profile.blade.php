@@ -317,6 +317,34 @@
                         {{ $user->elo_rank }}
                     </span>
                 @endif
+
+                {{-- Verification Status Badge --}}
+                <div class="verification-status" style="margin-bottom: 0.75rem;">
+                    @if($user->is_elo_verified)
+                        <span style="display: inline-flex; align-items: center; gap: 0.25rem; background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">
+                            ✓ Đã Xác Minh
+                        </span>
+                    @elseif($user->elo_is_provisional)
+                        <span style="display: inline-flex; align-items: center; gap: 0.25rem; background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600;">
+                            ⏳ Chưa Xác Minh
+                        </span>
+                        @auth
+                            @if(auth()->id() === $user->id)
+                                @if($user->canRequestVerification())
+                                    <a href="{{ route('opr-verification.create') }}"
+                                       style="display: inline-flex; align-items: center; gap: 0.25rem; background: linear-gradient(135deg, #00D9B5, #0099CC); color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; text-decoration: none; margin-left: 0.5rem;">
+                                        Gửi Xác Minh
+                                    </a>
+                                @elseif($user->hasPendingVerificationRequest())
+                                    <span style="display: inline-flex; align-items: center; gap: 0.25rem; background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; margin-left: 0.5rem;">
+                                        Đang Chờ Duyệt
+                                    </span>
+                                @endif
+                            @endif
+                        @endauth
+                    @endif
+                </div>
+
                 <div class="profile-stats">
                     <div class="profile-stat">
                         <div class="profile-stat-value">{{ number_format($user->total_oprs, 0) }}</div>
