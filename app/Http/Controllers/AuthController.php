@@ -91,13 +91,13 @@ class AuthController extends Controller
                 'referrer_id' => $referredBy,
                 'referrer_name' => $referrer->name,
                 'referred_user_id' => $user->id,
-                'status' => 'completed',
+                'status' => 'pending',
                 'referred_at' => now(),
-                'completed_at' => now(),
+                'completed_at' => null,
             ]);
 
-            // Cộng điểm cho người giới thiệu
-            $this->addReferralPoints($referredBy, $user->id, $referrer->name);
+            // Không cộng điểm khi đăng ký - chỉ cộng khi user hoàn thành quiz
+            // $this->addReferralPoints($referredBy, $user->id, $referrer->name);
         }
 
         // Log the user in

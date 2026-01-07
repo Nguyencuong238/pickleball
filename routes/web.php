@@ -123,8 +123,8 @@ Route::get('/course/{slug}', [HomeController::class, 'courseDetail'])->name('cou
 // Quiz Routes
 Route::prefix('quiz')->name('quiz.')->group(function () {
     Route::get('/', [\App\Http\Controllers\Front\QuizController::class, 'index'])->name('index');
-    Route::get('/questions', [\App\Http\Controllers\Front\QuizController::class, 'getQuestions'])->name('questions');
-    Route::post('/submit', [\App\Http\Controllers\Front\QuizController::class, 'submitQuiz'])->name('submit');
+    Route::get('/questions', [\App\Http\Controllers\Front\QuizController::class, 'getQuestions'])->name('questions')->middleware('auth');
+    Route::post('/submit', [\App\Http\Controllers\Front\QuizController::class, 'submitQuiz'])->name('submit')->middleware('auth');
     Route::get('/{id}', [\App\Http\Controllers\Front\QuizController::class, 'show'])->name('show');
 });
 
