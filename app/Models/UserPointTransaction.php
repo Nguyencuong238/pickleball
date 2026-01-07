@@ -41,6 +41,7 @@ class UserPointTransaction extends Model
             'use' => 'Sử dụng',
             'refund' => 'Hoàn lại',
             'admin' => 'Cấp bởi admin',
+            'referral' => 'Thưởng referral',
             default => $this->type,
         };
     }

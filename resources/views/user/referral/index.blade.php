@@ -189,6 +189,11 @@
     <div class="referral-header">
         <h2>💼 Giới Thiệu Người Dùng</h2>
         <p>Chia sẻ mã referral của bạn và kiếm thêm lợi ích khi bạn bè đăng ký qua link của bạn</p>
+        <div style="margin-top: 15px;">
+            <a href="{{ route('user.wallet.history') }}" style="display: inline-block; padding: 10px 20px; background: #00D9B5; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#00b899'" onmouseout="this.style.background='#00D9B5'">
+                📊 Xem Lịch Sử Điểm
+            </a>
+        </div>
     </div>
 
     {{-- Referral Section --}}

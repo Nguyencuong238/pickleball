@@ -84,6 +84,9 @@ class AuthController extends Controller
                 'referred_at' => now(),
                 'completed_at' => now(),
             ]);
+
+            // Cộng điểm cho người giới thiệu
+            $this->addReferralPoints($referredBy, $user->id, $referrer->name);
         }
 
         // Log the user in
@@ -102,6 +105,25 @@ class AuthController extends Controller
         } while (User::where('referral_code', $code)->exists());
         
         return $code;
+    }
+
+    /**
+     * Thêm điểm cho người giới thiệu khi có người dùng mới đăng ký
+     */
+    private function addReferralPoints($referrerId, $newUserId, $referrerName): void
+    {
+        $referrer = User::find($referrerId);
+        if ($referrer) {
+            $referrer->addPoints(
+                10,
+                'referral',
+                'Nhận thưởng từ giới thiệu người dùng mới',
+                [
+                    'referred_user_id' => $newUserId,
+                    'source' => 'referral_signup'
+                ]
+            );
+        }
     }
 
 

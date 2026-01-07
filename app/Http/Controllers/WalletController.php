@@ -19,6 +19,35 @@ class WalletController extends Controller
     }
 
     /**
+     * Show transaction history with detailed stats
+     */
+    public function history()
+    {
+        $user = auth()->user();
+        $transactions = $user->pointTransactions()->latest()->paginate(20);
+
+        // Calculate statistics
+        $totalPoints = $user->getPoints();
+        $earnedPoints = $user->pointTransactions()
+            ->where('points', '>', 0)
+            ->sum('points');
+        $usedPoints = abs($user->pointTransactions()
+            ->where('points', '<', 0)
+            ->sum('points'));
+        $referralPoints = $user->pointTransactions()
+            ->where('type', 'referral')
+            ->sum('points');
+
+        return view('user.wallet.history', compact(
+            'transactions',
+            'totalPoints',
+            'earnedPoints',
+            'usedPoints',
+            'referralPoints'
+        ));
+    }
+
+    /**
      * Show transaction details
      */
     public function show($id)

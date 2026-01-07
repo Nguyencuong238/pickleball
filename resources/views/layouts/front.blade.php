@@ -317,7 +317,7 @@
                         <li><a href="{{ route('ocr.leaderboard') }}" class="dropdown-item">Bảng xếp hạng OPS</a></li>
                         <li><a href="{{ route('ocr.ocr-matches') }}" class="dropdown-item">Trận đấu OCR</a></li>
                         @auth
-                            <li><a href="{{ route('ocr.profile', auth()->user()) }}" class="dropdown-item">Hồ sơ của tôi</a></li>
+                            <li><a href="{{ route('ocr.profile.id', auth()->user()->id) }}" class="dropdown-item">Hồ sơ của tôi</a></li>
                             <li><a href="{{ route('ocr.matches.index') }}" class="dropdown-item">Trận đấu của tôi</a></li>
                             <!-- <li><a href="{{ route('ocr.challenges.index') }}" class="dropdown-item">Challenge Center</a></li> -->
                         @endauth
@@ -377,7 +377,7 @@
                             <a href="{{ route('user.referral.index') }}" class="nav-link">
                                 💼 Giới thiệu người dùng
                             </a>
-                            <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
+                            <a href="{{ route('ocr.profile.id', auth()->user()->id) }}" class="nav-link">
                                 Hồ sơ OPS
                             </a>
                             <a href="{{ route('user.profile.edit') }}" class="nav-link">

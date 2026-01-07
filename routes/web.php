@@ -210,6 +210,7 @@ Route::middleware('auth')->group(function () {
      // User Wallet Routes
      Route::prefix('user/wallet')->name('user.wallet.')->group(function () {
          Route::get('/', [WalletController::class, 'index'])->name('index');
+         Route::get('/history', [WalletController::class, 'history'])->name('history');
          Route::get('/{id}', [WalletController::class, 'show'])->name('show');
      });
 
