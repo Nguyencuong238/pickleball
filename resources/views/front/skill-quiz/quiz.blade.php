@@ -276,7 +276,7 @@
     {{-- Timer --}}
     <div class="quiz-timer" id="quizTimer">
         <div class="timer-label">Thời gian còn lại</div>
-        <div class="timer-display" id="timerDisplay">20:00</div>
+        <div class="timer-display" id="timerDisplay">30:00</div>
     </div>
 
     {{-- Progress --}}

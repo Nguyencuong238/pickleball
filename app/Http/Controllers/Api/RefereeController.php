@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\MatchModel;
+use App\Models\MatchEvent;
 use App\Models\ActivityLog;
 use App\Models\GroupStanding;
 use App\Models\TournamentAthlete;
@@ -163,7 +164,7 @@ class RefereeController extends Controller
             ], 403);
         }
 
-        if ($match->status !== 'scheduled') {
+        if (!in_array($match->status, ['scheduled', 'ready'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Match cannot be started. Current status: ' . $match->status,
@@ -411,7 +412,7 @@ class RefereeController extends Controller
     }
 
     /**
-     * Update tournament athlete statistics
+     * Update tournament athlete statistics (supports singles and doubles)
      */
     private function updateTournamentAthleteStats(MatchModel $match, int $setsWonAthlete1, int $setsWonAthlete2): void
     {
@@ -423,42 +424,57 @@ class RefereeController extends Controller
                 return;
             }
 
-            $athlete1 = TournamentAthlete::find($athlete1Id);
-            $athlete2 = TournamentAthlete::find($athlete2Id);
+            // Get both athletes with partner relationship
+            $athlete1 = TournamentAthlete::with('partner')->find($athlete1Id);
+            $athlete2 = TournamentAthlete::with('partner')->find($athlete2Id);
 
             if (!$athlete1 || !$athlete2) {
                 return;
             }
 
+            // Determine winner
             $athlete1Wins = $setsWonAthlete1 > $setsWonAthlete2;
             $athlete2Wins = $setsWonAthlete2 > $setsWonAthlete1;
 
+            // Update athlete1 statistics
             $athlete1->matches_played = ($athlete1->matches_played ?? 0) + 1;
             $athlete1->sets_won = ($athlete1->sets_won ?? 0) + $setsWonAthlete1;
             $athlete1->sets_lost = ($athlete1->sets_lost ?? 0) + $setsWonAthlete2;
 
             if ($athlete1Wins) {
                 $athlete1->matches_won = ($athlete1->matches_won ?? 0) + 1;
-            } elseif ($athlete2Wins) {
+            } elseif (!$athlete2Wins) {
+                // Draw - khong tinh vao matches_won hay matches_lost
+            } else {
                 $athlete1->matches_lost = ($athlete1->matches_lost ?? 0) + 1;
             }
 
             $athlete1->save();
 
+            // Update athlete2 statistics
             $athlete2->matches_played = ($athlete2->matches_played ?? 0) + 1;
             $athlete2->sets_won = ($athlete2->sets_won ?? 0) + $setsWonAthlete2;
             $athlete2->sets_lost = ($athlete2->sets_lost ?? 0) + $setsWonAthlete1;
 
             if ($athlete2Wins) {
                 $athlete2->matches_won = ($athlete2->matches_won ?? 0) + 1;
-            } elseif ($athlete1Wins) {
+            } elseif (!$athlete1Wins) {
+                // Draw - khong tinh vao matches_won hay matches_lost
+            } else {
                 $athlete2->matches_lost = ($athlete2->matches_lost ?? 0) + 1;
             }
 
             $athlete2->save();
 
+            // For doubles matches, also update partner statistics
+            if ($match->isDoubles()) {
+                $this->updatePartnerStats($athlete1, $setsWonAthlete1, $setsWonAthlete2, $athlete1Wins);
+                $this->updatePartnerStats($athlete2, $setsWonAthlete2, $setsWonAthlete1, $athlete2Wins);
+            }
+
             Log::info('Tournament athlete stats updated via API', [
                 'match_id' => $match->id,
+                'is_doubles' => $match->isDoubles(),
                 'athlete1_id' => $athlete1Id,
                 'athlete1_matches_played' => $athlete1->matches_played,
                 'athlete1_matches_won' => $athlete1->matches_won,
@@ -472,6 +488,34 @@ class RefereeController extends Controller
             Log::error('Update tournament athlete stats error: ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Helper: Update partner stats for doubles matches
+     */
+    private function updatePartnerStats(TournamentAthlete $athlete, int $setsWon, int $setsLost, bool $won): void
+    {
+        $partner = $athlete->partner;
+        if (!$partner) {
+            return;
+        }
+
+        $partner->matches_played = ($partner->matches_played ?? 0) + 1;
+        $partner->sets_won = ($partner->sets_won ?? 0) + $setsWon;
+        $partner->sets_lost = ($partner->sets_lost ?? 0) + $setsLost;
+
+        if ($won) {
+            $partner->matches_won = ($partner->matches_won ?? 0) + 1;
+        } else {
+            $partner->matches_lost = ($partner->matches_lost ?? 0) + 1;
+        }
+
+        $partner->save();
+
+        Log::info('Partner stats updated via API', [
+            'partner_id' => $partner->id,
+            'matches_played' => $partner->matches_played,
+        ]);
     }
 
     /**
@@ -499,5 +543,198 @@ class RefereeController extends Controller
             Log::error('Recalculate group rankings error: ' . $e->getMessage());
             throw $e;
         }
+    }
+
+    /**
+     * Sync match events from mobile/app
+     */
+    public function syncEvents(Request $request, MatchModel $match): JsonResponse
+    {
+        $referee = $request->user();
+
+        if (!$referee->hasRole('referee')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Referee role required.',
+            ], 403);
+        }
+
+        if (!$match->isAssignedToReferee($referee)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not assigned to this match.',
+            ], 403);
+        }
+
+        $validated = $request->validate([
+            'events' => 'required|array',
+            'events.*.type' => 'required|string',
+            'events.*.team' => 'nullable|string|in:left,right',
+            'events.*.data' => 'nullable|array',
+            'events.*.timer_seconds' => 'nullable|integer',
+            'events.*.created_at' => 'nullable|string',
+            'match_state' => 'nullable|array',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $eventCount = MatchEvent::recordBatch($match->id, $validated['events']);
+
+            if (!empty($validated['match_state'])) {
+                $match->syncState($validated['match_state']);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Events synced successfully.',
+                'events_synced' => $eventCount,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('API Sync events failed', ['error' => $e->getMessage(), 'match_id' => $match->id]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to sync events.',
+            ], 500);
+        }
+    }
+
+    /**
+     * End match and finalize results
+     */
+    public function endMatch(Request $request, MatchModel $match): JsonResponse
+    {
+        $referee = $request->user();
+
+        if (!$referee->hasRole('referee')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Referee role required.',
+            ], 403);
+        }
+
+        if (!$match->isAssignedToReferee($referee)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not assigned to this match.',
+            ], 403);
+        }
+
+        if ($match->isCompleted()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Match already completed.',
+            ], 400);
+        }
+
+        $validated = $request->validate([
+            'winner' => 'required|string|in:left,right',
+            'winnerId' => 'required|integer',
+            'gameScores' => 'required|array',
+            'gameScores.*.game' => 'required|integer',
+            'gameScores.*.athlete1' => 'required|integer',
+            'gameScores.*.athlete2' => 'required|integer',
+            'finalScore' => 'required|string',
+            'totalTimer' => 'required|integer',
+            'teams' => 'required|array',
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $setScores = array_map(function ($game) {
+                return [
+                    'set' => $game['game'],
+                    'athlete1' => $game['athlete1'],
+                    'athlete2' => $game['athlete2'],
+                ];
+            }, $validated['gameScores']);
+
+            $gamesWonAthlete1 = 0;
+            $gamesWonAthlete2 = 0;
+            foreach ($validated['gameScores'] as $game) {
+                if ($game['athlete1'] > $game['athlete2']) {
+                    $gamesWonAthlete1++;
+                } else {
+                    $gamesWonAthlete2++;
+                }
+            }
+
+            $match->update([
+                'status' => 'completed',
+                'winner_id' => $validated['winnerId'],
+                'set_scores' => $setScores,
+                'final_score' => $validated['finalScore'],
+                'actual_end_time' => now(),
+                'game_scores' => $validated['gameScores'],
+                'games_won_athlete1' => $gamesWonAthlete1,
+                'games_won_athlete2' => $gamesWonAthlete2,
+                'timer_seconds' => $validated['totalTimer'],
+                'match_state' => null,
+            ]);
+
+            $match->recordEvent(MatchEvent::TYPE_MATCH_END, $validated['winner'], [
+                'final_score' => $validated['finalScore'],
+                'winner_id' => $validated['winnerId'],
+            ], $validated['totalTimer']);
+
+            if ($match->athlete1_id && $match->athlete2_id) {
+                $this->updateGroupStandingsAndAthleteStats($match, $setScores);
+            }
+
+            DB::commit();
+
+            ActivityLog::log("Match #{$match->id} completed via API: {$validated['finalScore']}", 'Match', $match->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Match completed successfully.',
+                'data' => [
+                    'winner_id' => $validated['winnerId'],
+                    'final_score' => $validated['finalScore'],
+                ],
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('API End match failed', ['error' => $e->getMessage(), 'match_id' => $match->id]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to end match.',
+            ], 500);
+        }
+    }
+
+    /**
+     * Get current match state for recovery
+     */
+    public function getMatchState(MatchModel $match, Request $request): JsonResponse
+    {
+        $referee = $request->user();
+
+        if (!$referee->hasRole('referee')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Unauthorized. Referee role required.',
+            ], 403);
+        }
+
+        if (!$match->isAssignedToReferee($referee)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You are not assigned to this match.',
+            ], 403);
+        }
+
+        $match->load(['tournament', 'category', 'round', 'court', 'athlete1.partner', 'athlete2.partner']);
+
+        return response()->json([
+            'success' => true,
+            'data' => $match->toVueState(),
+        ]);
     }
 }

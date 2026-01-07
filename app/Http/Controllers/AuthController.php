@@ -66,6 +66,7 @@ class AuthController extends Controller
             'status' => 'approved',
             'referral_code' => $referralCode,
             'referred_by' => $referredBy,
+            'elo_rating' => 0,
         ]);
 
         // Assign 'user' role to the newly registered user
@@ -232,6 +233,7 @@ class AuthController extends Controller
                 'password' => Hash::make(str()->random(24)), // Generate random password for OAuth users
                 'role_type' => 'user',
                 'status' => 'approved',
+                'elo_rating' => 0,
             ]);
         } else {
             // Update google_id if user exists but doesn't have it
@@ -287,6 +289,7 @@ class AuthController extends Controller
                 'password' => Hash::make(str()->random(24)), // Generate random password for OAuth users
                 'role_type' => 'user',
                 'status' => 'approved',
+                'elo_rating' => 0,
             ]);
         } else {
             // Update facebook_id if user exists but doesn't have it

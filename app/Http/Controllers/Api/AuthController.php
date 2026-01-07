@@ -49,6 +49,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
             'role_type' => $request->role_type,
             'status' => 'approved',
+            'elo_rating' => 0,
         ]);
 
         $token = JWTAuth::fromUser($user);

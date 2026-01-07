@@ -320,7 +320,7 @@
                 <div class="profile-stats">
                     <div class="profile-stat">
                         <div class="profile-stat-value">{{ number_format($user->total_oprs, 0) }}</div>
-                        <div class="profile-stat-label">OPS</div>
+                        <div class="profile-stat-label">OPRS</div>
                     </div>
                     <div class="profile-stat">
                         <div class="profile-stat-value">#{{ $globalRank }}</div>
@@ -357,7 +357,6 @@
 <section class="profile-section">
     <div class="container">
         {{-- OPRS Section --}}
-        <div class="section-title">⭐ OnePickleball Rating Score</div>
         <div class="content-grid" style="margin-bottom: 2rem;">
             <x-oprs.score-card :user="$user" :breakdown="$oprsBreakdown" />
             <x-oprs.breakdown-chart :breakdown="$oprsBreakdown" />
@@ -367,9 +366,9 @@
         @auth
             @if(auth()->id() === $user->id)
             <div class="oprs-actions" style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
-                <a href="{{ route('ocr.challenges.index') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <!-- <a href="{{ route('ocr.challenges.index') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
                     🎯 Trung Tâm Thử Thách
-                </a>
+                </a> -->
                 <a href="{{ route('ocr.community.index') }}" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 0.5rem;">
                     👥 Cộng Đồng
                 </a>

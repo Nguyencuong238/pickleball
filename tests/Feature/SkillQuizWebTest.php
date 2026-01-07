@@ -27,9 +27,18 @@ class SkillQuizWebTest extends TestCase
     }
 
     /** @test */
-    public function guest_cannot_access_skill_quiz(): void
+    public function guest_can_view_skill_quiz_index(): void
     {
+        // Index page is public (preview for guests)
         $response = $this->get('/skill-quiz');
+        $response->assertOk();
+    }
+
+    /** @test */
+    public function guest_cannot_start_skill_quiz(): void
+    {
+        // Start page requires auth
+        $response = $this->get('/skill-quiz/start');
         $response->assertRedirect('/login');
     }
 

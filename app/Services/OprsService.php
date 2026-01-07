@@ -132,6 +132,18 @@ class OprsService
     }
 
     /**
+     * Recalculate after skill quiz completion
+     */
+    public function recalculateAfterSkillQuiz(User $user, ?string $attemptId = null): void
+    {
+        $this->updateUserOprs(
+            $user,
+            OprsHistory::REASON_SKILL_QUIZ,
+            $attemptId ? ['skill_quiz_attempt_id' => $attemptId] : null
+        );
+    }
+
+    /**
      * Batch recalculate all users' OPRS
      * @return int Number of users updated
      */

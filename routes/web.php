@@ -391,7 +391,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
 Route::middleware(['auth', 'role:referee'])->prefix('referee')->name('referee.')->group(function () {
     Route::get('dashboard', [RefereeController::class, 'dashboard'])->name('dashboard');
     Route::get('matches', [RefereeController::class, 'matches'])->name('matches.index');
-    Route::get('matches/{match:slug}', [RefereeController::class, 'show'])->name('matches.show');
+    Route::get('matches/{match}', [RefereeController::class, 'show'])->name('matches.show');
     Route::get('matches-id/{match}', [RefereeController::class, 'show'])->name('matches.show.id');
     Route::post('matches/{match}/start', [RefereeController::class, 'startMatch'])->name('matches.start');
     Route::put('matches/{match}/update-score', [RefereeController::class, 'updateScore'])->name('matches.update-score');
