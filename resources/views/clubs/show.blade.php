@@ -329,6 +329,27 @@
             <div class="btn-actions">
                 @if(Auth::id() === $club->user_id)
                     <a href="{{ route('clubs.edit', $club) }}" class="btn-action btn-edit">✏️ Chỉnh Sửa</a>
+                    <a href="{{ route('clubs.join-requests', $club) }}" class="btn-action btn-edit">📋 Yêu Cầu Tham Gia</a>
+                @elseif(Auth::check())
+                    @php
+                        $isMember = $club->members()->where('user_id', Auth::id())->exists();
+                        $hasRequest = \App\Models\ClubJoinRequest::where([
+                            'club_id' => $club->id,
+                            'user_id' => Auth::id()
+                        ])->exists();
+                    @endphp
+                    @if($isMember)
+                        <button class="btn-action btn-edit" style="opacity: 0.6; cursor: not-allowed;">✓ Đã Tham Gia</button>
+                    @elseif($hasRequest)
+                        <button class="btn-action btn-edit" style="opacity: 0.6; cursor: not-allowed;">⏳ Đang Chờ Duyệt</button>
+                    @else
+                        <form action="{{ route('clubs.request-join', $club) }}" method="POST" style="flex: 1;">
+                            @csrf
+                            <button type="submit" class="btn-action btn-edit" style="width: 100%;">➕ Tham Gia CLB/Nhóm</button>
+                        </form>
+                    @endif
+                @else
+                    <button class="btn-action btn-edit" onclick="alertLogin()" style="cursor: pointer;">➕ Tham Gia CLB/Nhóm</button>
                 @endif
                 <a href="{{ route('clubs.index') }}" class="btn-action btn-back">← Quay Lại</a>
             </div>
@@ -343,7 +364,14 @@
             @if($club->description)
                 <div class="section-card">
                     <h2 class="section-title">📝 Mô Tả</h2>
-                    <div class="description">{{ $club->description }}</div>
+                    <div class="description">
+                        @php
+                            $descriptionLines = array_filter(array_map('trim', explode("\n", $club->description)));
+                        @endphp
+                        @foreach ($descriptionLines as $line)
+                            <div>{{ $line }}</div>
+                        @endforeach
+                    </div>
                 </div>
             @endif
 
@@ -453,5 +481,14 @@
         </div>
     </div>
 </div>
+
+<script>
+    function alertLogin() {
+        const result = confirm('Vui lòng đăng nhập để tham gia câu lạc bộ/nhóm!\n\nClick OK để đăng nhập');
+        if (result) {
+            window.location.href = '{{ route("login") }}';
+        }
+    }
+</script>
 
 @endsection

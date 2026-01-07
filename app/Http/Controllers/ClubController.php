@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Club;
+use App\Models\ClubJoinRequest;
 use App\Models\Province;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -155,5 +156,105 @@ class ClubController extends Controller
         
         return redirect()->route('clubs.index')
             ->with('success', 'Câu lạc bộ/Nhóm được xóa thành công!');
+    }
+
+    /**
+     * Join request to club
+     */
+    public function requestJoin(Club $club)
+    {
+        if (Auth::id() === $club->user_id) {
+            return redirect()->route('clubs.show', $club)
+                ->with('error', 'Bạn là người tạo câu lạc bộ/nhóm!');
+        }
+
+        // Check if user is already a member
+        if ($club->members()->where('user_id', Auth::id())->exists()) {
+            return redirect()->route('clubs.show', $club)
+                ->with('error', 'Bạn đã là thành viên của câu lạc bộ/nhóm này!');
+        }
+
+        // Check if request already exists
+        $existingRequest = ClubJoinRequest::where([
+            'club_id' => $club->id,
+            'user_id' => Auth::id()
+        ])->first();
+
+        if ($existingRequest) {
+            return redirect()->route('clubs.show', $club)
+                ->with('error', 'Bạn đã gửi yêu cầu tham gia câu lạc bộ/nhóm này!');
+        }
+
+        // Create join request
+        ClubJoinRequest::create([
+            'club_id' => $club->id,
+            'user_id' => Auth::id(),
+            'status' => 'pending'
+        ]);
+
+        return redirect()->route('clubs.show', $club)
+            ->with('success', 'Yêu cầu tham gia đã được gửi!');
+    }
+
+    /**
+     * Show join requests for club
+     */
+    public function joinRequests(Club $club)
+    {
+        $this->authorize('update', $club);
+
+        $pendingRequests = $club->joinRequests()
+            ->where('status', 'pending')
+            ->with('user')
+            ->get();
+
+        $approvedRequests = $club->joinRequests()
+            ->where('status', 'approved')
+            ->with('user')
+            ->get();
+
+        $rejectedRequests = $club->joinRequests()
+            ->where('status', 'rejected')
+            ->with('user')
+            ->get();
+
+        return view('clubs.join-requests', compact('club', 'pendingRequests', 'approvedRequests', 'rejectedRequests'));
+    }
+
+    /**
+     * Approve join request
+     */
+    public function approveJoinRequest(Club $club, ClubJoinRequest $joinRequest)
+    {
+        $this->authorize('update', $club);
+
+        if ($joinRequest->club_id !== $club->id) {
+            return redirect()->back()->with('error', 'Yêu cầu không hợp lệ!');
+        }
+
+        $joinRequest->update(['status' => 'approved']);
+
+        // Add user to club members
+        if (!$club->members()->where('user_id', $joinRequest->user_id)->exists()) {
+            $club->members()->attach($joinRequest->user_id, ['role' => 'member']);
+        }
+
+        return redirect()->back()->with('success', 'Đã phê duyệt yêu cầu tham gia!');
+    }
+
+    /**
+     * Reject join request
+     */
+    public function rejectJoinRequest(Club $club, ClubJoinRequest $joinRequest)
+    {
+        $this->authorize('update', $club);
+
+        if ($joinRequest->club_id !== $club->id) {
+            return redirect()->back()->with('error', 'Yêu cầu không hợp lệ!');
+        }
+
+        $joinRequest->update(['status' => 'rejected']);
+
+        return redirect()->back()->with('success', 'Đã từ chối yêu cầu tham gia!');
     }
 }

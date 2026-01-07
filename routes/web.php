@@ -230,6 +230,12 @@ Route::middleware('auth')->group(function () {
     Route::put('clubs/{club}', [ClubController::class, 'update'])->name('clubs.update');
     Route::delete('clubs/{club}', [ClubController::class, 'destroy'])->name('clubs.destroy');
     
+    // Club Join Requests Routes
+    Route::post('clubs/{club}/request-join', [ClubController::class, 'requestJoin'])->name('clubs.request-join');
+    Route::get('clubs/{club}/join-requests', [ClubController::class, 'joinRequests'])->name('clubs.join-requests');
+    Route::post('clubs/{club}/join-requests/{joinRequest}/approve', [ClubController::class, 'approveJoinRequest'])->name('clubs.approve-join-request');
+    Route::post('clubs/{club}/join-requests/{joinRequest}/reject', [ClubController::class, 'rejectJoinRequest'])->name('clubs.reject-join-request');
+    
     // Club Activities Routes
     Route::prefix('clubs/{club}/activities')->name('clubs.activities.')->group(function () {
         Route::get('/', [ClubActivityController::class, 'index'])->name('index');

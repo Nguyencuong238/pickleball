@@ -58,4 +58,9 @@ class Club extends Model
     {
         return $this->hasMany(ClubActivity::class);
     }
+
+    public function joinRequests(): HasMany
+    {
+        return $this->hasMany(ClubJoinRequest::class);
+    }
 }
