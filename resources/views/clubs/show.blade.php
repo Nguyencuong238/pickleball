@@ -20,6 +20,9 @@
 
 {{-- Additional styles for posts --}}
 <style>
+.modal-body {
+    max-height: 50vh;
+}
 /* Avatar placeholders */
 .user-avatar-placeholder,
 .post-avatar-placeholder,

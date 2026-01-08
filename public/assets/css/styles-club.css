@@ -193,6 +193,13 @@
     gap: var(--spacing-lg);
 }
 
+/* Timeline Posts Container */
+.timeline-posts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+}
+
 /* Create Post Card */
 .create-post-card {
     background: white;

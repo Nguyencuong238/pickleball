@@ -99,7 +99,6 @@
             </a>
             @endif
         </div>
-        <a href="#" class="sidebar-link">Xem tất cả thành viên</a>
     </div>
 
     {{-- Upcoming Events Card --}}
