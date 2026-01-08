@@ -285,6 +285,10 @@
         display: flex;
         gap: 1rem;
     }
+
+    .user-dropdown-container .nav-link {
+        width: 200px;
+    }
 </style>
 <body>
     <!-- Header -->
@@ -404,12 +408,17 @@
                                         <i class="icon-user"></i> Bảng điều khiển Trọng tài
                                     </a>
                                 @endif
+                                @if(auth()->user()->canVerifyElo())
+                                    <a href="{{ route('verifier.dashboard') }}" class="nav-link">
+                                        <i class="icon-user"></i> Xác thực tài khoản OPR
+                                    </a>
+                                @endif
                             @endif
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-                                <a href="{{ route('logout') }}" class="nav-link"
+                                <a href="{{ route('logout') }}" class="nav-link" style="color: red;"
                                     onclick="event.preventDefault();this.closest('form').submit();">
-                                    <i class="icon-switch2"></i> {{ __('Log Out') }}
+                                    <i class="icon-switch2"></i> Đăng xuất
                                 </a>
                             </form>
                         </div>
