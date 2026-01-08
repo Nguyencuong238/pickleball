@@ -1,6 +1,6 @@
 <div class="modal-content">
     <form id="editTournamentForm" method="POST" enctype="multipart/form-data"
-        action="{{ route('homeyard.tournaments.update', $tournament->id) }}">
+        action="{{ route('homeyard.tournaments.update', ['tournament' => $tournament->slug]) }}">
         @csrf
         @method('PUT')
 

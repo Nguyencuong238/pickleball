@@ -186,7 +186,6 @@ class HomeYardTournamentController extends Controller
             'location' => 'nullable|string|max:255',
             'max_participants' => 'nullable|integer|min:1',
             'price' => 'nullable|numeric|min:0',
-            'rules' => 'nullable|string',
             'prizes' => 'nullable|numeric|min:0',
             'competition_format' => 'nullable|string|in:single,double,mixed',
             'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
@@ -209,7 +208,6 @@ class HomeYardTournamentController extends Controller
             'location',
             'max_participants',
             'price',
-            'rules',
             'prizes',
             'competition_format',
             'tournament_rank',
@@ -240,6 +238,13 @@ class HomeYardTournamentController extends Controller
         // Sync referees if provided
         if ($request->has('referee_ids')) {
             $this->syncReferees($tournament, $request->referee_ids ?? []);
+        }
+
+        if (request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Thông tin giải đấu đã được cập nhật thành công.'
+            ]);
         }
 
         return redirect()->back()->with('success', 'Thông tin giải đấu đã được cập nhật thành công.');

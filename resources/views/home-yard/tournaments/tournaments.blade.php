@@ -1274,5 +1274,45 @@
             const modal = document.getElementById('editModal');
             modal.classList.remove('show');
         }
+
+        // Edit Tournament Form Submit Handler
+        document.addEventListener('submit', function(e) {
+            if (e.target && e.target.id === 'editTournamentForm') {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+
+                fetch(form.action, {
+                    method: form.method,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        toastr.success(data.message);
+                        closeEditModal();
+                        // Reload page after a short delay
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 1000);
+                    } else {
+                        toastr.error(data.message || 'Đã xảy ra lỗi');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    toastr.error('Đã xảy ra lỗi: ' + error.message);
+                });
+            }
+        });
     </script>
 @endsection
