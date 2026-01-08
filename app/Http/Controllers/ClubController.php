@@ -86,8 +86,28 @@ class ClubController extends Controller
     public function show(Club $club)
     {
         $club->load(['creator', 'members', 'provinces', 'activities']);
-        
-        return view('clubs.show', compact('club'));
+
+        $user = Auth::user();
+        $membership = null;
+        $canPost = false;
+
+        if ($user) {
+            $member = $club->members()->where('user_id', $user->id)->first();
+            if ($member) {
+                $membership = [
+                    'role' => $member->pivot->role,
+                    'joined_at' => $member->pivot->joined_at,
+                ];
+                $canPost = in_array($member->pivot->role, ['creator', 'admin', 'moderator']);
+            }
+        }
+
+        // Get management team (creator, admin, moderator)
+        $managementTeam = $club->members()
+            ->whereIn('club_members.role', ['creator', 'admin', 'moderator'])
+            ->get();
+
+        return view('clubs.show', compact('club', 'membership', 'canPost', 'managementTeam'));
     }
 
     /**

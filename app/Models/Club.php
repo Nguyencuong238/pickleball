@@ -63,4 +63,36 @@ class Club extends Model
     {
         return $this->hasMany(ClubJoinRequest::class);
     }
+
+    public function posts(): HasMany
+    {
+        return $this->hasMany(ClubPost::class);
+    }
+
+    // Helper method to get member role
+    public function getMemberRole(User $user): ?string
+    {
+        $member = $this->members()->where('user_id', $user->id)->first();
+        return $member?->pivot->role;
+    }
+
+    // Check if user is management (can post)
+    public function isManagement(User $user): bool
+    {
+        $role = $this->getMemberRole($user);
+        return in_array($role, ['creator', 'admin', 'moderator']);
+    }
+
+    // Check if user is admin (creator/admin)
+    public function isAdmin(User $user): bool
+    {
+        $role = $this->getMemberRole($user);
+        return in_array($role, ['creator', 'admin']);
+    }
+
+    // Check if user is a member
+    public function isMember(User $user): bool
+    {
+        return $this->members()->where('user_id', $user->id)->exists();
+    }
 }

@@ -384,12 +384,12 @@
             <div class="btn-group">
                 <button type="submit" class="btn-submit">✓ Cập Nhật</button>
                 <a href="{{ route('clubs.show', $club) }}" class="btn-cancel">← Quay Lại</a>
-                <form action="{{ route('clubs.destroy', $club) }}" method="POST" style="flex: 1; display: flex;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn-delete" style="width: 100%;" onclick="return confirm('Bạn chắc chắn muốn xóa câu lạc bộ/nhóm này?')">🗑️ Xóa</button>
-                </form>
+                <button type="button" class="btn-delete" style="width: 100%;" onclick="if(confirm('Bạn chắc chắn muốn xóa câu lạc bộ/nhóm này?')) { document.querySelector('#deleteForm').submit(); }">🗑️ Xóa</button>
             </div>
+        </form>
+        <form action="{{ route('clubs.destroy', $club) }}" method="POST" style="flex: 1; display: flex;" id="deleteForm">
+            @csrf
+            @method('DELETE')
         </form>
     </div>
 </div>

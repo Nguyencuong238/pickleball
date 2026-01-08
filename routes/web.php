@@ -37,6 +37,9 @@ use App\Http\Controllers\Front\RefereeController;
 use App\Http\Controllers\Front\RefereeProfileController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\ClubActivityController;
+use App\Http\Controllers\Front\ClubPostController;
+use App\Http\Controllers\Front\ClubPostReactionController;
+use App\Http\Controllers\Front\ClubPostCommentController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\Front\OprVerificationController;
 use App\Http\Controllers\Verifier\VerifierDashboardController;
@@ -253,6 +256,39 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('clubs/{club}', [ClubController::class, 'show'])->name('clubs.show');
+
+// Club Posts Routes
+Route::prefix('clubs/{club}/posts')->name('clubs.posts.')->group(function () {
+    Route::get('/', [ClubPostController::class, 'index'])->name('index');
+    Route::get('/{post}', [ClubPostController::class, 'show'])->name('show');
+
+    Route::middleware('auth')->group(function () {
+        Route::post('/', [ClubPostController::class, 'store'])->name('store');
+        Route::put('/{post}', [ClubPostController::class, 'update'])->name('update');
+        Route::delete('/{post}', [ClubPostController::class, 'destroy'])->name('destroy');
+        Route::post('/{post}/pin', [ClubPostController::class, 'togglePin'])->name('pin');
+    });
+});
+
+// Club Post Reactions
+Route::middleware('auth')->group(function () {
+    Route::post('club-posts/{post}/reactions', [ClubPostReactionController::class, 'store'])->name('club-posts.reactions.store');
+    Route::delete('club-posts/{post}/reactions', [ClubPostReactionController::class, 'destroy'])->name('club-posts.reactions.destroy');
+});
+
+// Club Post Comments
+Route::prefix('club-posts/{post}/comments')->name('club-posts.comments.')->group(function () {
+    Route::get('/', [ClubPostCommentController::class, 'index'])->name('index');
+
+    Route::middleware('auth')->group(function () {
+        Route::post('/', [ClubPostCommentController::class, 'store'])->name('store');
+    });
+});
+
+Route::middleware('auth')->group(function () {
+    Route::put('club-post-comments/{comment}', [ClubPostCommentController::class, 'update'])->name('club-post-comments.update');
+    Route::delete('club-post-comments/{comment}', [ClubPostCommentController::class, 'destroy'])->name('club-post-comments.destroy');
+});
 
 // Instructor favorite routes (without auth middleware - controller checks auth internally)
 Route::middleware('web')->group(function () {

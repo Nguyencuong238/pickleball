@@ -6,8 +6,12 @@ namespace App\Providers;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use App\Models\Tournament;
 use App\Models\VideoComment;
+use App\Models\ClubPost;
+use App\Models\ClubPostComment;
 use App\Policies\TournamentPolicy;
 use App\Policies\VideoCommentPolicy;
+use App\Policies\ClubPostPolicy;
+use App\Policies\ClubPostCommentPolicy;
 
 class AuthServiceProvider extends ServiceProvider
 {
@@ -19,6 +23,8 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Tournament::class => TournamentPolicy::class,
         VideoComment::class => VideoCommentPolicy::class,
+        ClubPost::class => ClubPostPolicy::class,
+        ClubPostComment::class => ClubPostCommentPolicy::class,
     ];
 
     /**
