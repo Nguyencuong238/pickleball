@@ -221,7 +221,7 @@ class CommunityService
 
     /**
      * Record social activity (join group, follow social)
-     * Limited to once per day per activity type
+     * Limited to once per activity type (one-time only)
      *
      * @throws InvalidArgumentException
      */
@@ -239,15 +239,13 @@ class CommunityService
             throw new InvalidArgumentException('Invalid social activity type');
         }
 
-        // Check if already claimed today
-        $today = Carbon::today();
-        $alreadyClaimedToday = CommunityActivity::where('user_id', $user->id)
+        // Check if already claimed (one-time only)
+        $alreadyClaimed = CommunityActivity::where('user_id', $user->id)
             ->where('activity_type', $activityType)
-            ->whereDate('created_at', $today)
             ->exists();
 
-        if ($alreadyClaimedToday) {
-            throw new InvalidArgumentException('Already claimed today. Come back tomorrow!');
+        if ($alreadyClaimed) {
+            throw new InvalidArgumentException('Already completed this activity');
         }
 
         return DB::transaction(function () use ($user, $activityType) {
@@ -438,17 +436,15 @@ class CommunityService
                     break;
 
                 default:
-                    // Check if it's a social activity (once per day)
+                    // Check if it's a social activity (one-time only)
                     if (in_array($type, $socialTypes)) {
-                        $today = Carbon::today();
-                        $alreadyClaimedToday = CommunityActivity::where('user_id', $user->id)
+                        $alreadyClaimed = CommunityActivity::where('user_id', $user->id)
                             ->where('activity_type', $type)
-                            ->whereDate('created_at', $today)
                             ->exists();
-                        if ($alreadyClaimedToday) {
+                        if ($alreadyClaimed) {
                             $canSubmit = false;
-                            $reason = 'Already claimed today';
-                            $nextAvailable = Carbon::tomorrow()->format('Y-m-d');
+                            $reason = 'Already completed';
+                            $nextAvailable = null;
                         }
                     }
             }
