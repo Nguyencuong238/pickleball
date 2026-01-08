@@ -1,0 +1,1906 @@
+{
+  "info": {
+    "_postman_id": "pickleball-api",
+    "name": "Pickleball API",
+    "description": "Complete API documentation for Pickleball application.\n\n## Setup\n1. Import this collection into Postman\n2. Create an environment with `base_url` variable (e.g., `http://localhost:8000`)\n3. After login, the `access_token` will be automatically saved\n\n## Authentication\n- Public endpoints: No auth required\n- Protected endpoints: Bearer token required (auto-set after login)\n\n## API Sections\n- Authentication: User registration, login, logout\n- OCR (OnePickleball Championship Ranking): Matches, Elo ratings, leaderboards\n- OPRS (OnePickleball Rating Score): Player ratings, matchmaking\n- Challenges: Skill challenges and scoring\n- Community: Check-ins, events, referrals\n- Stadiums: Court listings\n- Tournaments: Tournament management\n- Socials: Social events\n- News: News articles\n- Instructor Reviews: Rating instructors\n- Media: File uploads",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "description": "User authentication endpoints",
+      "item": [
+        {
+          "name": "Public",
+          "description": "Public endpoints - No authentication required",
+          "item": [
+            {
+              "name": "Register",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Accept", "value": "application/json"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"phone\": \"0123456789\",\n  \"password\": \"password123\",\n  \"password_confirmation\": \"password123\",\n  \"role_type\": \"user\"\n}",
+                  "options": {"raw": {"language": "json"}}
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/register",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "register"]
+                },
+                "description": "Register a new user account.\n\n**Request Body:**\n- `name` (required): User's full name\n- `email` (required): Unique email address\n- `phone` (optional): Phone number (10-11 digits)\n- `password` (required): Minimum 6 characters\n- `password_confirmation` (required): Must match password\n- `role_type` (required): `user` or `court_owner`"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "Created",
+                  "code": 201,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"message\": \"Dang ky thanh cong!\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"phone\": \"0123456789\",\n    \"role_type\": \"user\",\n    \"status\": \"approved\",\n    \"elo_rating\": 1000,\n    \"elo_rank\": null,\n    \"total_ocr_matches\": 0,\n    \"ocr_wins\": 0,\n    \"ocr_losses\": 0,\n    \"challenge_score\": 0,\n    \"community_score\": 0,\n    \"total_oprs\": 0,\n    \"opr_level\": 0\n  },\n  \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n  \"token_type\": \"Bearer\"\n}"
+                },
+                {
+                  "name": "Validation Error",
+                  "status": "Unprocessable Entity",
+                  "code": 422,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"message\": \"The given data was invalid.\",\n  \"errors\": {\n    \"name\": [\"The name field is required.\"],\n    \"email\": [\"The email must be a valid email address.\"]\n  }\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 201) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.access_token) {",
+                      "        pm.collectionVariables.set('access_token', jsonData.access_token);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Login",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Accept", "value": "application/json"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"password123\"\n}",
+                  "options": {"raw": {"language": "json"}}
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/auth/login",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "login"]
+                },
+                "description": "Authenticate user and receive JWT token.\n\n**Request Body:**\n- `email` (required): User's email address\n- `password` (required): User's password\n\n**Note:** On success, the access_token is automatically saved to collection variables."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"message\": \"Dang nhap thanh cong!\",\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\"\n  },\n  \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n  \"token_type\": \"Bearer\",\n  \"expires_in\": 3600\n}"
+                },
+                {
+                  "name": "Unauthorized",
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": false,\n  \"message\": \"Email hoac mat khau khong chinh xac.\"\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.access_token) {",
+                      "        pm.collectionVariables.set('access_token', jsonData.access_token);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            },
+            {
+              "name": "Refresh Token",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Accept", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/refresh-token",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "refresh-token"]
+                },
+                "description": "Refresh an expired or valid JWT token.\n\n**Headers:**\n- `Authorization`: Bearer token (can be expired)\n\n**Note:** On success, the new access_token is automatically saved."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"message\": \"Lam moi token thanh cong!\",\n  \"access_token\": \"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...\",\n  \"token_type\": \"Bearer\",\n  \"expires_in\": 3600\n}"
+                },
+                {
+                  "name": "Token Invalid",
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": false,\n  \"message\": \"Token khong hop le hoac da het han.\"\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    var jsonData = pm.response.json();",
+                      "    if (jsonData.access_token) {",
+                      "        pm.collectionVariables.set('access_token', jsonData.access_token);",
+                      "    }",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Protected",
+          "description": "Protected endpoints - Bearer token required",
+          "item": [
+            {
+              "name": "Get Current User (me)",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {"key": "Accept", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/me",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "me"]
+                },
+                "description": "Get the authenticated user's information.\n\n**Headers:**\n- `Authorization`: Bearer token (required)"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"user\": {\n    \"id\": 1,\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"phone\": \"0123456789\",\n    \"role_type\": \"user\",\n    \"status\": \"approved\",\n    \"elo_rating\": 1000,\n    \"elo_rank\": \"Bronze\",\n    \"total_ocr_matches\": 5,\n    \"ocr_wins\": 3,\n    \"ocr_losses\": 2,\n    \"challenge_score\": 150,\n    \"community_score\": 100,\n    \"total_oprs\": 850,\n    \"opr_level\": \"3.0\"\n  }\n}"
+                },
+                {
+                  "name": "Unauthorized",
+                  "status": "Unauthorized",
+                  "code": 401,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"message\": \"Unauthenticated.\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get User",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {"key": "Accept", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/user",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "user"]
+                },
+                "description": "Get the authenticated user (generic endpoint).\n\n**Headers:**\n- `Authorization`: Bearer token (required)"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"id\": 1,\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"phone\": \"0123456789\",\n  \"role_type\": \"user\"\n}"
+                }
+              ]
+            },
+            {
+              "name": "Logout",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Accept", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/auth/logout",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "auth", "logout"]
+                },
+                "description": "Logout the authenticated user and invalidate the token.\n\n**Note:** On success, the access_token collection variable is cleared."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"message\": \"Logout successful\"\n}"
+                }
+              ],
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "exec": [
+                      "if (pm.response.code === 200) {",
+                      "    pm.collectionVariables.set('access_token', '');",
+                      "}"
+                    ],
+                    "type": "text/javascript"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OCR Matches",
+      "description": "OnePickleball Championship Ranking - Match management endpoints",
+      "item": [
+        {
+          "name": "List Matches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches?status=pending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches"],
+              "query": [
+                {"key": "status", "value": "pending", "description": "Filter by status: pending, accepted, in_progress, result_submitted, completed, disputed, cancelled"}
+              ]
+            },
+            "description": "List user's OCR matches with optional status filter.\n\n**Query Parameters:**\n- `status` (optional): Filter by match status\n\n**Status values:** pending, accepted, in_progress, result_submitted, completed, disputed, cancelled"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 1,\n        \"match_type\": \"singles\",\n        \"challenger_id\": 1,\n        \"opponent_id\": 2,\n        \"status\": \"pending\",\n        \"scheduled_date\": \"2024-01-15\",\n        \"scheduled_time\": \"14:00:00\",\n        \"location\": \"Stadium A\",\n        \"challenger\": {\"id\": 1, \"name\": \"Player 1\"},\n        \"opponent\": {\"id\": 2, \"name\": \"Player 2\"}\n      }\n    ],\n    \"per_page\": 20,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Create Match",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"opponent_id\": 2,\n  \"match_type\": \"singles\",\n  \"scheduled_date\": \"2024-01-15\",\n  \"scheduled_time\": \"14:00\",\n  \"location\": \"Stadium A\",\n  \"notes\": \"Looking forward to the match!\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches"]
+            },
+            "description": "Create a new match challenge.\n\n**Request Body:**\n- `opponent_id` (required): ID of the opponent\n- `match_type` (optional): `singles` or `doubles` (default: singles)\n- `challenger_partner_id` (optional): Partner for doubles\n- `opponent_partner_id` (optional): Opponent's partner for doubles\n- `scheduled_date` (optional): Match date\n- `scheduled_time` (optional): Match time\n- `location` (optional): Match location\n- `notes` (optional): Additional notes"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Match invitation sent\",\n  \"data\": {\n    \"id\": 1,\n    \"match_type\": \"singles\",\n    \"challenger_id\": 1,\n    \"opponent_id\": 2,\n    \"status\": \"pending\",\n    \"scheduled_date\": \"2024-01-15\",\n    \"scheduled_time\": \"14:00:00\",\n    \"location\": \"Stadium A\"\n  }\n}"
+            },
+            {
+              "name": "Cannot Challenge Yourself",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"error\": \"Cannot challenge yourself\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Match Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches", "1"]
+            },
+            "description": "Get detailed information about a specific match including win probability."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 1,\n    \"match_type\": \"singles\",\n    \"challenger_id\": 1,\n    \"opponent_id\": 2,\n    \"status\": \"pending\",\n    \"challenger\": {\"id\": 1, \"name\": \"Player 1\", \"elo_rating\": 1200},\n    \"opponent\": {\"id\": 2, \"name\": \"Player 2\", \"elo_rating\": 1150}\n  },\n  \"meta\": {\n    \"win_probability\": {\n      \"challenger\": 0.57,\n      \"opponent\": 0.43\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Accept Match",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches/1/accept",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches", "1", "accept"]
+            },
+            "description": "Accept a match invitation. Only the opponent can accept."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Match accepted\",\n  \"data\": {\n    \"id\": 1,\n    \"status\": \"accepted\"\n  }\n}"
+            },
+            {
+              "name": "Not Opponent",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"error\": \"Only opponent can accept\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Reject Match",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches/1/reject",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches", "1", "reject"]
+            },
+            "description": "Reject a match invitation. Only the opponent can reject."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Match rejected\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Submit Result",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challenger_score\": 11,\n  \"opponent_score\": 7\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches/1/result",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches", "1", "result"]
+            },
+            "description": "Submit match result. Any participant can submit.\n\n**Request Body:**\n- `challenger_score` (required): Challenger's score\n- `opponent_score` (required): Opponent's score"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Result submitted, waiting for confirmation\",\n  \"data\": {\n    \"id\": 1,\n    \"status\": \"result_submitted\",\n    \"challenger_score\": 11,\n    \"opponent_score\": 7\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Confirm Result",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches/1/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches", "1", "confirm"]
+            },
+            "description": "Confirm match result. The other participant (not submitter) must confirm. This triggers Elo rating updates."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Match confirmed and Elo updated\",\n  \"data\": {\n    \"id\": 1,\n    \"status\": \"completed\",\n    \"winner_team\": \"challenger\",\n    \"challenger\": {\"elo_rating\": 1216},\n    \"opponent\": {\"elo_rating\": 1134}\n  }\n}"
+            },
+            {
+              "name": "Cannot Confirm Own Submission",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"error\": \"Cannot confirm your own submission\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Dispute Result",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"The submitted score is incorrect. Actual score was 11-9.\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches/1/dispute",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches", "1", "dispute"]
+            },
+            "description": "Dispute a match result.\n\n**Request Body:**\n- `reason` (required): Reason for dispute (max 1000 chars)"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Dispute submitted for admin review\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Upload Evidence",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "evidence[]", "type": "file", "description": "Evidence files (jpg, jpeg, png, mp4, mov). Max 20MB each."}
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/ocr/matches/1/evidence",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "matches", "1", "evidence"]
+            },
+            "description": "Upload evidence files for a match (photos/videos).\n\n**Form Data:**\n- `evidence[]` (required): Files to upload\n\n**Allowed formats:** jpg, jpeg, png, mp4, mov\n**Max size:** 20MB per file"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Evidence uploaded\",\n  \"data\": [\n    {\n      \"id\": 1,\n      \"file_name\": \"evidence_1.jpg\",\n      \"url\": \"/storage/media/evidence_1.jpg\"\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OCR Leaderboard",
+      "description": "OCR Elo ratings and leaderboards (Public endpoints)",
+      "item": [
+        {
+          "name": "Get User Elo",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/users/1/elo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "users", "1", "elo"]
+            },
+            "description": "Get a user's Elo rating with OPRS data."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"name\": \"Test User\",\n    \"elo_rating\": 1200,\n    \"elo_rank\": \"Silver\",\n    \"total_matches\": 10,\n    \"wins\": 6,\n    \"losses\": 4,\n    \"win_rate\": 60,\n    \"oprs\": {\n      \"total\": 850,\n      \"level\": \"3.0\",\n      \"challenge_score\": 150,\n      \"community_score\": 100\n    }\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get User Badges",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/users/1/badges",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "users", "1", "badges"]
+            },
+            "description": "Get a user's achievement badges."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"type\": \"first_win\",\n      \"name\": \"First Victory\",\n      \"description\": \"Won your first OCR match\",\n      \"icon\": \"trophy\",\n      \"earned_at\": \"2024-01-10T12:00:00.000000Z\"\n    },\n    {\n      \"type\": \"win_streak_3\",\n      \"name\": \"Hot Streak\",\n      \"description\": \"Won 3 matches in a row\",\n      \"icon\": \"fire\",\n      \"earned_at\": \"2024-01-12T15:30:00.000000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get User Stats",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/users/1/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "users", "1", "stats"]
+            },
+            "description": "Get comprehensive user OCR stats with OPRS data and recent history."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"name\": \"Test User\",\n    \"elo_rating\": 1200,\n    \"elo_rank\": \"Silver\",\n    \"total_matches\": 10,\n    \"wins\": 6,\n    \"losses\": 4,\n    \"win_rate\": 60,\n    \"badges_count\": 5,\n    \"current_streak\": 2,\n    \"oprs\": {\n      \"total\": 850,\n      \"level\": \"3.0\",\n      \"level_info\": {\"name\": \"Intermediate\", \"min\": 700, \"max\": 1000},\n      \"challenge_score\": 150,\n      \"community_score\": 100,\n      \"passed_challenges\": 8\n    },\n    \"recent_history\": [\n      {\n        \"id\": 5,\n        \"elo_before\": 1180,\n        \"elo_after\": 1200,\n        \"change_amount\": 20,\n        \"change_reason\": \"match_win\",\n        \"match_id\": 10\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Global Leaderboard",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/leaderboard?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "leaderboard"],
+              "query": [
+                {"key": "limit", "value": "50", "description": "Number of results (1-100, default 50)"}
+              ]
+            },
+            "description": "Get global Elo leaderboard.\n\n**Query Parameters:**\n- `limit` (optional): Number of results (1-100, default 50)"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"rank\": 1,\n      \"user_id\": 5,\n      \"name\": \"Top Player\",\n      \"elo_rating\": 1800,\n      \"elo_rank\": \"Diamond\",\n      \"total_matches\": 50,\n      \"wins\": 40,\n      \"losses\": 10,\n      \"win_rate\": 80\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Rank Distribution",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/leaderboard/distribution",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "leaderboard", "distribution"]
+            },
+            "description": "Get rank tier distribution statistics."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\"rank\": \"Bronze\", \"min_elo\": 0, \"max_elo\": 1099, \"player_count\": 150},\n    {\"rank\": \"Silver\", \"min_elo\": 1100, \"max_elo\": 1299, \"player_count\": 80},\n    {\"rank\": \"Gold\", \"min_elo\": 1300, \"max_elo\": 1499, \"player_count\": 40},\n    {\"rank\": \"Platinum\", \"min_elo\": 1500, \"max_elo\": 1699, \"player_count\": 20},\n    {\"rank\": \"Diamond\", \"min_elo\": 1700, \"max_elo\": 1899, \"player_count\": 8},\n    {\"rank\": \"Master\", \"min_elo\": 1900, \"max_elo\": 2099, \"player_count\": 3},\n    {\"rank\": \"Grandmaster\", \"min_elo\": 2100, \"max_elo\": null, \"player_count\": 1}\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Leaderboard by Rank",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/ocr/leaderboard/Gold?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "ocr", "leaderboard", "Gold"],
+              "query": [
+                {"key": "limit", "value": "50", "description": "Number of results (1-100)"}
+              ]
+            },
+            "description": "Get leaderboard filtered by rank tier.\n\n**Path Parameters:**\n- `rank`: Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"rank_in_tier\": 1,\n      \"user_id\": 10,\n      \"name\": \"Gold Player 1\",\n      \"elo_rating\": 1480,\n      \"elo_rank\": \"Gold\",\n      \"total_matches\": 25,\n      \"wins\": 18,\n      \"losses\": 7,\n      \"win_rate\": 72\n    }\n  ],\n  \"meta\": {\n    \"rank_tier\": \"Gold\",\n    \"total_players\": 40\n  }\n}"
+            },
+            {
+              "name": "Invalid Rank",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"error\": \"Invalid rank. Valid ranks: Bronze, Silver, Gold, Platinum, Diamond, Master, Grandmaster\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "OPRS",
+      "description": "OnePickleball Rating Score system",
+      "item": [
+        {
+          "name": "Protected",
+          "description": "OPRS endpoints requiring authentication",
+          "item": [
+            {
+              "name": "Get Profile",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {"key": "Accept", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/profile",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "profile"]
+                },
+                "description": "Get current user's OPRS profile with breakdown and rank."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"name\": \"Test User\",\n    \"total_oprs\": 850,\n    \"opr_level\": \"3.0\",\n    \"breakdown\": {\n      \"elo_component\": 600,\n      \"challenge_component\": 150,\n      \"community_component\": 100\n    },\n    \"rank\": 25\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get Breakdown",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {"key": "Accept", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/breakdown",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "breakdown"]
+                },
+                "description": "Get OPRS score breakdown (Elo 70% + Challenge 20% + Community 10%)."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"elo_component\": 600,\n    \"challenge_component\": 150,\n    \"community_component\": 100,\n    \"total\": 850\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get History",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {"key": "Accept", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/history?limit=50",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "history"],
+                  "query": [
+                    {"key": "limit", "value": "50", "description": "Number of records (max 100)"}
+                  ]
+                },
+                "description": "Get OPRS change history (audit log).\n\n**Query Parameters:**\n- `limit` (optional): Number of records (default 50, max 100)"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 10,\n      \"oprs_before\": 830,\n      \"oprs_after\": 850,\n      \"change_amount\": 20,\n      \"component\": \"elo\",\n      \"reason\": \"match_win\",\n      \"created_at\": \"2024-01-15T10:00:00.000000Z\"\n    }\n  ]\n}"
+                }
+              ]
+            },
+            {
+              "name": "Estimate Change",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {"key": "Content-Type", "value": "application/json"},
+                  {"key": "Accept", "value": "application/json"},
+                  {"key": "Authorization", "value": "Bearer {{access_token}}"}
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"component\": \"elo\",\n  \"change\": 50\n}",
+                  "options": {"raw": {"language": "json"}}
+                },
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/estimate",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "estimate"]
+                },
+                "description": "Estimate OPRS change for a potential action.\n\n**Request Body:**\n- `component` (required): elo, challenge, or community\n- `change` (required): The change amount"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"current_oprs\": 850,\n    \"estimated_new_oprs\": 885,\n    \"change\": 35\n  }\n}"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Public",
+          "description": "Public OPRS endpoints",
+          "item": [
+            {
+              "name": "Get Levels",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Accept", "value": "application/json"}],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/levels",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "levels"]
+                },
+                "description": "Get all OPR levels (1.0 Beginner to 5.0+ Elite)."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"1.0\": {\"name\": \"Beginner\", \"min\": 0, \"max\": 200},\n    \"2.0\": {\"name\": \"Novice\", \"min\": 201, \"max\": 400},\n    \"2.5\": {\"name\": \"Advanced Beginner\", \"min\": 401, \"max\": 600},\n    \"3.0\": {\"name\": \"Intermediate\", \"min\": 601, \"max\": 800},\n    \"3.5\": {\"name\": \"Advanced Intermediate\", \"min\": 801, \"max\": 1000},\n    \"4.0\": {\"name\": \"Advanced\", \"min\": 1001, \"max\": 1200},\n    \"4.5\": {\"name\": \"Professional\", \"min\": 1201, \"max\": 1400},\n    \"5.0\": {\"name\": \"Elite\", \"min\": 1401, \"max\": null}\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Leaderboard",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Accept", "value": "application/json"}],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/leaderboard?limit=50&offset=0",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "leaderboard"],
+                  "query": [
+                    {"key": "limit", "value": "50", "description": "Number of results (max 100)"},
+                    {"key": "offset", "value": "0", "description": "Offset for pagination"}
+                  ]
+                },
+                "description": "Get OPRS leaderboard.\n\n**Query Parameters:**\n- `limit` (optional): Number of results (default 50, max 100)\n- `offset` (optional): Offset for pagination"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"rank\": 1,\n      \"user\": {\"id\": 5, \"name\": \"Top Player\"},\n      \"oprs\": 1500,\n      \"opr_level\": \"5.0\",\n      \"elo_rating\": 1900,\n      \"elo_rank\": \"Master\",\n      \"stats\": {\n        \"matches\": 100,\n        \"wins\": 85,\n        \"win_rate\": 85\n      }\n    }\n  ],\n  \"meta\": {\n    \"offset\": 0,\n    \"limit\": 50,\n    \"has_more\": true\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Leaderboard Levels",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Accept", "value": "application/json"}],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/leaderboard/levels",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "leaderboard", "levels"]
+                },
+                "description": "Get all OPR level information."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"1.0\": {\"name\": \"Beginner\", \"min_oprs\": 0, \"max_oprs\": 200},\n    \"2.0\": {\"name\": \"Novice\", \"min_oprs\": 201, \"max_oprs\": 400}\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Leaderboard by Level",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Accept", "value": "application/json"}],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/leaderboard/level/3.0?limit=50",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "leaderboard", "level", "3.0"],
+                  "query": [
+                    {"key": "limit", "value": "50"}
+                  ]
+                },
+                "description": "Get leaderboard by OPR level.\n\n**Path Parameters:**\n- `level`: OPR level (1.0, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0)"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"rank\": 1,\n      \"user\": {\"id\": 15, \"name\": \"Level 3 Player\"},\n      \"oprs\": 780,\n      \"opr_level\": \"3.0\",\n      \"stats\": {\"matches\": 20, \"wins\": 12}\n    }\n  ],\n  \"meta\": {\n    \"level\": \"3.0\",\n    \"level_info\": {\"name\": \"Intermediate\", \"min\": 601, \"max\": 800}\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Level Distribution",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Accept", "value": "application/json"}],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/leaderboard/distribution",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "leaderboard", "distribution"]
+                },
+                "description": "Get OPRS level distribution statistics."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"1.0\": {\"name\": \"Beginner\", \"min_oprs\": 0, \"max_oprs\": 200, \"count\": 50},\n    \"2.0\": {\"name\": \"Novice\", \"min_oprs\": 201, \"max_oprs\": 400, \"count\": 80},\n    \"3.0\": {\"name\": \"Intermediate\", \"min_oprs\": 601, \"max_oprs\": 800, \"count\": 100}\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Get User OPRS Profile",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Accept", "value": "application/json"}],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/users/1",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "users", "1"]
+                },
+                "description": "Get a specific user's OPRS profile."
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": {\n    \"user_id\": 1,\n    \"name\": \"Test User\",\n    \"total_oprs\": 850,\n    \"opr_level\": \"3.0\",\n    \"breakdown\": {\n      \"elo_component\": 600,\n      \"challenge_component\": 150,\n      \"community_component\": 100\n    },\n    \"rank\": 25,\n    \"elo_rating\": 1200,\n    \"elo_rank\": \"Silver\",\n    \"total_matches\": 15,\n    \"win_rate\": 60\n  }\n}"
+                }
+              ]
+            },
+            {
+              "name": "Matchmaking Suggestions",
+              "request": {
+                "method": "GET",
+                "header": [{"key": "Accept", "value": "application/json"}],
+                "url": {
+                  "raw": "{{base_url}}/api/oprs/matchmaking/suggest/1?range=100&limit=10",
+                  "host": ["{{base_url}}"],
+                  "path": ["api", "oprs", "matchmaking", "suggest", "1"],
+                  "query": [
+                    {"key": "range", "value": "100", "description": "OPRS range for matching (max 500)"},
+                    {"key": "limit", "value": "10", "description": "Number of suggestions (max 20)"}
+                  ]
+                },
+                "description": "Get opponent suggestions based on OPRS.\n\n**Path Parameters:**\n- `user`: User ID\n\n**Query Parameters:**\n- `range` (optional): OPRS range (default 100, max 500)\n- `limit` (optional): Number of suggestions (default 10, max 20)"
+              },
+              "response": [
+                {
+                  "name": "Success",
+                  "status": "OK",
+                  "code": 200,
+                  "_postman_previewlanguage": "json",
+                  "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"user\": {\"id\": 5, \"name\": \"Suggested Opponent\"},\n      \"oprs\": 870,\n      \"opr_level\": \"3.5\",\n      \"oprs_diff\": 20,\n      \"elo_rating\": 1180,\n      \"elo_rank\": \"Silver\",\n      \"stats\": {\"matches\": 12, \"wins\": 7, \"win_rate\": 58},\n      \"matchup\": {\n        \"win_probability\": 0.52,\n        \"estimated_elo_change\": 16\n      }\n    }\n  ],\n  \"meta\": {\n    \"your_oprs\": 850,\n    \"your_opr_level\": \"3.0\",\n    \"search_range\": [750, 950]\n  }\n}"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Challenges",
+      "description": "Skill challenges system",
+      "item": [
+        {
+          "name": "Get Challenge Types",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/challenges/types",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges", "types"]
+            },
+            "description": "Get all challenge types (serve_accuracy, volley_control, dink_precision, footwork_drill, monthly_test)."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"type\": \"serve_accuracy\",\n      \"name\": \"Serve Accuracy\",\n      \"description\": \"Test your serving precision\",\n      \"pass_threshold\": 70,\n      \"max_score\": 100,\n      \"points_awarded\": 50\n    },\n    {\n      \"type\": \"volley_control\",\n      \"name\": \"Volley Control\",\n      \"description\": \"Demonstrate your volley skills\",\n      \"pass_threshold\": 65,\n      \"max_score\": 100,\n      \"points_awarded\": 50\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Available Challenges",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/challenges/available",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges", "available"]
+            },
+            "description": "Get user's available challenges (not yet completed today)."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"type\": \"serve_accuracy\",\n      \"name\": \"Serve Accuracy\",\n      \"available\": true,\n      \"last_attempted\": null\n    },\n    {\n      \"type\": \"volley_control\",\n      \"name\": \"Volley Control\",\n      \"available\": false,\n      \"last_attempted\": \"2024-01-15T10:00:00.000000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Submit Challenge",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challenge_type\": \"serve_accuracy\",\n  \"score\": 85\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/challenges/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges", "submit"]
+            },
+            "description": "Submit a challenge result.\n\n**Request Body:**\n- `challenge_type` (required): Type of challenge\n- `score` (required): Score achieved"
+          },
+          "response": [
+            {
+              "name": "Success - Passed",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"challenge\": {\n      \"id\": 1,\n      \"challenge_type\": \"serve_accuracy\",\n      \"score\": 85,\n      \"passed\": true,\n      \"points_earned\": 50\n    },\n    \"passed\": true,\n    \"points_earned\": 50,\n    \"new_challenge_score\": 200\n  },\n  \"message\": \"Challenge passed! Points awarded.\"\n}"
+            },
+            {
+              "name": "Success - Not Passed",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"challenge\": {\n      \"id\": 2,\n      \"challenge_type\": \"serve_accuracy\",\n      \"score\": 60,\n      \"passed\": false,\n      \"points_earned\": 0\n    },\n    \"passed\": false,\n    \"points_earned\": 0,\n    \"new_challenge_score\": 150\n  },\n  \"message\": \"Challenge not passed. Try again!\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Challenge History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/challenges/history?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges", "history"],
+              "query": [
+                {"key": "limit", "value": "50", "description": "Number of records (max 100)"}
+              ]
+            },
+            "description": "Get user's challenge completion history."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"challenge_type\": \"serve_accuracy\",\n      \"score\": 85,\n      \"passed\": true,\n      \"points_earned\": 50,\n      \"created_at\": \"2024-01-15T10:00:00.000000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Challenge Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/challenges/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "challenges", "stats"]
+            },
+            "description": "Get user's challenge stats and best scores."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"stats\": {\n      \"total_attempts\": 25,\n      \"total_passed\": 18,\n      \"pass_rate\": 72\n    },\n    \"best_scores\": {\n      \"serve_accuracy\": 95,\n      \"volley_control\": 88,\n      \"dink_precision\": 82\n    },\n    \"challenge_score\": 200\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Community",
+      "description": "Community activity system",
+      "item": [
+        {
+          "name": "Get Activity Types",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/community/types",
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "types"]
+            },
+            "description": "Get all community activity types."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\"type\": \"check_in\", \"name\": \"Stadium Check-in\", \"points\": 10},\n    {\"type\": \"event_participation\", \"name\": \"Event Participation\", \"points\": 50},\n    {\"type\": \"referral\", \"name\": \"Player Referral\", \"points\": 100},\n    {\"type\": \"join_group\", \"name\": \"Join Group\", \"points\": 20},\n    {\"type\": \"follow_fb\", \"name\": \"Follow Facebook\", \"points\": 10},\n    {\"type\": \"follow_youtube\", \"name\": \"Follow YouTube\", \"points\": 10},\n    {\"type\": \"follow_tiktok\", \"name\": \"Follow TikTok\", \"points\": 10}\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Check In",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"stadium_id\": 1\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/check-in",
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "check-in"]
+            },
+            "description": "Check in at a stadium (+10 points).\n\n**Request Body:**\n- `stadium_id` (required): ID of the stadium"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"activity\": {\n      \"id\": 1,\n      \"activity_type\": \"check_in\",\n      \"points_earned\": 10\n    },\n    \"new_community_score\": 110\n  },\n  \"message\": \"Check-in successful! +10 points\"\n}"
+            },
+            {
+              "name": "Already Checked In",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"error\": \"Already checked in today at this stadium\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Record Event",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"event_id\": 1\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/event",
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "event"]
+            },
+            "description": "Record event participation (+50 points).\n\n**Request Body:**\n- `event_id` (required): ID of the social event"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"activity\": {\n      \"id\": 2,\n      \"activity_type\": \"event_participation\",\n      \"points_earned\": 50\n    },\n    \"new_community_score\": 160\n  },\n  \"message\": \"Event participation recorded! +50 points\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Record Referral",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"referred_user_id\": 5\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/referral",
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "referral"]
+            },
+            "description": "Record a player referral (+100 points).\n\n**Request Body:**\n- `referred_user_id` (required): ID of the referred user"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"activity\": {\n      \"id\": 3,\n      \"activity_type\": \"referral\",\n      \"points_earned\": 100\n    },\n    \"new_community_score\": 260\n  },\n  \"message\": \"Referral recorded! +100 points\"\n}"
+            },
+            {
+              "name": "Cannot Refer Self",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"error\": \"Cannot refer yourself\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Record Social Activity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activity_type\": \"follow_fb\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/community/social-activity",
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "social-activity"]
+            },
+            "description": "Record social media activity.\n\n**Request Body:**\n- `activity_type` (required): join_group, follow_fb, follow_youtube, or follow_tiktok"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"activity\": {\n      \"id\": 4,\n      \"activity_type\": \"follow_fb\",\n      \"points_earned\": 10\n    },\n    \"new_community_score\": 270\n  },\n  \"message\": \"Social activity recorded! +10 points\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Activity History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/history?limit=50",
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "history"],
+              "query": [
+                {"key": "limit", "value": "50"}
+              ]
+            },
+            "description": "Get community activity history."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"activity_type\": \"check_in\",\n      \"points_earned\": 10,\n      \"created_at\": \"2024-01-15T10:00:00.000000Z\"\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Activity Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/community/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "community", "stats"]
+            },
+            "description": "Get community activity stats and available activities."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"stats\": {\n      \"total_check_ins\": 15,\n      \"total_events\": 5,\n      \"total_referrals\": 3\n    },\n    \"available_activities\": [\n      {\"type\": \"check_in\", \"available\": true},\n      {\"type\": \"follow_youtube\", \"available\": true}\n    ],\n    \"community_score\": 270\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Stadiums",
+      "description": "Stadium and court management (Public)",
+      "item": [
+        {
+          "name": "List Stadiums",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/stadiums?search=&province_id=&sort=name&direction=asc&per_page=15",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stadiums"],
+              "query": [
+                {"key": "search", "value": "", "description": "Search by name"},
+                {"key": "province_id", "value": "", "description": "Filter by province"},
+                {"key": "sort", "value": "name", "description": "Sort field"},
+                {"key": "direction", "value": "asc", "description": "Sort direction"},
+                {"key": "per_page", "value": "15", "description": "Results per page"}
+              ]
+            },
+            "description": "List all stadiums with filtering and pagination.\n\n**Query Parameters:**\n- `search` (optional): Search by name\n- `province_id` (optional): Filter by province\n- `sort` (optional): Sort field (default: name)\n- `direction` (optional): asc or desc\n- `per_page` (optional): Results per page"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Stadium A\",\n      \"address\": \"123 Main St\",\n      \"province\": {\"id\": 1, \"name\": \"Ho Chi Minh City\"},\n      \"phone\": \"0123456789\",\n      \"opening_hours\": \"06:00 - 22:00\"\n    }\n  ],\n  \"links\": {},\n  \"meta\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 50\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Stadium Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/stadiums/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stadiums", "1"]
+            },
+            "description": "Get stadium details with province, courts, and reviews."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Stadium A\",\n    \"address\": \"123 Main St\",\n    \"province\": {\"id\": 1, \"name\": \"Ho Chi Minh City\"},\n    \"courts\": [\n      {\"id\": 1, \"name\": \"Court 1\", \"type\": \"outdoor\"}\n    ],\n    \"reviews\": [\n      {\"id\": 1, \"rating\": 5, \"content\": \"Great place!\"}\n    ]\n  }\n}"
+            },
+            {
+              "name": "Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Stadium not found\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Tournaments",
+      "description": "Tournament management (Public)",
+      "item": [
+        {
+          "name": "List Tournaments",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/tournaments?search=&status=&category_id=&sort=start_date&direction=desc&per_page=15",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tournaments"],
+              "query": [
+                {"key": "search", "value": "", "description": "Search by name"},
+                {"key": "status", "value": "", "description": "Filter by status"},
+                {"key": "category_id", "value": "", "description": "Filter by category"},
+                {"key": "sort", "value": "start_date", "description": "Sort field"},
+                {"key": "direction", "value": "desc", "description": "Sort direction"},
+                {"key": "per_page", "value": "15", "description": "Results per page"}
+              ]
+            },
+            "description": "List all tournaments with filtering and pagination.\n\n**Query Parameters:**\n- `search` (optional): Search by name\n- `status` (optional): Filter by status\n- `category_id` (optional): Filter by category\n- `sort` (optional): Sort field (default: start_date)\n- `direction` (optional): asc or desc\n- `per_page` (optional): Results per page"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Summer Championship 2024\",\n      \"start_date\": \"2024-06-01\",\n      \"end_date\": \"2024-06-03\",\n      \"status\": \"upcoming\",\n      \"location\": \"Stadium A\"\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 10\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Tournament Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/tournaments/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tournaments", "1"]
+            },
+            "description": "Get tournament details with categories, athletes, rounds, and groups."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Summer Championship 2024\",\n    \"start_date\": \"2024-06-01\",\n    \"end_date\": \"2024-06-03\",\n    \"status\": \"upcoming\",\n    \"categories\": [\n      {\"id\": 1, \"name\": \"Men's Singles\"}\n    ],\n    \"athletes\": [],\n    \"rounds\": [],\n    \"groups\": []\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Tournament Standings",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/tournaments/1/standings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tournaments", "1", "standings"]
+            },
+            "description": "Get tournament leaderboard/standings."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Player A\",\n      \"rank\": 1,\n      \"wins\": 3,\n      \"losses\": 0\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Tournament Categories",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/tournament/1/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tournament", "1", "categories"]
+            },
+            "description": "Get tournament categories with participant counts."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"categories\": [\n    {\n      \"id\": 1,\n      \"category_name\": \"Men's Singles\",\n      \"category_type\": \"singles\",\n      \"age_group\": \"open\",\n      \"max_participants\": 32,\n      \"status\": \"open\",\n      \"current_participants\": 24\n    }\n  ]\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Socials",
+      "description": "Social events (Public)",
+      "item": [
+        {
+          "name": "List Social Events",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/socials?search=&status=&type=&sort=event_date&direction=desc&per_page=15",
+              "host": ["{{base_url}}"],
+              "path": ["api", "socials"],
+              "query": [
+                {"key": "search", "value": "", "description": "Search by name"},
+                {"key": "status", "value": "", "description": "Filter by status"},
+                {"key": "type", "value": "", "description": "Filter by type"},
+                {"key": "sort", "value": "event_date", "description": "Sort field"},
+                {"key": "direction", "value": "desc", "description": "Sort direction"},
+                {"key": "per_page", "value": "15", "description": "Results per page"}
+              ]
+            },
+            "description": "List all social events with filtering and pagination."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"name\": \"Weekend Pickleball Meetup\",\n      \"event_date\": \"2024-01-20\",\n      \"status\": \"upcoming\",\n      \"type\": \"casual\",\n      \"location\": \"Stadium A\"\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 5\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Social Event Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/socials/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "socials", "1"]
+            },
+            "description": "Get social event details with participants."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"name\": \"Weekend Pickleball Meetup\",\n    \"event_date\": \"2024-01-20\",\n    \"status\": \"upcoming\",\n    \"participants\": [\n      {\"id\": 1, \"name\": \"Player A\"}\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Event Participants",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/socials/1/participants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "socials", "1", "participants"]
+            },
+            "description": "Get paginated list of event participants."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": [\n    {\"id\": 1, \"name\": \"Player A\"},\n    {\"id\": 2, \"name\": \"Player B\"}\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"per_page\": 15,\n    \"total\": 20\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "News",
+      "description": "News articles (Public)",
+      "item": [
+        {
+          "name": "List News",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/news?search=&category=&sort=published_at&direction=desc&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "news"],
+              "query": [
+                {"key": "search", "value": "", "description": "Search by title/description"},
+                {"key": "category", "value": "", "description": "Filter by category"},
+                {"key": "sort", "value": "published_at", "description": "Sort field"},
+                {"key": "direction", "value": "desc", "description": "Sort direction"},
+                {"key": "per_page", "value": "10", "description": "Results per page"}
+              ]
+            },
+            "description": "List published news articles with filtering and pagination."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 1,\n      \"title\": \"New Pickleball Court Opens\",\n      \"description\": \"A new court facility...\",\n      \"category\": \"announcements\",\n      \"published_at\": \"2024-01-15T10:00:00.000000Z\",\n      \"views\": 150\n    }\n  ],\n  \"meta\": {\n    \"current_page\": 1,\n    \"per_page\": 10,\n    \"total\": 25\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Trending News",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/news/trending?limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["api", "news", "trending"],
+              "query": [
+                {"key": "limit", "value": "5", "description": "Number of articles"}
+              ]
+            },
+            "description": "Get trending news by view count.\n\n**Query Parameters:**\n- `limit` (optional): Number of articles (default 5)"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": [\n    {\n      \"id\": 3,\n      \"title\": \"Championship Results\",\n      \"views\": 500\n    },\n    {\n      \"id\": 1,\n      \"title\": \"New Court Opens\",\n      \"views\": 150\n    }\n  ]\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get News Article",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/news/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "news", "1"]
+            },
+            "description": "Get news article details (increments view count)."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"data\": {\n    \"id\": 1,\n    \"title\": \"New Pickleball Court Opens\",\n    \"content\": \"Full article content...\",\n    \"description\": \"A new court facility...\",\n    \"category\": \"announcements\",\n    \"published_at\": \"2024-01-15T10:00:00.000000Z\",\n    \"views\": 151\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Instructor Reviews",
+      "description": "Instructor review system",
+      "item": [
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"instructor_id\": 1,\n  \"rating\": 5,\n  \"content\": \"Great instructor! Very patient and knowledgeable.\",\n  \"tags\": \"professional,friendly,helpful\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/instructor-review",
+              "host": ["{{base_url}}"],
+              "path": ["api", "instructor-review"]
+            },
+            "description": "Create a review for an instructor.\n\n**Request Body:**\n- `instructor_id` (required): ID of the instructor\n- `rating` (required): 1-5 stars\n- `content` (optional): Review text (max 1000 chars)\n- `tags` (optional): Comma-separated tags"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Danh gia cua ban da duoc gui thanh cong!\",\n  \"review\": {\n    \"id\": 1,\n    \"rating\": 5,\n    \"content\": \"Great instructor!\",\n    \"user_name\": \"Test User\",\n    \"created_at\": \"1 second ago\"\n  }\n}"
+            },
+            {
+              "name": "Already Reviewed",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Ban da danh gia giang vien nay roi\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 4,\n  \"content\": \"Updated review content\",\n  \"tags\": \"helpful\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/instructor-review/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "instructor-review", "1"]
+            },
+            "description": "Update your review.\n\n**Request Body:**\n- `rating` (required): 1-5 stars\n- `content` (optional): Review text\n- `tags` (optional): Comma-separated tags"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Danh gia cua ban da duoc cap nhat thanh cong!\",\n  \"review\": {\n    \"id\": 1,\n    \"rating\": 4,\n    \"content\": \"Updated review content\",\n    \"updated_at\": \"1 second ago\"\n  }\n}"
+            },
+            {
+              "name": "Not Owner",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Ban khong co quyen cap nhat danh gia nay\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/instructor-review/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "instructor-review", "1"]
+            },
+            "description": "Delete your review."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Danh gia cua ban da duoc xoa thanh cong\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Instructor Reviews",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Accept", "value": "application/json"}],
+            "url": {
+              "raw": "{{base_url}}/api/instructor-review/instructor/1?sort=recent&per_page=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "instructor-review", "instructor", "1"],
+              "query": [
+                {"key": "sort", "value": "recent", "description": "Sort: recent, rating_high, rating_low"},
+                {"key": "per_page", "value": "10", "description": "Results per page"}
+              ]
+            },
+            "description": "Get reviews for an instructor.\n\n**Query Parameters:**\n- `sort` (optional): recent (default), rating_high, rating_low\n- `per_page` (optional): Results per page (default 10)"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": [\n    {\n      \"id\": 1,\n      \"rating\": 5,\n      \"content\": \"Great instructor!\",\n      \"tags\": [\"professional\", \"friendly\"],\n      \"user\": {\"id\": 1, \"name\": \"Test User\"},\n      \"created_at\": \"2024-01-15T10:00:00.000000Z\"\n    }\n  ],\n  \"pagination\": {\n    \"total\": 15,\n    \"per_page\": 10,\n    \"current_page\": 1,\n    \"last_page\": 2,\n    \"has_next_page\": true\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Media",
+      "description": "Media upload and management",
+      "item": [
+        {
+          "name": "Upload Media",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {"key": "media[]", "type": "file", "description": "Media files to upload"},
+                {"key": "rules", "value": "jpg,jpeg,png", "type": "text", "description": "Allowed file types (optional)"}
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/upload-media",
+              "host": ["{{base_url}}"],
+              "path": ["api", "upload-media"]
+            },
+            "description": "Upload media files to temp collection.\n\n**Form Data:**\n- `media[]` (required): Files to upload\n- `rules` (optional): Allowed MIME types (e.g., jpg,jpeg,png)\n\n**Max size:** 2MB per file"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"media\": [\n    {\n      \"id\": 1,\n      \"url\": \"/storage/media/image.jpg\"\n    }\n  ],\n  \"message\": \"Media uploaded successfully\"\n}"
+            },
+            {
+              "name": "Upload Failed",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Upload failed: File too large\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Delete Media",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/media/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "media", "1"]
+            },
+            "description": "Delete uploaded media by ID."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

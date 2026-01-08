@@ -56,6 +56,7 @@
                                         $permissionLabel = match($permission) {
                                             'home_yard' => 'Quản Lý Sân & Giải Đấu - Quản lý sân, tổ chức và quản lý giải đấu',
                                             'referee' => 'Trọng Tài - Phân công làm trọng tài cho các giải đấu',
+                                            'expert_host' => 'Chuyên Gia & Host - Xác minh trình độ ELO của người chơi',
                                             default => $permission
                                         };
                                     @endphp

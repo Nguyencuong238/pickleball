@@ -23,12 +23,16 @@ class PermissionSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'manage-stadiums']);
         Permission::firstOrCreate(['name' => 'manage-matches']);
         Permission::firstOrCreate(['name' => 'submit-scores']);
+        Permission::firstOrCreate(['name' => 'verify-elo']);
+        Permission::firstOrCreate(['name' => 'verify-opr-requests']);
 
         // Create roles
         $adminRole = Role::firstOrCreate(['name' => 'admin']);
         $userRole = Role::firstOrCreate(['name' => 'user']);
         $homeYardRole = Role::firstOrCreate(['name' => 'home_yard']);
         $refereeRole = Role::firstOrCreate(['name' => 'referee']);
+        $expertHostRole = Role::firstOrCreate(['name' => 'expert_host']);
+        $instructorRole = Role::firstOrCreate(['name' => 'instructor']);
 
         // Assign permissions to roles
         $adminRole->syncPermissions([
@@ -40,6 +44,8 @@ class PermissionSeeder extends Seeder
             'manage-stadiums',
             'manage-matches',
             'submit-scores',
+            'verify-elo',
+            'verify-opr-requests',
         ]);
 
         $userRole->syncPermissions([
@@ -56,6 +62,17 @@ class PermissionSeeder extends Seeder
         $refereeRole->syncPermissions([
             'manage-matches',
             'submit-scores',
+            'verify-opr-requests',
+        ]);
+
+        $expertHostRole->syncPermissions([
+            'verify-elo',
+            'verify-opr-requests',
+        ]);
+
+        $instructorRole->syncPermissions([
+            'verify-elo',
+            'verify-opr-requests',
         ]);
     }
 }

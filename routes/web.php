@@ -38,6 +38,8 @@ use App\Http\Controllers\Front\RefereeProfileController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\ClubActivityController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\Front\OprVerificationController;
+use App\Http\Controllers\Verifier\VerifierDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -524,4 +526,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     });
 });
 
+// OPR Verification Request Routes (for authenticated users)
+Route::middleware('auth')->prefix('opr-verification')->name('opr-verification.')->group(function () {
+    Route::get('/request', [OprVerificationController::class, 'create'])->name('create');
+    Route::post('/request', [OprVerificationController::class, 'store'])->name('store');
+    Route::get('/status/{request}', [OprVerificationController::class, 'show'])->name('show');
+});
+
+// Verifier Dashboard Routes (for referee, instructor, expert_host, admin)
+Route::middleware(['auth', 'role:referee|instructor|expert_host|admin'])->prefix('verifier')->name('verifier.')->group(function () {
+    Route::get('/dashboard', [VerifierDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/requests', [VerifierDashboardController::class, 'requests'])->name('requests.index');
+    Route::get('/requests/{verificationRequest}', [VerifierDashboardController::class, 'show'])->name('requests.show');
+    Route::post('/requests/{verificationRequest}/approve', [VerifierDashboardController::class, 'approve'])->name('requests.approve');
+    Route::post('/requests/{verificationRequest}/reject', [VerifierDashboardController::class, 'reject'])->name('requests.reject');
+});
 

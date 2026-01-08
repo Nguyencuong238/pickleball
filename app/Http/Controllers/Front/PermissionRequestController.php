@@ -13,7 +13,7 @@ class PermissionRequestController extends Controller
     {
         $validated = $request->validate([
             'permissions' => 'required|array|min:1',
-            'permissions.*' => 'string|in:home_yard,referee'
+            'permissions.*' => 'string|in:home_yard,referee,expert_host'
         ]);
 
         $user = auth()->user();

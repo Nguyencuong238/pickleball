@@ -18,6 +18,7 @@ class Instructor extends Model
     }
 
     protected $fillable = [
+        'user_id',
         'name',
         'slug',
         'image',
@@ -55,6 +56,22 @@ class Instructor extends Model
     public function province(): BelongsTo
     {
         return $this->belongsTo(Province::class);
+    }
+
+    /**
+     * Get the user account linked to this instructor
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Check if instructor is linked to a user account
+     */
+    public function isLinkedToUser(): bool
+    {
+        return !is_null($this->user_id);
     }
 
     public function experiences(): HasMany

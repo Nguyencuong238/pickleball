@@ -72,6 +72,7 @@
                                                 $permissionLabel = match($permission) {
                                                     'home_yard' => 'Quản Lý Sân & Giải',
                                                     'referee' => 'Trọng Tài',
+                                                    'expert_host' => 'Chuyên Gia & Host',
                                                     default => $permission
                                                 };
                                             @endphp

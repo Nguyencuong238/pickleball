@@ -48,6 +48,7 @@ class User extends Authenticatable implements JWTSubject
         'last_skill_quiz_at',
         'skill_quiz_count',
         'elo_is_provisional',
+        'is_elo_verified',
     ];
 
     /**
@@ -77,6 +78,7 @@ class User extends Authenticatable implements JWTSubject
         'total_oprs' => 'decimal:2',
         'last_skill_quiz_at' => 'datetime',
         'elo_is_provisional' => 'boolean',
+        'is_elo_verified' => 'boolean',
     ];
 
     /**
@@ -606,6 +608,65 @@ class User extends Authenticatable implements JWTSubject
     public function hasProvisionalElo(): bool
     {
         return $this->elo_is_provisional ?? true;
+    }
+
+    // ==================== OPR Verification Methods ====================
+
+    /**
+     * Get OPR verification requests for this user
+     */
+    public function oprVerificationRequests(): HasMany
+    {
+        return $this->hasMany(OprVerificationRequest::class);
+    }
+
+    /**
+     * Check if user's ELO has been verified
+     */
+    public function hasVerifiedElo(): bool
+    {
+        return $this->is_elo_verified === true;
+    }
+
+    /**
+     * Check if user has a pending verification request
+     */
+    public function hasPendingVerificationRequest(): bool
+    {
+        return $this->oprVerificationRequests()
+            ->where('status', OprVerificationRequest::STATUS_PENDING)
+            ->exists();
+    }
+
+    /**
+     * Get the latest verification request
+     */
+    public function latestVerificationRequest(): ?OprVerificationRequest
+    {
+        return $this->oprVerificationRequests()
+            ->latest()
+            ->first();
+    }
+
+    /**
+     * Check if user can request ELO verification
+     * - Must have completed skill quiz
+     * - Must not already be verified
+     * - Must not have a pending request
+     */
+    public function canRequestVerification(): bool
+    {
+        return $this->hasCompletedSkillQuiz()
+            && !$this->is_elo_verified
+            && !$this->hasPendingVerificationRequest();
+    }
+
+    /**
+     * Check if user can verify other users' ELO
+     */
+    public function canVerifyElo(): bool
+    {
+        return $this->hasAnyRole(['referee', 'instructor', 'expert_host', 'admin']);
     }
 
     // ==================== Wallet Relationships ====================

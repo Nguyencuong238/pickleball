@@ -1,0 +1,452 @@
+{
+  "info": {
+    "_postman_id": "referee-api",
+    "name": "Referee API",
+    "description": "API documentation for Referee functionality.\n\n## Setup\n1. Import this collection into Postman\n2. Create an environment with `base_url` variable (e.g., `http://localhost:8000`)\n3. After login, set the `access_token` variable\n\n## Authentication\n- Public endpoints: No auth required\n- Protected endpoints: Bearer token + referee role required\n\n## API Sections\n- Public: Referee directory and profiles\n- Protected: Dashboard, matches, score management",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Public",
+      "description": "Public endpoints - No authentication required",
+      "item": [
+        {
+          "name": "List Referees",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referees?search=&status=active&per_page=12",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referees"],
+              "query": [
+                {"key": "search", "value": "", "description": "Search by referee name"},
+                {"key": "status", "value": "active", "description": "Filter by status (active)"},
+                {"key": "per_page", "value": "12", "description": "Items per page (max 50)"}
+              ]
+            },
+            "description": "List all active referees with optional search and filtering.\n\n**Query Parameters:**\n- `search` (optional): Search by referee name\n- `status` (optional): Filter by referee status\n- `per_page` (optional): Items per page (default: 12, max: 50)"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"current_page\": 1,\n    \"data\": [\n      {\n        \"id\": 1,\n        \"name\": \"John Referee\",\n        \"referee_status\": \"active\",\n        \"referee_rating\": 4.5,\n        \"matches_completed\": 25\n      }\n    ],\n    \"per_page\": 12,\n    \"total\": 1\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Referee Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referees/:referee_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referees", ":referee_id"],
+              "variable": [
+                {"key": "referee_id", "value": "1", "description": "Referee user ID"}
+              ]
+            },
+            "description": "Get detailed referee profile with stats and recent matches.\n\n**Path Parameters:**\n- `referee_id` (required): The referee's user ID"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"referee\": {\n      \"id\": 1,\n      \"name\": \"John Referee\",\n      \"referee_bio\": \"Experienced referee with 5 years...\",\n      \"referee_status\": \"active\",\n      \"referee_rating\": 4.5,\n      \"matches_officiated\": 150\n    },\n    \"stats\": {\n      \"total_matches\": 150,\n      \"completed_matches\": 145,\n      \"upcoming_matches\": 5,\n      \"tournaments\": 12,\n      \"completion_rate\": 96.7,\n      \"avg_rating\": 4.5\n    },\n    \"recent_matches\": [],\n    \"tournaments\": []\n  }\n}"
+            },
+            {
+              "name": "Not Found",
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Referee not found.\"\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Protected",
+      "description": "Protected endpoints - Bearer token + referee role required",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referee/dashboard",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referee", "dashboard"]
+            },
+            "description": "Get referee dashboard with stats and upcoming matches.\n\n**Authentication:** Bearer token required (referee role)\n\n**Response includes:**\n- `stats`: total_matches, completed_matches, upcoming_matches, tournaments\n- `upcoming_matches`: Next 5 scheduled matches with details"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"stats\": {\n      \"total_matches\": 50,\n      \"completed_matches\": 45,\n      \"upcoming_matches\": 5,\n      \"tournaments\": 8\n    },\n    \"upcoming_matches\": [\n      {\n        \"id\": 101,\n        \"match_date\": \"2025-12-20\",\n        \"match_time\": \"14:00:00\",\n        \"status\": \"scheduled\",\n        \"tournament\": {\"id\": 1, \"name\": \"Winter Cup\"},\n        \"athlete1\": {\"id\": 10, \"name\": \"Player A\"},\n        \"athlete2\": {\"id\": 11, \"name\": \"Player B\"},\n        \"category\": {\"id\": 1, \"name\": \"Men Singles\"},\n        \"court\": {\"id\": 1, \"name\": \"Court 1\"}\n      }\n    ]\n  }\n}"
+            },
+            {
+              "name": "Unauthorized - Not Referee",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized. Referee role required.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "List Matches",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referee/matches?tournament_id=&status=&date_from=&date_to=&per_page=20",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referee", "matches"],
+              "query": [
+                {"key": "tournament_id", "value": "", "description": "Filter by tournament ID"},
+                {"key": "status", "value": "", "description": "Filter by status (scheduled, in_progress, completed)"},
+                {"key": "date_from", "value": "", "description": "Filter from date (YYYY-MM-DD)"},
+                {"key": "date_to", "value": "", "description": "Filter to date (YYYY-MM-DD)"},
+                {"key": "per_page", "value": "20", "description": "Items per page (max 100)"}
+              ]
+            },
+            "description": "List all matches assigned to the authenticated referee.\n\n**Authentication:** Bearer token required (referee role)\n\n**Query Parameters:**\n- `tournament_id` (optional): Filter by tournament\n- `status` (optional): scheduled, in_progress, completed\n- `date_from` (optional): Start date (YYYY-MM-DD)\n- `date_to` (optional): End date (YYYY-MM-DD)\n- `per_page` (optional): Items per page (default: 20, max: 100)"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"matches\": {\n      \"current_page\": 1,\n      \"data\": [\n        {\n          \"id\": 101,\n          \"match_date\": \"2025-12-20\",\n          \"match_time\": \"14:00:00\",\n          \"status\": \"scheduled\",\n          \"tournament\": {\"id\": 1, \"name\": \"Winter Cup\"},\n          \"athlete1\": {\"id\": 10, \"name\": \"Player A\"},\n          \"athlete2\": {\"id\": 11, \"name\": \"Player B\"},\n          \"category\": {\"id\": 1, \"name\": \"Men Singles\"},\n          \"court\": {\"id\": 1, \"name\": \"Court 1\"}\n        }\n      ],\n      \"per_page\": 20,\n      \"total\": 1\n    },\n    \"tournaments\": [\n      {\"id\": 1, \"name\": \"Winter Cup\"}\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Match Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referee/matches/:match_id",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referee", "matches", ":match_id"],
+              "variable": [
+                {"key": "match_id", "value": "1", "description": "Match ID"}
+              ]
+            },
+            "description": "Get detailed information about a specific match.\n\n**Authentication:** Bearer token required (referee role)\n\n**Path Parameters:**\n- `match_id` (required): The match ID\n\n**Note:** Only matches assigned to the authenticated referee can be viewed."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 101,\n    \"match_date\": \"2025-12-20\",\n    \"match_time\": \"14:00:00\",\n    \"status\": \"scheduled\",\n    \"set_scores\": null,\n    \"final_score\": null,\n    \"tournament\": {\"id\": 1, \"name\": \"Winter Cup\"},\n    \"category\": {\"id\": 1, \"name\": \"Men Singles\"},\n    \"round\": {\"id\": 1, \"name\": \"Quarter Finals\"},\n    \"court\": {\"id\": 1, \"name\": \"Court 1\"},\n    \"athlete1\": {\"id\": 10, \"name\": \"Player A\"},\n    \"athlete2\": {\"id\": 11, \"name\": \"Player B\"},\n    \"winner\": null\n  }\n}"
+            },
+            {
+              "name": "Not Assigned",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"You are not assigned to this match.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Start Match",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referee/matches/:match_id/start",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referee", "matches", ":match_id", "start"],
+              "variable": [
+                {"key": "match_id", "value": "1", "description": "Match ID"}
+              ]
+            },
+            "description": "Start a scheduled match.\n\n**Authentication:** Bearer token required (referee role)\n\n**Path Parameters:**\n- `match_id` (required): The match ID\n\n**Preconditions:**\n- Match must be assigned to the authenticated referee\n- Match status must be 'scheduled'\n\n**Effects:**\n- Sets match status to 'in_progress'\n- Records actual_start_time"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Match started successfully.\",\n  \"data\": {\n    \"id\": 101,\n    \"status\": \"in_progress\",\n    \"actual_start_time\": \"2025-12-20T14:05:00.000000Z\"\n  }\n}"
+            },
+            {
+              "name": "Invalid Status",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Match cannot be started. Current status: in_progress\"\n}"
+            },
+            {
+              "name": "Not Assigned",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"You are not assigned to this match.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Update Score",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"set_scores\": [\n    {\"set\": 1, \"athlete1\": 11, \"athlete2\": 9},\n    {\"set\": 2, \"athlete1\": 8, \"athlete2\": 11},\n    {\"set\": 3, \"athlete1\": 11, \"athlete2\": 7}\n  ],\n  \"status\": \"completed\"\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/referee/matches/:match_id/score",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referee", "matches", ":match_id", "score"],
+              "variable": [
+                {"key": "match_id", "value": "1", "description": "Match ID"}
+              ]
+            },
+            "description": "Update match scores.\n\n**Authentication:** Bearer token required (referee role)\n\n**Path Parameters:**\n- `match_id` (required): The match ID\n\n**Request Body:**\n- `set_scores` (required): Array of set scores\n  - `set` (required): Set number (1, 2, 3...)\n  - `athlete1` (required): Points for athlete 1\n  - `athlete2` (required): Points for athlete 2\n- `status` (required): 'in_progress' or 'completed'\n\n**Winner Determination:**\nWinner is calculated based on sets won. The athlete with more winning sets wins the match.\n\n**Effects when status is 'completed':**\n- Calculates and sets winner_id\n- Updates group standings (if applicable)\n- Updates tournament athlete statistics"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Score updated successfully.\",\n  \"data\": {\n    \"id\": 101,\n    \"status\": \"completed\",\n    \"set_scores\": [\n      {\"set\": 1, \"athlete1\": 11, \"athlete2\": 9},\n      {\"set\": 2, \"athlete1\": 8, \"athlete2\": 11},\n      {\"set\": 3, \"athlete1\": 11, \"athlete2\": 7}\n    ],\n    \"final_score\": \"11-9, 8-11, 11-7\",\n    \"winner_id\": 10,\n    \"actual_end_time\": \"2025-12-20T15:30:00.000000Z\",\n    \"tournament\": {\"id\": 1, \"name\": \"Winter Cup\"},\n    \"athlete1\": {\"id\": 10, \"name\": \"Player A\"},\n    \"athlete2\": {\"id\": 11, \"name\": \"Player B\"},\n    \"winner\": {\"id\": 10, \"name\": \"Player A\"}\n  }\n}"
+            },
+            {
+              "name": "Validation Error",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"The given data was invalid.\",\n  \"errors\": {\n    \"set_scores\": [\"The set scores field is required.\"],\n    \"status\": [\"The status field is required.\"]\n  }\n}"
+            },
+            {
+              "name": "Match Completed",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Cannot edit completed match.\"\n}"
+            },
+            {
+              "name": "Not Assigned",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"You are not assigned to this match.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Sync Events",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"events\": [\n    {\n      \"type\": \"point\",\n      \"team\": \"left\",\n      \"data\": {\"score\": {\"left\": 5, \"right\": 3}},\n      \"timer_seconds\": 120,\n      \"created_at\": \"2025-12-20T14:10:00.000000Z\"\n    },\n    {\n      \"type\": \"timeout\",\n      \"team\": \"right\",\n      \"data\": {\"duration\": 60},\n      \"timer_seconds\": 180,\n      \"created_at\": \"2025-12-20T14:12:00.000000Z\"\n    }\n  ],\n  \"match_state\": {\n    \"currentGame\": 1,\n    \"scores\": {\"left\": 5, \"right\": 3},\n    \"serving\": \"left\"\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/referee/matches/:match_id/sync-events",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referee", "matches", ":match_id", "sync-events"],
+              "variable": [
+                {"key": "match_id", "value": "1", "description": "Match ID"}
+              ]
+            },
+            "description": "Sync match events from mobile/web app to server.\n\n**Authentication:** Bearer token required (referee role)\n\n**Path Parameters:**\n- `match_id` (required): The match ID\n\n**Request Body:**\n- `events` (required): Array of match events\n  - `type` (required): Event type (point, timeout, fault, challenge, etc.)\n  - `team` (optional): Team side ('left' or 'right')\n  - `data` (optional): Additional event data object\n  - `timer_seconds` (optional): Match timer at event time\n  - `created_at` (optional): Event timestamp\n- `match_state` (optional): Current match state object for recovery\n\n**Use Cases:**\n- Real-time score syncing from referee app\n- Event logging for match history\n- State recovery after connection loss"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Events synced successfully.\",\n  \"events_synced\": 2\n}"
+            },
+            {
+              "name": "Validation Error",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"The given data was invalid.\",\n  \"errors\": {\n    \"events\": [\"The events field is required.\"],\n    \"events.0.type\": [\"The events.0.type field is required.\"]\n  }\n}"
+            },
+            {
+              "name": "Not Assigned",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"You are not assigned to this match.\"\n}"
+            },
+            {
+              "name": "Server Error",
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Failed to sync events.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "End Match",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"winner\": \"left\",\n  \"winnerId\": 10,\n  \"gameScores\": [\n    {\"game\": 1, \"athlete1\": 11, \"athlete2\": 9},\n    {\"game\": 2, \"athlete1\": 8, \"athlete2\": 11},\n    {\"game\": 3, \"athlete1\": 11, \"athlete2\": 7}\n  ],\n  \"finalScore\": \"11-9, 8-11, 11-7\",\n  \"totalTimer\": 2700,\n  \"teams\": {\n    \"left\": {\"id\": 10, \"name\": \"Player A\"},\n    \"right\": {\"id\": 11, \"name\": \"Player B\"}\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{base_url}}/api/referee/matches/:match_id/end",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referee", "matches", ":match_id", "end"],
+              "variable": [
+                {"key": "match_id", "value": "1", "description": "Match ID"}
+              ]
+            },
+            "description": "End match and finalize results.\n\n**Authentication:** Bearer token required (referee role)\n\n**Path Parameters:**\n- `match_id` (required): The match ID\n\n**Request Body:**\n- `winner` (required): Winning side ('left' or 'right')\n- `winnerId` (required): Winner athlete/team ID\n- `gameScores` (required): Array of game/set scores\n  - `game` (required): Game number (1, 2, 3...)\n  - `athlete1` (required): Points for athlete 1 (left side)\n  - `athlete2` (required): Points for athlete 2 (right side)\n- `finalScore` (required): Formatted final score string\n- `totalTimer` (required): Total match duration in seconds\n- `teams` (required): Team information object\n\n**Effects:**\n- Sets match status to 'completed'\n- Records winner and final scores\n- Updates group standings (if applicable)\n- Updates tournament athlete statistics\n- Records match end event\n- Clears match state"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"message\": \"Match completed successfully.\",\n  \"data\": {\n    \"winner_id\": 10,\n    \"final_score\": \"11-9, 8-11, 11-7\"\n  }\n}"
+            },
+            {
+              "name": "Match Already Completed",
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Match already completed.\"\n}"
+            },
+            {
+              "name": "Validation Error",
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"message\": \"The given data was invalid.\",\n  \"errors\": {\n    \"winner\": [\"The winner field is required.\"],\n    \"winnerId\": [\"The winner id field is required.\"],\n    \"gameScores\": [\"The game scores field is required.\"],\n    \"finalScore\": [\"The final score field is required.\"],\n    \"totalTimer\": [\"The total timer field is required.\"],\n    \"teams\": [\"The teams field is required.\"]\n  }\n}"
+            },
+            {
+              "name": "Not Assigned",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"You are not assigned to this match.\"\n}"
+            },
+            {
+              "name": "Server Error",
+              "status": "Internal Server Error",
+              "code": 500,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Failed to end match.\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Match State",
+          "request": {
+            "method": "GET",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{access_token}}"}
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/referee/matches/:match_id/state",
+              "host": ["{{base_url}}"],
+              "path": ["api", "referee", "matches", ":match_id", "state"],
+              "variable": [
+                {"key": "match_id", "value": "1", "description": "Match ID"}
+              ]
+            },
+            "description": "Get current match state for recovery.\n\n**Authentication:** Bearer token required (referee role)\n\n**Path Parameters:**\n- `match_id` (required): The match ID\n\n**Use Cases:**\n- Recover match state after app restart\n- Resume match control after connection loss\n- Sync state between multiple devices\n\n**Response includes:**\n- Complete match data with relationships\n- Current scores and game state\n- Tournament, category, round, court info\n- Athletes with partner info (for doubles)"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": true,\n  \"data\": {\n    \"id\": 101,\n    \"status\": \"in_progress\",\n    \"match_date\": \"2025-12-20\",\n    \"match_time\": \"14:00:00\",\n    \"set_scores\": [\n      {\"set\": 1, \"athlete1\": 11, \"athlete2\": 9}\n    ],\n    \"match_state\": {\n      \"currentGame\": 2,\n      \"scores\": {\"left\": 5, \"right\": 3},\n      \"serving\": \"left\"\n    },\n    \"tournament\": {\"id\": 1, \"name\": \"Winter Cup\"},\n    \"category\": {\"id\": 1, \"name\": \"Men Singles\"},\n    \"round\": {\"id\": 1, \"name\": \"Quarter Finals\"},\n    \"court\": {\"id\": 1, \"name\": \"Court 1\"},\n    \"athlete1\": {\n      \"id\": 10,\n      \"name\": \"Player A\",\n      \"partner\": null\n    },\n    \"athlete2\": {\n      \"id\": 11,\n      \"name\": \"Player B\",\n      \"partner\": null\n    },\n    \"referee\": {\n      \"id\": 5,\n      \"name\": \"John Referee\",\n      \"level\": \"National\"\n    }\n  }\n}"
+            },
+            {
+              "name": "Not Assigned",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"You are not assigned to this match.\"\n}"
+            },
+            {
+              "name": "Unauthorized - Not Referee",
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "body": "{\n  \"success\": false,\n  \"message\": \"Unauthorized. Referee role required.\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
