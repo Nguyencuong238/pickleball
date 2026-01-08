@@ -64,7 +64,7 @@
     .club-image {
         width: 100%;
         height: 200px;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        /* background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%); */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -77,7 +77,7 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        /* background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%); */
     }
 
     .club-content {
