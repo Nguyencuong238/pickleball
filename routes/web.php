@@ -104,6 +104,8 @@ Route::get('/auth/facebook/callback', [AuthController::class, 'handleFacebookCal
 Route::get('/admin/login', [AuthController::class, 'showAdminLogin'])->name('admin.login');
 Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 
+Route::get('/test', [HomeController::class, 'test'])->name('test');
+
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/booking/{stadium}', [HomeController::class, 'booking'])->name('booking');
 Route::get('/courts', [HomeController::class, 'courts'])->name('courts');
