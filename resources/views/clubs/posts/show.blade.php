@@ -17,7 +17,7 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/styles-extended.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1">
+<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.1">
 
 <div class="single-post-container">
     {{-- Breadcrumb --}}
