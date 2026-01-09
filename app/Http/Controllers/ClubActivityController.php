@@ -15,11 +15,32 @@ class ClubActivityController extends Controller
     public function index(Club $club)
     {
         $this->authorize('view', $club);
-        
-        $activities = $club->activities()
-            ->orderBy('activity_date', 'desc')
-            ->paginate(10);
-        
+
+        $query = $club->activities();
+
+        // Apply status filter
+        if ($status = request('status')) {
+            $query->where('status', $status);
+        }
+
+        // Apply sorting
+        $sort = request('sort', 'date_desc');
+        if ($sort === 'date_asc') {
+            $query->orderBy('activity_date', 'asc');
+        } else {
+            $query->orderBy('activity_date', 'desc');
+        }
+
+        $activities = $query->paginate(10);
+
+        // AJAX response
+        if (request()->ajax()) {
+            return response()->json([
+                'activities' => $activities->items(),
+                'hasMore' => $activities->hasMorePages()
+            ]);
+        }
+
         return view('clubs.activities.index', compact('club', 'activities'));
     }
 
@@ -39,7 +60,7 @@ class ClubActivityController extends Controller
     public function store(Request $request, Club $club)
     {
         $this->authorize('update', $club);
-        
+
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -48,13 +69,22 @@ class ClubActivityController extends Controller
             'status' => 'required|in:upcoming,completed,cancelled',
         ]);
 
-        $club->activities()->create([
+        $activity = $club->activities()->create([
             'title' => $validated['title'],
             'description' => $validated['description'],
             'activity_date' => $validated['activity_date'],
             'location' => $validated['location'],
             'status' => $validated['status'],
         ]);
+
+        // AJAX response
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Hoạt động được tạo thành công!',
+                'activity' => $activity
+            ]);
+        }
 
         return redirect()->route('clubs.activities.index', $club)
             ->with('success', 'Hoạt động được tạo thành công!');
@@ -94,8 +124,11 @@ class ClubActivityController extends Controller
     public function update(Request $request, Club $club, ClubActivity $activity)
     {
         $this->authorize('update', $club);
-        
+
         if ($activity->club_id !== $club->id) {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Không tìm thấy'], 404);
+            }
             abort(404);
         }
 
@@ -109,6 +142,15 @@ class ClubActivityController extends Controller
 
         $activity->update($validated);
 
+        // AJAX response
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Hoạt động được cập nhật thành công!',
+                'activity' => $activity->fresh()
+            ]);
+        }
+
         return redirect()->route('clubs.activities.index', $club)
             ->with('success', 'Hoạt động được cập nhật thành công!');
     }
@@ -116,15 +158,26 @@ class ClubActivityController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Club $club, ClubActivity $activity)
+    public function destroy(Request $request, Club $club, ClubActivity $activity)
     {
         $this->authorize('delete', $club);
-        
+
         if ($activity->club_id !== $club->id) {
+            if ($request->ajax()) {
+                return response()->json(['message' => 'Không tìm thấy'], 404);
+            }
             abort(404);
         }
 
         $activity->delete();
+
+        // AJAX response
+        if ($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Hoạt động được xóa thành công!'
+            ]);
+        }
 
         return redirect()->route('clubs.activities.index', $club)
             ->with('success', 'Hoạt động được xóa thành công!');

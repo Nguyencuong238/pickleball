@@ -277,4 +277,56 @@ class ClubController extends Controller
 
         return redirect()->back()->with('success', 'Đã từ chối yêu cầu tham gia!');
     }
+
+    /**
+     * Update member role (AJAX)
+     */
+    public function updateMemberRole(Request $request, Club $club, User $user)
+    {
+        $this->authorize('update', $club);
+
+        $validated = $request->validate([
+            'role' => 'required|in:admin,moderator,member'
+        ]);
+
+        // Cannot change creator's role
+        $currentRole = $club->getMemberRole($user);
+        if ($currentRole === 'creator') {
+            return response()->json(['message' => 'Không thể thay đổi vai trò của chủ nhiệm'], 403);
+        }
+
+        // Check if user is a member
+        if (!$club->members()->where('user_id', $user->id)->exists()) {
+            return response()->json(['message' => 'Người dùng không phải là thành viên'], 404);
+        }
+
+        $club->members()->updateExistingPivot($user->id, [
+            'role' => $validated['role']
+        ]);
+
+        return response()->json(['success' => true, 'message' => 'Đã cập nhật vai trò']);
+    }
+
+    /**
+     * Remove member from club (AJAX)
+     */
+    public function removeMember(Club $club, User $user)
+    {
+        $this->authorize('update', $club);
+
+        // Cannot remove creator
+        $memberRole = $club->getMemberRole($user);
+        if ($memberRole === 'creator') {
+            return response()->json(['message' => 'Không thể xóa chủ nhiệm khỏi CLB'], 403);
+        }
+
+        // Check if user is a member
+        if (!$club->members()->where('user_id', $user->id)->exists()) {
+            return response()->json(['message' => 'Người dùng không phải là thành viên'], 404);
+        }
+
+        $club->members()->detach($user->id);
+
+        return response()->json(['success' => true, 'message' => 'Đã xóa thành viên khỏi CLB']);
+    }
 }

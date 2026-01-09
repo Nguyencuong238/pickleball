@@ -16,7 +16,7 @@
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/styles-extended.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.2">
+<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.3">
 
 {{-- Additional styles for posts --}}
 <style>
@@ -755,6 +755,11 @@
 [x-cloak] {
     display: none !important;
 }
+
+
+.create-post-card {
+    margin-bottom: 20px;
+}
 </style>
 
 <div x-data="postFeed()" x-init="init()">
@@ -847,7 +852,7 @@
     <section class="club-nav-tabs">
         <div class="container">
             <div class="tabs-wrapper">
-                <button class="tab-btn active" data-tab="timeline">
+                <button class="tab-btn" :class="{ 'active': activeTab === 'timeline' }" @click="activeTab = 'timeline'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <line x1="17" y1="10" x2="3" y2="10"/>
                         <line x1="21" y1="6" x2="3" y2="6"/>
@@ -856,7 +861,7 @@
                     </svg>
                     Bảng tin
                 </button>
-                <button class="tab-btn" data-tab="about">
+                <button class="tab-btn" :class="{ 'active': activeTab === 'about' }" @click="activeTab = 'about'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
                         <line x1="12" y1="16" x2="12" y2="12"/>
@@ -864,7 +869,7 @@
                     </svg>
                     Giới thiệu
                 </button>
-                <button class="tab-btn" data-tab="events">
+                <button class="tab-btn" :class="{ 'active': activeTab === 'events' }" @click="activeTab = 'events'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
                         <line x1="16" y1="2" x2="16" y2="6"/>
@@ -873,7 +878,7 @@
                     </svg>
                     Sự kiện
                 </button>
-                <button class="tab-btn" data-tab="members">
+                <button class="tab-btn" :class="{ 'active': activeTab === 'members' }" @click="activeTab = 'members'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                         <circle cx="9" cy="7" r="4"/>
@@ -890,13 +895,31 @@
     <main class="club-main">
         <div class="container">
             <div class="club-layout">
-                {{-- Left Column - Timeline --}}
+                {{-- Left Column - Tab Content --}}
                 <div class="timeline-column">
-                    {{-- Create Post Card --}}
-                    @include('clubs.posts._create-card')
+                    {{-- Timeline Tab --}}
+                    <div x-show="activeTab === 'timeline'" x-cloak>
+                        {{-- Create Post Card --}}
+                        @include('clubs.posts._create-card')
 
-                    {{-- Posts Feed --}}
-                    @include('clubs.posts._feed')
+                        {{-- Posts Feed --}}
+                        @include('clubs.posts._feed')
+                    </div>
+
+                    {{-- About Tab --}}
+                    <div x-show="activeTab === 'about'" x-cloak>
+                        @include('clubs.tabs._about')
+                    </div>
+
+                    {{-- Events Tab --}}
+                    <div x-show="activeTab === 'events'" x-cloak>
+                        @include('clubs.tabs._events')
+                    </div>
+
+                    {{-- Members Tab --}}
+                    <div x-show="activeTab === 'members'" x-cloak>
+                        @include('clubs.tabs._members')
+                    </div>
                 </div>
 
                 {{-- Right Column - Sidebar --}}
@@ -918,13 +941,5 @@
 {{-- Alpine.js Scripts --}}
 @include('clubs.posts._scripts')
 
-<script>
-// Tab switching
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-    });
-});
-</script>
+{{-- Tab switching is now handled by Alpine.js in postFeed() component --}}
 @endsection

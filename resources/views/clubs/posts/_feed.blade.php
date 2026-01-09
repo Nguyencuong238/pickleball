@@ -195,7 +195,7 @@
                     <button class="post-action like-btn"
                         :class="{ 'active': post.user_reaction }"
                         @click="toggleReaction(post, post.user_reaction || 'like')"
-                        @mouseenter="reactionPickerOpen = true"
+                        {{-- @mouseenter="reactionPickerOpen = true" --}}
                         @mouseleave="setTimeout(() => reactionPickerOpen = false, 300)">
                         <template x-if="!post.user_reaction || post.user_reaction === 'like'">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

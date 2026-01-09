@@ -253,6 +253,10 @@ Route::middleware('auth')->group(function () {
         Route::delete('{activity}', [ClubActivityController::class, 'destroy'])->name('destroy');
         Route::get('{activity}', [ClubActivityController::class, 'show'])->name('show');
     });
+
+    // Club Member Management Routes
+    Route::put('clubs/{club}/members/{user}/role', [ClubController::class, 'updateMemberRole'])->name('clubs.update-member-role');
+    Route::delete('clubs/{club}/members/{user}', [ClubController::class, 'removeMember'])->name('clubs.remove-member');
 });
 
 Route::get('clubs/{club}', [ClubController::class, 'show'])->name('clubs.show');

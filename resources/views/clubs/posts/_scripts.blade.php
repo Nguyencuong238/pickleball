@@ -30,6 +30,9 @@ function postFeed() {
     let editor = null;
 
     return {
+        // Tab state
+        activeTab: 'timeline',
+
         // Data
         posts: [],
         loading: false,
@@ -848,6 +851,249 @@ function postFeed() {
                 }
             });
             document.body.appendChild(lightbox);
+        }
+    };
+}
+
+// Events Tab Component
+function eventsTab() {
+    return {
+        events: [],
+        loading: false,
+        statusFilter: '',
+        sortBy: 'date_desc',
+        showEventModal: false,
+        editingEvent: null,
+        submitting: false,
+        eventForm: {
+            title: '',
+            description: '',
+            activity_date: '',
+            location: '',
+            status: 'upcoming'
+        },
+
+        init() {
+            this.loadEvents();
+        },
+
+        async loadEvents() {
+            this.loading = true;
+            try {
+                const params = new URLSearchParams();
+                if (this.statusFilter) params.append('status', this.statusFilter);
+                params.append('sort', this.sortBy);
+
+                const response = await fetch(`/clubs/{{ $club->slug }}/activities?${params}`, {
+                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                });
+                const data = await response.json();
+                this.events = data.activities || [];
+            } catch (error) {
+                console.error('Error loading events:', error);
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        filterEvents() {
+            this.loadEvents();
+        },
+
+        openCreateModal() {
+            this.editingEvent = null;
+            this.eventForm = { title: '', description: '', activity_date: '', location: '', status: 'upcoming' };
+            this.showEventModal = true;
+        },
+
+        openEditModal(event) {
+            this.editingEvent = event;
+            // Format activity_date to datetime-local format
+            let activityDate = event.activity_date;
+            if (activityDate) {
+                const date = new Date(activityDate);
+                activityDate = date.toISOString().slice(0, 16);
+            }
+            this.eventForm = {
+                title: event.title,
+                description: event.description || '',
+                activity_date: activityDate,
+                location: event.location || '',
+                status: event.status || 'upcoming'
+            };
+            this.showEventModal = true;
+        },
+
+        closeModal() {
+            this.showEventModal = false;
+            this.editingEvent = null;
+        },
+
+        async submitEvent() {
+            if (!this.eventForm.title || !this.eventForm.activity_date) return;
+            this.submitting = true;
+
+            const url = this.editingEvent
+                ? `/clubs/{{ $club->slug }}/activities/${this.editingEvent.id}`
+                : `/clubs/{{ $club->slug }}/activities`;
+
+            const method = this.editingEvent ? 'PUT' : 'POST';
+
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify(this.eventForm)
+                });
+
+                if (response.ok) {
+                    this.loadEvents();
+                    this.closeModal();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                console.error('Error saving event:', error);
+            } finally {
+                this.submitting = false;
+            }
+        },
+
+        async deleteEvent(event) {
+            if (!confirm('Bạn có chắc muốn xóa sự kiện này?')) return;
+
+            try {
+                const response = await fetch(`/clubs/{{ $club->slug }}/activities/${event.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+                if (response.ok) {
+                    this.loadEvents();
+                }
+            } catch (error) {
+                console.error('Error deleting event:', error);
+            }
+        },
+
+        formatDay(dateStr) {
+            if (!dateStr) return '';
+            return new Date(dateStr).getDate();
+        },
+        formatMonth(dateStr) {
+            if (!dateStr) return '';
+            return 'Th' + (new Date(dateStr).getMonth() + 1);
+        },
+        formatTime(dateStr) {
+            if (!dateStr) return '';
+            return new Date(dateStr).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        },
+        getStatusText(status) {
+            const texts = { upcoming: 'Sắp tới', completed: 'Đã hoàn thành', cancelled: 'Đã hủy' };
+            return texts[status] || status;
+        }
+    };
+}
+
+// Members Tab Component
+function membersTab() {
+    return {
+        members: @json($club->members),
+        filteredMembers: [],
+        loading: false,
+        roleFilter: '',
+        totalMembers: {{ $club->members->count() }},
+
+        init() {
+            this.applyFilter();
+        },
+
+        filterByRole(role) {
+            this.roleFilter = role;
+            this.applyFilter();
+        },
+
+        applyFilter() {
+            if (!this.roleFilter) {
+                this.filteredMembers = this.members;
+            } else {
+                this.filteredMembers = this.members.filter(m => m.pivot.role === this.roleFilter);
+            }
+        },
+
+        async updateRole(member, newRole) {
+            try {
+                const response = await fetch(`/clubs/{{ $club->slug }}/members/${member.id}/role`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({ role: newRole })
+                });
+
+                if (response.ok) {
+                    // Update local state
+                    const memberIndex = this.members.findIndex(m => m.id === member.id);
+                    if (memberIndex !== -1) {
+                        this.members[memberIndex].pivot.role = newRole;
+                    }
+                    this.applyFilter();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                console.error('Error updating role:', error);
+            }
+        },
+
+        async removeMember(member) {
+            if (!confirm(`Bạn có chắc muốn xóa ${member.name} khỏi CLB?`)) return;
+
+            try {
+                const response = await fetch(`/clubs/{{ $club->slug }}/members/${member.id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.ok) {
+                    // Remove from local state
+                    this.members = this.members.filter(m => m.id !== member.id);
+                    this.totalMembers = this.members.length;
+                    this.applyFilter();
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Có lỗi xảy ra');
+                }
+            } catch (error) {
+                console.error('Error removing member:', error);
+            }
+        },
+
+        getRoleText(role) {
+            const texts = { creator: 'Chủ nhiệm', admin: 'Admin', moderator: 'Điều hành', member: 'Thành viên' };
+            return texts[role] || role;
+        },
+
+        formatDate(dateStr) {
+            if (!dateStr) return 'N/A';
+            return new Date(dateStr).toLocaleDateString('vi-VN');
         }
     };
 }
