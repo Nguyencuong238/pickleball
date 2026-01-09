@@ -23,10 +23,12 @@
                     <div class="comment-meta">
                         <span class="comment-time" x-text="formatTime(comment.created_at)"></span>
                         @auth
-                        <button class="comment-action-btn" @click="replyingTo = replyingTo === comment.id ? null : comment.id">Trả lời</button>
-                        <template x-if="canDeleteComment(comment)">
-                            <button class="comment-action-btn comment-action-danger" @click="deleteComment(post, comment)">Xóa</button>
-                        </template>
+                            @if($membership)
+                            <button class="comment-action-btn" @click="replyingTo = replyingTo === comment.id ? null : comment.id">Trả lời</button>
+                            @endif
+                            <template x-if="canDeleteComment(comment)">
+                                <button class="comment-action-btn comment-action-danger" @click="deleteComment(post, comment)">Xóa</button>
+                            </template>
                         @endauth
                     </div>
 
@@ -67,27 +69,29 @@
 
                     {{-- Reply form --}}
                     @auth
-                    <template x-if="replyingTo === comment.id">
-                        <div class="reply-form">
-                            @if(Auth::user()->avatar)
-                                <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="comment-avatar small">
-                            @else
-                                <div class="comment-avatar comment-avatar-placeholder small">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-                            @endif
-                            <div class="comment-input-wrapper">
-                                <input type="text"
-                                    x-model="replyContent"
-                                    placeholder="Viết phản hồi..."
-                                    class="comment-input"
-                                    @keydown.enter="submitComment(post, comment.id); replyingTo = null">
-                                <button class="comment-submit-btn" @click="submitComment(post, comment.id); replyingTo = null" :disabled="!replyContent.trim()">
-                                    <svg viewBox="0 0 24 24" fill="currentColor">
-                                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                                    </svg>
-                                </button>
+                        @if($membership)
+                        <template x-if="replyingTo === comment.id">
+                            <div class="reply-form">
+                                @if(Auth::user()->avatar)
+                                    <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="comment-avatar small">
+                                @else
+                                    <div class="comment-avatar comment-avatar-placeholder small">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                                @endif
+                                <div class="comment-input-wrapper">
+                                    <input type="text"
+                                        x-model="replyContent"
+                                        placeholder="Viết phản hồi..."
+                                        class="comment-input"
+                                        @keydown.enter="submitComment(post, comment.id); replyingTo = null">
+                                    <button class="comment-submit-btn" @click="submitComment(post, comment.id); replyingTo = null" :disabled="!replyContent.trim()">
+                                        <svg viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </template>
+                        </template>
+                        @endif
                     @endauth
                 </div>
             </div>
@@ -95,7 +99,7 @@
     </div>
 
     {{-- Load more comments --}}
-    <template x-if="post.all_comments_count > (post.comments?.length || 0)">
+    <template x-if="commentsHasMore[post.id]">
         <button class="load-more-comments" @click="loadMoreComments(post)">
             Xem thêm bình luận...
         </button>
@@ -103,27 +107,33 @@
 
     {{-- Comment form --}}
     @auth
-    <div class="comment-form-inline">
-        @if(Auth::user()->avatar)
-            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="comment-avatar">
-        @else
-            <div class="comment-avatar comment-avatar-placeholder">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-        @endif
-        <div class="comment-input-wrapper">
-            <input type="text"
-                x-model="commentContent[post.id]"
-                placeholder="Viết bình luận..."
-                class="comment-input"
-                @keydown.enter="submitComment(post)">
-            <div class="comment-input-actions">
-                <button class="comment-submit-btn" @click="submitComment(post)" :disabled="!commentContent[post.id]?.trim()">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-                    </svg>
-                </button>
+        @if($membership)
+        <div class="comment-form-inline">
+            @if(Auth::user()->avatar)
+                <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="comment-avatar">
+            @else
+                <div class="comment-avatar comment-avatar-placeholder">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+            @endif
+            <div class="comment-input-wrapper">
+                <input type="text"
+                    x-model="commentContent[post.id]"
+                    placeholder="Viết bình luận..."
+                    class="comment-input"
+                    @keydown.enter="submitComment(post)">
+                <div class="comment-input-actions">
+                    <button class="comment-submit-btn" @click="submitComment(post)" :disabled="!commentContent[post.id]?.trim()">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
+        @else
+        <div class="comment-login-prompt">
+            Tham gia club để bình luận
+        </div>
+        @endif
     @else
     <div class="comment-login-prompt">
         <a href="{{ route('login') }}">Đăng nhập</a> để bình luận

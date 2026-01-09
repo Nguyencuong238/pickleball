@@ -48,6 +48,8 @@ function postFeed() {
         commentContent: {},
         replyContent: '',
         replyingTo: null,
+        commentsPage: {},
+        commentsHasMore: {},
 
         // Modal state
         showCreateModal: false,
@@ -440,9 +442,9 @@ function postFeed() {
         },
 
         // Load comments
-        async loadComments(post) {
+        async loadComments(post, page = 1) {
             try {
-                const response = await fetch(`/club-posts/${post.id}/comments`, {
+                const response = await fetch(`/club-posts/${post.id}/comments?page=${page}`, {
                     headers: {
                         'Accept': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
@@ -451,7 +453,14 @@ function postFeed() {
                 const data = await response.json();
 
                 if (data.success) {
-                    post.comments = data.comments;
+                    if (page === 1) {
+                        post.comments = data.comments;
+                    } else {
+                        post.comments = [...(post.comments || []), ...data.comments];
+                    }
+                    // Use spread to ensure Alpine reactivity
+                    this.commentsPage = {...this.commentsPage, [post.id]: data.currentPage};
+                    this.commentsHasMore = {...this.commentsHasMore, [post.id]: data.hasMore};
                 }
             } catch (error) {
                 console.error('Error loading comments:', error);
@@ -460,8 +469,8 @@ function postFeed() {
 
         // Load more comments
         async loadMoreComments(post) {
-            // Implementation for pagination
-            await this.loadComments(post);
+            const currentPage = this.commentsPage[post.id] || 1;
+            await this.loadComments(post, currentPage + 1);
         },
 
         // Submit comment

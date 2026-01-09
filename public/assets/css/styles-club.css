@@ -550,7 +550,6 @@
 
 /* Post Comments */
 .post-comments {
-    display: none;
     padding: var(--spacing-md);
     background: var(--bg-light);
 }

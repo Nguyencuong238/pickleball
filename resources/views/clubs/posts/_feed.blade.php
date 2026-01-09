@@ -182,7 +182,7 @@
                     </template>
                     <span class="reaction-count" x-text="getTotalReactions(post) > 0 ? getTotalReactions(post) : ''"></span>
                 </div>
-                <div class="engagement">
+                <div class="engagement" style="cursor: pointer;">
                     <template x-if="post.all_comments_count > 0">
                         <span x-text="post.all_comments_count + ' bình luận'" @click="toggleComments(post)"></span>
                     </template>

@@ -16,15 +16,19 @@ class ClubPostCommentController extends Controller
      */
     public function index(ClubPost $post, Request $request): JsonResponse
     {
+        $page = $request->input('page', 1);
+
         $comments = $post->comments()
+            ->whereNull('parent_id')
             ->with(['user', 'replies.user'])
             ->orderBy('created_at', 'desc')
-            ->paginate(10);
+            ->paginate(10, ['*'], 'page', $page);
 
         return response()->json([
             'success' => true,
             'comments' => $comments->items(),
             'hasMore' => $comments->hasMorePages(),
+            'currentPage' => $comments->currentPage(),
         ]);
     }
 
