@@ -30,7 +30,7 @@ class ProfileController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'avatar' => $user->avatar,
+                'avatar' => asset('storage/' . $user->avatar),
                 'location' => $user->location,
                 'province_id' => $user->province_id,
                 'phone' => $user->phone ?? null,
@@ -58,12 +58,13 @@ class ProfileController extends Controller
         ]);
 
         $user = auth()->user();
+        $user->avatar = asset('storage/' . $user->avatar);
         $this->profileService->updateBasicInfo($user, $validated);
 
         return response()->json([
             'success' => true,
             'message' => 'Cập nhật thông tin thành công!',
-            'data' => $user->fresh()
+            'data' => $user
         ]);
     }
 
@@ -86,20 +87,23 @@ class ProfileController extends Controller
 
         if ($remove) {
             $this->profileService->updateAvatar($user, null, true);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Đã xóa ảnh đại diện!',
-                'data' => $user->fresh()
+                'data' => $user
             ]);
         }
 
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
             if ($this->profileService->updateAvatar($user, $file)) {
+                $user->avatar = asset('storage/' . $user->avatar);
+
                 return response()->json([
                     'success' => true,
                     'message' => 'Cập nhật ảnh đại diện thành công!',
-                    'data' => $user->fresh()
+                    'data' => $user
                 ]);
             }
             return response()->json([
@@ -120,6 +124,7 @@ class ProfileController extends Controller
     public function updateEmail(Request $request): JsonResponse
     {
         $user = auth()->user();
+        $user->avatar = asset('storage/' . $user->avatar);
 
         $validated = $request->validate([
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -141,7 +146,7 @@ class ProfileController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Cập nhật email thành công!',
-            'data' => $user->fresh()
+            'data' => $user
         ]);
     }
 
@@ -151,6 +156,7 @@ class ProfileController extends Controller
     public function updatePassword(Request $request): JsonResponse
     {
         $user = auth()->user();
+        $user->avatar = asset('storage/' . $user->avatar);
 
         // OAuth users without password can set new password without current password
         if (!$this->profileService->hasPassword($user)) {
@@ -166,7 +172,7 @@ class ProfileController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Đặt mật khẩu thành công!',
-                'data' => $user->fresh()
+                'data' => $user
             ]);
         }
 
@@ -190,7 +196,7 @@ class ProfileController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Đổi mật khẩu thành công!',
-            'data' => $user->fresh()
+            'data' => $user
         ]);
     }
 
