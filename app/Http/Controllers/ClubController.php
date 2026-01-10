@@ -42,6 +42,7 @@ class ClubController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
+            'banner' => 'nullable|image|max:2048',
             'founded_date' => 'required|date',
             'objectives' => 'nullable|string',
             'type' => 'required|in:club,group',
@@ -63,6 +64,11 @@ class ClubController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('clubs', 'public');
             $club->update(['image' => $path]);
+        }
+
+        if ($request->hasFile('banner')) {
+            $path = $request->file('banner')->store('clubs/banners', 'public');
+            $club->update(['banner' => $path]);
         }
 
         // Add creator as member
@@ -136,6 +142,7 @@ class ClubController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'image' => 'nullable|image|max:2048',
+            'banner' => 'nullable|image|max:2048',
             'founded_date' => 'required|date',
             'objectives' => 'nullable|string',
             'type' => 'required|in:club,group',
@@ -156,6 +163,11 @@ class ClubController extends Controller
         if ($request->hasFile('image')) {
             $path = $request->file('image')->store('clubs', 'public');
             $club->update(['image' => $path]);
+        }
+
+        if ($request->hasFile('banner')) {
+            $path = $request->file('banner')->store('clubs/banners', 'public');
+            $club->update(['banner' => $path]);
         }
 
         $club->provinces()->sync($validated['provinces']);

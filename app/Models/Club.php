@@ -23,6 +23,7 @@ class Club extends Model
         'slug',
         'description',
         'image',
+        'banner',
         'founded_date',
         'objectives',
         'type',

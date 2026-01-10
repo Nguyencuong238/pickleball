@@ -766,8 +766,8 @@
     {{-- Club Cover --}}
     <section class="club-cover">
         <div class="cover-image">
-            @if($club->image)
-                <img src="{{ asset('storage/' . $club->image) }}" alt="{{ $club->name }}" style="width: 100%; height: 100%; object-fit: cover;">
+            @if($club->banner)
+                <img src="{{ asset('storage/' . $club->banner) }}" alt="{{ $club->name }} Banner" style="width: 100%; height: 100%; object-fit: cover;">
             @else
                 <svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
                     <defs>
