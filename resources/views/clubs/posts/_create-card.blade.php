@@ -3,7 +3,7 @@
 <div class="create-post-card">
     <div class="create-post-header">
         @if(Auth::user()->avatar)
-            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="user-avatar">
+            <img src="{{ storage_url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="user-avatar">
         @else
             <div class="user-avatar user-avatar-placeholder">
                 {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}

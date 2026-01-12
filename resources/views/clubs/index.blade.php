@@ -262,7 +262,7 @@
                 <div class="club-card">
                     <div class="club-image">
                         @if($club->image)
-                            <img src="{{ asset('storage/' . $club->image) }}" alt="{{ $club->name }}">
+                            <img src="{{ storage_url($club->image) }}" alt="{{ $club->name }}">
                         @else
                             <span>{{ ucfirst(substr($club->type, 0, 1)) }}</span>
                         @endif

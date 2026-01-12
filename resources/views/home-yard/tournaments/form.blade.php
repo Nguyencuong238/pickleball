@@ -295,7 +295,7 @@
             <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Ảnh Giải Đấu</label>
             @if(isset($tournament) && $tournament->image)
                 <div style="margin-bottom: 10px;">
-                    <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}" style="max-width: 200px; max-height: 150px; border-radius: 6px;">
+                    <img src="{{ storage_url($tournament->image) }}" alt="{{ $tournament->name }}" style="max-width: 200px; max-height: 150px; border-radius: 6px;">
                 </div>
             @endif
             <input type="file" id="imageInput" name="image" class="form-control" accept="image/*"

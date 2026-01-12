@@ -103,7 +103,7 @@ class TournamentController extends Controller
         $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
 
         if ($request->hasFile('image')) {
-           $data['image'] = $request->file('image')->store('tournament_images', 'public');
+           $data['image'] = $request->file('image')->store('tournament_images', config('filesystems.default'));
         }
 
         // Handle gallery JSON (from admin form)
@@ -118,14 +118,14 @@ class TournamentController extends Controller
         elseif ($request->hasFile('gallery')) {
            $gallery = [];
            foreach ($request->file('gallery') as $file) {
-               $gallery[] = $file->store('tournament_gallery', 'public');
+               $gallery[] = $file->store('tournament_gallery', config('filesystems.default'));
            }
            $data['gallery'] = $gallery;
         }
 
         // Handle banner file upload
         if ($request->hasFile('banner')) {
-           $data['banner'] = $request->file('banner')->store('tournament_banner', 'public');
+           $data['banner'] = $request->file('banner')->store('tournament_banner', config('filesystems.default'));
         }
 
         $data['user_id'] = auth()->id();

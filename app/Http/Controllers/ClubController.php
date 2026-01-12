@@ -62,12 +62,12 @@ class ClubController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('clubs', 'public');
+            $path = $request->file('image')->store('clubs', config('filesystems.default'));
             $club->update(['image' => $path]);
         }
 
         if ($request->hasFile('banner')) {
-            $path = $request->file('banner')->store('clubs/banners', 'public');
+            $path = $request->file('banner')->store('clubs/banners', config('filesystems.default'));
             $club->update(['banner' => $path]);
         }
 
@@ -161,12 +161,12 @@ class ClubController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            $path = $request->file('image')->store('clubs', 'public');
+            $path = $request->file('image')->store('clubs', config('filesystems.default'));
             $club->update(['image' => $path]);
         }
 
         if ($request->hasFile('banner')) {
-            $path = $request->file('banner')->store('clubs/banners', 'public');
+            $path = $request->file('banner')->store('clubs/banners', config('filesystems.default'));
             $club->update(['banner' => $path]);
         }
 

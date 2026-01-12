@@ -315,7 +315,7 @@
 
         <div class="club-info-box">
             @if($club->image)
-                <img src="{{ asset('storage/' . $club->image) }}" alt="{{ $club->name }}" class="club-avatar">
+                <img src="{{ storage_url($club->image) }}" alt="{{ $club->name }}" class="club-avatar">
             @else
                 <div class="club-avatar-placeholder">
                     {{ strtoupper(substr($club->name, 0, 2)) }}

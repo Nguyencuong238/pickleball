@@ -49,7 +49,7 @@ class NewsController extends Controller
         // $data['status'] = 'active';
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('news_images', 'public');
+            $data['image'] = $request->file('image')->store('news_images', config('filesystems.default'));
         }
 
         $news = News::create($data);
@@ -75,10 +75,10 @@ class NewsController extends Controller
         $data = $request->only('title', 'content', 'category_id', 'is_featured');
 
         if ($request->hasFile('image')) {
-            if ($news->image && Storage::disk('public')->exists($news->image)) {
-                Storage::disk('public')->delete($news->image);
+            if ($news->image && Storage::disk(config('filesystems.default'))->exists($news->image)) {
+                Storage::disk(config('filesystems.default'))->delete($news->image);
             }
-            $data['image'] = $request->file('image')->store('news_images', 'public');
+            $data['image'] = $request->file('image')->store('news_images', config('filesystems.default'));
         }
 
         $news->update($data);
@@ -88,8 +88,8 @@ class NewsController extends Controller
 
     public function destroy(News $news)
     {
-        if ($news->image && Storage::disk('public')->exists($news->image)) {
-            Storage::disk('public')->delete($news->image);
+        if ($news->image && Storage::disk(config('filesystems.default'))->exists($news->image)) {
+            Storage::disk(config('filesystems.default'))->delete($news->image);
         }
 
         $news->delete();

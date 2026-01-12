@@ -61,7 +61,7 @@
                         <label for="image" class="form-label">Hình ảnh</label>
                         <input type="file" name="image" id="image" class="form-control">
                         <div class="mt-2">
-                            <img id="preview-image" src="{{ $news->image ? asset('storage/' . $news->image) : '#' }}"
+                            <img id="preview-image" src="{{ $news->image ? storage_url($news->image) : '#' }}"
                                 alt="Preview Image" style="max-width:200px;"
                                 {{ $news->image ? '' : 'style=display:none;' }}>
                         </div>

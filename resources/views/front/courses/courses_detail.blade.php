@@ -86,7 +86,7 @@
                                             $bgColor = $colors[$colorIndex];
                                         @endphp
                                         @if ($video->instructor->image)
-                                            <img src="{{ asset('storage/' . $video->instructor->image) }}" alt="{{ $video->instructor->name }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
+                                            <img src="{{ storage_url($video->instructor->image) }}" alt="{{ $video->instructor->name }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;">
                                         @else
                                             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Ccircle cx='24' cy='24' r='24' fill='{{ urlencode($bgColor) }}'/%3E%3Ctext x='24' y='30' font-size='18' text-anchor='middle' fill='white'%3E{{ $initials }}%3C/text%3E%3C/svg%3E"
                                                 alt="{{ $video->instructor->name }}">
@@ -261,7 +261,7 @@
                                     $bgColor = $colors[$colorIndex];
                                 @endphp
                                 @if ($user->image)
-                                    <img src="{{ asset('storage/' . $user->image) }}" alt="{{ $user->name }}" class="comment-avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                    <img src="{{ storage_url($user->image) }}" alt="{{ $user->name }}" class="comment-avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                 @else
                                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='{{ urlencode($bgColor) }}'/%3E%3Ctext x='20' y='25' font-size='14' text-anchor='middle' fill='white'%3E{{ $initials }}%3C/text%3E%3C/svg%3E" alt="{{ $user->name }}" class="comment-avatar">
                                 @endif
@@ -290,7 +290,7 @@
                                         $bgColor = $colors[$colorIndex];
                                     @endphp
                                     @if ($comment->user->image)
-                                        <img src="{{ asset('storage/' . $comment->user->image) }}" alt="{{ $comment->user->name }}" class="comment-avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                        <img src="{{ storage_url($comment->user->image) }}" alt="{{ $comment->user->name }}" class="comment-avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                     @else
                                         <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='{{ urlencode($bgColor) }}'/%3E%3Ctext x='20' y='25' font-size='14' text-anchor='middle' fill='white'%3E{{ $initials }}%3C/text%3E%3C/svg%3E" alt="{{ $comment->user->name }}" class="comment-avatar">
                                     @endif
@@ -338,7 +338,7 @@
                                                     $rBgColor = $colors[$rColorIndex];
                                                 @endphp
                                                 @if ($reply->user->image)
-                                                    <img src="{{ asset('storage/' . $reply->user->image) }}" alt="{{ $reply->user->name }}" class="comment-avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                                                    <img src="{{ storage_url($reply->user->image) }}" alt="{{ $reply->user->name }}" class="comment-avatar" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
                                                 @else
                                                     <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='{{ urlencode($rBgColor) }}'/%3E%3Ctext x='20' y='25' font-size='14' text-anchor='middle' fill='white'%3E{{ $rInitials }}%3C/text%3E%3C/svg%3E" alt="{{ $reply->user->name }}" class="comment-avatar">
                                                 @endif
@@ -401,7 +401,7 @@
                              @endphp
                              <div class="instructor-profile">
                                  @if ($video->instructor->image)
-                                     <img src="{{ asset('storage/' . $video->instructor->image) }}" alt="{{ $video->instructor->name }}" class="instructor-avatar-lg" style="object-fit: cover;">
+                                     <img src="{{ storage_url($video->instructor->image) }}" alt="{{ $video->instructor->name }}" class="instructor-avatar-lg" style="object-fit: cover;">
                                  @else
                                      <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='{{ urlencode($bgColor) }}'/%3E%3Ctext x='40' y='48' font-size='28' text-anchor='middle' fill='white'%3E{{ $initials }}%3C/text%3E%3C/svg%3E"
                                           alt="{{ $video->instructor->name }}" class="instructor-avatar-lg">
@@ -445,7 +445,7 @@
                             @forelse ($relatedVideos as $relatedVideo)
                                 <a href="{{ route('course.detail', $relatedVideo->slug ?? $relatedVideo->id) }}" class="related-video-item">
                                     <div class="related-thumbnail">
-                                        <img src="{{ $relatedVideo->image ? asset('storage/' . $relatedVideo->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 160 90%27%3E%3Cdefs%3E%3ClinearGradient id=%27rv1%27 x1=%270%25%27 y1=%270%25%27 x2=%27100%25%27 y2=%27100%25%27%3E%3Cstop offset=%270%25%27 style=%27stop-color:%23FF8E53;stop-opacity:1%27 /%3E%3Cstop offset=%27100%25%27 style=%27stop-color:%23FE6B8B;stop-opacity:1%27 /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill=%27url(%23rv1)%27 width=%27160%27 height=%2790%27/%3E%3Cpolygon points=%2770,45 90,32 90,58%27 fill=%27rgba(255,255,255,0.9)%27/%3E%3C/svg%3E' }}" alt="{{ $relatedVideo->name }}">
+                                        <img src="{{ $relatedVideo->image ? storage_url($relatedVideo->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 160 90%27%3E%3Cdefs%3E%3ClinearGradient id=%27rv1%27 x1=%270%25%27 y1=%270%25%27 x2=%27100%25%27 y2=%27100%25%27%3E%3Cstop offset=%270%25%27 style=%27stop-color:%23FF8E53;stop-opacity:1%27 /%3E%3Cstop offset=%27100%25%27 style=%27stop-color:%23FE6B8B;stop-opacity:1%27 /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill=%27url(%23rv1)%27 width=%27160%27 height=%2790%27/%3E%3Cpolygon points=%2770,45 90,32 90,58%27 fill=%27rgba(255,255,255,0.9)%27/%3E%3C/svg%3E' }}" alt="{{ $relatedVideo->name }}">
                                         <span class="duration">{{ $relatedVideo->duration ?? '0:00' }}</span>
                                     </div>
                                     <div class="related-info">

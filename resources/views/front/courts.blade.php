@@ -339,7 +339,7 @@
                                             $bannerUrl =
                                                 $stadium->getFirstMediaUrl('banner') ?:
                                                 ($stadium->image
-                                                    ? asset('storage/' . $stadium->image)
+                                                    ? storage_url($stadium->image)
                                                     : asset('assets/images/court_default.svg'));
                                         @endphp
                                         <img src="{{ $bannerUrl }}" alt="{{ $stadium->name }}">

@@ -49,7 +49,7 @@ class VideoController extends Controller
         $data = $request->only('name', 'description', 'video_link', 'category_id', 'instructor_id', 'duration', 'level', 'rating', 'rating_count', 'views_count');
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('videos', 'public');
+            $data['image'] = $request->file('image')->store('videos', config('filesystems.default'));
         }
 
         // Parse chapters JSON
@@ -94,9 +94,9 @@ class VideoController extends Controller
 
         if ($request->hasFile('image')) {
             if ($video->image) {
-                Storage::disk('public')->delete($video->image);
+                Storage::disk(config('filesystems.default'))->delete($video->image);
             }
-            $data['image'] = $request->file('image')->store('videos', 'public');
+            $data['image'] = $request->file('image')->store('videos', config('filesystems.default'));
         }
 
         // Parse chapters JSON
@@ -116,7 +116,7 @@ class VideoController extends Controller
     public function destroy(Video $video)
     {
         if ($video->image) {
-            Storage::disk('public')->delete($video->image);
+            Storage::disk(config('filesystems.default'))->delete($video->image);
         }
 
         $video->delete();

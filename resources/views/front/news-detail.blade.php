@@ -80,7 +80,7 @@ $articleImage = $article->getFirstMediaUrl('featured_image') ?? asset('assets/im
         <!-- Featured Image -->
         <div class="container">
         <div class="simple-article-image">
-            <img src="{{ asset('storage/' . $article->image) }}" alt="{{ $article->title }}">
+            <img src="{{ storage_url($article->image) }}" alt="{{ $article->title }}">
         </div>
         </div>
 
@@ -123,7 +123,7 @@ $articleImage = $article->getFirstMediaUrl('featured_image') ?? asset('assets/im
                     @forelse($relatedNews as $item)
                     <a href="{{ route('news.show', $item->slug) }}" class="related-article-simple">
                         
-                        <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}">
+                        <img src="{{ storage_url($item->image) }}" alt="{{ $item->title }}">
                         <div class="related-content-simple">
                             @if($item->category)
                             <span class="related-category">{{ $item->category->name }}</span>

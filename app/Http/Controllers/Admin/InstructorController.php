@@ -67,7 +67,7 @@ class InstructorController extends Controller
             $data['price_per_session'] = (int)($data['price_per_session'] ?? 0);
 
             if ($request->hasFile('image')) {
-                $data['image'] = $request->file('image')->store('instructors', 'public');
+                $data['image'] = $request->file('image')->store('instructors', config('filesystems.default'));
             }
 
             $instructor = Instructor::create($data);
@@ -236,9 +236,9 @@ class InstructorController extends Controller
 
             if ($request->hasFile('image')) {
                 if ($instructor->image) {
-                    Storage::disk('public')->delete($instructor->image);
+                    Storage::disk(config('filesystems.default'))->delete($instructor->image);
                 }
-                $data['image'] = $request->file('image')->store('instructors', 'public');
+                $data['image'] = $request->file('image')->store('instructors', config('filesystems.default'));
             }
 
             $instructor->update($data);
@@ -381,7 +381,7 @@ class InstructorController extends Controller
     public function destroy(Instructor $instructor)
     {
         if ($instructor->image) {
-            Storage::disk('public')->delete($instructor->image);
+            Storage::disk(config('filesystems.default'))->delete($instructor->image);
         }
 
         $instructor->delete();

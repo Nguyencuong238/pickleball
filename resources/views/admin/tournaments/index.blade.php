@@ -33,7 +33,7 @@
                                 <tr style="border-bottom: 1px solid #e2e8f0; transition: background-color 0.2s;">
                                     <td style="padding: 15px 20px;">
                                         @if($tournament->image)
-                                            <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
+                                            <img src="{{ storage_url($tournament->image) }}" alt="{{ $tournament->name }}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 6px;">
                                         @else
                                             <div style="width: 60px; height: 60px; background-color: #e2e8f0; border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #9ca3af;">
                                                 <i class="fas fa-image"></i>

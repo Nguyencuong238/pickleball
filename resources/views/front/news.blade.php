@@ -130,7 +130,7 @@
                             @php
                                 $categoryClass = ['event', 'technique', 'community', 'international', 'tournament'];
                             @endphp
-                            <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->title }}">
+                            <img src="{{ storage_url($item->image) }}" alt="{{ $item->title }}">
                             @if ($item->category)
                                 <span
                                     class="article-badge {{ $categoryClass[$loop->index % 5] }}">{{ $item->category->name }}</span>

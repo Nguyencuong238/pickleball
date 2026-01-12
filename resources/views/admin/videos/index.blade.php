@@ -34,7 +34,7 @@
                                     <td class="text-center" style="vertical-align: middle;">
                                         @if ($video->image)
                                             <div style="display:flex; justify-content:center; align-items:center; height:80px;">
-                                                <img src="{{ asset('storage/' . $video->image) }}" alt="image"
+                                                <img src="{{ storage_url($video->image) }}" alt="image"
                                                     style="height:80px; width:120px; object-fit:cover;">
                                             </div>
                                         @endif

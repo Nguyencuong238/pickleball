@@ -246,7 +246,7 @@
         <div class="profile-header">
             <div class="profile-avatar">
                 @if($referee->avatar)
-                    <img src="{{ asset('storage/' . $referee->avatar) }}" alt="{{ $referee->name }}">
+                    <img src="{{ storage_url($referee->avatar) }}" alt="{{ $referee->name }}">
                 @else
                     {{ strtoupper(substr($referee->name, 0, 1)) }}
                 @endif
