@@ -186,7 +186,7 @@
 </style>
 
 <div class="referral-container">
-    <div class="referral-header">
+    <div class="referral-header" style="margin-top: 100px">
         <h2>💼 Giới Thiệu Người Dùng</h2>
         <p>Chia sẻ mã referral của bạn và kiếm thêm lợi ích khi bạn bè đăng ký qua link của bạn</p>
         <div style="margin-top: 15px;">
@@ -203,6 +203,9 @@
             @if($user->referral_code)
             <p style="margin: 0 0 10px 0; color: #065f46; font-weight: 500;">Chia sẻ link dưới đây để bạn bè có thể đăng ký qua bạn</p>
             <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 0.85rem;">Mã của bạn: <strong style="color: #00D9B5;">{{ $user->referral_code }}</strong></p>
+            <div style="margin-bottom: 15px; padding: 12px; background: #dbeafe; border: 1px solid #3b82f6; border-radius: 8px; color: #1e40af; font-size: 0.9rem;">
+                <strong>💡 Thông báo:</strong> Bạn sẽ nhận được 10 điểm sau khi user hoàn thành đăng ký tài khoản và đánh giá trình độ.
+            </div>
             
             <div class="referral-link-container">
                 <input type="text" id="referralLink" class="referral-link-input" readonly value="{{ url('/register?ref=' . $user->referral_code) }}">
