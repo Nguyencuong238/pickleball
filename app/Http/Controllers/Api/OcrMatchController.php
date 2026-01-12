@@ -53,6 +53,32 @@ class OcrMatchController extends Controller
         $validated = $request->validated();
         $user = $request->user();
 
+        // Check if user has verified Elo
+        if (!$user->hasVerifiedElo()) {
+            $message = 'Bạn cần xác minh Elo trước khi tạo trận đấu.';
+
+            if (!$user->hasCompletedSkillQuiz()) {
+                $message .= ' Vui lòng hoàn thành bài quiz kỹ năng trước.';
+            } elseif ($user->hasPendingVerificationRequest()) {
+                $message .= ' Yêu cầu xác minh của bạn đang chờ phê duyệt.';
+            } else {
+                $message .= ' Vui lòng gửi yêu cầu xác minh Elo.';
+            }
+
+            if (!$request->expectsJson()) {
+                return redirect()->route('opr-verification.create')
+                    ->with('error', $message);
+            }
+
+            return response()->json([
+                'success' => false,
+                'error' => $message,
+                'requires_verification' => true,
+                'has_completed_quiz' => $user->hasCompletedSkillQuiz(),
+                'has_pending_request' => $user->hasPendingVerificationRequest(),
+            ], 403);
+        }
+
         // Validate opponent exists
         $opponent = User::find($validated['opponent_id']);
         if (!$opponent) {

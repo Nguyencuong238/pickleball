@@ -202,8 +202,26 @@ class OcrController extends Controller
     /**
      * Create match form
      */
-    public function matchCreate(): View
+    public function matchCreate(): View|\Illuminate\Http\RedirectResponse
     {
+        $user = auth()->user();
+
+        // Check if user has verified Elo
+        if (!$user->hasVerifiedElo()) {
+            if (!$user->hasCompletedSkillQuiz()) {
+                return redirect()->route('skill-quiz.index')
+                    ->with('error', 'Bạn cần hoàn thành bài quiz kỹ năng trước khi tạo trận đấu.');
+            }
+
+            if ($user->hasPendingVerificationRequest()) {
+                return redirect()->route('opr-verification.show', $user->latestVerificationRequest())
+                    ->with('info', 'Yêu cầu xác minh Elo của bạn đang chờ phê duyệt. Vui lòng chờ admin xét duyệt.');
+            }
+
+            return redirect()->route('opr-verification.create')
+                ->with('error', 'Bạn cần xác minh Elo trước khi tạo trận đấu. Vui lòng gửi yêu cầu xác minh.');
+        }
+
         return view('front.ocr.matches.create');
     }
 
