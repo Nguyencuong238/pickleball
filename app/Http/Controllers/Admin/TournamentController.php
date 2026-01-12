@@ -54,6 +54,7 @@ class TournamentController extends Controller
            'status' => 'required|in:0,1',
            'is_watch' => 'nullable|in:0,1',
            'is_ocr' => 'nullable|in:0,1',
+           'is_featured' => 'nullable|in:0,1',
            'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
            'registration_benefits' => 'nullable|string',
            'competition_rules' => 'nullable|string',
@@ -84,6 +85,7 @@ class TournamentController extends Controller
            'status',
            'is_watch',
            'is_ocr',
+           'is_featured',
            'tournament_rank',
            'registration_benefits',
            'competition_rules',
@@ -98,6 +100,7 @@ class TournamentController extends Controller
         // Handle checkbox - convert to integer
         $data['is_watch'] = $request->has('is_watch') ? 1 : 0;
         $data['is_ocr'] = $request->has('is_ocr') ? 1 : 0;
+        $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
 
         if ($request->hasFile('image')) {
            $data['image'] = $request->file('image')->store('tournament_images', 'public');
@@ -187,6 +190,7 @@ class TournamentController extends Controller
             'prizes' => 'nullable|numeric|min:0',
             'is_watch' => 'nullable|in:0,1',
             'is_ocr' => 'nullable|in:0,1',
+            'is_featured' => 'nullable|in:0,1',
             'tournament_rank' => 'nullable|string|in:beginner,intermediate,advanced,professional',
             'registration_benefits' => 'nullable|string',
             'competition_rules' => 'nullable|string',
@@ -211,6 +215,7 @@ class TournamentController extends Controller
             'prizes',
             'is_watch',
             'is_ocr',
+            'is_featured',
             'tournament_rank',
             'registration_benefits',
             'competition_rules',
@@ -223,6 +228,7 @@ class TournamentController extends Controller
         // Handle checkbox - convert to integer
         $data['is_watch'] = $request->has('is_watch') ? 1 : 0;
         $data['is_ocr'] = $request->has('is_ocr') ? 1 : 0;
+        $data['is_featured'] = $request->has('is_featured') ? 1 : 0;
 
         // Generate slug from name if name changed
         $slug = Str::slug($request->name);

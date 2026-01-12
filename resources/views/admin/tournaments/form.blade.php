@@ -190,8 +190,8 @@
             </div>
         </div>
 
-        <!-- Is Watch & Is OCR -->
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+        <!-- Is Watch & Is OCR & Is Featured -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
             <div>
                 <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
                     <input type="checkbox" name="is_watch" value="1" 
@@ -206,6 +206,14 @@
                         {{ old('is_ocr', $tournament->is_ocr ?? 0) ? 'checked' : '' }}
                         style="width: 18px; height: 18px; cursor: pointer;">
                     <span style="font-weight: 600; color: #1e293b;">OCR (is_ocr)</span>
+                </label>
+            </div>
+            <div>
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                    <input type="checkbox" name="is_featured" value="1" 
+                        {{ old('is_featured', $tournament->is_featured ?? 0) ? 'checked' : '' }}
+                        style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="font-weight: 600; color: #1e293b;">Giải đấu nổi bật</span>
                 </label>
             </div>
         </div>

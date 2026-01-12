@@ -501,10 +501,11 @@ class HomeController extends Controller
             }
         }
 
-        // Default ordering: Ongoing first, then Upcoming, then Completed
-        // Using raw SQL CASE statement to prioritize status
+        // Default ordering: Featured first, then Ongoing first, then Upcoming, then Completed
+        // Using raw SQL CASE statement to prioritize featured status and tournament status
         $now = now();
         $query->orderByRaw("
+            is_featured DESC,
             CASE 
                 WHEN start_date <= ? AND end_date >= ? THEN 1
                 WHEN start_date > ? THEN 2

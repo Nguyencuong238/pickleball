@@ -29,6 +29,7 @@ class Tournament extends Model implements HasMedia
         'status' => 'boolean',
         'is_watch' => 'boolean',
         'is_ocr' => 'boolean',
+        'is_featured' => 'boolean',
     ];
 
     public function user()
