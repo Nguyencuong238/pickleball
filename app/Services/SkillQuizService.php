@@ -335,7 +335,7 @@ class SkillQuizService
 
             // Cộng điểm cho người giới thiệu nếu user được giới thiệu
             $referrerRewardPoints = 0;
-            if ($attempt->user->referred_by && $quizPercent >= 50) {
+            if ($attempt->user->referred_by) {
                 // Check xem có referral pending chưa
                 $referral = \App\Models\Referral::where('referred_user_id', $attempt->user->id)
                     ->where('status', 'pending')

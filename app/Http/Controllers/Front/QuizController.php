@@ -124,8 +124,7 @@ class QuizController extends Controller
         // 1. User được giới thiệu (referred_by không null)
         // 2. Score đạt mức yêu cầu (>= 50%)
         // 3. Referral status = pending (chưa được cộng)
-        if ($user->referred_by && $score >= 50) {
-            Log::info('Condition 1 passed: user has referrer and score >= 50');
+        if ($user->referred_by) {
             
             // Check xem có referral pending chưa
             $referral = \App\Models\Referral::where('referred_user_id', $user->id)
@@ -171,12 +170,13 @@ class QuizController extends Controller
                     
                     Log::info('Points added successfully');
                     
-                    // Update referral status thành completed (đánh dấu đã cộng)
-                    $referral->update([
-                        'status' => 'completed',
-                        'completed_at' => now(),
-                    ]);
-                    
+                    \App\Models\Referral::where('id', $referral->id)
+                        ->where('referred_user_id', $user->id)
+                        ->where('status', 'pending')
+                        ->update([
+                            'status' => 'completed',
+                            'completed_at' => now(),
+                        ]);
                     Log::info('Referral status updated to completed');
                 } else {
                     Log::warning('Referrer not found', ['referrer_id' => $user->referred_by]);
@@ -187,9 +187,6 @@ class QuizController extends Controller
         } else {
             if (!$user->referred_by) {
                 Log::info('User has no referrer (referred_by is null)');
-            }
-            if ($score < 50) {
-                Log::info('Score is below 50%', ['score' => $score]);
             }
         }
 
