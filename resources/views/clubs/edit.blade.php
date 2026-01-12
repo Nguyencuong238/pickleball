@@ -262,14 +262,14 @@
                         <div id="imagePreviewContainer" style="margin-top: 15px;">
                             @if($club->image)
                                 <div style="position: relative; display: inline-block;">
-                                    <img src="{{ asset('storage/' . $club->image) }}" alt="{{ $club->name }}" 
+                                    <img src="{{ asset('storage/' . $club->image) }}" alt="{{ $club->name }}"
                                         style="width: 200px; height: 200px; border-radius: 8px; object-fit: cover; border: 2px solid #f3f4f6;">
                                     <button type="button" onclick="document.getElementById('image').value = ''; document.getElementById('imagePreviewContainer').innerHTML = ''; return false;"
                                         style="position: absolute; top: 5px; right: 5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">
-                                        ✕
+                                        X
                                     </button>
                                     <div style="margin-top: 8px; color: #6b7280; font-size: 0.85rem;">
-                                        📄 Ảnh hiện tại
+                                        Ảnh đại diện hiện tại
                                     </div>
                                 </div>
                             @endif
@@ -277,24 +277,72 @@
                     </div>
                 </div>
 
+                <div class="form-group">
+                    <label for="banner">Ảnh Bìa (Banner)</label>
+                    <input type="file" id="banner" name="banner" accept="image/*">
+                    <small style="color: #6b7280; display: block; margin-top: 5px;">Kích thước đề xuất: 1200x300 pixels</small>
+                    <div id="bannerPreviewContainer" style="margin-top: 15px;">
+                        @if($club->banner)
+                            <div style="position: relative; display: inline-block; width: 100%;">
+                                <img src="{{ asset('storage/' . $club->banner) }}" alt="{{ $club->name }} Banner"
+                                    style="width: 100%; max-width: 600px; height: 150px; border-radius: 8px; object-fit: cover; border: 2px solid #f3f4f6;">
+                                <button type="button" onclick="document.getElementById('banner').value = ''; document.getElementById('bannerPreviewContainer').innerHTML = ''; return false;"
+                                    style="position: absolute; top: 5px; right: 5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">
+                                    X
+                                </button>
+                                <div style="margin-top: 8px; color: #6b7280; font-size: 0.85rem;">
+                                    Banner hiện tại
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+
                 <script>
                     document.getElementById('image').addEventListener('change', function(e) {
                         const file = e.target.files[0];
                         const container = document.getElementById('imagePreviewContainer');
-                        
+
                         if (file) {
                             const reader = new FileReader();
                             reader.onload = function(event) {
                                 container.innerHTML = `
                                     <div style="position: relative; display: inline-block;">
-                                        <img src="${event.target.result}" alt="Preview" 
+                                        <img src="${event.target.result}" alt="Preview"
                                             style="width: 200px; height: 200px; border-radius: 8px; object-fit: cover; border: 2px solid #f3f4f6;">
                                         <button type="button" onclick="document.getElementById('image').value = ''; document.getElementById('imagePreviewContainer').innerHTML = ''; return false;"
                                             style="position: absolute; top: 5px; right: 5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">
-                                            ✕
+                                            X
                                         </button>
                                         <div style="margin-top: 8px; color: #6b7280; font-size: 0.85rem;">
-                                            📄 ${file.name} (${(file.size / 1024).toFixed(2)} KB)
+                                            ${file.name} (${(file.size / 1024).toFixed(2)} KB)
+                                        </div>
+                                    </div>
+                                `;
+                            };
+                            reader.readAsDataURL(file);
+                        } else {
+                            container.innerHTML = '';
+                        }
+                    });
+
+                    document.getElementById('banner').addEventListener('change', function(e) {
+                        const file = e.target.files[0];
+                        const container = document.getElementById('bannerPreviewContainer');
+
+                        if (file) {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                container.innerHTML = `
+                                    <div style="position: relative; display: inline-block; width: 100%;">
+                                        <img src="${event.target.result}" alt="Banner Preview"
+                                            style="width: 100%; max-width: 600px; height: 150px; border-radius: 8px; object-fit: cover; border: 2px solid #f3f4f6;">
+                                        <button type="button" onclick="document.getElementById('banner').value = ''; document.getElementById('bannerPreviewContainer').innerHTML = ''; return false;"
+                                            style="position: absolute; top: 5px; right: 5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">
+                                            X
+                                        </button>
+                                        <div style="margin-top: 8px; color: #6b7280; font-size: 0.85rem;">
+                                            ${file.name} (${(file.size / 1024).toFixed(2)} KB)
                                         </div>
                                     </div>
                                 `;

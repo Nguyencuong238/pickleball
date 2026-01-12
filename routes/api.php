@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\BookingController;
 use App\Http\Controllers\Api\RefereeController;
 use App\Http\Controllers\Api\RefereeProfileController;
 use App\Http\Controllers\Api\SkillQuizController;
+use App\Http\Controllers\Api\ProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -246,6 +247,20 @@ Route::middleware('auth:api')->prefix('skill-quiz')->name('api.skill-quiz.')->gr
     Route::post('answer', [SkillQuizController::class, 'answer'])->name('answer');
     Route::post('submit', [SkillQuizController::class, 'submit'])->name('submit');
     Route::get('result/{id}', [SkillQuizController::class, 'result'])->name('result');
+});
+
+/*
+|--------------------------------------------------------------------------
+| User Profile Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('user/profile')->middleware('auth:api')->group(function () {
+    Route::get('/', [ProfileController::class, 'show'])->name('api.user.profile.show');
+    Route::post('/', [ProfileController::class, 'updateProfile'])->name('api.user.profile.update');
+    Route::post('/avatar', [ProfileController::class, 'updateAvatar'])->name('api.user.profile.avatar');
+    Route::post('/email', [ProfileController::class, 'updateEmail'])->name('api.user.profile.email');
+    Route::post('/password', [ProfileController::class, 'updatePassword'])->name('api.user.profile.password');
 });
 
 /*
