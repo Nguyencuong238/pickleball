@@ -378,34 +378,48 @@
             <!-- Thành Viên -->
             <div class="form-section">
                 <h4>👥 Thành Viên</h4>
-                <p style="color: #6b7280; margin-bottom: 15px;">Chọn thành viên để quản lý</p>
+                <p style="color: #6b7280; margin-bottom: 15px;">Chọn thành viên để thêm vào câu lạc bộ/nhóm ({{ count($users) }} thành viên có sẵn)</p>
                 
                 <div class="form-group" style="margin-bottom: 20px;">
-                    <input type="text" id="memberSearch" placeholder="🔍 Tìm kiếm theo tên hoặc email..." 
-                        style="width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem;">
-                    <small style="color: #9ca3af;">Nhập tên hoặc email để tìm kiếm</small>
+                    <label for="memberSearch" style="font-weight: 600; margin-bottom: 8px;">🔍 Tìm kiếm thành viên</label>
+                    <input type="text" id="memberSearch" placeholder="Tìm kiếm theo tên hoặc email..." 
+                        style="width: 100%; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; transition: all 0.3s ease;">
+                    <small style="color: #9ca3af; display: block; margin-top: 5px;">Nhập tên hoặc email để hiển thị danh sách thành viên</small>
                 </div>
 
-                <div class="checkbox-group" id="membersContainer">
-                    @foreach($users as $user)
-                        <div class="checkbox-item member-item" data-name="{{ Str::lower($user->name) }}" data-email="{{ Str::lower($user->email) }}">
+                <div class="checkbox-group" id="membersContainer" style="max-height: 600px;">
+                    @forelse($users as $user)
+                        <div class="checkbox-item member-item" data-name="{{ Str::lower($user->name) }}" data-email="{{ Str::lower($user->email) }}" style="display: flex;">
                             <input type="checkbox" id="member_{{ $user->id }}" name="members[]" value="{{ $user->id }}"
                                 {{ in_array($user->id, old('members', $selectedMembers)) ? 'checked' : '' }}>
                             <label for="member_{{ $user->id }}">{{ $user->name }} <span style="color: #9ca3af;">({{ $user->email }})</span></label>
                         </div>
-                    @endforeach
+                    @empty
+                        <div style="text-align: center; padding: 20px; color: #9ca3af;">
+                            ℹ️ Không có thành viên nào khác để thêm
+                        </div>
+                    @endforelse
                 </div>
 
                 <script>
-                    document.getElementById('memberSearch').addEventListener('keyup', function() {
-                        const searchValue = this.value.toLowerCase();
-                        const memberItems = document.querySelectorAll('.member-item');
+                    const memberSearch = document.getElementById('memberSearch');
+                    const memberItems = document.querySelectorAll('.member-item');
+
+                    // Ẩn tất cả thành viên ban đầu
+                    memberItems.forEach(item => {
+                        item.style.display = 'none';
+                    });
+
+                    memberSearch.addEventListener('keyup', function() {
+                        const searchValue = this.value.toLowerCase().trim();
                         let visibleCount = 0;
 
                         memberItems.forEach(item => {
                             const name = item.dataset.name;
                             const email = item.dataset.email;
-                            const isMatch = name.includes(searchValue) || email.includes(searchValue);
+                            
+                            // Chỉ hiển thị khi có tìm kiếm
+                            const isMatch = searchValue !== '' && (name.includes(searchValue) || email.includes(searchValue));
                             
                             item.style.display = isMatch ? 'flex' : 'none';
                             if (isMatch) visibleCount++;
