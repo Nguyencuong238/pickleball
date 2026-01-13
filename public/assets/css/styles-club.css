@@ -1574,12 +1574,16 @@
     }
     
     .create-post-actions {
-        flex-direction: column;
-        gap: var(--spacing-xs);
-    }
-    
-    .post-action-btn {
+        flex-direction: row;
+        gap: var(--spacing-sm);
         justify-content: center;
+    }
+
+    .post-action-btn {
+        flex: 1;
+        justify-content: center;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: var(--font-size-xs);
     }
     
     .members-grid {

@@ -1,8 +1,7 @@
 @extends('layouts.front')
 
-@section('title', Str::limit(strip_tags($post->content), 60) . ' - ' . $club->name . ' | Pickleball Vietnam')
-
-@section('meta')
+@section('seo')
+<title>{{ Str::limit(strip_tags($post->content), 60) }} - {{ $club->name }} | Pickleball Vietnam</title>
 <meta name="description" content="{{ Str::limit(strip_tags($post->content), 160) }}">
 <meta property="og:title" content="{{ Str::limit(strip_tags($post->content), 60) }} - {{ $club->name }}">
 <meta property="og:description" content="{{ Str::limit(strip_tags($post->content), 160) }}">
@@ -12,12 +11,17 @@
 <meta property="og:image" content="{{ storage_url($post->media->where('type', 'image')->first()->path) }}">
 @endif
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ Str::limit(strip_tags($post->content), 60) }} - {{ $club->name }}">
+<meta name="twitter:description" content="{{ Str::limit(strip_tags($post->content), 160) }}">
+@if($post->media->where('type', 'image')->first())
+<meta name="twitter:image" content="{{ storage_url($post->media->where('type', 'image')->first()->path) }}">
+@endif
 @endsection
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/styles-extended.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.4">
+<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.5">
 
 <div class="single-post-container">
     {{-- Breadcrumb --}}

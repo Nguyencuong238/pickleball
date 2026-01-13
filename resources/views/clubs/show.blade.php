@@ -1,8 +1,7 @@
 @extends('layouts.front')
 
-@section('title', $club->name . ' | Pickleball Vietnam')
-
-@section('meta')
+@section('seo')
+<title>{{ $club->name }} | Pickleball Vietnam</title>
 <meta name="description" content="{{ Str::limit($club->description, 160) }}">
 <meta property="og:title" content="{{ $club->name }} | Pickleball Vietnam">
 <meta property="og:description" content="{{ Str::limit($club->description, 160) }}">
@@ -11,12 +10,15 @@
 @if($club->image)
 <meta property="og:image" content="{{ storage_url($club->image) }}">
 @endif
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $club->name }}">
+<meta name="twitter:description" content="{{ Str::limit($club->description, 160) }}">
 @endsection
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/styles-extended.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.4">
+<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.5">
 
 {{-- Additional styles for posts --}}
 <style>
