@@ -311,10 +311,24 @@
                         <li><a href="{{ route('social') }}" class="dropdown-item">Lịch thi đấu Social</a></li>
                     </ul>
                 </li>
-                <li><a href="{{ route('tournaments') }}" class="nav-link @if(request()->routeIs('tournaments')) active @endif">Giải đấu</a></li>
-                <li><a href="{{ route('ocr.matches.list') }}" class="nav-link @if(request()->routeIs('ocr.matches.list')) active @endif">Trận đấu</a></li>
                 <li class="nav-item dropdown">
-                    <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*') && !request()->routeIs('ocr.matches.list') && !request()->routeIs('ocr.ocr-matches')) active @endif">Bảng xếp hạng</a>
+                    <a href="{{ route('tournaments') }}" class="nav-link dropdown-toggle @if(request()->routeIs('tournaments') || request()->routeIs('ocr.matches.list')) active @endif">Giải đấu</a>
+                    <span class="arrow-btn mobile-only">▼</span>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ route('ocr.matches.list') }}" class="dropdown-item">Trận đấu</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle">Bảng xếp hạng</a>
+                    <span class="arrow-btn mobile-only">▼</span>
+                    <ul class="dropdown-menu">
+                        <li><a href="#" class="dropdown-item">Bảng Xếp Hạng Toàn Cầu</a></li>
+                        <li><a href="#" class="dropdown-item">Bảng Xếp Hạng VĐV</a></li>
+                        <li><a href="#" class="dropdown-item">Bảng Xếp Hạng Cộng Đồng</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a href="{{ route('ocr.index') }}" class="nav-link dropdown-toggle @if(request()->is('ocr*') && !request()->routeIs('ocr.matches.list') && !request()->routeIs('ocr.ocr-matches')) active @endif">Điểm trình OPR</a>
                     <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('ocr.index') }}" class="dropdown-item">Tổng quan OPRS</a></li>
@@ -331,11 +345,11 @@
                     <a href="#" class="nav-link dropdown-toggle @if(request()->routeIs('academy.*') || request()->routeIs('ocr.community.index') || request()->routeIs('quiz.*')) active @endif">Cộng đồng</a>
                     <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
-                        <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
-                        <li><a href="{{ route('academy.referees.index') }}" class="dropdown-item">Trọng tài</a></li>
-                        <li><a href="{{ route('clubs.index') }}" class="dropdown-item">Nhóm & CLB</a></li>
                         <li><a href="{{ route('skill-quiz.index') }}" class="dropdown-item">Đánh giá trình độ</a></li>
+                        <li><a href="{{ route('clubs.index') }}" class="dropdown-item">Nhóm & CLB</a></li>
+                        <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
+                        <li><a href="{{ route('academy.referees.index') }}" class="dropdown-item">Trọng tài</a></li>                       
+                        <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
                         @auth
                             <!-- <li><a href="{{ route('quiz.index') }}" class="dropdown-item">Quiz Pickleball</a></li> -->
                             <li><a href="{{ route('ocr.community.index') }}" class="dropdown-item">Community Hub</a></li>
