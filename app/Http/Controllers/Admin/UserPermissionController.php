@@ -18,7 +18,7 @@ class UserPermissionController extends Controller
     // List all users with their roles
     public function index()
     {
-        $users = User::all();
+        $users = User::paginate(20);
         return view('admin.users.index', compact('users'));
     }
 
@@ -36,9 +36,12 @@ class UserPermissionController extends Controller
         $validated = $request->validate([
             'roles' => 'required|array',
             'roles.*' => 'exists:roles,name',
+            'athlete_types' => 'nullable|array',
+            'athlete_types.*' => 'in:athlete_international,athlete_vietnam',
         ]);
 
         $user->syncRoles($validated['roles']);
+        $user->update(['athlete_types' => $validated['athlete_types'] ?? null]);
 
         return redirect()
             ->route('admin.users.index')

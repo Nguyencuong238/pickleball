@@ -49,6 +49,7 @@ class User extends Authenticatable implements JWTSubject
         'skill_quiz_count',
         'elo_is_provisional',
         'is_elo_verified',
+        'athlete_types',
     ];
 
     /**
@@ -78,6 +79,7 @@ class User extends Authenticatable implements JWTSubject
         'total_oprs' => 'decimal:2',
         'last_skill_quiz_at' => 'datetime',
         'elo_is_provisional' => 'boolean',
+        'athlete_types' => 'array',
         'is_elo_verified' => 'boolean',
     ];
 

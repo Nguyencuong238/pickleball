@@ -94,6 +94,11 @@
                     @endforelse
                 </tbody>
             </table>
+
+            <!-- Pagination -->
+            <div class="d-flex justify-content-center mt-4">
+                {{ $users->links() }}
+            </div>
         </div>
     </div>
 </div>
