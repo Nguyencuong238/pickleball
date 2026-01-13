@@ -58,6 +58,9 @@ class ClubPostMedia extends Model
         if (preg_match('/youtube\.com\/watch\?v=([^&]+)/', $url, $matches)) {
             return "https://www.youtube.com/embed/{$matches[1]}";
         }
+        if (preg_match('/youtube\.com\/shorts\/([^?&\/]+)/', $url, $matches)) {
+            return "https://www.youtube.com/embed/{$matches[1]}";
+        }
         if (preg_match('/youtu\.be\/([^?]+)/', $url, $matches)) {
             return "https://www.youtube.com/embed/{$matches[1]}";
         }
