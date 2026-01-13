@@ -41,8 +41,8 @@ class ClubController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-            'banner' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
+            'banner' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
             'founded_date' => 'required|date',
             'objectives' => 'nullable|string',
             'type' => 'required|in:club,group',
@@ -141,8 +141,8 @@ class ClubController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|image|max:2048',
-            'banner' => 'nullable|image|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
+            'banner' => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
             'founded_date' => 'required|date',
             'objectives' => 'nullable|string',
             'type' => 'required|in:club,group',

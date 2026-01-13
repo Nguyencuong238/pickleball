@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->json('athlete_types')->nullable()->default(json_encode([]));
+            $table->json('athlete_types')->nullable();
         });
     }
 

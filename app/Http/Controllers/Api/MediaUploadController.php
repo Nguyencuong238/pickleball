@@ -8,19 +8,30 @@ use Illuminate\Http\Request;
 class MediaUploadController extends Controller
 {
     /**
+     * Allowed MIME types for media upload (server-defined whitelist)
+     */
+    private const ALLOWED_IMAGE_MIMES = 'jpg,jpeg,png,gif,webp';
+    private const ALLOWED_VIDEO_MIMES = 'mp4,mov,webm';
+    private const MAX_FILE_SIZE = 10240; // 10MB
+
+    /**
      * Upload media to temp collection
      */
     public function uploadMedia(Request $request)
     {
-        if ($request->rules) {
-            $mediaRules = 'mimes:' . $request->rules . '|max:2048';
-        } else {
-            $mediaRules = 'max:2048';
-        }
+        // Determine media type from request (images or videos only)
+        $mediaType = $request->input('type', 'image');
+
+        // Use server-defined whitelist - never trust client input for validation rules
+        $allowedMimes = match ($mediaType) {
+            'video' => self::ALLOWED_VIDEO_MIMES,
+            default => self::ALLOWED_IMAGE_MIMES,
+        };
 
         $request->validate([
-            'media' => 'required|array',
-            'media.*' => $mediaRules,
+            'media' => 'required|array|max:10',
+            'media.*' => 'required|file|mimes:' . $allowedMimes . '|max:' . self::MAX_FILE_SIZE,
+            'type' => 'nullable|in:image,video',
         ]);
 
         try {
