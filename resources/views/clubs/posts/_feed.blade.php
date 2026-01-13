@@ -33,7 +33,7 @@
             {{-- Post header --}}
             <div class="post-header">
                 <template x-if="post.author.avatar">
-                    <img :src="'/storage/' + post.author.avatar" :alt="post.author.name" class="post-avatar">
+                    <img :src="storageUrl + post.author.avatar" :alt="post.author.name" class="post-avatar">
                 </template>
                 <template x-if="!post.author.avatar">
                     <div class="post-avatar post-avatar-placeholder" x-text="post.author.name.charAt(0).toUpperCase()"></div>
@@ -129,7 +129,7 @@
                         <div class="post-images-grid" :class="getImageGridClass(post.media.length)">
                             <template x-for="(media, idx) in post.media.slice(0, 4)" :key="media.id">
                                 <div class="post-image-item" @click="openLightbox(post.media, idx)">
-                                    <img :src="'/storage/' + media.path" :alt="'Ảnh ' + (idx + 1)">
+                                    <img :src="storageUrl + media.path" :alt="'Ảnh ' + (idx + 1)">
                                     <template x-if="idx === 3 && post.media.length > 4">
                                         <div class="more-images-overlay">
                                             <span x-text="'+' + (post.media.length - 4)"></span>
@@ -144,7 +144,7 @@
                     <template x-if="post.media[0].type === 'video'">
                         <div class="post-video">
                             <video controls>
-                                <source :src="'/storage/' + post.media[0].path" type="video/mp4">
+                                <source :src="storageUrl + post.media[0].path" type="video/mp4">
                             </video>
                         </div>
                     </template>

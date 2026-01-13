@@ -144,7 +144,7 @@
                             <template x-for="media in editingPost.media" :key="media.id">
                                 <div class="preview-item" :class="{ 'removed': !keepMediaIds.includes(media.id) }">
                                     <template x-if="media.type === 'image'">
-                                        <img :src="'/storage/' + media.path" alt="Existing media">
+                                        <img :src="storageUrl + media.path" alt="Existing media">
                                     </template>
                                     <template x-if="media.type === 'youtube'">
                                         <div class="youtube-thumb">

@@ -842,7 +842,7 @@ function postFeed() {
             lightbox.innerHTML = `
                 <div class="lightbox-content">
                     <button class="lightbox-close">&times;</button>
-                    <img src="/storage/${images[index].path}" alt="">
+                    <img src="${storageUrl}${images[index].path}" alt="">
                 </div>
             `;
             lightbox.addEventListener('click', (e) => {

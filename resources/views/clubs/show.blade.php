@@ -934,6 +934,11 @@
     @endauth
 </div>
 
+{{-- Storage URL for JavaScript --}}
+<script>
+    window.storageUrl = '{{ Storage::disk(config("filesystems.default"))->url("") }}';
+</script>
+
 {{-- Alpine.js CDN with Intersect plugin --}}
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
