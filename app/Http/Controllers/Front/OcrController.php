@@ -277,6 +277,72 @@ class OcrController extends Controller
     }
 
     /**
+     * Athletes leaderboard (with type filter: international, vietnam, or default)
+     */
+    public function athleteLeaderboard(Request $request): View
+    {
+        $type = $request->query('type', 'athlete');
+        $rank = $request->query('rank');
+
+        // Base query - all users
+        $query = User::query();
+
+        // Filter by athlete type
+        if ($type === 'athlete_international') {
+            // Only international athletes
+            $query->whereJsonContains('athlete_types', 'athlete_international');
+        } elseif ($type === 'athlete_vietnam') {
+            // Only Vietnam athletes
+            $query->whereJsonContains('athlete_types', 'athlete_vietnam');
+        }
+        // else: type === 'athlete' - show ALL community athletes (no filter)
+
+        // Filter by rank if provided
+        if ($rank && in_array(ucfirst($rank), array_keys(User::getEloRanks()))) {
+            $query->where('elo_rank', ucfirst($rank));
+        }
+
+        // Order by elo rating descending
+        $query->orderBy('elo_rating', 'desc');
+
+        $players = $query->paginate(10);
+
+        // User's position - using same filter as leaderboard
+        $userRank = null;
+        if (auth()->check()) {
+            // Build same filter query as players leaderboard
+            $rankQuery = User::query();
+            
+            // Apply same athlete type filter
+            if ($type === 'athlete_international') {
+                $rankQuery->whereJsonContains('athlete_types', 'athlete_international');
+            } elseif ($type === 'athlete_vietnam') {
+                $rankQuery->whereJsonContains('athlete_types', 'athlete_vietnam');
+            }
+            // else: for 'athlete' type, no filter (show all)
+
+            // Count users with higher elo
+            $userRank = $rankQuery->where('elo_rating', '>', auth()->user()->elo_rating)->count() + 1;
+        }
+
+        $ranks = array_keys(User::getEloRanks());
+        $athleteTypes = [
+            'athlete' => 'VĐV Cộng Đồng',
+            'athlete_vietnam' => 'VĐV Việt Nam',
+            'athlete_international' => 'VĐV Toàn Cầu',
+        ];
+
+        return view('front.ocr.athlete-leaderboard', compact(
+            'players',
+            'type',
+            'rank',
+            'userRank',
+            'ranks',
+            'athleteTypes'
+        ));
+    }
+
+    /**
      * User OCR profile
      */
     public function profile(User $user): View

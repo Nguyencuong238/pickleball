@@ -77,15 +77,34 @@ Route::get('/debug/users', function () {
 });
 
 Route::get('/athlete-debug', function() {
-     $user = auth()->user();
+    $authUser = auth()->user();
+    
+    // All users sorted by elo
+    $allUsersSorted = \App\Models\User::orderBy('elo_rating', 'desc')->get(['id', 'name', 'athlete_types', 'elo_rating']);
+    
+    // Count current user rank
+    $userRank = null;
+    if ($authUser) {
+        $rankCount = \App\Models\User::where('elo_rating', '>', $authUser->elo_rating)->count();
+        $userRank = $rankCount + 1;
+    }
+    
     return response()->json([
-        'user' => $user ? [
-            'id' => $user->id,
-            'name' => $user->name,
-            'roles' => $user->getRoleNames(),
-            'tournaments_count' => \App\Models\Tournament::where('user_id', $user->id)->count(),
-            'athletes_count' => \App\Models\TournamentAthlete::count(),
-        ] : 'Not authenticated'
+        'current_user' => $authUser ? [
+            'id' => $authUser->id,
+            'name' => $authUser->name,
+            'athlete_types' => $authUser->athlete_types,
+            'elo_rating' => $authUser->elo_rating,
+            'calculated_rank' => $userRank
+        ] : null,
+        'all_users_by_elo' => $allUsersSorted->map(function($user) {
+            return [
+                'id' => $user->id,
+                'name' => $user->name,
+                'athlete_types' => $user->athlete_types,
+                'elo_rating' => $user->elo_rating
+            ];
+        })
     ]);
 });
 
@@ -451,6 +470,9 @@ Route::middleware(['auth', 'role:referee'])->prefix('referee')->name('referee.')
     Route::post('matches/{match}/end', [RefereeController::class, 'endMatch'])->name('matches.end');
     Route::get('matches/{match}/state', [RefereeController::class, 'getMatchState'])->name('matches.state');
 });
+
+// Athlete Leaderboard (standalone)
+Route::get('/athlete-leaderboard', [OcrController::class, 'athleteLeaderboard'])->name('athlete-leaderboard');
 
 // OCR Frontend Routes
 Route::prefix('ocr')->name('ocr.')->group(function () {

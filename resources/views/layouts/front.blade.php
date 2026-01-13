@@ -232,14 +232,16 @@
         position: relative;
     }
 
-    .nav-item.dropdown::after {
+    /* Invisible safe area - keeps hover active while moving to dropdown */
+    .nav-item.dropdown::before {
         content: '';
         position: absolute;
         top: 100%;
-        left: 0;
-        right: 0;
-        height: 10px;
-        z-index: 39;
+        left: -5px;
+        right: -5px;
+        height: 20px;
+        z-index: 1000;
+        pointer-events: auto;
     }
 
     .dropdown-toggle {
@@ -253,21 +255,33 @@
 
     .dropdown-menu {
         position: absolute;
-        top: calc(100% + 10px);
+        top: calc(100% + 20px);
         left: 0;
         background-color: #fff;
-        min-width: 180px;
+        min-width: 200px;
         list-style: none;
         padding: 0.5rem 0;
         margin: 0;
         border-radius: 0.5rem;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        display: none;
-        z-index: 40;
+        visibility: hidden;
+        opacity: 0;
+        transform: translateY(-5px);
+        z-index: 1000;
+        pointer-events: none;
+        transition: all 0.2s ease;
+    }
+
+    .nav-item.dropdown:hover .dropdown-menu,
+    .nav-item.dropdown:hover::before {
+        visibility: visible;
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
     }
 
     .nav-item.dropdown:hover .dropdown-menu {
-        display: block;
+        pointer-events: auto;
     }
 
     .dropdown-item {
@@ -322,9 +336,9 @@
                     <a href="#" class="nav-link dropdown-toggle">Bảng xếp hạng</a>
                     <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
-                        <li><a href="#" class="dropdown-item">Bảng Xếp Hạng Toàn Cầu</a></li>
-                        <li><a href="#" class="dropdown-item">Bảng Xếp Hạng VĐV</a></li>
-                        <li><a href="#" class="dropdown-item">Bảng Xếp Hạng Cộng Đồng</a></li>
+                        <li><a href="{{ route('athlete-leaderboard', ['type' => 'athlete_international']) }}" class="dropdown-item">Bảng Xếp Hạng Toàn Cầu</a></li>
+                        <li><a href="{{ route('athlete-leaderboard', ['type' => 'athlete_vietnam']) }}" class="dropdown-item">Bảng Xếp Hạng VĐV Việt Nam</a></li>
+                        <li><a href="{{ route('athlete-leaderboard', ['type' => 'athlete']) }}" class="dropdown-item">Bảng Xếp Hạng Cộng Đồng</a></li>
                     </ul>
                 </li>
                 <li class="nav-item dropdown">

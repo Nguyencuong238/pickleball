@@ -125,7 +125,7 @@
         </div>
 
     <!-- Users Management Section -->
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
@@ -177,7 +177,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <!-- Roles & Permissions Section -->
     <div class="row mt-4 d-none">

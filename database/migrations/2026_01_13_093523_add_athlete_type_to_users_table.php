@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('athlete_type', ['athlete_international', 'athlete_vietnam'])->nullable();
+            $table->json('athlete_types')->nullable()->default(json_encode([]));
         });
     }
 
@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('athlete_type');
+            $table->dropColumn('athlete_types');
         });
     }
 };
