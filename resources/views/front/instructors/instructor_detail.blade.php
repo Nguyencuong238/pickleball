@@ -30,7 +30,7 @@
                 <div class="coach-avatar-section">
                     <div class="coach-avatar-large">
                         @if ($instructor->image)
-                            <img src="{{ asset('storage/' . $instructor->image) }}" alt="{{ $instructor->name }}">
+                            <img src="{{ storage_url($instructor->image) }}" alt="{{ $instructor->name }}">
                         @else
                             <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cdefs%3E%3ClinearGradient id='gProfile' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2300D9B5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230099CC;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23gProfile)' width='400' height='400'/%3E%3Ccircle cx='200' cy='150' r='80' fill='rgba(255,255,255,0.3)'/%3E%3Cellipse cx='200' cy='320' rx='100' ry='80' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E"
                                 alt="{{ $instructor->name }}">
@@ -340,7 +340,7 @@
                                     <div class="review-header">
                                         <div class="reviewer-avatar">
                                             @if($review->user && $review->user->avatar)
-                                                <img src="{{ asset('storage/' . $review->user->avatar) }}" alt="{{ $review->user->name }}">
+                                                <img src="{{ storage_url($review->user->avatar) }}" alt="{{ $review->user->name }}">
                                             @else
                                                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23FF8E53'/%3E%3Ctext x='50' y='55' font-size='40' text-anchor='middle' fill='white' dominant-baseline='middle'%3E{{ substr($review->user->name ?? 'U', 0, 2) }}%3C/text%3E%3C/svg%3E"
                                                     alt="{{ $review->user->name ?? 'User' }}">
@@ -673,7 +673,7 @@
                     <div class="coach-card">
                         <div class="coach-image">
                             @if ($similar->image)
-                                <img src="{{ asset('storage/' . $similar->image) }}" alt="{{ $similar->name }}">
+                                <img src="{{ storage_url($similar->image) }}" alt="{{ $similar->name }}">
                             @else
                                 <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cdefs%3E%3ClinearGradient id='gs1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%23FF8E53;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%23FE6B8B;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23gs1)' width='300' height='300'/%3E%3Ccircle cx='150' cy='120' r='60' fill='rgba(255,255,255,0.3)'/%3E%3Cellipse cx='150' cy='250' rx='80' ry='60' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E"
                                     alt="{{ $similar->name }}">

@@ -46,7 +46,7 @@
                                     @if ($instructor->image)
                                         <div style="margin-bottom: 10px;">
                                             <strong>Ảnh hiện tại:</strong><br>
-                                            <img src="{{ asset('storage/' . $instructor->image) }}" alt="image"
+                                            <img src="{{ storage_url($instructor->image) }}" alt="image"
                                                 style="max-width: 200px; max-height: 200px; object-fit:cover;">
                                         </div>
                                     @endif

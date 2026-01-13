@@ -268,7 +268,7 @@
                 <div class="referee-card">
                     <div class="referee-avatar">
                         @if($referee->avatar)
-                            <img src="{{ asset('storage/' . $referee->avatar) }}" alt="{{ $referee->name }}">
+                            <img src="{{ storage_url($referee->avatar) }}" alt="{{ $referee->name }}">
                         @else
                             {{ strtoupper(substr($referee->name, 0, 1)) }}
                         @endif

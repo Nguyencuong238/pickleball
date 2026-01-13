@@ -9,7 +9,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="{{ route('clubs.show', $club) }}">
 @if($club->image)
-<meta property="og:image" content="{{ asset('storage/' . $club->image) }}">
+<meta property="og:image" content="{{ storage_url($club->image) }}">
 @endif
 @endsection
 
@@ -767,7 +767,7 @@
     <section class="club-cover">
         <div class="cover-image">
             @if($club->banner)
-                <img src="{{ asset('storage/' . $club->banner) }}" alt="{{ $club->name }} Banner" style="width: 100%; height: 100%; object-fit: cover;">
+                <img src="{{ storage_url($club->banner) }}" alt="{{ $club->name }} Banner" style="width: 100%; height: 100%; object-fit: cover;">
             @else
                 <svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
                     <defs>
@@ -794,7 +794,7 @@
             <div class="club-header-info">
                 <div class="club-avatar">
                     @if($club->image)
-                        <img src="{{ asset('storage/' . $club->image) }}" alt="{{ $club->name }}">
+                        <img src="{{ storage_url($club->image) }}" alt="{{ $club->name }}">
                     @else
                         <div style="width: 140px; height: 140px; border-radius: var(--radius-xl); border: 5px solid white; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); display: flex; align-items: center; justify-content: center; color: white; font-size: 48px; font-weight: 700;">
                             {{ strtoupper(substr($club->name, 0, 2)) }}

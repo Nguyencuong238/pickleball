@@ -169,7 +169,7 @@ class User extends Authenticatable implements JWTSubject
             return null;
         }
 
-        return asset('storage/' . $this->avatar);
+        return \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->url($this->avatar);
     }
 
     /**
@@ -273,6 +273,17 @@ class User extends Authenticatable implements JWTSubject
             return 0.0;
         }
         return round(($this->ocr_wins / $this->total_ocr_matches) * 100, 1);
+    }
+
+    /**
+     * Get avatar URL from storage
+     */
+    public function getAvatarUrlAttribute(): ?string
+    {
+        if (empty($this->avatar)) {
+            return null;
+        }
+        return \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->url($this->avatar);
     }
 
     /**

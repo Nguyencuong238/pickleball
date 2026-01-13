@@ -44,7 +44,7 @@
                                         @if ($item->image)
                                             <div
                                                 style="display:flex; justify-content:center; align-items:center; height:80px;">
-                                                <img src="{{ asset('storage/' . $item->image) }}" alt="image"
+                                                <img src="{{ storage_url($item->image) }}" alt="image"
                                                     style="height:80px; width:120px; object-fit:cover;">
                                             </div>
                                         @endif

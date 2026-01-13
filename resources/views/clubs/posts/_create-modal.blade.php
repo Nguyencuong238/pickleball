@@ -16,7 +16,7 @@
                 <div class="modal-author">
                     @auth
                     @if(Auth::user()->avatar)
-                        <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="modal-avatar">
+                        <img src="{{ storage_url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="modal-avatar">
                     @else
                         <div class="modal-avatar modal-avatar-placeholder">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
                     @endif

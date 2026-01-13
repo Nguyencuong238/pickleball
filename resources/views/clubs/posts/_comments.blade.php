@@ -73,7 +73,7 @@
                         <template x-if="replyingTo === comment.id">
                             <div class="reply-form">
                                 @if(Auth::user()->avatar)
-                                    <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="comment-avatar small">
+                                    <img src="{{ storage_url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="comment-avatar small">
                                 @else
                                     <div class="comment-avatar comment-avatar-placeholder small">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
                                 @endif
@@ -110,7 +110,7 @@
         @if($membership)
         <div class="comment-form-inline">
             @if(Auth::user()->avatar)
-                <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="comment-avatar">
+                <img src="{{ storage_url(Auth::user()->avatar) }}" alt="{{ Auth::user()->name }}" class="comment-avatar">
             @else
                 <div class="comment-avatar comment-avatar-placeholder">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
             @endif

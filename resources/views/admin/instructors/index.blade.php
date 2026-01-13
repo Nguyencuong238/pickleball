@@ -33,7 +33,7 @@
                                     <td class="text-center" style="vertical-align: middle;">
                                         @if ($instructor->image)
                                             <div style="display:flex; justify-content:center; align-items:center; height:80px;">
-                                                <img src="{{ asset('storage/' . $instructor->image) }}" alt="image"
+                                                <img src="{{ storage_url($instructor->image) }}" alt="image"
                                                     style="height:80px; width:120px; object-fit:cover;">
                                             </div>
                                         @endif

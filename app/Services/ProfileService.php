@@ -43,7 +43,7 @@ class ProfileService
 
         // Upload new avatar
         if ($file !== null) {
-            $path = $file->store('avatars', 'public');
+            $path = $file->store('avatars', config('filesystems.default'));
 
             if ($path === false) {
                 return false;
@@ -60,8 +60,8 @@ class ProfileService
      */
     private function deleteCurrentAvatar(User $user): void
     {
-        if (!empty($user->avatar) && Storage::disk('public')->exists($user->avatar)) {
-            Storage::disk('public')->delete($user->avatar);
+        if (!empty($user->avatar) && Storage::disk(config('filesystems.default'))->exists($user->avatar)) {
+            Storage::disk(config('filesystems.default'))->delete($user->avatar);
         }
     }
 

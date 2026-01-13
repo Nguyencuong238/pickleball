@@ -157,7 +157,7 @@
             <div class="team-member-card">
                 <div class="team-member">
                     @if($member->avatar)
-                        <img src="{{ asset('storage/' . $member->avatar) }}" alt="{{ $member->name }}" class="member-avatar">
+                        <img src="{{ storage_url($member->avatar) }}" alt="{{ $member->name }}" class="member-avatar">
                     @else
                         <div class="member-avatar member-avatar-placeholder">{{ strtoupper(substr($member->name, 0, 1)) }}</div>
                     @endif

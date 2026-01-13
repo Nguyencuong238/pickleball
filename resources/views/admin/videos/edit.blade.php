@@ -71,7 +71,7 @@
                             @if ($video->image)
                                 <div style="margin-bottom: 10px;">
                                     <strong>Ảnh hiện tại:</strong><br>
-                                    <img src="{{ asset('storage/' . $video->image) }}" alt="image"
+                                    <img src="{{ storage_url($video->image) }}" alt="image"
                                         style="max-width: 200px; max-height: 200px; object-fit:cover;">
                                 </div>
                             @endif

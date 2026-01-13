@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'disk' => env('CLUB_POSTS_DISK', 'public'),
+    'disk' => env('CLUB_POSTS_DISK', env('FILESYSTEM_DISK', 'public')),
 
     'content' => [
         'max_length' => 5000,

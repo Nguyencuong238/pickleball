@@ -388,7 +388,7 @@
                 @foreach ($latestNews as $news)
                     <article class="news-card">
                         <div class="news-image">
-                            <img src="{{ asset('storage/' . $news->image) }}" alt="{{ $news->title }}">
+                            <img src="{{ storage_url($news->image) }}" alt="{{ $news->title }}">
                             <span class="news-category">{{ $news->category->name ?? 'Tin tức' }}</span>
                         </div>
                         <div class="news-content">

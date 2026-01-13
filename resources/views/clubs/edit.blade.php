@@ -262,7 +262,7 @@
                         <div id="imagePreviewContainer" style="margin-top: 15px;">
                             @if($club->image)
                                 <div style="position: relative; display: inline-block;">
-                                    <img src="{{ asset('storage/' . $club->image) }}" alt="{{ $club->name }}"
+                                    <img src="{{ storage_url($club->image) }}" alt="{{ $club->name }}"
                                         style="width: 200px; height: 200px; border-radius: 8px; object-fit: cover; border: 2px solid #f3f4f6;">
                                     <button type="button" onclick="document.getElementById('image').value = ''; document.getElementById('imagePreviewContainer').innerHTML = ''; return false;"
                                         style="position: absolute; top: 5px; right: 5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">
@@ -284,7 +284,7 @@
                     <div id="bannerPreviewContainer" style="margin-top: 15px;">
                         @if($club->banner)
                             <div style="position: relative; display: inline-block; width: 100%;">
-                                <img src="{{ asset('storage/' . $club->banner) }}" alt="{{ $club->name }} Banner"
+                                <img src="{{ storage_url($club->banner) }}" alt="{{ $club->name }} Banner"
                                     style="width: 100%; max-width: 600px; height: 150px; border-radius: 8px; object-fit: cover; border: 2px solid #f3f4f6;">
                                 <button type="button" onclick="document.getElementById('banner').value = ''; document.getElementById('bannerPreviewContainer').innerHTML = ''; return false;"
                                     style="position: absolute; top: 5px; right: 5px; background: #ff4444; color: white; border: none; border-radius: 50%; width: 30px; height: 30px; cursor: pointer; font-size: 18px; display: flex; align-items: center; justify-content: center;">

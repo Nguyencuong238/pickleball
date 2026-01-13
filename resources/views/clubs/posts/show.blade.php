@@ -9,7 +9,7 @@
 <meta property="og:type" content="article">
 <meta property="og:url" content="{{ route('clubs.posts.show', [$club, $post]) }}">
 @if($post->media->where('type', 'image')->first())
-<meta property="og:image" content="{{ asset('storage/' . $post->media->where('type', 'image')->first()->path) }}">
+<meta property="og:image" content="{{ storage_url($post->media->where('type', 'image')->first()->path) }}">
 @endif
 <meta name="twitter:card" content="summary_large_image">
 @endsection
@@ -43,7 +43,7 @@
 
             <div class="post-header">
                 @if($post->author->avatar)
-                    <img src="{{ asset('storage/' . $post->author->avatar) }}" alt="{{ $post->author->name }}" class="post-avatar">
+                    <img src="{{ storage_url($post->author->avatar) }}" alt="{{ $post->author->name }}" class="post-avatar">
                 @else
                     <div class="post-avatar post-avatar-placeholder">{{ strtoupper(substr($post->author->name, 0, 1)) }}</div>
                 @endif
@@ -100,7 +100,7 @@
                 <div class="post-images-grid {{ $post->media->count() === 2 ? 'two-images' : ($post->media->count() === 3 ? 'three-images' : ($post->media->count() >= 4 ? 'four-plus-images' : 'one-image')) }}">
                     @foreach($post->media->take(4) as $index => $media)
                     <div class="post-image-item">
-                        <img src="{{ asset('storage/' . $media->path) }}" alt="Ảnh {{ $index + 1 }}">
+                        <img src="{{ storage_url($media->path) }}" alt="Ảnh {{ $index + 1 }}">
                         @if($index === 3 && $post->media->count() > 4)
                         <div class="more-images-overlay">
                             <span>+{{ $post->media->count() - 4 }}</span>
@@ -112,7 +112,7 @@
                 @elseif($firstMedia->type === 'video')
                 <div class="post-video">
                     <video controls>
-                        <source src="{{ asset('storage/' . $firstMedia->path) }}" type="video/mp4">
+                        <source src="{{ storage_url($firstMedia->path) }}" type="video/mp4">
                     </video>
                 </div>
                 @elseif($firstMedia->type === 'youtube')
@@ -177,7 +177,7 @@
                 @foreach($post->comments as $comment)
                 <div class="comment-item">
                     @if($comment->user->avatar)
-                        <img src="{{ asset('storage/' . $comment->user->avatar) }}" alt="{{ $comment->user->name }}" class="comment-avatar">
+                        <img src="{{ storage_url($comment->user->avatar) }}" alt="{{ $comment->user->name }}" class="comment-avatar">
                     @else
                         <div class="comment-avatar comment-avatar-placeholder">{{ strtoupper(substr($comment->user->name, 0, 1)) }}</div>
                     @endif
@@ -196,7 +196,7 @@
                             @foreach($comment->replies as $reply)
                             <div class="comment-item reply">
                                 @if($reply->user->avatar)
-                                    <img src="{{ asset('storage/' . $reply->user->avatar) }}" alt="{{ $reply->user->name }}" class="comment-avatar small">
+                                    <img src="{{ storage_url($reply->user->avatar) }}" alt="{{ $reply->user->name }}" class="comment-avatar small">
                                 @else
                                     <div class="comment-avatar comment-avatar-placeholder small">{{ strtoupper(substr($reply->user->name, 0, 1)) }}</div>
                                 @endif

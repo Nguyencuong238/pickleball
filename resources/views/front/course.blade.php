@@ -230,7 +230,7 @@
                         <!-- Featured Video 1 -->
                         <div class="featured-video-card">
                             <div class="video-thumbnail large">
-                                <img src="{{ $video->image ? asset('storage/' . $video->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 640 360%27%3E%3Crect fill=%27%23ccc%27 width=%27640%27 height=%27360%27/%3E%3C/svg%3E' }}"
+                                <img src="{{ $video->image ? storage_url($video->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 640 360%27%3E%3Crect fill=%27%23ccc%27 width=%27640%27 height=%27360%27/%3E%3C/svg%3E' }}"
                                     alt="{{ $video->name }}">
                                 <div class="play-button">
                                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -248,7 +248,7 @@
                                 <p class="video-description">{{ $video->description ?? '' }}</p>
                                 <div class="video-meta">
                                     <div class="instructor">
-                                        <img src="{{ $video->instructor && $video->instructor->image ? asset('storage/' . $video->instructor->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 40 40%27%3E%3Ccircle cx=%2720%27 cy=%2720%27 r=%2720%27 fill=%27%23ccc%27/%3E%3C/svg%3E' }}"
+                                        <img src="{{ $video->instructor && $video->instructor->image ? storage_url($video->instructor->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 40 40%27%3E%3Ccircle cx=%2720%27 cy=%2720%27 r=%2720%27 fill=%27%23ccc%27/%3E%3C/svg%3E' }}"
                                             alt="{{ $video->instructor->name ?? 'Coach' }}">
                                         <span>{{ $video->instructor->name ?? 'Coach' }}</span>
                                     </div>
@@ -276,7 +276,7 @@
                         <!-- Featured Video {{ $index + 1 }} -->
                         <div class="featured-video-card horizontal">
                             <div class="video-thumbnail">
-                                <img src="{{ $video->image ? asset('storage/' . $video->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 320 180%27%3E%3Crect fill=%27%23ccc%27 width=%27320%27 height=%27180%27/%3E%3C/svg%3E' }}"
+                                <img src="{{ $video->image ? storage_url($video->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 320 180%27%3E%3Crect fill=%27%23ccc%27 width=%27320%27 height=%27180%27/%3E%3C/svg%3E' }}"
                                     alt="{{ $video->name }}">
                                 <div class="play-button small">
                                     <svg viewBox="0 0 24 24" fill="currentColor">
@@ -343,7 +343,7 @@
                     <!-- Course Card -->
                     <div class="course-card">
                         <div class="video-thumbnail">
-                            <img src="{{ $video->image ? asset('storage/' . $video->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 320 180%27%3E%3Crect fill=%27%23ccc%27 width=%27320%27 height=%27180%27/%3E%3C/svg%3E' }}"
+                            <img src="{{ $video->image ? storage_url($video->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 320 180%27%3E%3Crect fill=%27%23ccc%27 width=%27320%27 height=%27180%27/%3E%3C/svg%3E' }}"
                                 alt="{{ $video->name }}">
                             <div class="play-button small">
                                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -369,7 +369,7 @@
                             <p class="course-excerpt">{{ $video->description ?? '' }}</p>
                             <div class="course-footer">
                                 <div class="course-instructor">
-                                    <img src="{{ $video->instructor && $video->instructor->image ? asset('storage/' . $video->instructor->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2716%27 fill=%27%23ccc%27/%3E%3C/svg%3E' }}"
+                                    <img src="{{ $video->instructor && $video->instructor->image ? storage_url($video->instructor->image) : 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Ccircle cx=%2716%27 cy=%2716%27 r=%2716%27 fill=%27%23ccc%27/%3E%3C/svg%3E' }}"
                                         alt="{{ $video->instructor->name ?? 'Coach' }}">
                                     <span>{{ $video->instructor->name ?? 'Coach' }}</span>
                                 </div>

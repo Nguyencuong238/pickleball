@@ -31,7 +31,7 @@
                 <!-- Image -->
                 <div>
                     @if($tournament->image)
-                        <img src="{{ asset('storage/' . $tournament->image) }}" alt="{{ $tournament->name }}" style="width: 100%; border-radius: 8px;">
+                        <img src="{{ storage_url($tournament->image) }}" alt="{{ $tournament->name }}" style="width: 100%; border-radius: 8px;">
                     @else
                         <div style="width: 100%; padding: 100px 20px; background-color: #fce7f3; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
                             <i class="fas fa-trophy" style="font-size: 3rem; color: #ec4899;"></i>

@@ -8,6 +8,7 @@ use App\Services\ProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -30,7 +31,7 @@ class ProfileController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'avatar' => asset('storage/' . $user->avatar),
+                'avatar' => $this->getAvatarUrl($user->avatar),
                 'location' => $user->location,
                 'province_id' => $user->province_id,
                 'phone' => $user->phone ?? null,
@@ -58,7 +59,7 @@ class ProfileController extends Controller
         ]);
 
         $user = auth()->user();
-        $user->avatar = asset('storage/' . $user->avatar);
+        $user->avatar = $this->getAvatarUrl($user->avatar);
         $this->profileService->updateBasicInfo($user, $validated);
 
         return response()->json([
@@ -98,7 +99,7 @@ class ProfileController extends Controller
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
             if ($this->profileService->updateAvatar($user, $file)) {
-                $user->avatar = asset('storage/' . $user->avatar);
+                $user->avatar = $this->getAvatarUrl($user->avatar);
 
                 return response()->json([
                     'success' => true,
@@ -124,7 +125,7 @@ class ProfileController extends Controller
     public function updateEmail(Request $request): JsonResponse
     {
         $user = auth()->user();
-        $user->avatar = asset('storage/' . $user->avatar);
+        $user->avatar = $this->getAvatarUrl($user->avatar);
 
         $validated = $request->validate([
             'email' => 'required|email|unique:users,email,' . $user->id,
@@ -156,7 +157,7 @@ class ProfileController extends Controller
     public function updatePassword(Request $request): JsonResponse
     {
         $user = auth()->user();
-        $user->avatar = asset('storage/' . $user->avatar);
+        $user->avatar = $this->getAvatarUrl($user->avatar);
 
         // OAuth users without password can set new password without current password
         if (!$this->profileService->hasPassword($user)) {
@@ -220,5 +221,16 @@ class ProfileController extends Controller
             'created_at' => $request->created_at,
             'updated_at' => $request->updated_at,
         ];
+    }
+
+    /**
+     * Get avatar URL from storage
+     */
+    private function getAvatarUrl(?string $path): ?string
+    {
+        if (empty($path)) {
+            return null;
+        }
+        return Storage::disk(config('filesystems.default'))->url($path);
     }
 }
