@@ -810,9 +810,9 @@
                 </div>
                 <div class="club-title-section">
                     <h1 class="club-name">{{ $club->name }}</h1>
-                    @if($club->objectives)
+                    {{-- @if($club->objectives)
                     <p class="club-tagline">{{ Str::limit($club->objectives, 60) }}</p>
-                    @endif
+                    @endif --}}
                     <div class="club-stats-row">
                         <span class="club-stat">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
