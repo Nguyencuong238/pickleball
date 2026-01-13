@@ -114,7 +114,7 @@
                     <div style="margin-top: 0.5rem;">
                         @foreach($quizResult['flags'] as $flag)
                         <span class="badge badge-warning" style="margin-right: 0.5rem; margin-bottom: 0.5rem;">
-                            {{ $flag }}
+                            {{ $flag['message'] ?? $flag['type'] ?? 'Unknown' }}
                         </span>
                         @endforeach
                     </div>
