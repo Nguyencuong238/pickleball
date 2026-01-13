@@ -336,7 +336,7 @@
                     <a href="#" class="nav-link dropdown-toggle">Bảng xếp hạng</a>
                     <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
-                        <li><a href="{{ route('athlete-leaderboard', ['type' => 'athlete_international']) }}" class="dropdown-item">BXH Toàn Cầu</a></li>
+                        <li><a href="{{ route('athlete-leaderboard', ['type' => 'athlete_international']) }}" class="dropdown-item">BXH VĐV Toàn Cầu</a></li>
                         <li><a href="{{ route('athlete-leaderboard', ['type' => 'athlete_vietnam']) }}" class="dropdown-item">BXH VĐV Việt Nam</a></li>
                         <li><a href="{{ route('athlete-leaderboard', ['type' => 'athlete']) }}" class="dropdown-item">BXH Cộng Đồng</a></li>
                     </ul>
