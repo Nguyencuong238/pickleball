@@ -31,6 +31,7 @@ class OprsLeaderboardController extends Controller
                 'user' => [
                     'id' => $user->id,
                     'name' => $user->name,
+                    'avatar' => $user->getAvatarUrl(),
                 ],
                 'oprs' => $user->total_oprs,
                 'opr_level' => $user->opr_level,

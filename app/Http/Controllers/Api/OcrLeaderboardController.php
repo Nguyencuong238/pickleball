@@ -19,7 +19,7 @@ class OcrLeaderboardController extends Controller
         $users = User::where('total_ocr_matches', '>', 0)
             ->orderBy('elo_rating', 'desc')
             ->take($limit)
-            ->get(['id', 'name', 'elo_rating', 'elo_rank', 'total_ocr_matches', 'ocr_wins', 'ocr_losses']);
+            ->get(['id', 'name', 'elo_rating', 'elo_rank', 'total_ocr_matches', 'ocr_wins', 'ocr_losses', 'avatar']);
 
         $ranked = $users->map(function ($user, $index) {
             return [
@@ -32,6 +32,7 @@ class OcrLeaderboardController extends Controller
                 'wins' => $user->ocr_wins,
                 'losses' => $user->ocr_losses,
                 'win_rate' => $user->win_rate,
+                'avatar' => $user->getAvatarUrl()
             ];
         });
 
