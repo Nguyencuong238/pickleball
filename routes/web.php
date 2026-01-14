@@ -334,7 +334,7 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('tournaments/{tournament_id}/rankings', [HomeYardTournamentController::class, 'getRankings'])->name('tournaments.rankings.api');
     Route::get('tournaments/{tournament_id}/rankings/export', [HomeYardTournamentController::class, 'exportRankingsExcel'])->name('tournaments.rankings.export');
 
-    Route::resource('tournaments', HomeYardTournamentController::class);
+    Route::resource('tournaments', HomeYardTournamentController::class)->except(['create']);
     Route::get('/tournaments/{tournament_id}/config', [HomeYardTournamentController::class, 'configTournament'])->name('tournaments.config');
     Route::post('tournaments/bulk-delete', [HomeYardTournamentController::class, 'bulkDelete'])->name('tournaments.bulk-delete');
     Route::post('tournaments/{tournament_id}/athletes', [HomeYardTournamentController::class, 'addAthlete'])->name('tournaments.athletes.add');

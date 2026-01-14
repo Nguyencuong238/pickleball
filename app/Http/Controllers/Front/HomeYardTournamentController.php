@@ -71,10 +71,6 @@ class HomeYardTournamentController extends Controller
         return view('home-yard.tournaments.tournaments', compact('tournaments', 'stats'));
     }
 
-    public function create()
-    {
-        return view('home-yard.tournaments.create');
-    }
 
     public function store(Request $request)
     {
