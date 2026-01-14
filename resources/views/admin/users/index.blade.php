@@ -16,10 +16,23 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
-            <div class="mb-3">
-                <a href="{{ route('admin.users.import.form') }}" class="btn btn-success">
-                    <i class="fas fa-file-excel"></i> Import Excel
-                </a>
+            <div class="mb-4">
+                <div class="d-flex gap-2 align-items-center" style="flex-wrap: wrap;">
+                    <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex gap-2" style="flex: 1; min-width: 300px;">
+                        <input type="text" name="search" class="form-control form-control-sm" placeholder="Tìm tên VĐV..." value="{{ request('search') }}" style="font-size: 0.9rem;">
+                        <button type="submit" class="btn btn-primary btn-sm">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        @if(request('search'))
+                            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary btn-sm">
+                                <i class="fas fa-times"></i>
+                            </a>
+                        @endif
+                    </form>
+                    <a href="{{ route('admin.users.import.form') }}" class="btn btn-success btn-sm">
+                        <i class="fas fa-file-excel"></i> Import
+                    </a>
+                </div>
             </div>
 
             <table class="table table-striped table-hover">

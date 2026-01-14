@@ -60,45 +60,57 @@
                                 <tbody>
                                     <tr>
                                         <td>A</td>
-                                        <td>Có thể trống</td>
+                                        <td>Trống</td>
                                         <td>-</td>
                                         <td>-</td>
                                     </tr>
                                     <tr>
                                         <td>B</td>
-                                        <td>STT (số thứ tự)</td>
+                                        <td>STT</td>
                                         <td>-</td>
                                         <td>1, 2, 3...</td>
                                     </tr>
                                     <tr>
                                         <td>C</td>
-                                        <td>Tên</td>
+                                        <td>Tên VĐV</td>
                                         <td>✓ Bắt buộc</td>
-                                        <td>Quang Dương</td>
+                                        <td>Anna Leigh Waters</td>
                                     </tr>
                                     <tr>
                                         <td>D</td>
                                         <td>Năm sinh</td>
                                         <td>Tùy chọn</td>
-                                        <td>2006</td>
+                                        <td>2008</td>
                                     </tr>
                                     <tr>
                                         <td>E</td>
-                                        <td>Email</td>
+                                        <td>Mail</td>
                                         <td>✓ Bắt buộc</td>
-                                        <td>quangduong@example.com</td>
+                                        <td>annaleighwaters@gmail.com</td>
                                     </tr>
                                     <tr>
                                         <td>F</td>
-                                        <td>Quốc gia</td>
+                                        <td>Quốc gia (VN)</td>
                                         <td>Tùy chọn</td>
-                                        <td>Việt Nam</td>
+                                        <td>Mỹ</td>
                                     </tr>
                                     <tr>
                                         <td>G</td>
-                                        <td>Loại vận động viên</td>
-                                        <td>Tùy chọn</td>
-                                        <td>Đơn nam, Đôi nam</td>
+                                        <td>Nơi dùng thị đấu</td>
+                                        <td>-</td>
+                                        <td>Đơn nữ</td>
+                                    </tr>
+                                    <tr>
+                                        <td>H</td>
+                                        <td>Hạng</td>
+                                        <td>-</td>
+                                        <td>1, 2, 3...</td>
+                                    </tr>
+                                    <tr>
+                                        <td>I</td>
+                                        <td>Loại (athlete_types)</td>
+                                        <td>✓ Import</td>
+                                        <td>athlete_international</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -120,13 +132,14 @@
                 </div>
                 <div class="card-body">
                     <ul>
-                        <li><strong>Email phải hợp lệ</strong> (ví dụ: user@example.com, không phải user@invalid)</li>
-                        <li>Email phải là duy nhất, không được trùng với email hiện có trong hệ thống</li>
-                        <li>Tên và Email là bắt buộc, các trường khác là tùy chọn</li>
+                        <li><strong>Mail phải hợp lệ</strong> (ví dụ: user@example.com, phải chứa ký tự @)</li>
+                        <li>Mail phải là duy nhất, không được trùng với email hiện có trong hệ thống</li>
+                        <li>Tên VĐV (C) và Mail (E) là bắt buộc, các trường khác là tùy chọn</li>
                         <li>Mật khẩu mặc định sẽ được đặt là <code>password123</code></li>
                         <li>Người dùng sẽ được tự động phê duyệt và gán role "user"</li>
-                        <li>Các dòng có email không hợp lệ sẽ bị bỏ qua</li>
-                        <li>Loại vận động viên có thể nhập nhiều loại cách nhau bằng dấu phẩy (ví dụ: "Đơn nam, Đôi nam")</li>
+                        <li><strong>Cột I (Loại/athlete_types)</strong> sẽ được lưu vào database</li>
+                        <li>Các cột khác (A, B, G, H) sẽ không được import</li>
+                        <li>Chỉ bỏ qua các dòng hoàn toàn trống</li>
                     </ul>
                 </div>
             </div>

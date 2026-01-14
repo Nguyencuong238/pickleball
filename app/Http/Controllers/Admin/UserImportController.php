@@ -91,19 +91,22 @@ class UserImportController extends Controller
 
                 try {
                     // Extract data from Excel columns
-                    // Column A (index 0): có thể trống
-                    // Column B (index 1): STT hoặc dữ liệu đầu
-                    // Column C (index 2): Tên
+                    // Column A (index 0): Trống
+                    // Column B (index 1): STT
+                    // Column C (index 2): Tên VĐV
                     // Column D (index 3): Năm sinh
-                    // Column E (index 4): Email
-                    // Column F (index 5): Quốc gia
-                    // Column G (index 6): Loại vận động viên
+                    // Column E (index 4): Mail
+                    // Column F (index 5): Quốc gia (VN)
+                    // Column G (index 6): Nơi dùng thị đấu
+                    // Column H (index 7): Hạng
+                    // Column I (index 8): Loại (athlete_types)
                     
-                    $name = trim($row[2] ?? '');  // Column C (Tên)
+                    $name = trim($row[2] ?? '');  // Column C (Tên VĐV)
                     $birthYear = trim($row[3] ?? '');  // Column D (Năm sinh)
-                    $email = trim($row[4] ?? '');  // Column E (Email)
+                    $email = trim($row[4] ?? '');  // Column E (Mail)
                     $country = trim($row[5] ?? '');  // Column F (Quốc gia)
-                    $athleteType = trim($row[6] ?? '');  // Column G (Loại vận động viên)
+                    $athleteType = trim($row[6] ?? '');  // Column G (Nơi dùng thị đấu)
+                    $athleteTypesNew = trim($row[8] ?? '');  // Column I (Loại - athlete_types)
 
                     // Debug log
                     $debugInfo[] = "Dòng " . ($index + 1) . ": Name='{$name}', Email='{$email}'";
@@ -126,11 +129,13 @@ class UserImportController extends Controller
                         continue;
                     }
 
-                    // Prepare athlete types array
+                    // Prepare athlete types array (priority: use new column H, fallback to column G)
                     $athleteTypesArray = null;
-                    if (!empty($athleteType)) {
+                    $athleteTypeSource = !empty($athleteTypesNew) ? $athleteTypesNew : $athleteType;
+                    
+                    if (!empty($athleteTypeSource)) {
                         // Split by comma if multiple types
-                        $athleteTypesArray = array_map('trim', explode(',', $athleteType));
+                        $athleteTypesArray = array_map('trim', explode(',', $athleteTypeSource));
                     }
 
                     // Create user

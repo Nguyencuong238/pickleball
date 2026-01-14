@@ -16,9 +16,17 @@ class UserPermissionController extends Controller
     }
 
     // List all users with their roles
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::paginate(20);
+        $query = User::query();
+        
+        // Search by name
+        if ($request->has('search') && !empty($request->input('search'))) {
+            $search = $request->input('search');
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+        
+        $users = $query->paginate(20);
         return view('admin.users.index', compact('users'));
     }
 
