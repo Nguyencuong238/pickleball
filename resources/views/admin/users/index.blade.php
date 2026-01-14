@@ -84,7 +84,14 @@
                                         </form>
                                     @endif
                                 @endif
-                                <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-primary">Sửa</a>
+                                <div style="display: flex; gap: 5px;">
+                                    <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-primary">Sửa</a>
+                                    <form method="POST" action="{{ route('admin.users.destroy', $user) }}" style="display: inline;">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa người dùng này?')">Xóa</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

@@ -74,4 +74,15 @@ class UserPermissionController extends Controller
             ->route('admin.users.index')
             ->with('success', "Tài khoản {$user->name} đã bị từ chối!");
     }
+
+    // Delete user
+    public function destroy(User $user)
+    {
+        $userName = $user->name;
+        $user->delete();
+
+        return redirect()
+            ->route('admin.users.index')
+            ->with('success', "Người dùng {$userName} đã được xóa thành công!");
+    }
 }

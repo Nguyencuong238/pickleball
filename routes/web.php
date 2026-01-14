@@ -523,6 +523,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
      Route::put('/users/{user}', [UserPermissionController::class, 'update'])->name('users.update');
      Route::post('/users/{user}/approve', [UserPermissionController::class, 'approve'])->name('users.approve');
      Route::post('/users/{user}/reject', [UserPermissionController::class, 'reject'])->name('users.reject');
+     Route::delete('/users/{user}', [UserPermissionController::class, 'destroy'])->name('users.destroy');
 
      // Permission Requests Management
      Route::get('/permission-requests', [\App\Http\Controllers\Admin\PermissionRequestController::class, 'index'])->name('permission-requests.index');
