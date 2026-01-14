@@ -16,6 +16,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DebugController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\Admin\UserPermissionController;
+use App\Http\Controllers\Admin\UserImportController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\NewsController;
 use App\Http\Controllers\Admin\StadiumController;
@@ -524,6 +525,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
      Route::post('/users/{user}/approve', [UserPermissionController::class, 'approve'])->name('users.approve');
      Route::post('/users/{user}/reject', [UserPermissionController::class, 'reject'])->name('users.reject');
      Route::delete('/users/{user}', [UserPermissionController::class, 'destroy'])->name('users.destroy');
+     Route::get('/users/import/form', [UserImportController::class, 'showForm'])->name('users.import.form');
+     Route::post('/users/import', [UserImportController::class, 'import'])->name('users.import');
 
      // Permission Requests Management
      Route::get('/permission-requests', [\App\Http\Controllers\Admin\PermissionRequestController::class, 'index'])->name('permission-requests.index');

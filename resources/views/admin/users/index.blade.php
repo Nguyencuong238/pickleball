@@ -12,6 +12,16 @@
                 <div class="alert alert-success">{{ session('success') }}</div>
             @endif
 
+            @if(session('error'))
+                <div class="alert alert-danger">{{ session('error') }}</div>
+            @endif
+
+            <div class="mb-3">
+                <a href="{{ route('admin.users.import.form') }}" class="btn btn-success">
+                    <i class="fas fa-file-excel"></i> Import Excel
+                </a>
+            </div>
+
             <table class="table table-striped table-hover">
                 <thead>
                     <tr>
