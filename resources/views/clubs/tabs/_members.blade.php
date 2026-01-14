@@ -78,7 +78,7 @@
             <div class="member-card sidebar-card">
                 <div class="member-card-header">
                     <template x-if="member.avatar">
-                        <img :src="'/storage/' + member.avatar" :alt="member.name" class="member-card-avatar">
+                        <img :src="storageUrl + member.avatar" :alt="member.name" class="member-card-avatar">
                     </template>
                     <template x-if="!member.avatar">
                         <div class="member-card-avatar member-avatar-placeholder" x-text="member.name.charAt(0).toUpperCase()"></div>

@@ -5,7 +5,7 @@
         <template x-for="comment in post.comments || []" :key="comment.id">
             <div class="comment-item">
                 <template x-if="comment.user.avatar">
-                    <img :src="'/storage/' + comment.user.avatar" :alt="comment.user.name" class="comment-avatar">
+                    <img :src="storageUrl + comment.user.avatar" :alt="comment.user.name" class="comment-avatar">
                 </template>
                 <template x-if="!comment.user.avatar">
                     <div class="comment-avatar comment-avatar-placeholder" x-text="comment.user.name.charAt(0).toUpperCase()"></div>
@@ -38,7 +38,7 @@
                             <template x-for="reply in comment.replies" :key="reply.id">
                                 <div class="comment-item reply">
                                     <template x-if="reply.user.avatar">
-                                        <img :src="'/storage/' + reply.user.avatar" :alt="reply.user.name" class="comment-avatar small">
+                                        <img :src="storageUrl + reply.user.avatar" :alt="reply.user.name" class="comment-avatar small">
                                     </template>
                                     <template x-if="!reply.user.avatar">
                                         <div class="comment-avatar comment-avatar-placeholder small" x-text="reply.user.name.charAt(0).toUpperCase()"></div>

@@ -246,7 +246,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label for="image">Anh Dai Dien</label>
+                        <label for="image">Ảnh đại diện</label>
                         <input type="file" id="image" name="image" accept="image/*">
                         <div id="imagePreviewContainer" style="margin-top: 15px;"></div>
                     </div>

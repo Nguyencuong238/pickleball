@@ -1,8 +1,7 @@
 @extends('layouts.front')
 
-@section('title', $club->name . ' | Pickleball Vietnam')
-
-@section('meta')
+@section('seo')
+<title>{{ $club->name }} | Pickleball Vietnam</title>
 <meta name="description" content="{{ Str::limit($club->description, 160) }}">
 <meta property="og:title" content="{{ $club->name }} | Pickleball Vietnam">
 <meta property="og:description" content="{{ Str::limit($club->description, 160) }}">
@@ -11,12 +10,15 @@
 @if($club->image)
 <meta property="og:image" content="{{ storage_url($club->image) }}">
 @endif
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $club->name }}">
+<meta name="twitter:description" content="{{ Str::limit($club->description, 160) }}">
 @endsection
 
 @section('content')
 <link rel="stylesheet" href="{{ asset('assets/css/styles.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/styles-extended.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.3">
+<link rel="stylesheet" href="{{ asset('assets/css/styles-club.css') }}?v=1.5">
 
 {{-- Additional styles for posts --}}
 <style>
@@ -933,6 +935,11 @@
         @include('clubs.posts._create-modal')
     @endauth
 </div>
+
+{{-- Storage URL for JavaScript --}}
+<script>
+    window.storageUrl = '{{ Storage::disk(config("filesystems.default"))->url("") }}';
+</script>
 
 {{-- Alpine.js CDN with Intersect plugin --}}
 <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/intersect@3.x.x/dist/cdn.min.js"></script>

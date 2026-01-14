@@ -705,7 +705,7 @@ function postFeed() {
         // Get YouTube embed URL
         getYouTubeEmbedUrl(url) {
             if (!url) return '';
-            const match = url.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
+            const match = url.match(/(?:youtube\.com\/(?:shorts\/|[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/);
             return match ? `https://www.youtube.com/embed/${match[1]}?rel=0` : '';
         },
 
@@ -831,26 +831,92 @@ function postFeed() {
             }, 3000);
         },
 
-        // Open lightbox
+        // Open lightbox with slideshow
         openLightbox(media, index) {
-            // Basic lightbox - can be enhanced
             const images = media.filter(m => m.type === 'image');
             if (images.length === 0) return;
 
+            let currentIndex = index;
+            const storageUrlLocal = storageUrl;
+
+            // Create lightbox element
             const lightbox = document.createElement('div');
-            lightbox.className = 'lightbox';
+            lightbox.className = 'post-lightbox';
             lightbox.innerHTML = `
-                <div class="lightbox-content">
-                    <button class="lightbox-close">&times;</button>
-                    <img src="/storage/${images[index].path}" alt="">
+                <button class="post-lightbox-close" aria-label="Close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="post-lightbox-container">
+                    <button class="post-lightbox-nav prev" aria-label="Previous">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
+                    </button>
+                    <img class="post-lightbox-image" src="" alt="Image">
+                    <button class="post-lightbox-nav next" aria-label="Next">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div class="post-lightbox-counter">
+                    <span class="current">1</span> / <span class="total">${images.length}</span>
                 </div>
             `;
+
+            const imageEl = lightbox.querySelector('.post-lightbox-image');
+            const prevBtn = lightbox.querySelector('.post-lightbox-nav.prev');
+            const nextBtn = lightbox.querySelector('.post-lightbox-nav.next');
+            const currentSpan = lightbox.querySelector('.post-lightbox-counter .current');
+
+            // Update image and counter
+            function showImage(idx) {
+                currentIndex = idx;
+                imageEl.src = storageUrlLocal + images[idx].path;
+                currentSpan.textContent = idx + 1;
+                prevBtn.disabled = idx === 0;
+                nextBtn.disabled = idx === images.length - 1;
+            }
+
+            // Navigation
+            function prevImage() {
+                if (currentIndex > 0) showImage(currentIndex - 1);
+            }
+
+            function nextImage() {
+                if (currentIndex < images.length - 1) showImage(currentIndex + 1);
+            }
+
+            // Close lightbox
+            function closeLightbox() {
+                lightbox.classList.remove('active');
+                setTimeout(() => lightbox.remove(), 300);
+                document.removeEventListener('keydown', handleKeydown);
+            }
+
+            // Keyboard navigation
+            function handleKeydown(e) {
+                if (e.key === 'Escape') closeLightbox();
+                if (e.key === 'ArrowLeft') prevImage();
+                if (e.key === 'ArrowRight') nextImage();
+            }
+
+            // Event listeners
+            prevBtn.addEventListener('click', (e) => { e.stopPropagation(); prevImage(); });
+            nextBtn.addEventListener('click', (e) => { e.stopPropagation(); nextImage(); });
+            lightbox.querySelector('.post-lightbox-close').addEventListener('click', closeLightbox);
             lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox || e.target.classList.contains('lightbox-close')) {
-                    lightbox.remove();
-                }
+                if (e.target === lightbox) closeLightbox();
             });
+            document.addEventListener('keydown', handleKeydown);
+
+            // Initialize
             document.body.appendChild(lightbox);
+            showImage(currentIndex);
+            requestAnimationFrame(() => lightbox.classList.add('active'));
         }
     };
 }
