@@ -1,6 +1,6 @@
 # Code Standards & Conventions
 
-**Last Updated**: 2025-12-09
+**Last Updated**: 2026-01-15
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -543,6 +543,38 @@ class SkillQuizService
     public const ELO_CAP_NEW_PLAYER = 1100;
     public const ELO_CAP_EXPERIENCED = 1200;
 
+    // Gender-aware ELO thresholds
+    public const ELO_THRESHOLDS_MALE = [
+        700  => '2.0',
+        800  => '2.5',
+        900  => '3.0',
+        1000 => '3.5',
+        1100 => '4.0',
+        1200 => '4.5',
+        1300 => '5.0',
+    ];
+
+    public const ELO_THRESHOLDS_FEMALE = [
+        700  => '2.5',  // +0.5 level
+        800  => '3.0',
+        900  => '3.5',
+        1000 => '4.0',
+        1100 => '4.5',
+        1200 => '5.0',
+        1300 => '5.5',
+    ];
+
+    public const SKILL_LEVEL_NAMES = [
+        '2.0'  => ['en' => 'Beginner',     'vi' => 'Moi choi'],
+        '2.5'  => ['en' => 'Novice',       'vi' => 'Tap su'],
+        '3.0'  => ['en' => 'Intermediate', 'vi' => 'So cap'],
+        '3.5'  => ['en' => 'Upper Int.',   'vi' => 'Trung cap'],
+        '4.0'  => ['en' => 'Advanced',     'vi' => 'Cao cap'],
+        '4.5'  => ['en' => 'Semi-Pro',     'vi' => 'Ban chuyen'],
+        '5.0'  => ['en' => 'Pro',          'vi' => 'Chuyen nghiep'],
+        '5.5+' => ['en' => 'Elite',        'vi' => 'Dinh cao'],
+    ];
+
     /**
      * Calculate ELO from quiz score
      */
@@ -552,6 +584,34 @@ class SkillQuizService
         $baseElo = 800 + ($percentage * 6);
 
         return (int) min(max($baseElo, 800), 1400);
+    }
+
+    /**
+     * Map ELO to skill level (gender-aware)
+     * Female players get +0.5 level at same ELO
+     */
+    public function eloToSkillLevel(int $elo, ?string $gender = 'male'): string
+    {
+        $thresholds = ($gender === 'female')
+            ? self::ELO_THRESHOLDS_FEMALE
+            : self::ELO_THRESHOLDS_MALE;
+
+        foreach ($thresholds as $threshold => $level) {
+            if ($elo < $threshold) {
+                return $level;
+            }
+        }
+
+        return '5.5+';
+    }
+
+    /**
+     * Get localized skill level name
+     */
+    public function getSkillLevelName(string $level, string $locale = 'vi'): string
+    {
+        return self::SKILL_LEVEL_NAMES[$level][$locale]
+            ?? self::SKILL_LEVEL_NAMES['2.0'][$locale];
     }
 
     /**

@@ -1,52 +1,56 @@
-@props(['elo' => null, 'level' => null, 'size' => 'md', 'showName' => true])
+@props(['elo' => null, 'level' => null, 'gender' => 'male', 'size' => 'md', 'showName' => true])
 
 @php
 /**
  * Skill Level Badge Component
- * Based on ELO rating from Skill Quiz
+ * Based on ELO rating from Skill Quiz (Gender-aware)
  *
  * Usage:
  *   <x-oprs.skill-level-badge :elo="1200" />
+ *   <x-oprs.skill-level-badge :elo="1200" gender="female" />
  *   <x-oprs.skill-level-badge level="4.5" />
- *   <x-oprs.skill-level-badge :elo="$user->elo_rating" size="lg" :showName="false" />
+ *   <x-oprs.skill-level-badge :elo="$user->elo_rating" :gender="$user->gender" size="lg" :showName="false" />
  */
 
-$levels = [
-    '2.0-2.5' => ['name' => 'Newbie', 'desc' => 'Mới chơi, chưa kiểm soát bóng', 'class' => 'skill-newbie'],
-    '2.5' => ['name' => 'Nghiệp dư', 'desc' => 'Biết luật, đánh qua lưới ổn', 'class' => 'skill-beginner'],
-    '2.8-3.0' => ['name' => 'Cơ bản', 'desc' => 'Đánh rally ngắn, bắt đầu có chiến thuật', 'class' => 'skill-basic'],
-    '3.2-3.5' => ['name' => 'Trung bình', 'desc' => 'Phổ biến nhất ở giải social', 'class' => 'skill-intermediate'],
-    '3.8-4.0' => ['name' => 'Khá', 'desc' => 'Đánh ổn định, có dink, reset', 'class' => 'skill-upper-intermediate'],
-    '4.3-4.5' => ['name' => 'Nâng cao', 'desc' => 'Trình giải phong trào mạnh', 'class' => 'skill-advanced'],
-    '4.8-5.0' => ['name' => 'Bán chuyên', 'desc' => 'Bán chuyên, thi đấu thường xuyên', 'class' => 'skill-semi-pro'],
-    '5.3-5.5' => ['name' => 'Chuyên nghiệp', 'desc' => 'VĐV mạnh, chiến thuật cao', 'class' => 'skill-pro'],
-    '5.8-6.0' => ['name' => 'Cao thủ', 'desc' => 'Chuyên nghiệp quốc gia', 'class' => 'skill-expert'],
-    '6.0+' => ['name' => 'Elite', 'desc' => 'Elite / Pro quốc tế', 'class' => 'skill-elite'],
+use App\Services\SkillQuizService;
+
+// Level descriptions and CSS classes
+$levelInfo = [
+    '2.0'  => ['desc' => 'Mới chơi, chưa kiểm soát bóng',           'class' => 'skill-beginner'],
+    '2.5'  => ['desc' => 'Biết luật, đánh qua lưới ổn',             'class' => 'skill-novice'],
+    '3.0'  => ['desc' => 'Đánh rally ngắn, bắt đầu có chiến thuật', 'class' => 'skill-intermediate'],
+    '3.5'  => ['desc' => 'Phổ biến nhất ở giải social',             'class' => 'skill-upper-int'],
+    '4.0'  => ['desc' => 'Đánh ổn định, có dink, reset',            'class' => 'skill-advanced'],
+    '4.5'  => ['desc' => 'Trình giải phong trào mạnh',              'class' => 'skill-semi-pro'],
+    '5.0'  => ['desc' => 'VĐV mạnh, chiến thuật cao',               'class' => 'skill-pro'],
+    '5.5'  => ['desc' => 'Chuyên nghiệp quốc gia',                  'class' => 'skill-elite'],
+    '5.5+' => ['desc' => 'Elite / Pro quốc tế',                     'class' => 'skill-elite'],
 ];
 
-// Calculate level from ELO if not provided
+// Calculate level from ELO using service constants
 if ($level === null && $elo !== null) {
-    $level = match (true) {
-        $elo < 800 => '2.0-2.5',
-        $elo < 900 => '2.5',
-        $elo < 1000 => '2.8-3.0',
-        $elo < 1100 => '3.2-3.5',
-        $elo < 1200 => '3.8-4.0',
-        $elo < 1300 => '4.3-4.5',
-        $elo < 1400 => '4.8-5.0',
-        $elo < 1500 => '5.3-5.5',
-        $elo < 1600 => '5.8-6.0',
-        default => '6.0+',
-    };
+    $thresholds = ($gender === 'female')
+        ? SkillQuizService::ELO_THRESHOLDS_FEMALE
+        : SkillQuizService::ELO_THRESHOLDS_MALE;
+
+    $level = '5.5+'; // Default for highest ELO
+    foreach ($thresholds as $threshold => $lvl) {
+        if ($elo < $threshold) {
+            $level = $lvl;
+            break;
+        }
+    }
 }
 
-$info = $levels[$level] ?? $levels['2.0-2.5'];
+// Get level name from service constant
+$levelName = SkillQuizService::SKILL_LEVEL_NAMES[$level]['vi'] ?? 'Mới chơi';
+$info = $levelInfo[$level] ?? $levelInfo['2.0'];
 @endphp
 
 <span class="skill-level-badge {{ $info['class'] }} size-{{ $size }}" title="{{ $info['desc'] }}">
     <span class="level-number">{{ $level }}</span>
     @if($showName)
-        <span class="level-name">{{ $info['name'] }}</span>
+        <span class="level-name">{{ $levelName }}</span>
     @endif
 </span>
 
@@ -83,59 +87,47 @@ $info = $levels[$level] ?? $levels['2.0-2.5'];
     margin-left: 0.25rem;
 }
 
-/* Skill Level Colors - 10 levels from gray to gold */
-.skill-newbie {
+/* Skill Level Colors - 8 levels */
+.skill-beginner {
     background-color: #f3f4f6;
     color: #374151;
     border-color: #d1d5db;
 }
 
-.skill-beginner {
+.skill-novice {
     background-color: #ecfdf5;
     color: #047857;
     border-color: #a7f3d0;
 }
 
-.skill-basic {
+.skill-intermediate {
     background-color: #dcfce7;
     color: #166534;
     border-color: #86efac;
 }
 
-.skill-intermediate {
+.skill-upper-int {
     background-color: #dbeafe;
     color: #1d4ed8;
     border-color: #93c5fd;
 }
 
-.skill-upper-intermediate {
+.skill-advanced {
     background-color: #e0e7ff;
     color: #4338ca;
     border-color: #a5b4fc;
 }
 
-.skill-advanced {
+.skill-semi-pro {
     background-color: #f3e8ff;
     color: #7c3aed;
     border-color: #c4b5fd;
-}
-
-.skill-semi-pro {
-    background-color: #fce7f3;
-    color: #be185d;
-    border-color: #f9a8d4;
 }
 
 .skill-pro {
     background-color: #ffedd5;
     color: #c2410c;
     border-color: #fdba74;
-}
-
-.skill-expert {
-    background-color: #fef3c7;
-    color: #b45309;
-    border-color: #fcd34d;
 }
 
 .skill-elite {

@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2025-12-18
+**Last Updated**: 2026-01-15
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -249,6 +249,8 @@ MatchModel ──── User (referee_id, nullable)
 **Skill Quiz System**
 ```
 User ──── SkillQuizAttempt (1:N)
+│
+└── gender (enum: male/female, nullable) ─── eloToSkillLevel()
 
 SkillQuizAttempt ──┬── SkillQuizAnswer (1:N)
                    └── User (N:1)
@@ -330,7 +332,7 @@ SkillQuestion ──── SkillDomain (N:1)
 │ skill_questions│ 36 questions across domains             │
 │ skill_quiz_attempts │ User attempts with ELO, flags     │
 │ skill_quiz_answers  │ Individual question responses     │
-│ users          │ Added quiz tracking fields              │
+│ users          │ Added quiz tracking fields + gender     │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -752,6 +754,30 @@ User: Start Quiz
 │  Apply ELO caps             │
 └───────────────┬─────────────┘
                 │
+                ▼
+┌─────────────────────────────┐
+│  eloToSkillLevel()          │
+│  Check user->gender         │
+│  Apply gender-aware mapping │
+└───────────────┬─────────────┘
+         ┌──────┴──────┐
+         │             │
+    [male/null]    [female]
+         │             │
+         ▼             ▼
+┌─────────────┐  ┌──────────────┐
+│Use MALE     │  │Use FEMALE    │
+│thresholds   │  │thresholds    │
+│             │  │(+0.5 level)  │
+└──────┬──────┘  └──────┬───────┘
+       │                │
+       └────────┬───────┘
+                ▼
+┌─────────────────────────────┐
+│  Return skill level string  │
+│  (e.g., "3.5", "4.0")       │
+└───────────────┬─────────────┘
+                │
          ┌──────┴──────┐
          │             │
    [Consistent]  [Suspicious]
@@ -772,6 +798,7 @@ User: Start Quiz
                 ▼
 ┌─────────────────────────────┐
 │  Display results & ELO      │
+│  Show skill level + VN name │
 │  Show recommendations       │
 └─────────────────────────────┘
 ```
@@ -1153,11 +1180,13 @@ SkillQuizService
 ├── calculateTotalScore()        # Sum weighted question scores
 ├── crossValidate()              # Check answer consistency
 ├── validateCompletionTime()     # Check 3-20 min window
-├── applyEloCap()               # Apply caps (1100/1200)
-├── canRetakeQuiz()             # Check cooldown eligibility
-├── calculateRetakeCooldown()   # Determine next retake date
-├── flagSuspiciousAttempt()     # Mark for admin review
-└── getAttemptStatistics()      # Admin statistics
+├── applyEloCap()                # Apply caps (1100/1200)
+├── eloToSkillLevel($elo, $gender) # Gender-aware skill level mapping
+├── getSkillLevelName($level, $locale) # Localized level names
+├── canRetakeQuiz()              # Check cooldown eligibility
+├── calculateRetakeCooldown()    # Determine next retake date
+├── flagSuspiciousAttempt()      # Mark for admin review
+└── getAttemptStatistics()       # Admin statistics
 ```
 
 ### Component Weights and Levels
@@ -1220,6 +1249,10 @@ SkillQuizAttempt Record:
 ├── flag_reason         (if flagged)
 ├── started_at          (timestamp)
 └── completed_at        (timestamp)
+
+User Gender Field (for skill level mapping):
+├── gender              (enum: 'male', 'female', nullable)
+└── Defaults to 'male' for backward compatibility
 ```
 
 ### Skill Quiz Configuration
@@ -1257,6 +1290,16 @@ ELO > 1100: 90 days
 Min completion time: 3 minutes (180 sec)
 Max completion time: 20 minutes (1200 sec)
 Max inconsistency score: 3 (cross-validation)
+
+// Gender-Aware Skill Level Mapping
+Female players: +0.5 level at same ELO
+Aligns with Vietnam tournament standards:
+- Male amateur: <4.0
+- Female amateur: <3.5
+
+ELO Thresholds:
+Male:   700→2.0, 800→2.5, 900→3.0, 1000→3.5, 1100→4.0, 1200→4.5, 1300→5.0, >=1300→5.5+
+Female: 700→2.5, 800→3.0, 900→3.5, 1000→4.0, 1100→4.5, 1200→5.0, 1300→5.5, >=1300→5.5+
 ```
 
 ## Unresolved Questions

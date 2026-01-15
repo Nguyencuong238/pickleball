@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2025-12-18
-**Current Version:** 1.4.0
+**Last Updated:** 2026-01-15
+**Current Version:** 1.5.1
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -163,6 +163,7 @@ Referee management system for tournament match officiating.
 - [x] Referee system with match officiating (Dec 9)
 - [x] Doubles pair selection for tournament categories (Dec 18)
 - [x] Skill assessment quiz system (Jan 3, 2026)
+- [x] Gender-aware skill level mapping (Jan 15, 2026)
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -262,6 +263,9 @@ Referee management system for tournament match officiating.
 - Initial ELO calculation from 36-question quiz (Jan 3, 2026)
 - Anti-fraud measures with cross-validation (Jan 3, 2026)
 - Guest quiz preview mode (Jan 3, 2026)
+- Gender-aware skill level mapping (Jan 15, 2026)
+- Female players +0.5 level adjustment (Jan 15, 2026)
+- 8-level skill system with VN/EN names (Jan 15, 2026)
 
 ### In Development
 - 🔄 Payment integration
@@ -459,6 +463,41 @@ Referee management system for tournament match officiating.
 ---
 
 ## Change Log
+
+### Version 1.5.1 (2026-01-15)
+
+#### Features Added
+- **Gender-Aware Skill Level Mapping:** Female players receive +0.5 skill level at same ELO
+  - 8 skill levels: 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5+
+  - Aligned with Vietnam tournament standards (Male amateur <4.0, Female <3.5)
+  - Vietnamese and English level names
+  - Backward compatible (defaults to male if gender not set)
+
+#### Technical Implementation
+- `SkillQuizService.eloToSkillLevel($elo, $gender)` - Gender-aware mapping with optional gender parameter
+- `SkillQuizService.getSkillLevelName($level, $locale)` - Localized level names (VN/EN)
+- `SkillQuizService::ELO_THRESHOLDS_MALE` - Male ELO threshold constants
+- `SkillQuizService::ELO_THRESHOLDS_FEMALE` - Female ELO threshold constants (+0.5 level)
+- `SkillQuizService::SKILL_LEVEL_NAMES` - Multilingual level name constants
+- Updated all callers to pass user gender (lines 380, 649, 736 in SkillQuizService.php)
+
+#### Database Changes
+- Added `gender` column to `users` table (enum: 'male', 'female', nullable)
+- Migration: `2026_01_15_201900_add_gender_to_users_table.php`
+
+#### View Updates
+- `resources/views/front/skill-quiz/result.blade.php` - Display level with VN name
+- `resources/views/verifier/requests/show.blade.php` - Display level with VN name
+- Skill level badges show gender-appropriate level throughout system
+
+#### Test Updates
+- `SkillQuizServiceTest` - Added gender-aware test cases
+  - Male ELO mapping tests
+  - Female ELO mapping tests (+0.5 level verification)
+  - Default to male when gender null
+  - Localized level name tests
+
+---
 
 ### Version 1.5.0 (2026-01-03)
 

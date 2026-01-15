@@ -331,7 +331,12 @@
                         </div>
                         <div class="summary-item">
                             <div class="summary-label">Skill Level</div>
-                            <div class="summary-value">{{ $result['skill_level'] }}</div>
+                            <div class="summary-value">
+                                {{ $result['skill_level'] }}
+                                <span class="text-muted small">
+                                    ({{ App\Services\SkillQuizService::SKILL_LEVEL_NAMES[$result['skill_level']]['vi'] ?? '' }})
+                                </span>
+                            </div>
                             <div class="summary-sub">DUPR tương đương</div>
                         </div>
                         <div class="summary-item">

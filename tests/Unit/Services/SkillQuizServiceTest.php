@@ -212,14 +212,44 @@ class SkillQuizServiceTest extends TestCase
     }
 
     /** @test */
-    public function it_maps_elo_to_skill_level(): void
+    public function it_maps_elo_to_skill_level_for_male(): void
     {
-        $this->assertEquals('2.0 - 2.5', $this->service->eloToSkillLevel(750));
-        $this->assertEquals('2.5', $this->service->eloToSkillLevel(850));
-        $this->assertEquals('3.2 - 3.5', $this->service->eloToSkillLevel(1050));
-        $this->assertEquals('3.8 - 4.0', $this->service->eloToSkillLevel(1150));
-        $this->assertEquals('5.8 - 6.0', $this->service->eloToSkillLevel(1550));
-        $this->assertEquals('6.0+', $this->service->eloToSkillLevel(1650));
+        $this->assertEquals('2.0', $this->service->eloToSkillLevel(650, 'male'));
+        $this->assertEquals('2.5', $this->service->eloToSkillLevel(750, 'male'));
+        $this->assertEquals('3.0', $this->service->eloToSkillLevel(850, 'male'));
+        $this->assertEquals('3.5', $this->service->eloToSkillLevel(950, 'male'));
+        $this->assertEquals('4.0', $this->service->eloToSkillLevel(1050, 'male'));
+        $this->assertEquals('4.5', $this->service->eloToSkillLevel(1150, 'male'));
+        $this->assertEquals('5.0', $this->service->eloToSkillLevel(1250, 'male'));
+        $this->assertEquals('5.5+', $this->service->eloToSkillLevel(1350, 'male'));
+    }
+
+    /** @test */
+    public function it_maps_elo_to_skill_level_for_female(): void
+    {
+        $this->assertEquals('2.5', $this->service->eloToSkillLevel(650, 'female'));
+        $this->assertEquals('3.0', $this->service->eloToSkillLevel(750, 'female'));
+        $this->assertEquals('3.5', $this->service->eloToSkillLevel(850, 'female'));
+        $this->assertEquals('4.0', $this->service->eloToSkillLevel(950, 'female'));
+        $this->assertEquals('4.5', $this->service->eloToSkillLevel(1050, 'female'));
+        $this->assertEquals('5.0', $this->service->eloToSkillLevel(1150, 'female'));
+        $this->assertEquals('5.5', $this->service->eloToSkillLevel(1250, 'female'));
+        $this->assertEquals('5.5+', $this->service->eloToSkillLevel(1350, 'female'));
+    }
+
+    /** @test */
+    public function it_defaults_to_male_when_gender_null(): void
+    {
+        $this->assertEquals('3.0', $this->service->eloToSkillLevel(850, null));
+        $this->assertEquals('3.0', $this->service->eloToSkillLevel(850)); // no param
+    }
+
+    /** @test */
+    public function it_returns_skill_level_name(): void
+    {
+        $this->assertEquals('Trung cấp', $this->service->getSkillLevelName('3.5', 'vi'));
+        $this->assertEquals('Upper Int.', $this->service->getSkillLevelName('3.5', 'en'));
+        $this->assertEquals('Đỉnh cao', $this->service->getSkillLevelName('5.5+', 'vi'));
     }
 
     /** @test */

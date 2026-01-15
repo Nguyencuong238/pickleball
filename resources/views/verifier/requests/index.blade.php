@@ -62,7 +62,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="badge badge-info">{{ app(\App\Services\SkillQuizService::class)->eloToSkillLevel($request->user->elo_rating ?? 1000) }}</span>
+                            <span class="badge badge-info">{{ app(\App\Services\SkillQuizService::class)->eloToSkillLevel($request->user->elo_rating ?? 1000, $request->user->gender) }}</span>
                         </td>
                         <td>{{ number_format($request->user->elo_rating ?? 1000) }}</td>
                         <td>

@@ -42,6 +42,39 @@ class SkillQuizService
         'tactics' => ['threshold' => 50, 'max_elo' => 1280],
     ];
 
+    // ELO to Skill Level thresholds (gender-aware)
+    // Female players get +0.5 level at same ELO (Vietnam tournament standard)
+    public const ELO_THRESHOLDS_MALE = [
+        700  => '2.0',
+        800  => '2.5',
+        900  => '3.0',
+        1000 => '3.5',
+        1100 => '4.0',
+        1200 => '4.5',
+        1300 => '5.0',
+    ];
+
+    public const ELO_THRESHOLDS_FEMALE = [
+        700  => '2.5',
+        800  => '3.0',
+        900  => '3.5',
+        1000 => '4.0',
+        1100 => '4.5',
+        1200 => '5.0',
+        1300 => '5.5',
+    ];
+
+    public const SKILL_LEVEL_NAMES = [
+        '2.0'  => ['en' => 'Beginner',     'vi' => 'Mới chơi'],
+        '2.5'  => ['en' => 'Novice',       'vi' => 'Tập sự'],
+        '3.0'  => ['en' => 'Intermediate', 'vi' => 'Sơ cấp'],
+        '3.5'  => ['en' => 'Upper Int.',   'vi' => 'Trung cấp'],
+        '4.0'  => ['en' => 'Advanced',     'vi' => 'Cao cấp'],
+        '4.5'  => ['en' => 'Semi-Pro',     'vi' => 'Bán chuyên'],
+        '5.0'  => ['en' => 'Pro',          'vi' => 'Chuyên nghiệp'],
+        '5.5+' => ['en' => 'Elite',        'vi' => 'Đỉnh cao'],
+    ];
+
     // Cross-validation rules
     public const CROSS_VALIDATION_RULES = [
         [
@@ -344,7 +377,7 @@ class SkillQuizService
                 'flags' => $allFlags,
                 'duration' => $duration,
                 'is_provisional' => true,
-                'skill_level' => $this->eloToSkillLevel($elo),
+                'skill_level' => $this->eloToSkillLevel($elo, $attempt->user->gender),
             ];
         });
     }
@@ -541,22 +574,33 @@ class SkillQuizService
     }
 
     /**
-     * Map ELO to skill level string
+     * Map ELO to skill level string (gender-aware)
+     *
+     * Female players get +0.5 level at same ELO
+     * (Vietnam tournament standard: Male amateur <4.0, Female <3.5)
      */
-    public function eloToSkillLevel(int $elo): string
+    public function eloToSkillLevel(int $elo, ?string $gender = 'male'): string
     {
-        return match (true) {
-            $elo < 800 => '2.0 - 2.5',
-            $elo < 900 => '2.5',
-            $elo < 1000 => '2.8 - 3.0',
-            $elo < 1100 => '3.2 - 3.5',
-            $elo < 1200 => '3.8 - 4.0',
-            $elo < 1300 => '4.3 - 4.5',
-            $elo < 1400 => '4.8 - 5.0',
-            $elo < 1500 => '5.3 - 5.5',
-            $elo < 1600 => '5.8 - 6.0',
-            default => '6.0+',
-        };
+        $thresholds = ($gender === 'female')
+            ? self::ELO_THRESHOLDS_FEMALE
+            : self::ELO_THRESHOLDS_MALE;
+
+        foreach ($thresholds as $threshold => $level) {
+            if ($elo < $threshold) {
+                return $level;
+            }
+        }
+
+        return '5.5+';
+    }
+
+    /**
+     * Get localized skill level name
+     */
+    public function getSkillLevelName(string $level, string $locale = 'vi'): string
+    {
+        return self::SKILL_LEVEL_NAMES[$level][$locale]
+            ?? self::SKILL_LEVEL_NAMES['2.0'][$locale];
     }
 
     /**
@@ -602,7 +646,7 @@ class SkillQuizService
             'quiz_percent' => $attempt->quiz_percent,
             'calculated_elo' => $attempt->calculated_elo,
             'final_elo' => $attempt->final_elo,
-            'skill_level' => $this->eloToSkillLevel($attempt->final_elo),
+            'skill_level' => $this->eloToSkillLevel($attempt->final_elo, $attempt->user->gender),
             'flags' => $attempt->flags,
             'is_provisional' => $attempt->is_provisional,
             'recommendations' => $this->getRecommendations($attempt->domain_scores),
@@ -689,7 +733,7 @@ class SkillQuizService
                 'duration_seconds' => $attempt->duration_seconds,
                 'quiz_percent' => $attempt->quiz_percent,
                 'final_elo' => $attempt->final_elo,
-                'skill_level' => $this->eloToSkillLevel($attempt->final_elo),
+                'skill_level' => $this->eloToSkillLevel($attempt->final_elo, $user->gender),
                 'has_flags' => !empty($attempt->flags),
             ])
             ->toArray();

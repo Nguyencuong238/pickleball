@@ -26,6 +26,7 @@ class User extends Authenticatable implements JWTSubject
         'name',
         'slug',
         'email',
+        'gender',
         'phone',
         'avatar',
         'location',
@@ -71,6 +72,7 @@ class User extends Authenticatable implements JWTSubject
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'gender' => 'string',
         'elo_rating' => 'integer',
         'total_ocr_matches' => 'integer',
         'ocr_wins' => 'integer',

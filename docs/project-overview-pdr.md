@@ -143,6 +143,11 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **Skill Domains**: Technical Skills, Strategy, Physical Conditioning, Mental Game, Experience, Game Situations
 - **Rating Scale**: 0-3 scale (Never/Rarely/Sometimes/Often-Always)
 - **ELO Calculation**: Converts quiz score to initial ELO rating (800-1400 range)
+- **Gender-Aware Skill Level Mapping**:
+  - Female players receive +0.5 level at same ELO (aligned with Vietnam tournament standards)
+  - 8 skill levels: 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5+
+  - Vietnamese and English level names
+  - Nullable gender field (defaults to male for backward compatibility)
 - **Anti-Fraud Measures**:
   - Cross-validation score checking for consistency
   - Time validation (3-20 minutes completion window)
@@ -251,6 +256,8 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - 36-question quiz across 6 skill domains
 - Self-assessment rating scale (0-3)
 - Initial ELO calculation from quiz score
+- Gender-aware skill level mapping (+0.5 for female players)
+- 8-level skill system with Vietnamese and English names
 - Cross-validation fraud detection
 - Time-based validation (3-20 min)
 - ELO capping based on experience level
@@ -359,7 +366,7 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **oprs_histories**: OPRS change audit log
 
 ### Profile Entities
-- **users**: Added profile fields (avatar, location, province_id)
+- **users**: Added profile fields (avatar, location, province_id, gender)
 - **provinces**: Geographic provinces for location data
 
 ### Referee Entities
@@ -372,7 +379,7 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **skill_questions**: 36 questions across domains
 - **skill_quiz_attempts**: User attempts with scores, ELO, flags
 - **skill_quiz_answers**: Individual question responses
-- **users**: Added quiz tracking fields (quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at)
+- **users**: Added quiz tracking fields (quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at) and gender field for skill level mapping
 
 ## Success Metrics
 
@@ -422,6 +429,7 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - [x] Referee system with match officiating
 - [x] Doubles pair selection for tournament categories
 - [x] Skill assessment quiz system (260102-1200)
+- [x] Gender-aware skill level mapping (260115-2019)
 - [ ] Online payment integration
 - [ ] Real-time notifications for match invites and activities
 - [ ] Mobile app with OPRS integration

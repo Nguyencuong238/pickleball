@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2025-12-18
+**Last Updated**: 2026-01-15
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -73,7 +73,7 @@ pickleball/
 ## Models Overview (42 Models)
 
 ### User & Auth
-- `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data, referee fields
+- `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data (avatar, location, province, gender), referee fields
 - `ActivityLog` - User activity tracking
 
 ### Stadium & Courts
@@ -131,7 +131,8 @@ pickleball/
 - `OprsHistory` - OPRS change audit log
 
 ### Skill Quiz System (New)
-- `SkillQuestion` - Quiz questions with domain, scale, weight
+- `SkillDomain` - 6 quiz domains with weights
+- `SkillQuestion` - 36 quiz questions with domain, scale, weight
 - `SkillQuizAttempt` - User attempts with scores, ELO, completion time, flags
 - `SkillQuizAnswer` - Individual answers with rating (0-3)
 
@@ -144,7 +145,7 @@ pickleball/
 - `ChallengeService` - Challenge submission, verification, point awarding
 - `CommunityService` - Activity tracking, check-ins, weekly bonuses
 - `ProfileService` - Profile updates, avatar management, email/password changes
-- `SkillQuizService` - Quiz logic, scoring, cross-validation, ELO calculation
+- `SkillQuizService` - Quiz logic, scoring, cross-validation, ELO calculation, gender-aware skill level mapping
 
 ## Controllers Overview
 
@@ -379,7 +380,7 @@ pickleball/
 - `skill_questions` - 36 questions with domain_id, text, description, scale (0-3), weight
 - `skill_quiz_attempts` - User attempts with total_score, elo_assigned, completion_time, is_flagged
 - `skill_quiz_answers` - Individual answers with question_id, rating (0-3)
-- `users` - Added quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at
+- `users` - Added quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at, gender (enum: male/female, nullable)
 
 ### Point Earning Tables (2026-01-14)
 - `point_tasks` - 16 tasks across 4 roles with points, frequency, proof type
@@ -580,6 +581,34 @@ OPRS = (0.7 × Elo) + (0.2 × Challenge) + (0.1 × Community)
 - **Weekly Matches**: 5+ matches in a week (30 points)
 - **Monthly Challenge**: Special monthly objective (150 points)
 
+## Gender-Aware Skill Level System (2026-01-15)
+
+The skill quiz system implements gender-differentiated skill level mapping aligned with Vietnam tournament standards.
+
+### Key Features
+- Female players receive +0.5 level at same ELO
+- 8 skill levels: 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5+
+- Vietnamese and English level names
+- Backward compatible (gender defaults to male if null)
+
+### Implementation
+- `User.gender` - enum('male', 'female'), nullable
+- `SkillQuizService.eloToSkillLevel($elo, $gender)` - Gender-aware mapping
+- `SkillQuizService.getSkillLevelName($level, $locale)` - Localized names
+- Constants: `ELO_THRESHOLDS_MALE`, `ELO_THRESHOLDS_FEMALE`, `SKILL_LEVEL_NAMES`
+
+### ELO Mapping
+| ELO | Male | Female | VN Male | VN Female |
+|-----|------|--------|---------|-----------|
+| <700 | 2.0 | 2.5 | Moi choi | Tap su |
+| 700-799 | 2.5 | 3.0 | Tap su | So cap |
+| 800-899 | 3.0 | 3.5 | So cap | Trung cap |
+| 900-999 | 3.5 | 4.0 | Trung cap | Cao cap |
+| 1000-1099 | 4.0 | 4.5 | Cao cap | Ban chuyen |
+| 1100-1199 | 4.5 | 5.0 | Ban chuyen | Chuyen nghiep |
+| 1200-1299 | 5.0 | 5.5 | Chuyen nghiep | Dinh cao |
+| >=1300 | 5.5+ | 5.5+ | Dinh cao | Dinh cao |
+
 ## Related Documentation
 
 - [Project Overview PDR](./project-overview-pdr.md)
@@ -590,4 +619,4 @@ OPRS = (0.7 × Elo) + (0.2 × Challenge) + (0.1 × Community)
 
 ## Unresolved Questions
 
-None. Codebase structure documented with OPRS and Referee systems.
+None. Codebase structure documented with OPRS, Referee, and Gender-Aware Skill Level systems.

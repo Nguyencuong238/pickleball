@@ -28,7 +28,10 @@
                 <div class="detail-item">
                     <span class="detail-label">Trình độ</span>
                     <span class="detail-value">
-                        <span class="badge badge-info">{{ $quizResult['skill_level'] }}</span>
+                        <span class="badge badge-info">
+                            {{ $quizResult['skill_level'] }}
+                            ({{ App\Services\SkillQuizService::SKILL_LEVEL_NAMES[$quizResult['skill_level']]['vi'] ?? '' }})
+                        </span>
                     </span>
                 </div>
                 <div class="detail-item">
