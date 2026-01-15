@@ -618,9 +618,9 @@
                             </svg>
                         </div>
                         <div class="dropdown-info">
-                            <a href="{{ route('user.points.index') }}" class="nav-link">
+                            {{-- <a href="{{ route('user.points.index') }}" class="nav-link">
                                 ⭐ Kiếm điểm
-                            </a>
+                            </a> --}}
                             <a href="{{ route('user.wallet.index') }}" class="nav-link">
                                 💰 Ví điểm ({{ auth()->user()->getPoints() }})
                             </a>
