@@ -20,6 +20,9 @@ class Kernel extends ConsoleKernel
 
         // Delete old temporary files from media library
         $schedule->command('media:clean-temp')->daily();
+
+        // Point Earning - Check and award weekly 5-match bonus
+        $schedule->command('points:check-weekly')->dailyAt('00:05');
     }
 
     /**

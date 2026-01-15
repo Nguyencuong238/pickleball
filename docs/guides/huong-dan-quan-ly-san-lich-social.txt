@@ -1,0 +1,247 @@
+HƯỚNG DẪN THÊM, CẬP NHẬT SÂN + LỊCH THI ĐẤU SOCIAL
+===================================================
+
+1. GIỚI THIỆU
+-------------
+Hướng dẫn này dành cho quản lý sân (Home Yard) để:
+- Thêm và cập nhật thông tin sân thi đấu
+- Tạo và quản lý lịch thi đấu Social (sự kiện cộng đồng định kỳ)
+
+Lịch thi đấu Social là các buổi chơi giao lưu, tập luyện cộng đồng
+được tổ chức định kỳ hàng tuần.
+
+
+2. YÊU CẦU TRƯỚC KHI BẮT ĐẦU
+----------------------------
+- Đã đăng nhập tài khoản có quyền "Home Yard" (Quản lý sân)
+- Nếu chưa có quyền, liên hệ Admin để được cấp
+
+
+===============================================================================
+PHẦN A: QUẢN LÝ SÂN
+===============================================================================
+
+3. THÊM SÂN MỚI
+---------------
+
+BƯỚC 1: Truy cập trang quản lý sân
+- Đăng nhập tài khoản Home Yard
+- Vào menu "Quản lý sân" hoặc truy cập: /homeyard/courts
+- Nhấn "Thêm sân mới"
+
+BƯỚC 2: Điền thông tin sân
+
+A. Thông tin cơ bản (bắt buộc)
+- Chọn Stadium: Sân thuộc cơ sở nào
+- Tên sân (court_name): VD: "Court 1", "Sân A"
+- Số hiệu sân (court_number): VD: 1, 2, 3
+
+B. Loại sân (bắt buộc)
+- Indoor: Sân trong nhà
+- Outdoor: Sân ngoài trời
+
+C. Mặt sân (bắt buộc)
+- Acrylic: Mặt sân acrylic tiêu chuẩn
+- Polyurethane: Mặt sân PU cao cấp
+- Concrete: Mặt sân bê tông
+- Sport-court: Mặt sân thể thao tổng hợp
+
+D. Sức chứa và giá (bắt buộc)
+- Sức chứa khán giả: Số người xem tối đa
+- Giá thuê cơ bản: Giá mỗi giờ (VNĐ)
+
+E. Thông tin bổ sung
+- Kích thước sân
+- Mô tả chi tiết
+
+BƯỚC 3: Thiết lập bảng giá theo giờ (tùy chọn)
+
+Có thể thêm nhiều mức giá khác nhau:
+- Giờ bắt đầu - Giờ kết thúc
+- Giá mỗi giờ
+- Trạng thái: Bật/Tắt
+
+VD:
+| Khung giờ     | Giá/giờ    |
+|---------------|------------|
+| 06:00 - 08:00 | 100,000đ   |
+| 08:00 - 17:00 | 150,000đ   |
+| 17:00 - 22:00 | 200,000đ   |
+
+BƯỚC 4: Lưu sân
+- Kiểm tra thông tin
+- Nhấn "Lưu" để hoàn tất
+
+
+4. CẬP NHẬT THÔNG TIN SÂN
+-------------------------
+
+BƯỚC 1: Vào danh sách sân
+- Truy cập: /homeyard/courts
+- Tìm sân cần sửa
+
+BƯỚC 2: Chỉnh sửa
+- Nhấn nút "Sửa" bên cạnh sân
+- Cập nhật thông tin cần thiết
+- Nhấn "Lưu" để áp dụng
+
+CÓ THỂ CẬP NHẬT:
+- Thông tin cơ bản (tên, loại, mặt sân)
+- Giá thuê
+- Bảng giá theo giờ
+- Trạng thái hoạt động
+- Mô tả
+
+
+5. QUẢN LÝ TRẠNG THÁI SÂN
+-------------------------
+
+Các trạng thái sân:
+- Available: Sẵn sàng cho thuê
+- In Use: Đang sử dụng
+- Maintenance: Đang bảo trì
+
+Cập nhật trạng thái khi:
+- Sân cần bảo trì định kỳ
+- Sân tạm ngưng hoạt động
+- Sân có sự cố cần sửa chữa
+
+
+===============================================================================
+PHẦN B: QUẢN LÝ LỊCH THI ĐẤU SOCIAL
+===============================================================================
+
+6. TẠO LỊCH SOCIAL MỚI
+----------------------
+
+BƯỚC 1: Truy cập trang quản lý Social
+- Vào menu "Lịch Social" hoặc truy cập: /homeyard/socials
+- Nhấn "Tạo lịch mới"
+
+BƯỚC 2: Điền thông tin sự kiện
+
+A. Thông tin chính (bắt buộc)
+- Tên sự kiện: VD: "Giao lưu Pickleball thứ 7"
+- Mô tả: Chi tiết về buổi giao lưu
+- Đối tượng: VD: "Beginner", "Intermediate", "All levels"
+
+B. Địa điểm và thời gian (bắt buộc)
+- Chọn Stadium: Địa điểm tổ chức
+- Giờ bắt đầu: VD: 18:00
+- Giờ kết thúc: VD: 21:00
+
+C. Lịch lặp lại (bắt buộc)
+Chọn các ngày trong tuần sự kiện diễn ra:
+- [ ] Chủ nhật (0)
+- [ ] Thứ hai (1)
+- [ ] Thứ ba (2)
+- [ ] Thứ tư (3)
+- [ ] Thứ năm (4)
+- [ ] Thứ sáu (5)
+- [ ] Thứ bảy (6)
+
+VD: Chọn "Thứ hai" và "Thứ tư" = Sự kiện lặp lại mỗi thứ 2 và thứ 4
+
+D. Phí và giới hạn (tùy chọn)
+- Phí tham gia: Miễn phí hoặc thu phí (VNĐ)
+- Số người tối đa: Giới hạn người tham gia
+
+BƯỚC 3: Lưu sự kiện
+- Kiểm tra thông tin
+- Nhấn "Lưu" để tạo lịch
+
+
+7. CẬP NHẬT LỊCH SOCIAL
+-----------------------
+
+BƯỚC 1: Vào danh sách Social
+- Truy cập: /homeyard/socials
+- Tìm sự kiện cần sửa
+
+BƯỚC 2: Chỉnh sửa
+- Nhấn nút "Sửa"
+- Cập nhật thông tin:
+  + Thay đổi thời gian
+  + Thay đổi ngày lặp lại
+  + Cập nhật phí tham gia
+  + Điều chỉnh giới hạn người
+- Nhấn "Lưu"
+
+
+8. QUẢN LÝ NGƯỜI THAM GIA
+-------------------------
+
+A. Xem danh sách người đăng ký
+- Vào chi tiết sự kiện Social
+- Xem danh sách người đã đăng ký
+- Số người hiện tại / tối đa
+
+B. Kiểm soát đăng ký
+- Hệ thống tự động khóa khi đạt giới hạn
+- Có thể điều chỉnh giới hạn nếu cần
+
+
+9. VÍ DỤ TẠO LỊCH SOCIAL
+------------------------
+
+Ví dụ 1: Giao lưu người mới
+---------------------------
+- Tên: "Pickleball cho người mới bắt đầu"
+- Mô tả: "Buổi tập luyện dành cho người mới chơi Pickleball"
+- Đối tượng: Beginner
+- Stadium: Sân ABC
+- Giờ: 18:00 - 20:00
+- Ngày: Thứ ba, Thứ năm
+- Phí: 50,000đ/buổi
+- Giới hạn: 20 người
+
+Ví dụ 2: Giải giao hữu cuối tuần
+--------------------------------
+- Tên: "Social Sunday Pickleball"
+- Mô tả: "Giao lưu cuối tuần cho mọi trình độ"
+- Đối tượng: All levels
+- Stadium: Sân XYZ
+- Giờ: 08:00 - 12:00
+- Ngày: Chủ nhật
+- Phí: Miễn phí
+- Giới hạn: 40 người
+
+
+10. LƯU Ý QUAN TRỌNG
+--------------------
+
+A. Quản lý sân
+- Cập nhật giá theo mùa/thời điểm đặc biệt
+- Thông báo trước khi bảo trì sân
+- Kiểm tra và cập nhật trạng thái sân thường xuyên
+
+B. Quản lý Social
+- Đăng thông tin sự kiện sớm để thu hút người tham gia
+- Theo dõi số người đăng ký để điều chỉnh giới hạn
+- Thông báo khi có thay đổi lịch
+- Hủy sự kiện sớm nếu không đủ người
+
+
+11. CÂU HỎI THƯỜNG GẶP
+----------------------
+
+Q: Làm sao để tạm dừng một sân?
+A: Vào chỉnh sửa sân, đổi trạng thái thành "Maintenance" hoặc tắt "is_active".
+
+Q: Có thể có nhiều bảng giá cho cùng khung giờ không?
+A: Không, mỗi khung giờ chỉ có một mức giá. Các khung giờ không được trùng nhau.
+
+Q: Lịch Social có thể không lặp lại không?
+A: Có, chọn một ngày cụ thể thay vì ngày trong tuần, hoặc sử dụng trường "date"
+   thay vì "days_of_week".
+
+Q: Người dùng đăng ký Social ở đâu?
+A: Người dùng xem và đăng ký qua giao diện công khai. Danh sách người đăng ký
+   hiển thị trong trang quản lý Social.
+
+Q: Làm sao để xóa lịch Social?
+A: Vào danh sách Social, nhấn nút "Xóa" bên cạnh sự kiện cần xóa.
+   Lưu ý: Nên thông báo trước cho người đã đăng ký.
+
+Q: Có thể thêm nhiều sân cùng lúc không?
+A: Hiện tại cần thêm từng sân một. Liên hệ Admin nếu cần import số lượng lớn.

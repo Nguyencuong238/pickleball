@@ -1,0 +1,270 @@
+HƯỚNG DẪN ĐĂNG KÝ QUYỀN CHUYÊN GIA + DUYỆT HỒ SƠ VĐV
+=====================================================
+
+1. GIỚI THIỆU
+-------------
+Chuyên gia (Expert Host) là vai trò quan trọng trong hệ thống xác minh trình độ
+của OnePickleball. Chuyên gia có nhiệm vụ:
+- Xem xét và xác minh hồ sơ trình độ của vận động viên
+- Duyệt hoặc từ chối yêu cầu xác minh ELO
+- Đảm bảo tính chính xác của hệ thống xếp hạng
+
+
+2. YÊU CẦU TRƯỚC KHI BẮT ĐẦU
+----------------------------
+- Đã có tài khoản OnePickleball
+- Có kiến thức chuyên môn về Pickleball
+- Có khả năng đánh giá trình độ người chơi qua video/hình ảnh
+
+
+===============================================================================
+PHẦN A: ĐĂNG KÝ QUYỀN CHUYÊN GIA
+===============================================================================
+
+3. CÁC BƯỚC ĐĂNG KÝ
+-------------------
+
+BƯỚC 1: Đăng nhập tài khoản
+- Đăng nhập vào OnePickleball
+- Vào trang cá nhân
+
+BƯỚC 2: Gửi yêu cầu đăng ký quyền
+- Truy cập: /user/permission-request hoặc vào "Cài đặt" > "Yêu cầu quyền"
+- Chọn quyền "Chuyên gia" (Expert Host)
+- Nhấn "Gửi yêu cầu"
+
+BƯỚC 3: Chờ Admin duyệt
+- Yêu cầu sẽ được Admin xem xét
+- Thời gian duyệt: 1-3 ngày làm việc
+- Admin có thể yêu cầu bổ sung thông tin về kinh nghiệm/chứng chỉ
+
+BƯỚC 4: Kích hoạt quyền
+- Sau khi được duyệt, đăng xuất và đăng nhập lại
+- Quyền chuyên gia đã được kích hoạt
+- Có thể truy cập Dashboard Verifier
+
+
+4. SAU KHI ĐƯỢC DUYỆT
+---------------------
+
+Quyền hạn của Chuyên gia:
+- verify-elo: Xác minh điểm ELO của VĐV
+- verify-opr-requests: Duyệt yêu cầu xác minh OPR
+
+Các vai trò có thể xác minh ELO:
+- referee (Trọng tài)
+- instructor (Huấn luyện viên)
+- expert_host (Chuyên gia)
+- admin (Quản trị viên)
+
+
+===============================================================================
+PHẦN B: SỬ DỤNG DASHBOARD VERIFIER
+===============================================================================
+
+5. TRUY CẬP DASHBOARD
+---------------------
+
+BƯỚC 1: Đăng nhập với tài khoản có quyền Chuyên gia
+
+BƯỚC 2: Vào Dashboard
+- Truy cập: /verifier/dashboard
+- Hoặc vào menu "Xác minh"
+
+BƯỚC 3: Xem thông tin tổng quan
+Dashboard hiển thị:
+- Số yêu cầu đang chờ xử lý
+- Số yêu cầu đã duyệt
+- Số yêu cầu đã từ chối
+- Tổng số yêu cầu
+
+
+6. XEM DANH SÁCH YÊU CẦU XÁC MINH
+---------------------------------
+
+BƯỚC 1: Truy cập danh sách yêu cầu
+- Vào: /verifier/requests
+- Xem tất cả yêu cầu xác minh
+
+BƯỚC 2: Lọc yêu cầu
+- Theo trạng thái:
+  + Pending (Đang chờ): Chưa xử lý
+  + Approved (Đã duyệt): Đã xác minh thành công
+  + Rejected (Đã từ chối): Đã từ chối
+
+BƯỚC 3: Xem thông tin tổng quan
+Mỗi yêu cầu hiển thị:
+- Tên VĐV
+- Ngày gửi yêu cầu
+- Trạng thái hiện tại
+
+
+===============================================================================
+PHẦN C: DUYỆT HỒ SƠ VĐV
+===============================================================================
+
+7. QUY TRÌNH DUYỆT HỒ SƠ
+------------------------
+
+BƯỚC 1: Chọn yêu cầu cần xem xét
+- Vào danh sách yêu cầu: /verifier/requests
+- Nhấn vào yêu cầu đang "Pending"
+- Hoặc truy cập: /verifier/requests/{id}
+
+BƯỚC 2: Xem thông tin VĐV
+
+A. Thông tin cơ bản
+- Tên, email, ngày đăng ký
+- Điểm ELO hiện tại (tạm thời)
+- Cấp độ OPRS hiện tại
+
+B. Kết quả bài kiểm tra Skill Quiz
+- Điểm tổng
+- Phân tích theo từng lĩnh vực kỹ năng
+- Thời gian hoàn thành
+
+BƯỚC 3: Xem bằng chứng đính kèm
+
+A. Hình ảnh (Images)
+- Tối đa 5 hình ảnh
+- Định dạng: JPEG, PNG, WebP
+- Nhấn vào để xem chi tiết
+
+B. Video (Videos)
+- Tối đa 3 video
+- Định dạng: MP4, MOV, WebM
+- Nhấn để phát video
+
+C. Links (Liên kết)
+- Tối đa 5 liên kết
+- Các loại link:
+  + YouTube: Video thi đấu trên YouTube
+  + Facebook: Video trên Facebook
+  + TikTok: Video trên TikTok
+  + Khác: Các nguồn khác
+
+D. Ghi chú của VĐV
+- Mô tả bổ sung từ VĐV (tối đa 2000 ký tự)
+
+
+8. XÁC MINH HOẶC TỪ CHỐI
+------------------------
+
+A. DUYỆT (APPROVE)
+------------------
+
+Khi nào nên duyệt:
+- Video/hình ảnh thể hiện đúng trình độ khai báo
+- Kỹ thuật phù hợp với cấp độ
+- Bằng chứng rõ ràng, không giả mạo
+
+Cách thực hiện:
+1. Nhấn nút "Duyệt" (Approve)
+2. Thêm ghi chú (tùy chọn)
+3. Xác nhận duyệt
+
+Kết quả sau khi duyệt:
+- Trạng thái yêu cầu: Approved
+- ELO của VĐV được xác minh (is_elo_verified = true)
+- ELO không còn tạm thời (elo_is_provisional = false)
+- Ghi nhận lịch sử OPRS với lý do "ELO_VERIFIED"
+- Ghi nhận thông tin người xác minh
+
+
+B. TỪ CHỐI (REJECT)
+-------------------
+
+Khi nào nên từ chối:
+- Video/hình ảnh không rõ ràng, không đủ chất lượng
+- Trình độ thực tế không phù hợp với ELO khai báo
+- Nghi ngờ giả mạo hoặc sử dụng video người khác
+- Thiếu bằng chứng cần thiết
+
+Cách thực hiện:
+1. Nhấn nút "Từ chối" (Reject)
+2. Nhập lý do từ chối (bắt buộc, 10-1000 ký tự)
+3. Xác nhận từ chối
+
+Quy định lý do từ chối:
+- Phải rõ ràng, cụ thể
+- Giúp VĐV biết cần bổ sung/cải thiện gì
+- Ví dụ:
+  + "Video không đủ rõ để đánh giá kỹ thuật"
+  + "Trình độ trong video thấp hơn ELO khai báo"
+  + "Cần bổ sung video thi đấu chính thức"
+
+Kết quả sau khi từ chối:
+- Trạng thái yêu cầu: Rejected
+- VĐV nhận thông báo kèm lý do
+- VĐV có thể gửi yêu cầu mới sau 7 ngày (cooldown period)
+
+
+9. TIÊU CHÍ ĐÁNH GIÁ TRÌNH ĐỘ
+-----------------------------
+
+A. Cấp độ 1.0-2.0 (Người mới - Sơ cấp)
+- Mới biết cầm vợt
+- Chưa kiểm soát được bóng
+- Di chuyển còn lúng túng
+
+B. Cấp độ 2.5-3.0 (Trung cấp thấp)
+- Kiểm soát bóng cơ bản
+- Thực hiện được các cú đánh cơ bản
+- Hiểu luật chơi
+
+C. Cấp độ 3.5 (Trung cấp cao)
+- Kỹ thuật ổn định
+- Có chiến thuật cơ bản
+- Di chuyển tốt trên sân
+
+D. Cấp độ 4.0-4.5 (Nâng cao - Chuyên nghiệp)
+- Kỹ thuật đa dạng, chính xác
+- Chiến thuật đa dạng
+- Phản xạ nhanh, di chuyển chuyên nghiệp
+
+E. Cấp độ 5.0+ (Elite)
+- Kỹ thuật hoàn hảo
+- Chiến thuật cao cấp
+- Có thành tích thi đấu chuyên nghiệp
+
+
+10. LƯU Ý QUAN TRỌNG
+--------------------
+
+A. Khi đánh giá
+- Xem kỹ tất cả bằng chứng trước khi quyết định
+- Đánh giá khách quan, không thiên vị
+- Nếu không chắc chắn, tham khảo ý kiến chuyên gia khác
+
+B. Khi từ chối
+- Luôn nêu lý do cụ thể, mang tính xây dựng
+- Tránh ngôn ngữ tiêu cực
+- Hướng dẫn VĐV cách cải thiện hồ sơ
+
+C. Bảo mật
+- Không chia sẻ thông tin VĐV ra ngoài
+- Không sử dụng video/hình ảnh của VĐV cho mục đích khác
+
+
+11. CÂU HỎI THƯỜNG GẶP
+----------------------
+
+Q: Mất bao lâu để xử lý một yêu cầu?
+A: Không có quy định cố định, nhưng nên xử lý trong 1-3 ngày để VĐV
+   không phải chờ đợi quá lâu.
+
+Q: VĐV có thể khiếu nại kết quả không?
+A: VĐV có thể liên hệ Admin để khiếu nại. Admin sẽ xem xét lại.
+
+Q: Nếu VĐV gửi yêu cầu mới sau khi bị từ chối?
+A: Hệ thống có thời gian chờ 7 ngày. Sau thời gian này, VĐV mới có thể
+   gửi yêu cầu mới.
+
+Q: Có thể thay đổi quyết định sau khi đã duyệt/từ chối?
+A: Liên hệ Admin để yêu cầu xem xét lại. Chuyên gia không thể tự thay đổi.
+
+Q: Làm sao để từ bỏ quyền chuyên gia?
+A: Liên hệ Admin để yêu cầu gỡ quyền chuyên gia.
+
+Q: Tôi cần xem bao nhiêu video/hình ảnh trước khi quyết định?
+A: Nên xem tất cả bằng chứng được cung cấp để có đánh giá chính xác nhất.

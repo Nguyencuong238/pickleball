@@ -168,7 +168,7 @@ pickleball/
 | `OprsActivityController` | Community activity management |
 | `SkillQuizController` | Admin quiz attempt management, flag review |
 
-### API Controllers (10)
+### API Controllers (11)
 | Controller | Purpose |
 |------------|---------|
 | `MediaUploadController` | Media file uploads |
@@ -182,6 +182,7 @@ pickleball/
 | `RefereeApiController` | Referee API (dashboard, matches, start, score update) |
 | `RefereePublicController` | Public referee directory and profiles |
 | `SkillQuizController` | API quiz endpoints (domains, questions, submit) |
+| `PointController` | Point earning API (tasks, balance, history, submissions, challenges) |
 
 ### Front Controllers (17)
 | Controller | Purpose |
@@ -235,6 +236,7 @@ pickleball/
 - **Matchmaking**: Opponent suggestions
 - **Referee**: Dashboard, matches, start, score update (5 protected routes)
 - **Referee Public**: List referees, profile (2 public routes)
+- **Point Earning**: Tasks, balance, history, submissions, challenges (6 protected routes)
 
 ## Key Features by Module
 
@@ -379,6 +381,14 @@ pickleball/
 - `skill_quiz_answers` - Individual answers with question_id, rating (0-3)
 - `users` - Added quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at
 
+### Point Earning Tables (2026-01-14)
+- `point_tasks` - 16 tasks across 4 roles with points, frequency, proof type
+- `point_submissions` - User proof submissions for approval with status, proof_data
+- `social_profile_verifications` - Social platform verification (Facebook, YouTube, TikTok)
+- `special_challenges` - Time-limited challenges with participant limits
+- `events` - Workshop/event system with QR check-in
+- `event_checkins` - User event attendance records
+
 ## View Structure
 
 ### Admin (`resources/views/admin/`)
@@ -476,6 +486,13 @@ php artisan db:seed --class=SkillQuestionSeeder
 - `/ocr/profile/{id}` - User OCR/OPRS profile
 - `/ocr/challenges` - Challenge system
 - `/ocr/community` - Community activities
+
+### API Endpoints for Mobile
+- `/api/points/tasks` - Get available point tasks with eligibility
+- `/api/points/balance` - Get wallet balance
+- `/api/points/history` - Get transaction history
+- `/api/points/submissions` - Get/create submissions
+- `/api/points/challenges` - Get active special challenges
 
 ## Authentication Flow
 

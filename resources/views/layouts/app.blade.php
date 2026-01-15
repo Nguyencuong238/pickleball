@@ -476,6 +476,28 @@
 
             <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
 
+            <p style="padding: 0 20px; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Point Earning</p>
+
+            <a href="{{ route('admin.point-submissions.index') }}" class="nav-link {{ request()->routeIs('admin.point-submissions.*') ? 'active' : '' }}">
+                <i class="fas fa-inbox"></i> Submissions
+                @php
+                    $pendingSubmissions = \App\Models\PointSubmission::where('status', 'pending')->count();
+                @endphp
+                @if($pendingSubmissions > 0)
+                    <span class="badge bg-warning text-dark rounded-pill ms-auto">{{ $pendingSubmissions }}</span>
+                @endif
+            </a>
+
+            <a href="{{ route('admin.point-tasks.index') }}" class="nav-link {{ request()->routeIs('admin.point-tasks.*') ? 'active' : '' }}">
+                <i class="fas fa-tasks"></i> Point Tasks
+            </a>
+
+            <a href="{{ route('admin.special-challenges.index') }}" class="nav-link {{ request()->routeIs('admin.special-challenges.*') ? 'active' : '' }}">
+                <i class="fas fa-star"></i> Special Challenges
+            </a>
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+
             <p style="padding: 0 20px; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">OCR</p>
 
             <a href="{{ route('admin.ocr.matches.index') }}" class="nav-link {{ request()->routeIs('admin.ocr.matches.*') ? 'active' : '' }}">

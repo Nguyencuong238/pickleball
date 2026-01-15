@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\EloVerified;
 use App\Models\OprVerificationRequest;
 use App\Models\OprsHistory;
 use App\Models\User;
@@ -90,6 +91,9 @@ class OprVerificationService
                     'verifier_name' => $verifier->name,
                 ],
             ]);
+
+            // Dispatch event for point earning
+            event(new EloVerified($request, $verifier, $user));
         });
     }
 

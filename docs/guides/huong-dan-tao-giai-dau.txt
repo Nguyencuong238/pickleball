@@ -1,0 +1,203 @@
+HƯỚNG DẪN TẠO GIẢI ĐẤU
+=======================
+
+1. GIỚI THIỆU
+-------------
+Tính năng tạo giải đấu cho phép quản lý sân (Home Yard) thiết lập và điều hành
+các giải đấu Pickleball chuyên nghiệp. Bạn có thể quản lý VĐV, lịch thi đấu,
+phân công trọng tài và theo dõi kết quả.
+
+
+2. YÊU CẦU TRƯỚC KHI BẮT ĐẦU
+----------------------------
+- Đã đăng nhập tài khoản có quyền "Home Yard" (Quản lý sân)
+- Nếu chưa có quyền Home Yard, liên hệ Admin để được cấp quyền
+- Có thông tin đầy đủ về giải đấu cần tạo
+
+
+3. CÁC BƯỚC TẠO GIẢI ĐẤU
+------------------------
+
+BƯỚC 1: Truy cập trang quản lý
+- Đăng nhập tài khoản Home Yard
+- Vào menu "Quản lý giải đấu" hoặc truy cập: /homeyard/tournaments
+- Nhấn nút "Tạo giải đấu mới"
+
+BƯỚC 2: Điền thông tin cơ bản
+
+A. Thông tin chính (bắt buộc)
+- Tên giải đấu: Đặt tên rõ ràng, dễ nhớ
+- Trạng thái: Bật/Tắt hiển thị giải đấu
+- Ngày bắt đầu: Chọn ngày khai mạc
+- Ngày kết thúc: Chọn ngày bế mạc
+- Hạn đăng ký: Deadline cho VĐV đăng ký
+
+B. Thông tin bổ sung
+- Mô tả: Giới thiệu chi tiết về giải đấu
+- Địa điểm: Nơi tổ chức giải
+- Giải thưởng: Mô tả giải thưởng cho các vị trí
+
+BƯỚC 3: Thiết lập giá và sức chứa
+
+- Số VĐV tối đa (bắt buộc): Giới hạn số người tham gia
+- Phí đăng ký (bắt buộc): Mức phí cho mỗi VĐV (VNĐ)
+
+BƯỚC 4: Chọn hạng mục thi đấu (bắt buộc)
+
+Chọn các hạng mục sẽ tổ chức:
+- Đơn nam (Men's Singles)
+- Đơn nữ (Women's Singles)
+- Đôi nam (Men's Doubles)
+- Đôi nữ (Women's Doubles)
+- Đôi hỗn hợp (Mixed Doubles)
+
+Có thể chọn nhiều hạng mục cùng lúc.
+
+BƯỚC 5: Thiết lập thể thức và luật
+
+- Thể thức thi đấu: Đơn/Đôi/Hỗn hợp
+- Hạng giải đấu: Người mới/Trung cấp/Nâng cao/Chuyên nghiệp
+- Luật thi đấu: Mô tả chi tiết luật áp dụng
+- Lịch trình sự kiện: Timeline các hoạt động
+
+BƯỚC 6: Tải hình ảnh
+
+- Banner giải đấu: Ảnh bìa hiển thị trên trang giải
+- Thư viện ảnh: Nhiều ảnh giới thiệu về giải đấu
+- Định dạng: JPG, PNG
+- Khuyến nghị: Banner 1200x400px
+
+BƯỚC 7: Lưu giải đấu
+
+- Kiểm tra lại tất cả thông tin
+- Nhấn "Lưu" để tạo giải đấu
+- Hệ thống tự động tạo slug URL cho giải
+
+
+4. CẤU HÌNH GIẢI ĐẤU SAU KHI TẠO
+--------------------------------
+
+Sau khi tạo, truy cập: /homeyard/tournaments/{id}/config
+
+A. THÊM VẬN ĐỘNG VIÊN
+---------------------
+1. Vào mục "Quản lý VĐV"
+2. Nhấn "Thêm VĐV"
+3. Điền thông tin:
+   - Tên VĐV (bắt buộc)
+   - Email (bắt buộc)
+   - Số điện thoại (bắt buộc)
+   - Hạng mục đăng ký (bắt buộc)
+4. Với hạng mục đôi:
+   - Tên partner (bắt buộc)
+   - Email partner
+   - Số điện thoại partner
+5. Nhấn "Lưu" để thêm VĐV
+
+Trạng thái VĐV:
+- Đã đăng ký (registered)
+- Đã duyệt (approved)
+- Đang thi đấu (active)
+- Đã loại (eliminated)
+- Hoàn thành (completed)
+
+B. GÁN SÂN THI ĐẤU
+------------------
+1. Vào mục "Quản lý sân"
+2. Chọn các sân sẽ sử dụng cho giải
+3. Lưu danh sách sân
+
+C. TẠO LỊCH THI ĐẤU
+-------------------
+1. Vào mục "Lịch thi đấu"
+2. Nhấn "Tạo trận đấu mới"
+3. Điền thông tin:
+   - VĐV 1 (bắt buộc): Chọn từ danh sách
+   - VĐV 2 (bắt buộc): Chọn từ danh sách
+   - Hạng mục (bắt buộc)
+   - Ngày thi đấu
+   - Giờ thi đấu
+   - Vòng đấu (vòng bảng/vòng loại/tứ kết/bán kết/chung kết)
+   - Bảng đấu (nếu có vòng bảng)
+   - Trọng tài phụ trách
+   - Số set (Best of 1/3/5, mặc định: 3)
+   - Điểm mỗi set (11 hoặc 15, mặc định: 11)
+4. Nhấn "Lưu" để tạo trận
+
+D. PHÂN CÔNG TRỌNG TÀI
+----------------------
+1. Vào mục "Trọng tài"
+2. Thêm trọng tài vào giải đấu
+3. Gán trọng tài cho từng trận đấu
+
+
+5. QUẢN LÝ TRONG QUÁ TRÌNH GIẢI
+-------------------------------
+
+A. Theo dõi tiến độ
+- Xem danh sách trận đấu theo trạng thái
+- Cập nhật kết quả (nếu trọng tài chưa nhập)
+- Xem bảng xếp hạng theo hạng mục
+
+B. Quản lý thanh toán VĐV
+- Trạng thái: Chưa thanh toán/Đang xử lý/Đã thanh toán/Hoàn tiền/Miễn phí
+- Cập nhật khi VĐV thanh toán
+
+C. Thống kê VĐV
+- Số trận đã đấu
+- Số trận thắng/thua
+- Tỷ lệ thắng
+- Tổng điểm
+- Xếp hạng trong giải
+
+
+6. KẾT THÚC GIẢI ĐẤU
+--------------------
+
+1. Đảm bảo tất cả trận đấu đã hoàn thành
+2. Xác nhận kết quả cuối cùng
+3. Cập nhật trạng thái giải thành "Đã hoàn thành"
+4. Xuất báo cáo xếp hạng (nếu cần)
+
+
+7. LƯU Ý QUAN TRỌNG
+-------------------
+- Kiểm tra kỹ thông tin trước khi công bố giải đấu
+- Đảm bảo số sân đủ cho số trận trong ngày
+- Phân bổ thời gian hợp lý giữa các trận
+- Luôn có trọng tài dự phòng
+- Backup dữ liệu định kỳ
+- Thông báo kịp thời cho VĐV khi có thay đổi
+
+
+8. VALIDATION VÀ QUY TẮC
+------------------------
+
+Hệ thống kiểm tra:
+- 2 VĐV trong cùng trận phải khác nhau
+- 2 VĐV phải cùng hạng mục
+- VĐV đôi phải có đầy đủ thông tin partner
+- Các cặp đôi không được trùng thành viên
+- Trọng tài (nếu gán) phải thuộc giải đấu
+
+
+9. CÂU HỎI THƯỜNG GẶP
+---------------------
+
+Q: Làm sao để sửa thông tin giải đấu đã tạo?
+A: Vào danh sách giải đấu, nhấn "Sửa" bên cạnh giải cần chỉnh sửa.
+
+Q: Có thể xóa giải đấu không?
+A: Có, nhưng chỉ nên xóa khi chưa có VĐV đăng ký.
+
+Q: VĐV có thể tự đăng ký không?
+A: Có, VĐV đăng ký qua trang giải đấu công khai, sau đó BTC duyệt.
+
+Q: Làm sao thêm hạng mục mới sau khi đã tạo?
+A: Vào chỉnh sửa giải đấu và chọn thêm hạng mục trong mục "Hạng mục thi đấu".
+
+Q: Có giới hạn số VĐV trong mỗi hạng mục không?
+A: Giới hạn tổng số VĐV, không giới hạn riêng từng hạng mục.
+
+Q: Làm sao xuất danh sách VĐV?
+A: Vào mục "Quản lý VĐV" và nhấn nút "Xuất Excel".

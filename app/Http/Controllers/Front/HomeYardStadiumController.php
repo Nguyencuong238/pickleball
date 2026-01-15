@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Events\StadiumUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Stadium;
 use App\Models\Province;
@@ -136,6 +137,9 @@ class HomeYardStadiumController extends Controller
         if ($request->has('banner')) {
             $stadium->syncMediaCollection('banner', 'banner', $request);
         }
+
+        // Dispatch event for point earning (once per stadium)
+        event(new StadiumUpdated($stadium, auth()->user()));
 
         return redirect()->back()->with('success', 'Stadium updated successfully.');
     }

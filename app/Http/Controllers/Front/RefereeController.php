@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Events\MatchScored;
 use App\Http\Controllers\Controller;
 use App\Models\MatchModel;
 use App\Models\MatchEvent;
@@ -193,12 +194,17 @@ class RefereeController extends Controller
 
             ActivityLog::log("Tỉ số trận đấu #{$match->id} được cập nhật: {$finalScore}", 'Match', $match->id);
 
+            // Dispatch event for point earning when match is completed
+            if ($validated['status'] === 'completed') {
+                event(new MatchScored($match, $referee));
+            }
+
             return redirect()->route('referee.matches.show', $match)
                 ->with('success', 'Tỉ số đã được cập nhật');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Score update failed', ['error' => $e->getMessage()]);
-            return back()->with('error', 'Loi cap nhat ti so')->withInput();
+            return back()->with('error', 'Lỗi cập nhật tỉ số')->withInput();
         }
     }
 
@@ -397,7 +403,7 @@ class RefereeController extends Controller
             if ($athlete1Wins) {
                 $athlete1->matches_won = ($athlete1->matches_won ?? 0) + 1;
             } elseif (!$athlete2Wins) {
-                // Draw - khong tinh vao matches_won hay matches_lost
+                // Hòa - không tính vào matches_won hay matches_lost
             } else {
                 $athlete1->matches_lost = ($athlete1->matches_lost ?? 0) + 1;
             }
@@ -412,7 +418,7 @@ class RefereeController extends Controller
             if ($athlete2Wins) {
                 $athlete2->matches_won = ($athlete2->matches_won ?? 0) + 1;
             } elseif (!$athlete1Wins) {
-                // Draw - khong tinh vao matches_won hay matches_lost
+                // Hòa - không tính vào matches_won hay matches_lost
             } else {
                 $athlete2->matches_lost = ($athlete2->matches_lost ?? 0) + 1;
             }
@@ -594,7 +600,10 @@ class RefereeController extends Controller
 
             DB::commit();
 
-            ActivityLog::log("Tran dau #{$match->id} ket thuc: {$validated['finalScore']}", 'Match', $match->id);
+            ActivityLog::log("Trận đấu #{$match->id} kết thúc: {$validated['finalScore']}", 'Match', $match->id);
+
+            // Dispatch event for point earning
+            event(new MatchScored($match, $referee));
 
             return response()->json([
                 'success' => true,

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Events\TournamentCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
@@ -137,6 +138,9 @@ class HomeYardTournamentController extends Controller
         if ($request->filled('referee_ids')) {
             $this->assignReferees($tournament, $request->referee_ids);
         }
+
+        // Dispatch event for point earning (once per stadium)
+        event(new TournamentCreated($tournament, auth()->user()));
 
         return redirect()->back()->with('success', 'Giải đấu đã được tạo thành công. Bạn có thể tiếp tục thêm nội dung thi đấu.');
     }

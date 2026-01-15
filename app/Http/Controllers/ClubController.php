@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\ClubMemberAdded;
 use App\Models\Club;
 use App\Models\ClubJoinRequest;
 use App\Models\Province;
@@ -269,6 +270,12 @@ class ClubController extends Controller
         // Add user to club members
         if (!$club->members()->where('user_id', $joinRequest->user_id)->exists()) {
             $club->members()->attach($joinRequest->user_id, ['role' => 'member']);
+
+            // Dispatch event for point earning (first club join)
+            $user = User::find($joinRequest->user_id);
+            if ($user) {
+                event(new ClubMemberAdded($user, $club));
+            }
         }
 
         return redirect()->back()->with('success', 'Đã phê duyệt yêu cầu tham gia!');

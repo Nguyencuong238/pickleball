@@ -6,6 +6,7 @@ namespace App\Models;
 use App\Traits\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -687,7 +688,7 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Get user's wallet
      */
-    public function wallet()
+    public function wallet(): HasOne
     {
         return $this->hasOne(UserWallet::class);
     }

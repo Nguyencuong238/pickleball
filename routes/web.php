@@ -44,6 +44,7 @@ use App\Http\Controllers\Front\ClubPostCommentController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\Front\OprVerificationController;
 use App\Http\Controllers\Verifier\VerifierDashboardController;
+use App\Http\Controllers\Front\UserPointController;
 
 /*
 |--------------------------------------------------------------------------
@@ -244,6 +245,15 @@ Route::middleware('auth')->group(function () {
      // Permission Request Routes
      Route::prefix('user/permission-request')->name('user.permission-request.')->group(function () {
          Route::post('/', [\App\Http\Controllers\Front\PermissionRequestController::class, 'store'])->name('store');
+     });
+
+     // Point Earning System - User Routes
+     Route::prefix('user/points')->name('user.points.')->group(function () {
+         Route::get('/', [UserPointController::class, 'index'])->name('index');
+         Route::get('/task/{task}', [UserPointController::class, 'showSubmitForm'])->name('submit-form');
+         Route::post('/task/{task}', [UserPointController::class, 'submit'])->name('submit')->middleware('throttle:10,1');
+         Route::get('/history', [UserPointController::class, 'history'])->name('history');
+         Route::get('/submissions', [UserPointController::class, 'submissions'])->name('submissions');
      });
      });
 
@@ -590,6 +600,22 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
         Route::post('attempts/{attempt}/adjust-elo', [\App\Http\Controllers\Admin\SkillQuizController::class, 'adjustElo'])->name('adjust-elo');
         Route::post('attempts/{attempt}/mark-reviewed', [\App\Http\Controllers\Admin\SkillQuizController::class, 'markReviewed'])->name('mark-reviewed');
     });
+
+    // Point Earning System - Admin Routes
+    Route::prefix('point-submissions')->name('point-submissions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PointSubmissionController::class, 'index'])->name('index');
+        Route::get('{submission}', [\App\Http\Controllers\Admin\PointSubmissionController::class, 'show'])->name('show');
+        Route::post('{submission}/approve', [\App\Http\Controllers\Admin\PointSubmissionController::class, 'approve'])->name('approve');
+        Route::post('{submission}/reject', [\App\Http\Controllers\Admin\PointSubmissionController::class, 'reject'])->name('reject');
+        Route::post('bulk-approve', [\App\Http\Controllers\Admin\PointSubmissionController::class, 'bulkApprove'])->name('bulk-approve');
+    });
+
+    Route::prefix('point-tasks')->name('point-tasks.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PointTaskController::class, 'index'])->name('index');
+        Route::put('{pointTask}', [\App\Http\Controllers\Admin\PointTaskController::class, 'update'])->name('update');
+    });
+
+    Route::resource('special-challenges', \App\Http\Controllers\Admin\SpecialChallengeController::class);
 });
 
 // OPR Verification Request Routes (for authenticated users)

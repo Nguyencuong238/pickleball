@@ -1,0 +1,266 @@
+HƯỚNG DẪN ĐĂNG KÝ QUYỀN TRỌNG TÀI + CHẤM ĐIỂM TRẬN ĐẤU
+=======================================================
+
+1. GIỚI THIỆU
+-------------
+Trọng tài là vai trò quan trọng trong hệ thống OnePickleball, chịu trách nhiệm
+điều hành và chấm điểm các trận đấu. Hướng dẫn này giúp bạn:
+- Đăng ký để trở thành trọng tài
+- Sử dụng dashboard trọng tài
+- Chấm điểm trận đấu
+
+
+2. YÊU CẦU TRƯỚC KHI BẮT ĐẦU
+----------------------------
+- Đã có tài khoản OnePickleball
+- Có kiến thức về luật Pickleball
+- Có kinh nghiệm chơi hoặc quan sát Pickleball
+
+
+===============================================================================
+PHẦN A: ĐĂNG KÝ QUYỀN TRỌNG TÀI
+===============================================================================
+
+3. CÁC BƯỚC ĐĂNG KÝ
+-------------------
+
+BƯỚC 1: Đăng nhập tài khoản
+- Đăng nhập vào OnePickleball
+- Vào trang cá nhân
+
+BƯỚC 2: Gửi yêu cầu đăng ký quyền
+- Truy cập: /user/permission-request hoặc vào "Cài đặt" > "Yêu cầu quyền"
+- Chọn quyền "Trọng tài" (Referee)
+- Nhấn "Gửi yêu cầu"
+
+BƯỚC 3: Chờ Admin duyệt
+- Yêu cầu sẽ được Admin xem xét
+- Thời gian duyệt: 1-3 ngày làm việc
+- Bạn sẽ nhận thông báo khi được duyệt
+
+BƯỚC 4: Kích hoạt quyền
+- Sau khi được duyệt, đăng xuất và đăng nhập lại
+- Quyền trọng tài đã được kích hoạt
+- Có thể truy cập Dashboard Trọng tài
+
+
+4. SAU KHI ĐƯỢC DUYỆT
+---------------------
+
+Quyền hạn của Trọng tài:
+- manage-matches: Quản lý các trận đấu được phân công
+- submit-scores: Nhập và cập nhật điểm số
+- verify-opr-requests: Xác minh yêu cầu OPR (tùy chọn)
+
+
+===============================================================================
+PHẦN B: SỬ DỤNG DASHBOARD TRỌNG TÀI
+===============================================================================
+
+5. TRUY CẬP DASHBOARD
+---------------------
+
+BƯỚC 1: Đăng nhập với tài khoản có quyền Trọng tài
+
+BƯỚC 2: Vào Dashboard
+- Truy cập: /referee/dashboard
+- Hoặc vào menu "Trọng tài"
+
+BƯỚC 3: Xem thông tin tổng quan
+Dashboard hiển thị:
+- Tổng số trận đã điều hành
+- Số trận đã hoàn thành
+- Trận đấu sắp tới
+- Giải đấu đang tham gia
+
+
+6. XEM DANH SÁCH TRẬN ĐẤU
+-------------------------
+
+BƯỚC 1: Truy cập danh sách trận
+- Vào: /referee/matches
+- Xem tất cả trận được phân công
+
+BƯỚC 2: Lọc trận đấu
+- Theo giải đấu: Chọn giải đấu cụ thể
+- Theo trạng thái: Sắp diễn ra / Đang diễn ra / Đã hoàn thành
+- Theo ngày: Chọn khoảng thời gian
+
+BƯỚC 3: Xem thông tin trận
+Mỗi trận hiển thị:
+- Tên VĐV/Đội thi đấu
+- Ngày giờ thi đấu
+- Sân thi đấu
+- Trạng thái hiện tại
+
+
+===============================================================================
+PHẦN C: CHẤM ĐIỂM TRẬN ĐẤU
+===============================================================================
+
+7. QUY TRÌNH CHẤM ĐIỂM
+----------------------
+
+A. TRƯỚC TRẬN ĐẤU
+-----------------
+
+BƯỚC 1: Xem chi tiết trận
+- Vào: /referee/matches/{match_id}
+- Kiểm tra thông tin VĐV
+- Xác nhận sân thi đấu
+
+BƯỚC 2: Chuẩn bị
+- Đảm bảo VĐV có mặt đầy đủ
+- Kiểm tra thiết bị ghi điểm
+- Xác nhận luật áp dụng (Best of 3/5, 11/15 điểm)
+
+
+B. BẮT ĐẦU TRẬN ĐẤU
+-------------------
+
+BƯỚC 1: Bắt đầu trận
+- Nhấn nút "Bắt đầu trận đấu" (Start Match)
+- Endpoint: POST /referee/matches/{match}/start
+- Hệ thống ghi nhận:
+  + Trạng thái đổi thành "in_progress" (đang diễn ra)
+  + Thời gian bắt đầu thực tế
+
+BƯỚC 2: Xác nhận đã bắt đầu
+- Trạng thái chuyển sang "Đang diễn ra"
+- Màn hình chuyển sang giao diện chấm điểm
+
+
+C. TRONG TRẬN ĐẤU
+-----------------
+
+BƯỚC 1: Ghi điểm từng set
+
+Cách 1: Cập nhật qua form web
+- Điền điểm VĐV 1 và VĐV 2 cho mỗi set
+- VD: Set 1: 11-7, Set 2: 9-11, Set 3: 11-8
+
+Cách 2: Cập nhật real-time (nếu hỗ trợ)
+- Nhấn nút tăng điểm cho VĐV ghi điểm
+- Hệ thống tự động sync
+
+BƯỚC 2: Lưu điểm
+- Sau mỗi set, nhấn "Lưu điểm" để cập nhật
+- Endpoint: PUT /referee/matches/{match}/update-score
+
+
+D. KẾT THÚC TRẬN ĐẤU
+--------------------
+
+BƯỚC 1: Xác nhận kết quả cuối cùng
+- Kiểm tra lại tất cả set
+- Đảm bảo đúng số điểm
+
+BƯỚC 2: Kết thúc trận
+- Nhấn "Kết thúc trận đấu" (End Match)
+- Endpoint: POST /referee/matches/{match}/end
+
+BƯỚC 3: Hệ thống tự động xử lý
+- Tính toán người thắng cuộc
+- Cập nhật thống kê VĐV:
+  + Số trận đã đấu
+  + Số trận thắng/thua
+  + Số set thắng/thua
+- Cập nhật bảng xếp hạng (nếu có vòng bảng)
+- Ghi nhận thời gian kết thúc
+
+
+8. CẤU TRÚC ĐIỂM SỐ
+-------------------
+
+A. Định dạng Set Scores
+-----------------------
+Mảng JSON chứa điểm từng set:
+[
+  {"set": 1, "athlete1": 11, "athlete2": 7},
+  {"set": 2, "athlete1": 9, "athlete2": 11},
+  {"set": 3, "athlete1": 11, "athlete2": 8}
+]
+
+B. Final Score
+--------------
+Tỉ số tổng hợp dạng: "11-7, 9-11, 11-8"
+
+C. Xác định người thắng
+-----------------------
+- Best of 3: Thắng 2 set
+- Best of 5: Thắng 3 set
+- Mỗi set: Đạt 11 điểm (hoặc 15) và cách 2 điểm
+
+
+9. CÁC TRẠNG THÁI TRẬN ĐẤU
+--------------------------
+
+| Trạng thái    | Mô tả                          |
+|---------------|--------------------------------|
+| scheduled     | Đã lên lịch, chưa bắt đầu      |
+| ready         | VĐV đã có mặt, sẵn sàng        |
+| in_progress   | Đang thi đấu                   |
+| completed     | Đã hoàn thành                  |
+| cancelled     | Đã hủy                         |
+| postponed     | Hoãn lại                       |
+| bye           | VĐV được nghỉ (không có đối thủ) |
+
+
+10. LƯU Ý QUAN TRỌNG
+--------------------
+
+A. Trước trận
+- Đến sân trước 15 phút để chuẩn bị
+- Kiểm tra thiết bị và kết nối mạng
+- Xác nhận danh tính VĐV
+
+B. Trong trận
+- Ghi điểm chính xác và kịp thời
+- Không tự ý sửa điểm đã xác nhận
+- Liên hệ BTC nếu có tranh chấp
+
+C. Sau trận
+- Kiểm tra lại kết quả trước khi xác nhận cuối
+- Thông báo cho VĐV về kết quả chính thức
+- Báo cáo sự cố (nếu có) cho BTC
+
+
+11. XỬ LÝ TÌNH HUỐNG ĐẶC BIỆT
+-----------------------------
+
+A. VĐV bỏ cuộc
+- Ghi nhận điểm hiện tại
+- Đánh dấu trận bị hủy hoặc walkover
+- Báo cáo BTC
+
+B. Tranh chấp điểm
+- Tạm dừng ghi điểm
+- Xem lại tình huống (nếu có video)
+- Quyết định cuối cùng thuộc trọng tài
+- Liên hệ BTC nếu cần hỗ trợ
+
+C. Lỗi kỹ thuật
+- Ghi điểm thủ công nếu hệ thống lỗi
+- Cập nhật lên hệ thống sau khi khắc phục
+- Báo cáo lỗi cho đội kỹ thuật
+
+
+12. CÂU HỎI THƯỜNG GẶP
+----------------------
+
+Q: Yêu cầu đăng ký trọng tài bị từ chối thì sao?
+A: Admin sẽ gửi lý do từ chối. Bạn có thể bổ sung thông tin và gửi lại.
+
+Q: Làm sao để được phân công trận đấu?
+A: BTC giải đấu sẽ phân công. Sau khi được thêm vào giải, bạn sẽ thấy
+   các trận được giao trong Dashboard.
+
+Q: Có thể sửa điểm sau khi đã kết thúc trận không?
+A: Liên hệ BTC hoặc Admin để yêu cầu sửa. Trọng tài không thể tự sửa
+   sau khi đã xác nhận kết thúc.
+
+Q: Trận đấu đôi thì ghi điểm như thế nào?
+A: Tương tự trận đơn, chỉ khác là VĐV 1 và VĐV 2 là cặp đôi thay vì cá nhân.
+
+Q: Làm sao để từ bỏ quyền trọng tài?
+A: Liên hệ Admin để yêu cầu gỡ quyền trọng tài.

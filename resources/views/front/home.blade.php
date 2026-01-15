@@ -62,6 +62,12 @@
             </div>
         </div>
     </section>
+
+    <!-- Special Challenge Banner -->
+    <div class="container mt-4">
+        @include('front.partials._special_challenge_banner')
+    </div>
+
     <!-- Tournaments Section -->
     <section class="tournaments section" id="tournaments">
         <div class="container">

@@ -1,0 +1,128 @@
+HƯỚNG DẪN ĐÁNH GIÁ TRÌNH ĐỘ PICKLEBALL
+=======================================
+
+1. GIỚI THIỆU
+-------------
+Bài kiểm tra đánh giá trình độ (Skill Quiz) là công cụ tự đánh giá gồm 36
+câu hỏi, giúp xác định trình độ Pickleball ban đầu của bạn. Kết quả sẽ
+được sử dụng để tính điểm ELO và xếp hạng OPRS (OnePickleball Rating Score).
+
+Hệ thống có các biện pháp chống gian lận để đảm bảo kết quả chính xác.
+
+
+2. YÊU CẦU TRƯỚC KHI BẮT ĐẦU
+----------------------------
+- Đã đăng nhập tài khoản OnePickleball
+- Có ít nhất 50 phút để hoàn thành bài kiểm tra
+- Kết nối internet ổn định
+- Chưa từng làm bài kiểm tra này trước đó (chỉ được làm 1 lần)
+
+
+3. CÁC BƯỚC THỰC HIỆN
+---------------------
+
+BƯỚC 1: Truy cập trang Skill Quiz
+- Đăng nhập vào tài khoản
+- Vào menu "Đánh giá trình độ" hoặc truy cập: /skill-quiz
+- Xem tổng quan về các lĩnh vực được đánh giá
+
+BƯỚC 2: Kiểm tra điều kiện
+- Hệ thống sẽ kiểm tra bạn có đủ điều kiện làm bài không
+- Nếu đã làm trước đó, bạn không thể làm lại
+- Nếu đủ điều kiện, nhấn "Bắt đầu làm bài"
+
+BƯỚC 3: Đọc hướng dẫn
+- Đọc kỹ quy định về thời gian và cách thức làm bài
+- Bài kiểm tra có giới hạn 50 phút
+- Câu trả lời được lưu tự động
+- Nhấn "Tiếp tục" để bắt đầu
+
+BƯỚC 4: Làm bài kiểm tra
+- Trả lời lần lượt 36 câu hỏi
+- Các câu hỏi được chia theo lĩnh vực:
+  + Kỹ thuật cơ bản (Serve, Return, Dink, Volley)
+  + Chiến thuật thi đấu
+  + Luật chơi và quy tắc
+  + Thể lực và di chuyển
+- Chọn câu trả lời phù hợp nhất với trình độ hiện tại của bạn
+- Đồng hồ đếm ngược hiển thị thời gian còn lại
+
+BƯỚC 5: Nộp bài
+- Sau khi trả lời hết, nhấn "Nộp bài"
+- Hoặc bài sẽ tự động nộp khi hết thời gian
+- Không thể quay lại sửa sau khi đã nộp
+
+BƯỚC 6: Xem kết quả
+- Kết quả hiển thị ngay sau khi nộp bài
+- Thông tin bao gồm:
+  + Điểm số tổng thể
+  + Điểm ELO ban đầu
+  + Cấp độ OPRS (1.0 - 5.0+)
+  + Phân tích theo từng lĩnh vực
+  + Gợi ý cải thiện
+
+
+4. HỆ THỐNG CẤP ĐỘ OPRS
+-----------------------
+Dựa trên kết quả bài kiểm tra, bạn sẽ được xếp vào một trong các cấp độ:
+
+| Cấp độ | Tên gọi            | Điểm OPRS    |
+|--------|--------------------|--------------|
+| 1.0    | Người mới bắt đầu  | 0 - 599      |
+| 2.0    | Sơ cấp             | 600 - 899    |
+| 3.0    | Trung cấp          | 900 - 1099   |
+| 3.5    | Trung cấp cao      | 1100 - 1349  |
+| 4.0    | Nâng cao           | 1350 - 1599  |
+| 4.5    | Chuyên nghiệp      | 1600 - 1849  |
+| 5.0+   | Elite              | 1850+        |
+
+
+5. CÁCH TÍNH ĐIỂM ELO BAN ĐẦU
+-----------------------------
+- Điểm ELO ban đầu dựa trên số câu trả lời đúng và thời gian làm bài
+- Điểm khởi đầu nằm trong hạng Bronze (100-799)
+- Sau khi có điểm ELO ban đầu, bạn có thể nâng cao qua:
+  + Thi đấu OCR (đấu xếp hạng)
+  + Hoàn thành Challenge (thử thách kỹ năng)
+  + Tham gia hoạt động cộng đồng
+
+
+6. XÁC MINH TRÌNH ĐỘ (TÙY CHỌN)
+-------------------------------
+Sau khi hoàn thành bài kiểm tra, bạn có thể yêu cầu xác minh trình độ
+để nhận ELO chính thức (không còn tạm thời):
+
+- Vào "Yêu cầu xác minh" tại /opr-verification/request
+- Tải lên bằng chứng: Video thi đấu, hình ảnh, link YouTube/Facebook
+- Chờ chuyên gia duyệt (thường 1-3 ngày làm việc)
+
+
+7. LƯU Ý QUAN TRỌNG
+-------------------
+- CHỈ ĐƯỢC LÀM 1 LẦN: Bạn chỉ có một cơ hội duy nhất để làm bài kiểm tra
+- THỜI GIAN: Đảm bảo có đủ 50 phút không bị gián đoạn
+- TRUNG THỰC: Trả lời đúng với trình độ thực tế để được ghép đấu phù hợp
+- CHỐNG GIAN LẬN: Hệ thống phát hiện nếu làm bài quá nhanh (đáng ngờ)
+- KẾT NỐI: Câu trả lời được lưu tự động, nhưng cần mạng ổn định
+
+
+8. CÂU HỎI THƯỜNG GẶP
+---------------------
+
+Q: Tôi có thể làm lại bài kiểm tra không?
+A: Không, mỗi tài khoản chỉ được làm một lần duy nhất.
+
+Q: Nếu bị mất kết nối giữa chừng thì sao?
+A: Câu trả lời đã chọn được lưu tự động. Bạn có thể quay lại tiếp tục
+   làm bài trong thời gian cho phép.
+
+Q: Làm sao để nâng cao cấp độ sau khi có kết quả?
+A: Tham gia thi đấu OCR, hoàn thành Challenge, và tích lũy điểm cộng đồng.
+
+Q: Kết quả bài kiểm tra có ảnh hưởng gì?
+A: Kết quả xác định trình độ ban đầu để hệ thống ghép đấu với đối thủ
+   cùng trình độ, mang lại trải nghiệm thi đấu công bằng.
+
+Q: ELO tạm thời khác ELO chính thức như thế nào?
+A: ELO tạm thời (provisional) dựa trên tự đánh giá. ELO chính thức
+   (verified) đã được chuyên gia xác minh qua video/bằng chứng thực tế.

@@ -10,6 +10,9 @@ use App\Observers\TournamentObserver;
 use App\Observers\UserObserver;
 use App\Services\SkillQuizService;
 use App\Services\OprsService;
+use App\Services\PointEarningService;
+use App\Services\PointSubmissionService;
+use App\Services\SocialVerificationService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +24,16 @@ class AppServiceProvider extends ServiceProvider
         // Register SkillQuizService as singleton
         $this->app->singleton(SkillQuizService::class, function ($app) {
             return new SkillQuizService($app->make(OprsService::class));
+        });
+
+        // Register Point Earning Services
+        $this->app->singleton(PointEarningService::class);
+        $this->app->singleton(SocialVerificationService::class);
+        $this->app->singleton(PointSubmissionService::class, function ($app) {
+            return new PointSubmissionService(
+                $app->make(PointEarningService::class),
+                $app->make(SocialVerificationService::class)
+            );
         });
     }
 

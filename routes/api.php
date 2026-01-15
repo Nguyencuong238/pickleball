@@ -22,6 +22,8 @@ use App\Http\Controllers\Api\RefereeProfileController;
 use App\Http\Controllers\Api\SkillQuizController;
 use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\LocationController;
+use App\Http\Controllers\Api\EventCheckinController;
+use App\Http\Controllers\Api\PointController;
 
 /*
 |--------------------------------------------------------------------------
@@ -266,6 +268,42 @@ Route::prefix('user/profile')->middleware('auth:api')->group(function () {
     Route::post('/avatar', [ProfileController::class, 'updateAvatar'])->name('api.user.profile.avatar');
     Route::post('/email', [ProfileController::class, 'updateEmail'])->name('api.user.profile.email');
     Route::post('/password', [ProfileController::class, 'updatePassword'])->name('api.user.profile.password');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Event Check-in Routes (Point Earning System)
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('events')->group(function () {
+    Route::get('', [EventCheckinController::class, 'getEvents'])->name('api.events.index');
+});
+
+Route::prefix('events')->middleware('auth:api')->group(function () {
+    Route::post('checkin', [EventCheckinController::class, 'checkin'])
+        ->middleware('throttle:10,1') // 10 attempts per minute
+        ->name('api.events.checkin');
+    Route::get('checkin/history', [EventCheckinController::class, 'history'])
+        ->middleware('throttle:60,1') // 60 requests per minute
+        ->name('api.events.checkin.history');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Point Earning System API Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('points')->middleware(['auth:api', 'throttle:60,1'])->name('api.points.')->group(function () {
+    Route::get('tasks', [PointController::class, 'tasks'])->name('tasks');
+    Route::get('balance', [PointController::class, 'balance'])->name('balance');
+    Route::get('history', [PointController::class, 'history'])->name('history');
+    Route::get('submissions', [PointController::class, 'submissions'])->name('submissions');
+    Route::post('submissions', [PointController::class, 'submit'])
+        ->middleware('throttle:10,1') // 10 submissions per minute (stricter)
+        ->name('submit');
+    Route::get('challenges', [PointController::class, 'challenges'])->name('challenges');
 });
 
 /*

@@ -303,6 +303,221 @@
     .user-dropdown-container .nav-link {
         width: 200px;
     }
+
+    /* ========== Points Page Utilities ========== */
+
+    /* Grid System */
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: -0.5rem;
+    }
+    .row.g-3 {
+        margin: -0.75rem;
+    }
+    .row.g-3 > [class*="col"] {
+        padding: 0.75rem;
+    }
+    [class*="col-"] {
+        padding: 0.5rem;
+        width: 100%;
+    }
+    @media (min-width: 768px) {
+        .col-md-4 { width: 33.333%; }
+        .col-md-6 { width: 50%; }
+        .col-md-8 { width: 66.666%; }
+    }
+    @media (min-width: 992px) {
+        .col-lg-4 { width: 33.333%; }
+    }
+
+    /* Flexbox */
+    .d-flex { display: flex; }
+    .flex-wrap { flex-wrap: wrap; }
+    .justify-content-between { justify-content: space-between; }
+    .align-items-center { align-items: center; }
+    .align-items-start { align-items: flex-start; }
+    .gap-2 { gap: 0.5rem; }
+    .gap-3 { gap: 1rem; }
+
+    /* Spacing */
+    .py-4 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+    .p-2 { padding: 0.5rem; }
+    .mb-0 { margin-bottom: 0; }
+    .mb-1 { margin-bottom: 0.25rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-3 { margin-bottom: 1rem; }
+    .mb-4 { margin-bottom: 1.5rem; }
+    .mt-1 { margin-top: 0.25rem; }
+    .mt-2 { margin-top: 0.5rem; }
+    .mt-4 { margin-top: 1.5rem; }
+    .me-1 { margin-right: 0.25rem; }
+
+    /* Card */
+    .card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+    }
+    .card-header {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .card-body {
+        padding: 1rem;
+    }
+    .card-title {
+        font-weight: 600;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+    .card-text {
+        color: var(--text-secondary);
+    }
+    .h-100 { height: 100%; }
+
+    /* Buttons - Additional variants */
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+    .btn-success:hover {
+        background: #218838;
+    }
+    .btn-dark {
+        background: var(--bg-dark);
+        color: white;
+    }
+    .btn-dark:hover {
+        background: #333;
+    }
+    .btn-outline-secondary {
+        background: transparent;
+        border: 2px solid #6c757d;
+        color: #6c757d;
+    }
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        color: white;
+    }
+    .btn-outline-warning {
+        background: transparent;
+        border: 2px solid #ffc107;
+        color: #856404;
+    }
+    .btn-outline-warning:hover {
+        background: #ffc107;
+        color: var(--bg-dark);
+    }
+
+    /* Badge */
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        border-radius: 0.25rem;
+        color: white;
+    }
+    .bg-success { background-color: #28a745; }
+    .bg-secondary { background-color: #6c757d; }
+    .bg-info { background-color: #17a2b8; }
+    .bg-danger { background-color: #dc3545; }
+    .bg-primary { background-color: var(--primary-color); }
+    .bg-dark { background-color: var(--bg-dark); }
+    .bg-transparent { background-color: transparent; }
+
+    /* Text Utilities */
+    .text-white { color: white; }
+    .text-muted { color: var(--text-secondary); }
+    .text-primary { color: var(--primary-color); }
+    .text-center { text-align: center; }
+    .text-end { text-align: right; }
+    .text-danger { color: #dc3545; }
+    .text-warning { color: #856404; }
+    .text-dark { color: var(--bg-dark); }
+    .small { font-size: var(--font-size-sm); }
+    .fw-bold { font-weight: 700; }
+    .opacity-75 { opacity: 0.75; }
+
+    /* Typography */
+    .h3 { font-size: 1.75rem; font-weight: 600; margin: 0; }
+    .h4 { font-size: 1.5rem; font-weight: 600; margin: 0; }
+    .h5 { font-size: 1.25rem; font-weight: 600; margin: 0; }
+    .h6 { font-size: 1rem; font-weight: 600; margin: 0; }
+
+    /* Forms */
+    .form-label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+    }
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-sm);
+        background-color: var(--bg-white);
+        transition: border-color var(--transition-fast);
+    }
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: var(--primary-color);
+    }
+    .form-control.is-invalid, .form-select.is-invalid {
+        border-color: #dc3545;
+    }
+    .form-text {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: var(--font-size-sm);
+        color: var(--text-secondary);
+    }
+    .invalid-feedback {
+        display: block;
+        margin-top: 0.25rem;
+        font-size: var(--font-size-sm);
+        color: #dc3545;
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        display: flex;
+        flex-wrap: wrap;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .breadcrumb-item {
+        font-size: var(--font-size-sm);
+    }
+    .breadcrumb-item + .breadcrumb-item::before {
+        content: "/";
+        padding: 0 0.5rem;
+        color: var(--text-secondary);
+    }
+    .breadcrumb-item a {
+        color: var(--primary-color);
+    }
+    .breadcrumb-item.active {
+        color: var(--text-secondary);
+    }
+
+    /* Border & Rounded */
+    .border {
+        border: 1px solid var(--border-color);
+    }
+    .rounded {
+        border-radius: var(--radius-sm);
+    }
+
+    /* Page Content - offset for fixed header */
+    .page-content {
+        padding-top: 110px;
+        min-height: calc(100vh - 200px);
+    }
 </style>
 <body>
     <!-- Header -->
@@ -403,6 +618,9 @@
                             </svg>
                         </div>
                         <div class="dropdown-info">
+                            <a href="{{ route('user.points.index') }}" class="nav-link">
+                                ⭐ Kiếm điểm
+                            </a>
                             <a href="{{ route('user.wallet.index') }}" class="nav-link">
                                 💰 Ví điểm ({{ auth()->user()->getPoints() }})
                             </a>

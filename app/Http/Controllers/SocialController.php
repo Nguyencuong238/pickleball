@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\SocialCreated;
 use App\Models\Social;
 use App\Models\Stadium;
 use Illuminate\Http\Request;
@@ -46,7 +47,10 @@ class SocialController extends Controller
         $validated['days_of_week'] = $validated['days_of_week'] ?? [];
         $validated['user_id'] = auth()->id();
 
-        Social::create($validated);
+        $social = Social::create($validated);
+
+        // Dispatch event for point earning (once per stadium)
+        event(new SocialCreated($social, auth()->user()));
 
         if ($request->wantsJson()) {
             return response()->json([

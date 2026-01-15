@@ -15,6 +15,7 @@ use App\Models\Stadium;
 use App\Models\Tournament;
 use App\Models\User;
 use App\Models\Video;
+use App\Models\SpecialChallenge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -55,6 +56,9 @@ class HomeController extends Controller
 
         $totalSocial = Social::count();
 
+        // Special Challenges for homepage banner
+        $specialChallenges = SpecialChallenge::ongoing()->get();
+
         return view('front.home', [
             'featuredStadiums' => $featuredStadiums,
             'latestNews' => $latestNews,
@@ -63,6 +67,7 @@ class HomeController extends Controller
             'totalTournaments' => $totalTournaments,
             'totalMembers' => $totalMembers,
             'totalSocial' => $totalSocial,
+            'specialChallenges' => $specialChallenges,
         ]);
     }
 

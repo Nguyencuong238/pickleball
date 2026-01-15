@@ -1,0 +1,233 @@
+HƯỚNG DẪN XEM SÂN TẬP VÀ GIẢI ĐẤU
+==================================
+
+1. GIỚI THIỆU
+-------------
+OnePickleball cung cấp danh sách sân tập và giải đấu Pickleball trên toàn quốc.
+Bạn có thể tìm kiếm, xem thông tin chi tiết, đặt sân và đăng ký giải đấu
+ngay trên hệ thống.
+
+
+2. YÊU CẦU TRƯỚC KHI BẮT ĐẦU
+----------------------------
+- Xem thông tin: Không cần đăng nhập
+- Đặt sân/Đăng ký giải: Cần đăng nhập tài khoản
+
+
+===============================================================================
+PHẦN A: XEM SÂN TẬP
+===============================================================================
+
+3. XEM DANH SÁCH SÂN
+--------------------
+
+BƯỚC 1: Truy cập trang sân
+- Vào menu "Sân tập" hoặc truy cập: /courts
+- Danh sách sân hiển thị với 12 sân mỗi trang
+
+BƯỚC 2: Lọc và tìm kiếm
+- Lọc theo tỉnh/thành: Chọn khu vực bạn muốn tìm
+- Lọc theo đánh giá: Chọn sân có rating cao
+- Lọc theo trạng thái: Sân đã xác minh (verified)
+
+BƯỚC 3: Xem thông tin tổng quan
+Mỗi sân hiển thị:
+- Tên sân
+- Địa chỉ
+- Số lượng court
+- Đánh giá trung bình
+- Giá thuê (từ ... VNĐ/giờ)
+
+
+4. XEM CHI TIẾT SÂN
+-------------------
+
+BƯỚC 1: Nhấn vào tên sân để xem chi tiết
+
+BƯỚC 2: Xem các thông tin:
+
+A. Thông tin cơ bản
+- Tên, địa chỉ, số điện thoại
+- Vị trí trên bản đồ
+- Đánh giá và số lượt đánh giá
+
+B. Tiện ích sân (Amenities)
+- Wifi
+- Bãi đỗ xe
+- Hệ thống chiếu sáng
+- Phòng thay đồ
+- Thiết bị cho thuê
+
+C. Thông tin Court
+- Số lượng court
+- Loại court: Indoor/Outdoor
+- Mặt sân: Acrylic/Polyurethane/Concrete
+
+D. Bảng giá
+- Giá theo khung giờ khác nhau
+- Giá ngày thường vs cuối tuần
+- Giá ưu đãi (nếu có)
+
+E. Thư viện ảnh
+- Hình ảnh thực tế của sân
+
+F. Đánh giá từ người chơi
+- Nhận xét và rating từ người đã đến
+
+
+5. ĐẶT SÂN
+----------
+
+BƯỚC 1: Chọn ngày và giờ
+- Xem lịch còn trống
+- Chọn ngày muốn đặt
+- Chọn khung giờ (VD: 18:00 - 20:00)
+
+BƯỚC 2: Chọn court
+- Xem các court còn trống
+- Chọn court phù hợp
+
+BƯỚC 3: Điền thông tin
+- Số người chơi
+- Ghi chú (nếu có)
+
+BƯỚC 4: Xác nhận và thanh toán
+- Kiểm tra thông tin đặt sân
+- Thanh toán (nếu yêu cầu)
+- Nhận xác nhận qua email/notification
+
+
+===============================================================================
+PHẦN B: XEM GIẢI ĐẤU
+===============================================================================
+
+6. XEM DANH SÁCH GIẢI ĐẤU
+-------------------------
+
+BƯỚC 1: Truy cập trang giải đấu
+- Vào menu "Giải đấu" hoặc truy cập: /tournaments
+- Danh sách giải đấu hiển thị với các bộ lọc
+
+BƯỚC 2: Lọc giải đấu
+- Theo ngày: Sắp diễn ra, đang diễn ra, đã kết thúc
+- Theo địa điểm: Tỉnh/thành phố
+- Theo hạng mục: Đơn nam, đơn nữ, đôi nam, đôi nữ, đôi hỗn hợp
+
+BƯỚC 3: Xem thông tin tổng quan
+Mỗi giải đấu hiển thị:
+- Tên giải
+- Ngày thi đấu
+- Địa điểm
+- Phí đăng ký
+- Số VĐV đã đăng ký
+
+
+7. XEM CHI TIẾT GIẢI ĐẤU
+------------------------
+
+BƯỚC 1: Nhấn vào tên giải để xem chi tiết
+
+BƯỚC 2: Xem các thông tin:
+
+A. Thông tin chung
+- Tên giải đấu
+- Mô tả chi tiết
+- Ngày bắt đầu - kết thúc
+- Hạn đăng ký
+- Địa điểm thi đấu
+
+B. Phí và giải thưởng
+- Phí đăng ký
+- Giải thưởng cho các vị trí
+- Tổng giá trị giải thưởng
+
+C. Hạng mục thi đấu
+- Đơn nam (Men's Singles)
+- Đơn nữ (Women's Singles)
+- Đôi nam (Men's Doubles)
+- Đôi nữ (Women's Doubles)
+- Đôi hỗn hợp (Mixed Doubles)
+- Các hạng mục theo trình độ (nếu có)
+
+D. Danh sách VĐV
+- Xem VĐV đã đăng ký
+- Số lượng VĐV hiện tại / tối đa
+
+E. Thể lệ và quy định
+- Luật thi đấu
+- Điều kiện tham gia
+- Lịch trình sự kiện
+
+
+8. ĐĂNG KÝ GIẢI ĐẤU
+-------------------
+
+BƯỚC 1: Kiểm tra điều kiện
+- Hạn đăng ký còn hiệu lực
+- Giải chưa đầy người
+
+BƯỚC 2: Chọn hạng mục
+- Chọn hạng mục muốn tham gia
+- Với đôi: Điền thông tin người đánh cặp
+
+BƯỚC 3: Điền thông tin VĐV
+- Họ tên
+- Email liên hệ
+- Số điện thoại
+- Với đôi: Thông tin partner
+
+BƯỚC 4: Thanh toán phí đăng ký (nếu có)
+- Chuyển khoản ngân hàng
+- Ví điện tử
+- Thanh toán tại chỗ
+
+BƯỚC 5: Xác nhận đăng ký
+- Chờ BTC duyệt (nếu cần)
+- Nhận email/notification xác nhận
+
+
+9. XEM LỊCH THI ĐẤU VÀ KẾT QUẢ
+------------------------------
+
+A. Xem trận đấu
+- Truy cập: /ocr/matches-list
+- Lọc: Đang diễn ra, sắp tới, đã hoàn thành
+
+B. Thông tin trận đấu
+- Các đội/VĐV thi đấu
+- Tỉ số (nếu đã hoàn thành)
+- Lịch thi đấu (ngày, giờ, sân)
+- Trọng tài phụ trách
+
+C. Bảng xếp hạng
+- Xem bảng xếp hạng theo hạng mục
+- Thứ hạng vòng bảng
+- Kết quả knockout
+
+
+10. LƯU Ý QUAN TRỌNG
+--------------------
+- Kiểm tra kỹ thông tin sân trước khi đặt
+- Đọc kỹ thể lệ giải đấu trước khi đăng ký
+- Đăng ký sớm để đảm bảo chỗ (nhiều giải có giới hạn số lượng)
+- Lưu thông tin liên hệ BTC để hỏi đáp khi cần
+- Cập nhật thường xuyên để không bỏ lỡ giải đấu mới
+
+
+11. CÂU HỎI THƯỜNG GẶP
+----------------------
+
+Q: Tôi có thể hủy đặt sân không?
+A: Có, tùy theo chính sách của từng sân. Thường cần hủy trước 24 giờ.
+
+Q: Phí đăng ký giải đấu có hoàn lại không?
+A: Tùy theo quy định của từng giải. Xem mục "Thể lệ" để biết chi tiết.
+
+Q: Làm sao biết giải đấu nào phù hợp với trình độ?
+A: Xem mô tả giải và hạng mục theo trình độ (Beginner/Intermediate/Advanced).
+
+Q: Tôi có thể thay đổi partner sau khi đăng ký đôi không?
+A: Liên hệ BTC để được hỗ trợ. Thường cần thay đổi trước hạn đăng ký.
+
+Q: Làm sao để nhận thông báo khi có giải đấu mới?
+A: Bật thông báo trong phần Cài đặt tài khoản.

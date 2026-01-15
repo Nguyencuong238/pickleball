@@ -1,0 +1,98 @@
+HƯỚNG DẪN TẠO NHÓM & CÂU LẠC BỘ
+================================
+
+1. GIỚI THIỆU
+-------------
+Tính năng Nhóm & Câu lạc bộ (CLB) cho phép bạn tạo cộng đồng Pickleball
+riêng để kết nối, tổ chức hoạt động và chia sẻ thông tin với các thành viên.
+
+- Nhóm (Group): Cộng đồng nhỏ, không chính thức
+- Câu lạc bộ (Club): Tổ chức chính thức với cơ cấu rõ ràng
+
+
+2. YÊU CẦU TRƯỚC KHI BẮT ĐẦU
+----------------------------
+- Đã đăng nhập tài khoản OnePickleball
+- Có kết nối internet ổn định
+
+
+3. CÁC BƯỚC TẠO NHÓM/CLB
+------------------------
+
+BƯỚC 1: Truy cập trang tạo
+- Đăng nhập vào tài khoản
+- Vào menu "Câu lạc bộ" hoặc truy cập trực tiếp: /clubs/create
+
+BƯỚC 2: Điền thông tin cơ bản
+- Tên nhóm/CLB (bắt buộc): Đặt tên dễ nhớ, thể hiện đặc trưng
+- Mô tả: Giới thiệu ngắn gọn về nhóm/CLB
+- Ngày thành lập (bắt buộc): Chọn ngày thành lập
+- Mục tiêu: Nêu rõ mục đích hoạt động
+
+BƯỚC 3: Chọn loại hình
+- Nhóm (Group): Phù hợp cho cộng đồng nhỏ, không chính thức
+- Câu lạc bộ (Club): Phù hợp cho tổ chức chính thức
+
+BƯỚC 4: Tải hình ảnh
+- Logo/Ảnh đại diện: Hình ảnh đại diện cho nhóm/CLB
+- Ảnh bìa (Banner): Hình ảnh nền hiển thị trên trang nhóm/CLB
+- Định dạng hỗ trợ: JPG, PNG
+- Kích thước khuyến nghị: Logo 200x200px, Banner 1200x300px
+
+BƯỚC 5: Chọn khu vực hoạt động
+- Chọn một hoặc nhiều tỉnh/thành phố mà nhóm/CLB hoạt động (bắt buộc)
+
+BƯỚC 6: Thêm thành viên ban đầu (tùy chọn)
+- Tìm kiếm và chọn các thành viên muốn mời tham gia ngay từ đầu
+
+BƯỚC 7: Hoàn tất
+- Kiểm tra lại thông tin
+- Nhấn nút "Tạo" để hoàn thành
+
+
+4. QUẢN LÝ NHÓM/CLB SAU KHI TẠO
+-------------------------------
+
+A. Quản lý thành viên
+- Xem danh sách thành viên
+- Duyệt yêu cầu tham gia: Vào "Yêu cầu tham gia" để phê duyệt/từ chối
+- Phân quyền thành viên:
+  + Người tạo (Creator): Quyền cao nhất, không thể thay đổi
+  + Quản trị viên (Admin): Quản lý toàn bộ
+  + Điều hành viên (Moderator): Quản lý nội dung
+  + Thành viên (Member): Quyền cơ bản
+
+B. Tạo hoạt động
+- Vào mục "Hoạt động" trong trang nhóm/CLB
+- Nhấn "Tạo hoạt động mới"
+- Điền thông tin: Tên, thời gian, địa điểm, mô tả
+- Đăng và thông báo cho thành viên
+
+C. Đăng bài viết
+- Chia sẻ tin tức, hình ảnh, video với thành viên
+- Thành viên có thể bình luận và tương tác
+
+
+5. LƯU Ý QUAN TRỌNG
+-------------------
+- Tên nhóm/CLB không được trùng với tên đã có trong hệ thống
+- Hình ảnh tải lên phải phù hợp, không vi phạm quy định cộng đồng
+- Người tạo chịu trách nhiệm về nội dung và hoạt động của nhóm/CLB
+- Có thể chỉnh sửa thông tin nhóm/CLB bất cứ lúc nào
+
+
+6. CÂU HỎI THƯỜNG GẶP
+---------------------
+
+Q: Tôi có thể tạo bao nhiêu nhóm/CLB?
+A: Không giới hạn số lượng nhóm/CLB bạn có thể tạo.
+
+Q: Làm sao để xóa nhóm/CLB?
+A: Chỉ người tạo (Creator) mới có quyền xóa. Vào Cài đặt > Xóa nhóm/CLB.
+
+Q: Thành viên có thể tự rời nhóm/CLB không?
+A: Có, thành viên có thể tự rời bất cứ lúc nào.
+
+Q: Làm sao để mời thêm thành viên?
+A: Chia sẻ link trang nhóm/CLB hoặc tìm kiếm và mời trực tiếp trong phần
+   "Quản lý thành viên".

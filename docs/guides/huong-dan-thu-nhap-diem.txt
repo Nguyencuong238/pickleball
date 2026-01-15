@@ -1,0 +1,161 @@
+HƯỚNG DẪN THU NHẬP ĐIỂM ONEPICKLEBALL
+======================================
+
+1. GIỚI THIỆU
+-------------
+Điểm OnePickleball (Community Score) là một phần của hệ thống xếp hạng OPRS,
+chiếm 10% tổng điểm của bạn. Điểm cộng đồng phản ánh mức độ tham gia và
+đóng góp của bạn cho cộng đồng Pickleball.
+
+Công thức OPRS: (0.7 x ELO) + (0.2 x Challenge) + (0.1 x Community)
+
+
+2. YÊU CẦU TRƯỚC KHI BẮT ĐẦU
+----------------------------
+- Đã đăng nhập tài khoản OnePickleball
+- Kết nối internet ổn định
+
+
+3. CÁC CÁCH KIẾM ĐIỂM
+---------------------
+
+A. CHECK-IN TẠI SÂN (2 điểm/lần)
+--------------------------------
+- Mô tả: Check-in khi đến sân Pickleball
+- Giới hạn: 1 lần/ngày tại mỗi sân
+- Cách thực hiện:
+  1. Mở ứng dụng/website khi ở tại sân
+  2. Vào mục "Check-in"
+  3. Chọn sân bạn đang ở
+  4. Nhấn "Check-in"
+  5. Hệ thống xác nhận và cộng 2 điểm
+
+
+B. THAM GIA SỰ KIỆN (5 điểm/sự kiện)
+------------------------------------
+- Mô tả: Tham gia các sự kiện cộng đồng, workshop, clinic
+- Giới hạn: Mỗi sự kiện chỉ tính 1 lần
+- Cách thực hiện:
+  1. Đăng ký sự kiện trên hệ thống
+  2. Tham dự sự kiện
+  3. Điểm được cộng tự động sau khi sự kiện kết thúc
+
+
+C. GIỚI THIỆU NGƯỜI CHƠI MỚI (10 điểm/người)
+--------------------------------------------
+- Mô tả: Mời bạn bè đăng ký tài khoản OnePickleball
+- Giới hạn: Người được mời phải là tài khoản mới (dưới 7 ngày)
+- Cách thực hiện:
+  1. Vào mục "Giới thiệu bạn bè" hoặc /referral
+  2. Sao chép link giới thiệu của bạn
+  3. Gửi link cho bạn bè
+  4. Khi bạn bè đăng ký thành công, bạn nhận 10 điểm
+
+
+D. THEO DÕI MẠNG XÃ HỘI (5 điểm/kênh)
+-------------------------------------
+Mỗi kênh chỉ tính 1 lần (một lần duy nhất):
+
+- Follow Facebook OnePickleball: 5 điểm
+- Subscribe YouTube OnePickleball: 5 điểm
+- Follow TikTok OnePickleball: 5 điểm
+
+Cách thực hiện:
+  1. Vào mục "Hoạt động xã hội" hoặc /community
+  2. Nhấn vào nút theo dõi tương ứng
+  3. Hệ thống mở trang mạng xã hội để bạn follow/subscribe
+  4. Quay lại và xác nhận đã hoàn thành
+  5. Điểm được cộng ngay
+
+
+E. THAM GIA NHÓM CỘNG ĐỒNG (5 điểm)
+-----------------------------------
+- Mô tả: Tham gia nhóm OnePickleball Community
+- Giới hạn: Chỉ tính 1 lần
+- Cách thực hiện:
+  1. Vào mục "Hoạt động xã hội"
+  2. Nhấn "Tham gia nhóm cộng đồng"
+  3. Điểm được cộng sau khi xác nhận
+
+
+F. CHƠI 5+ TRẬN TRONG TUẦN (5 điểm/tuần)
+----------------------------------------
+- Mô tả: Phần thưởng khi chơi từ 5 trận trở lên trong tuần
+- Giới hạn: 1 lần/tuần (reset vào thứ Hai)
+- Cách thực hiện:
+  1. Tham gia các trận đấu OCR hoặc tournament
+  2. Hoàn thành ít nhất 5 trận trong tuần
+  3. Điểm được cộng tự động vào cuối tuần
+
+
+G. THỬ THÁCH HÀNG THÁNG (15 điểm/tháng)
+---------------------------------------
+- Mô tả: Hoàn thành mục tiêu hàng tháng
+- Giới hạn: 1 lần/tháng
+- Các thử thách có thể bao gồm:
+  + Chơi đủ số trận quy định
+  + Tham gia đủ số sự kiện
+  + Hoàn thành các challenge kỹ năng
+- Cách thực hiện:
+  1. Xem thử thách tháng tại mục "Challenge"
+  2. Hoàn thành các mục tiêu
+  3. Điểm được cộng khi đạt đủ điều kiện
+
+
+4. XEM LỊCH SỬ ĐIỂM
+-------------------
+- Truy cập: /user/wallet/history hoặc vào "Ví của tôi" > "Lịch sử"
+- Thông tin hiển thị:
+  + Ngày giờ
+  + Loại hoạt động
+  + Điểm nhận được
+  + Mô tả chi tiết
+
+
+5. BẢNG TÓM TẮT ĐIỂM
+--------------------
+
+| Hoạt động              | Điểm  | Giới hạn              |
+|------------------------|-------|-----------------------|
+| Check-in tại sân       | 2     | 1 lần/ngày/sân        |
+| Tham gia sự kiện       | 5     | Mỗi sự kiện           |
+| Giới thiệu người mới   | 10    | Mỗi người             |
+| Follow Facebook        | 5     | 1 lần duy nhất        |
+| Subscribe YouTube      | 5     | 1 lần duy nhất        |
+| Follow TikTok          | 5     | 1 lần duy nhất        |
+| Tham gia nhóm          | 5     | 1 lần duy nhất        |
+| Chơi 5+ trận/tuần      | 5     | 1 lần/tuần            |
+| Thử thách hàng tháng   | 15    | 1 lần/tháng           |
+
+
+6. LƯU Ý QUAN TRỌNG
+-------------------
+- Điểm cộng đồng chiếm 10% tổng OPRS, ảnh hưởng đến xếp hạng
+- Một số hoạt động chỉ tính 1 lần (follow social, tham gia nhóm)
+- Check-in giới hạn theo ngày, nên check-in mỗi khi đến sân
+- Giới thiệu bạn bè là cách kiếm điểm hiệu quả và không giới hạn
+- Điểm không thể chuyển nhượng giữa các tài khoản
+
+
+7. CÂU HỎI THƯỜNG GẶP
+---------------------
+
+Q: Điểm cộng đồng ảnh hưởng gì đến xếp hạng?
+A: Điểm cộng đồng chiếm 10% trong công thức tính OPRS, góp phần xác định
+   cấp độ (1.0 - 5.0+) của bạn.
+
+Q: Làm sao để tối đa hóa điểm cộng đồng?
+A: Check-in thường xuyên, follow tất cả kênh social, giới thiệu bạn bè,
+   và tham gia sự kiện cộng đồng.
+
+Q: Check-in có cần ở đúng vị trí sân không?
+A: Hiện tại hệ thống dựa trên tự xác nhận, nhưng có thể yêu cầu xác minh
+   vị trí trong tương lai.
+
+Q: Điểm giới thiệu có giới hạn số người không?
+A: Không giới hạn. Bạn có thể giới thiệu nhiều bạn bè và nhận điểm cho mỗi
+   người đăng ký thành công.
+
+Q: Nếu bạn bè đăng ký nhưng không dùng link của tôi thì sao?
+A: Bạn cần đảm bảo bạn bè sử dụng đúng link giới thiệu của bạn khi đăng ký
+   để hệ thống ghi nhận.

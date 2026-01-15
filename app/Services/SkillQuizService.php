@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\SkillQuizCompleted;
 use App\Models\SkillDomain;
 use App\Models\SkillQuestion;
 use App\Models\SkillQuizAnswer;
@@ -333,41 +334,8 @@ class SkillQuizService
             // Update user
             $this->updateUserElo($attempt->user, $elo, $attempt);
 
-            // Cộng điểm cho người giới thiệu nếu user được giới thiệu
-            $referrerRewardPoints = 0;
-            if ($attempt->user->referred_by) {
-                // Check xem có referral pending chưa
-                $referral = \App\Models\Referral::where('referred_user_id', $attempt->user->id)
-                    ->where('status', 'pending')
-                    ->first();
-                
-                if ($referral) {
-                    $referrer = \App\Models\User::find($attempt->user->referred_by);
-                    
-                    if ($referrer) {
-                        // Cộng 10 điểm cho người giới thiệu (lần đầu và duy nhất)
-                        $referrerRewardPoints = 10;
-                        
-                        $referrer->addPoints(
-                            $referrerRewardPoints,
-                            'skill_quiz_completion',
-                            "User {$attempt->user->name} hoàn thành skill quiz với điểm {$quizPercent}%",
-                            [
-                                'user_id' => $attempt->user->id,
-                                'user_name' => $attempt->user->name,
-                                'quiz_score' => $quizPercent,
-                                'final_elo' => $elo,
-                            ]
-                        );
-                        
-                        // Update referral status thành completed (đánh dấu đã cộng)
-                        $referral->update([
-                            'status' => 'completed',
-                            'completed_at' => now(),
-                        ]);
-                    }
-                }
-            }
+            // Dispatch event for point earning system
+            event(new SkillQuizCompleted($attempt->user, $attempt));
 
             return [
                 'final_elo' => $elo,
@@ -377,7 +345,6 @@ class SkillQuizService
                 'duration' => $duration,
                 'is_provisional' => true,
                 'skill_level' => $this->eloToSkillLevel($elo),
-                'referrer_reward_points' => $referrerRewardPoints,
             ];
         });
     }
