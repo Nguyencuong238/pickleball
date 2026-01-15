@@ -21,6 +21,7 @@ use App\Http\Controllers\Api\RefereeController;
 use App\Http\Controllers\Api\RefereeProfileController;
 use App\Http\Controllers\Api\SkillQuizController;
 use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\Api\LocationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -165,6 +166,11 @@ Route::prefix('community')->group(function () {
 Route::prefix('stadiums')->group(function () {
     Route::get('', [StadiumController::class, 'index']);
     Route::get('{id}', [StadiumController::class, 'show']);
+});
+
+// Locations API
+Route::prefix('locations')->group(function () {
+    Route::get('provinces', [LocationController::class, 'getProvinces']);
 });
 
 // Tournaments API
