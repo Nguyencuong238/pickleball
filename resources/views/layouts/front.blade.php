@@ -685,6 +685,128 @@
         </nav>
     </header>
 
+    <!-- Gender Update Modal for existing users without gender -->
+    @auth
+        @if(!auth()->user()->gender)
+            <div id="gender-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; display: flex; align-items: center; justify-content: center;">
+                <div style="background: #fff; border-radius: 16px; max-width: 420px; width: 90%; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s ease;">
+                    <div style="text-align: center; margin-bottom: 1.5rem;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #00D9B5, #0099CC); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                        </div>
+                        <h2 style="font-size: 1.5rem; font-weight: 700; color: #1e293b; margin-bottom: 0.5rem;">Cập nhật thông tin</h2>
+                        <p style="color: #64748b; font-size: 0.95rem;">Vui lòng cho chúng tôi biết giới tính của bạn để cá nhân hoá trải nghiệm</p>
+                    </div>
+
+                    <form id="gender-update-form" method="POST" action="{{ route('user.profile.gender') }}">
+                        @csrf
+                        @method('PUT')
+
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <label style="flex: 1; cursor: pointer;">
+                                <input type="radio" name="gender" value="male" required style="display: none;" id="gender-male">
+                                <div class="gender-option" data-gender="male" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 1.25rem 1rem; text-align: center; transition: all 0.2s ease;">
+                                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#9794;</div>
+                                    <div style="font-weight: 600; color: #1e293b;">Nam</div>
+                                </div>
+                            </label>
+                            <label style="flex: 1; cursor: pointer;">
+                                <input type="radio" name="gender" value="female" required style="display: none;" id="gender-female">
+                                <div class="gender-option" data-gender="female" style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 1.25rem 1rem; text-align: center; transition: all 0.2s ease;">
+                                    <div style="font-size: 2rem; margin-bottom: 0.5rem;">&#9792;</div>
+                                    <div style="font-weight: 600; color: #1e293b;">Nữ</div>
+                                </div>
+                            </label>
+                        </div>
+
+                        <button type="submit" id="gender-submit-btn" disabled style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #00D9B5, #0099CC); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; opacity: 0.6;">
+                            Xác nhận
+                        </button>
+                    </form>
+
+                    <p style="text-align: center; color: #94a3b8; font-size: 0.8rem; margin-top: 1rem;">Thông tin này giúp đánh giá điểm trình OPR chính xác hơn</p>
+                </div>
+            </div>
+
+            <style>
+                @keyframes modalFadeIn {
+                    from { opacity: 0; transform: scale(0.95); }
+                    to { opacity: 1; transform: scale(1); }
+                }
+                .gender-option:hover {
+                    border-color: #00D9B5 !important;
+                    background: #f0fdfa;
+                }
+                .gender-option.selected {
+                    border-color: #00D9B5 !important;
+                    background: linear-gradient(135deg, rgba(0, 217, 181, 0.1), rgba(0, 153, 204, 0.1));
+                }
+                #gender-submit-btn:not(:disabled):hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0, 217, 181, 0.3);
+                }
+            </style>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const genderOptions = document.querySelectorAll('.gender-option');
+                    const submitBtn = document.getElementById('gender-submit-btn');
+                    const form = document.getElementById('gender-update-form');
+
+                    genderOptions.forEach(option => {
+                        option.addEventListener('click', function() {
+                            genderOptions.forEach(opt => opt.classList.remove('selected'));
+                            this.classList.add('selected');
+
+                            const gender = this.dataset.gender;
+                            document.getElementById('gender-' + gender).checked = true;
+
+                            submitBtn.disabled = false;
+                            submitBtn.style.opacity = '1';
+                        });
+                    });
+
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = 'Đang xử lý...';
+
+                        const formData = new FormData(form);
+
+                        fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                                'Accept': 'application/json',
+                            },
+                            body: formData
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                document.getElementById('gender-modal-overlay').style.display = 'none';
+                                toastr.success(data.message);
+                            } else {
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = 'Xác nhận';
+                                toastr.error('Có lỗi xảy ra. Vui lòng thử lại.');
+                            }
+                        })
+                        .catch(error => {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Xác nhận';
+                            toastr.error('Có lỗi xảy ra. Vui lòng thử lại.');
+                        });
+                    });
+                });
+            </script>
+        @endif
+    @endauth
+
     <!-- Hero Section -->
     @yield('content')
 

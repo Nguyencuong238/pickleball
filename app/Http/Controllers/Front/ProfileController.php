@@ -157,4 +157,29 @@ class ProfileController extends Controller
 
         return back()->with('success', 'Đổi mật khẩu thành công!');
     }
+
+    /**
+     * Update gender (for users who haven't set it yet)
+     */
+    public function updateGender(Request $request)
+    {
+        $validated = $request->validate([
+            'gender' => 'required|in:male,female',
+        ], [
+            'gender.required' => 'Vui lòng chọn giới tính.',
+            'gender.in' => 'Giới tính không hợp lệ.',
+        ]);
+
+        $user = auth()->user();
+        $user->update(['gender' => $validated['gender']]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Cập nhật giới tính thành công!',
+            ]);
+        }
+
+        return back()->with('success', 'Cập nhật giới tính thành công!');
+    }
 }

@@ -169,6 +169,23 @@
                          </div>
 
                          <div class="form-group">
+                             <label class="form-label">Giới tính <span style="color: #dc3545;">*</span></label>
+                             <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
+                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                     <input type="radio" name="gender" value="male" {{ old('gender') == 'male' ? 'checked' : '' }} required style="width: 18px; height: 18px; accent-color: #00D9B5;">
+                                     <span>Nam</span>
+                                 </label>
+                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                     <input type="radio" name="gender" value="female" {{ old('gender') == 'female' ? 'checked' : '' }} required style="width: 18px; height: 18px; accent-color: #00D9B5;">
+                                     <span>Nữ</span>
+                                 </label>
+                             </div>
+                             @error('gender')
+                                 <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
+                             @enderror
+                         </div>
+
+                         <div class="form-group">
                              <label class="form-label">Mã giới thiệu (tùy chọn)</label>
                              <input type="text" class="form-input" name="ref_code" placeholder="Nhập mã giới thiệu từ bạn" value="{{ old('ref_code', request('ref', '')) }}">
                              @error('ref_code')

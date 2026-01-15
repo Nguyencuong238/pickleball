@@ -228,6 +228,7 @@ Route::middleware('auth')->group(function () {
          Route::put('/avatar', [ProfileController::class, 'updateAvatar'])->name('avatar');
          Route::put('/email', [ProfileController::class, 'updateEmail'])->name('email');
          Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
+         Route::put('/gender', [ProfileController::class, 'updateGender'])->name('gender');
      });
 
      // User Referral Routes

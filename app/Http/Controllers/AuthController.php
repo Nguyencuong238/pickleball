@@ -36,12 +36,15 @@ class AuthController extends Controller
             'name'      => 'required|min:3',
             'email'     => 'required|email|unique:users,email',
             'phone'     => 'nullable|regex:/^\d{10,11}$/',
+            'gender'    => 'required|in:male,female',
             'password'  => 'required|min:6|confirmed',
             'ref_code'  => 'nullable|exists:users,referral_code',
             'terms'     => 'required'
         ], [
             'email.unique' => 'Email này đã được sử dụng. Vui lòng chọn email khác.',
             'phone.regex' => 'Số điện thoại phải gồm 10 hoặc 11 chữ số.',
+            'gender.required' => 'Vui lòng chọn giới tính.',
+            'gender.in' => 'Giới tính không hợp lệ.',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự.',
             'ref_code.exists' => 'Mã giới thiệu không hợp lệ.',
             'terms.required' => 'Bạn phải chấp nhận Điều khoản dịch vụ.'
@@ -71,12 +74,15 @@ class AuthController extends Controller
             'name' => $req->name,
             'email' => $req->email,
             'phone' => $req->phone,
+            'gender' => $req->gender,
             'password' => Hash::make($req->password),
             'role_type' => 'user',
             'status' => 'approved',
             'referral_code' => $referralCode,
             'referred_by' => $referredBy,
             'elo_rating' => 0,
+            'total_oprs' => 0,
+            'opr_level' => '1.0',
         ]);
 
         // Assign 'user' role to the newly registered user
@@ -244,6 +250,8 @@ class AuthController extends Controller
                 'role_type' => 'user',
                 'status' => 'approved',
                 'elo_rating' => 0,
+                'total_oprs' => 0,
+                'opr_level' => '1.0',
             ]);
         } else {
             // Update google_id if user exists but doesn't have it
@@ -300,6 +308,8 @@ class AuthController extends Controller
                 'role_type' => 'user',
                 'status' => 'approved',
                 'elo_rating' => 0,
+                'total_oprs' => 0,
+                'opr_level' => '1.0',
             ]);
         } else {
             // Update facebook_id if user exists but doesn't have it
