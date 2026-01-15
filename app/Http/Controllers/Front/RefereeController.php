@@ -194,11 +194,6 @@ class RefereeController extends Controller
 
             ActivityLog::log("Tỉ số trận đấu #{$match->id} được cập nhật: {$finalScore}", 'Match', $match->id);
 
-            // Dispatch event for point earning when match is completed
-            if ($validated['status'] === 'completed') {
-                event(new MatchScored($match, $referee));
-            }
-
             return redirect()->route('referee.matches.show', $match)
                 ->with('success', 'Tỉ số đã được cập nhật');
         } catch (\Exception $e) {

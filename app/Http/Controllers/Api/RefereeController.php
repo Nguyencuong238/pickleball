@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Events\MatchScored;
 use App\Http\Controllers\Controller;
 use App\Models\MatchModel;
 use App\Models\MatchEvent;
@@ -689,6 +690,9 @@ class RefereeController extends Controller
             DB::commit();
 
             ActivityLog::log("Match #{$match->id} completed via API: {$validated['finalScore']}", 'Match', $match->id);
+
+            // Dispatch event for point earning
+            event(new MatchScored($match, $referee));
 
             return response()->json([
                 'success' => true,
