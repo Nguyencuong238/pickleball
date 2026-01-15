@@ -51,6 +51,10 @@ class ProfileController extends Controller
             'name' => 'required|string|min:3|max:255',
             'location' => 'nullable|string|max:255',
             'province_id' => 'nullable|exists:provinces,id',
+            'phone' => [
+                'nullable',
+                'regex:/^(0)(3|5|7|8|9)[0-9]{8}$/'
+            ],
         ], [
             'name.required' => 'Vui lòng nhập tên.',
             'name.min' => 'Tên phải có ít nhất 3 ký tự.',
@@ -61,6 +65,11 @@ class ProfileController extends Controller
         $user = auth()->user();
         $user->avatar = $this->getAvatarUrl($user->avatar);
         $this->profileService->updateBasicInfo($user, $validated);
+        
+        if($request->filled('phone')) {
+            $user->phone = $request->phone;
+            $user->save();
+        }
 
         return response()->json([
             'success' => true,

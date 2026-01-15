@@ -33,6 +33,8 @@ class UserResource extends JsonResource
             'opr_level' => $this->opr_level,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'location' => $this->location,
+            'province_id' => $this->province_id,
         ];
     }
 }

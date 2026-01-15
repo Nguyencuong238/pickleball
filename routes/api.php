@@ -262,7 +262,6 @@ Route::middleware('auth:api')->prefix('skill-quiz')->name('api.skill-quiz.')->gr
 */
 
 Route::prefix('user/profile')->middleware('auth:api')->group(function () {
-    Route::get('/', [ProfileController::class, 'show'])->name('api.user.profile.show');
     Route::post('/', [ProfileController::class, 'updateProfile'])->name('api.user.profile.update');
     Route::post('/avatar', [ProfileController::class, 'updateAvatar'])->name('api.user.profile.avatar');
     Route::post('/email', [ProfileController::class, 'updateEmail'])->name('api.user.profile.email');
