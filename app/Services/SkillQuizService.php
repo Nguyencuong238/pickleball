@@ -24,7 +24,7 @@ class SkillQuizService
     public const TIMEOUT_SECONDS = 1800;      // 30 min
 
     // ELO constants
-    public const MIN_ELO = 850;
+    public const MIN_ELO = 650;
     public const MAX_ELO = 1500;
     public const MIN_PERCENT = 25;
     public const MAX_PERCENT = 95;

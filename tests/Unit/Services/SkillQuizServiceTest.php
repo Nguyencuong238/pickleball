@@ -127,17 +127,18 @@ class SkillQuizServiceTest extends TestCase
     /** @test */
     public function it_converts_quiz_to_elo_correctly(): void
     {
-        // Test boundary values
-        $this->assertEquals(850, $this->service->quizToElo(25));
+        // Test boundary values (MIN_ELO=650, MAX_ELO=1500)
+        $this->assertEquals(650, $this->service->quizToElo(25));
         $this->assertEquals(1500, $this->service->quizToElo(95));
 
-        // Test middle value (60% -> ~1175)
+        // Test middle value (60% -> 1075)
+        // Formula: 650 + 850 * (60-25) / 70 = 650 + 425 = 1075
         $elo60 = $this->service->quizToElo(60);
-        $this->assertEqualsWithDelta(1175, $elo60, 10);
+        $this->assertEqualsWithDelta(1075, $elo60, 10);
 
         // Test clamping
-        $this->assertEquals(850, $this->service->quizToElo(10)); // Below min
-        $this->assertEquals(1500, $this->service->quizToElo(100)); // Above max
+        $this->assertEquals(650, $this->service->quizToElo(10)); // Below min, clamped to 25%
+        $this->assertEquals(1500, $this->service->quizToElo(100)); // Above max, clamped to 95%
     }
 
     /** @test */
