@@ -17,19 +17,27 @@ class TournamentController extends Controller
         $this->middleware(['auth', 'role:admin|home_yard']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
+        $search = $request->input('search', '');
 
         // Admins see all tournaments
         if ($user->hasRole('admin')) {
-            $tournaments = Tournament::latest()->paginate(10);
+            $query = Tournament::latest();
         } else {
             // Home yard users only see their own tournaments
-            $tournaments = Tournament::where('user_id', $user->id)->latest()->paginate(10);
+            $query = Tournament::where('user_id', $user->id)->latest();
         }
 
-        return view('admin.tournaments.index', compact('tournaments'));
+        // Apply search filter
+        if ($search) {
+            $query->where('name', 'like', '%' . $search . '%');
+        }
+
+        $tournaments = $query->paginate(10)->appends(request()->query());
+
+        return view('admin.tournaments.index', compact('tournaments', 'search'));
     }
 
     public function create()

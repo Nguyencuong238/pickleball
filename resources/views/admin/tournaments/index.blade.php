@@ -12,6 +12,39 @@
             </div>
         @endif
 
+        <!-- Search Bar -->
+        <div style="margin-bottom: 30px;">
+            <form method="GET" action="{{ route('admin.tournaments.index') }}" style="display: flex; gap: 10px;">
+                <input 
+                    type="text" 
+                    name="search" 
+                    placeholder="Tìm kiếm giải đấu theo tên..." 
+                    value="{{ $search }}"
+                    style="flex: 1; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; transition: border-color 0.2s;"
+                    onfocus="this.style.borderColor='#3b82f6'"
+                    onblur="this.style.borderColor='#e2e8f0'"
+                >
+                <button 
+                    type="submit" 
+                    style="background: #3b82f6; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; cursor: pointer; transition: background 0.2s;"
+                    onmouseover="this.style.background='#2563eb'"
+                    onmouseout="this.style.background='#3b82f6'"
+                >
+                    <i class="fas fa-search"></i> Tìm kiếm
+                </button>
+                @if($search)
+                    <a 
+                        href="{{ route('admin.tournaments.index') }}" 
+                        style="background: #6b7280; color: white; border: none; padding: 12px 25px; border-radius: 8px; font-size: 0.95rem; font-weight: 500; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; transition: background 0.2s;"
+                        onmouseover="this.style.background='#4b5563'"
+                        onmouseout="this.style.background='#6b7280'"
+                    >
+                        <i class="fas fa-times"></i> Xóa
+                    </a>
+                @endif
+            </form>
+        </div>
+
         <!-- Table -->
         <div style="background: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow: hidden;">
             @if($tournaments->count() > 0)
