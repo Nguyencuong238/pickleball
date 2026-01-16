@@ -71,6 +71,21 @@ class HomeController extends Controller
         ]);
     }
 
+    public function faq()
+    {
+        return view('front.faq');
+    }
+
+    public function terms()
+    {
+        return view('front.terms');
+    }
+
+    public function privacy()
+    {
+        return view('front.privacy');
+    }
+
     public function booking(Stadium $stadium)
     {
         $courts = $stadium->courts()->where('is_active', 1)->get();
