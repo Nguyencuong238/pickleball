@@ -24,7 +24,7 @@ class SkillQuizService
     public const TIMEOUT_SECONDS = 1800;      // 30 min
 
     // ELO constants
-    public const MIN_ELO = 850;
+    public const MIN_ELO = 650;
     public const MAX_ELO = 1500;
     public const MIN_PERCENT = 25;
     public const MAX_PERCENT = 95;
@@ -43,18 +43,9 @@ class SkillQuizService
     ];
 
     // ELO to Skill Level thresholds (gender-aware)
-    // Female players get +0.5 level at same ELO (Vietnam tournament standard)
+    // Male players get +0.5 level at same ELO (Vietnam amateur tournament standard)
+    // Source: Gopick Championship 2025, Bao Nguoi Lao Dong 2025
     public const ELO_THRESHOLDS_MALE = [
-        700  => '2.0',
-        800  => '2.5',
-        900  => '3.0',
-        1000 => '3.5',
-        1100 => '4.0',
-        1200 => '4.5',
-        1300 => '5.0',
-    ];
-
-    public const ELO_THRESHOLDS_FEMALE = [
         700  => '2.5',
         800  => '3.0',
         900  => '3.5',
@@ -62,6 +53,16 @@ class SkillQuizService
         1100 => '4.5',
         1200 => '5.0',
         1300 => '5.5',
+    ];
+
+    public const ELO_THRESHOLDS_FEMALE = [
+        700  => '2.0',
+        800  => '2.5',
+        900  => '3.0',
+        1000 => '3.5',
+        1100 => '4.0',
+        1200 => '4.5',
+        1300 => '5.0',
     ];
 
     public const SKILL_LEVEL_NAMES = [
