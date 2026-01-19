@@ -24,7 +24,7 @@ $articleImage = $article->getFirstMediaUrl('featured_image') ?? asset('assets/im
 @endsection
 
 @section('css')
-<link rel="stylesheet" href="{{ asset('assets/css/styles-news-simple.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/styles-news-simple.css') }}?v=1">
 <style>
     .simple-article-image img {
         width: auto;

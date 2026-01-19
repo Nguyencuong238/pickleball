@@ -20,7 +20,7 @@
 @endsection
 
 @section('css')
-    <link rel="stylesheet" href="{{ asset('assets/css/styles-news-simple.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/styles-news-simple.css') }}?v=1">
     <style>
         .simple-search-input {
             padding: 16px 24px;

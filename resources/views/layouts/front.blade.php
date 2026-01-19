@@ -860,8 +860,9 @@
                     <ul class="footer-links">
                         <li><a href="#">Về chúng tôi</a></li>
                         <li><a href="/news?category=huong-dan-nen-tang&search=">Hướng dẫn nền tảng</a></li>
-                        <li><a href="#">Câu hỏi thường gặp</a></li>
-                        <li><a href="#">Điều khoản sử dụng</a></li>
+                        <li><a href="{{ route('faq') }}">Câu hỏi thường gặp</a></li>
+                        <li><a href="{{ route('terms') }}">Điều khoản sử dụng</a></li>
+                        <li><a href="{{ route('privacy') }}">Chính sách bảo mật</a></li>
                     </ul>
                 </div>
                 
@@ -895,9 +896,9 @@
             <div class="footer-bottom">
                 <p class="footer-copyright">© 2025 OnePickleball.vn - All rights reserved</p>
                 <div class="footer-legal">
-                    <a href="#">Chính sách bảo mật</a>
+                    <a href="{{ route('privacy') }}">Chính sách bảo mật</a>
                     <span>•</span>
-                    <a href="#">Điều khoản dịch vụ</a>
+                    <a href="{{ route('terms') }}">Điều khoản sử dụng</a>
                 </div>
             </div>
         </div>

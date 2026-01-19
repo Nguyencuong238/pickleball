@@ -133,6 +133,9 @@ Route::post('/admin/login', [AuthController::class, 'adminLogin']);
 Route::get('/test', [HomeController::class, 'test'])->name('test');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/faq', [HomeController::class, 'faq'])->name('faq');
+Route::get('/terms', [HomeController::class, 'terms'])->name('terms');
+Route::get('/privacy', [HomeController::class, 'privacy'])->name('privacy');
 Route::get('/booking/{stadium}', [HomeController::class, 'booking'])->name('booking');
 Route::get('/courts', [HomeController::class, 'courts'])->name('courts');
 Route::get('/tournaments', [HomeController::class, 'tournaments'])->name('tournaments');
