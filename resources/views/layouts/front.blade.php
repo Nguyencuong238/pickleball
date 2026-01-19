@@ -859,7 +859,7 @@
                     <h4 class="footer-title">Hỗ trợ</h4>
                     <ul class="footer-links">
                         <li><a href="#">Về chúng tôi</a></li>
-                        <li><a href="#">Liên hệ</a></li>
+                        <li><a href="/news?category=huong-dan-nen-tang&search=">Hướng dẫn nền tảng</a></li>
                         <li><a href="#">Câu hỏi thường gặp</a></li>
                         <li><a href="#">Điều khoản sử dụng</a></li>
                     </ul>
