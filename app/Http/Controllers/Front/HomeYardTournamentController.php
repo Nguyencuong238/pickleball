@@ -1451,6 +1451,7 @@ class HomeYardTournamentController extends Controller
     public function bookings(Request $request, $stadiumId = null)
     {
         $stadiums = Stadium::where('user_id', auth()->id())->get();
+        $courts = collect();
 
         if($stadiumId) {
             $currentStadium = $stadiums->where('id', $stadiumId)->first();
@@ -1460,7 +1461,10 @@ class HomeYardTournamentController extends Controller
             $currentStadium = $stadiums->first();
         }
 
-        $courts = Court::with('stadium')->where('stadium_id', $currentStadium->id)->where('is_active', 1)->get();
+        if($currentStadium) {
+            $courts = Court::with('stadium')->where('stadium_id', $currentStadium->id)->where('is_active', 1)->get();
+        }
+
         $date = $request->date ?? now()->format('Y-m-d');
 
         return view('home-yard.tournaments.bookings', compact('courts', 'date', 'stadiums', 'currentStadium'));

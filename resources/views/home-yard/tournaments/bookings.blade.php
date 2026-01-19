@@ -541,58 +541,69 @@
                 </div>
             </div>
 
-            <!-- Booking Overview Stats -->
-            <div class="booking-overview fade-in">
-                <div class="booking-stat-card">
-                    <div class="booking-stat-icon info">📊</div>
-                    <div class="booking-stat-content">
-                        <div class="booking-stat-value" id="totalBookingsCount">0</div>
-                        <div class="booking-stat-label">Tổng Đơn Tháng Này</div>
+            @if(!$currentStadium)
+                <!-- No Stadium Message -->
+                <div class="card fade-in" style="text-align: center; padding: 3rem;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🏟️</div>
+                    <h2 style="color: var(--text-primary); margin-bottom: 0.5rem;">Chưa có sân</h2>
+                    <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Vui lòng tạo một sân trước khi quản lý đặt sân</p>
+                    <a href="{{ route('homeyard.stadiums.create') }}" class="btn btn-primary">
+                        ➕ Tạo Sân Mới
+                    </a>
+                </div>
+            @else
+                <!-- Booking Overview Stats -->
+                <div class="booking-overview fade-in">
+                    <div class="booking-stat-card">
+                        <div class="booking-stat-icon info">📊</div>
+                        <div class="booking-stat-content">
+                            <div class="booking-stat-value" id="totalBookingsCount">0</div>
+                            <div class="booking-stat-label">Tổng Đơn Tháng Này</div>
+                        </div>
+                    </div>
+                    <div class="booking-stat-card">
+                        <div class="booking-stat-icon success">✅</div>
+                        <div class="booking-stat-content">
+                            <div class="booking-stat-value" id="confirmedBookingsCount">0</div>
+                            <div class="booking-stat-label">Đã Xác Nhận</div>
+                        </div>
+                    </div>
+                    <div class="booking-stat-card">
+                        <div class="booking-stat-icon warning">⏳</div>
+                        <div class="booking-stat-content">
+                            <div class="booking-stat-value" id="pendingBookingsCount">0</div>
+                            <div class="booking-stat-label">Chờ Xác Nhận</div>
+                        </div>
+                    </div>
+                    <div class="booking-stat-card">
+                        <div class="booking-stat-icon danger">❌</div>
+                        <div class="booking-stat-content">
+                            <div class="booking-stat-value" id="cancelledBookingsCount">0</div>
+                            <div class="booking-stat-label">Đã Hủy</div>
+                        </div>
                     </div>
                 </div>
-                <div class="booking-stat-card">
-                    <div class="booking-stat-icon success">✅</div>
-                    <div class="booking-stat-content">
-                        <div class="booking-stat-value" id="confirmedBookingsCount">0</div>
-                        <div class="booking-stat-label">Đã Xác Nhận</div>
-                    </div>
-                </div>
-                <div class="booking-stat-card">
-                    <div class="booking-stat-icon warning">⏳</div>
-                    <div class="booking-stat-content">
-                        <div class="booking-stat-value" id="pendingBookingsCount">0</div>
-                        <div class="booking-stat-label">Chờ Xác Nhận</div>
-                    </div>
-                </div>
-                <div class="booking-stat-card">
-                    <div class="booking-stat-icon danger">❌</div>
-                    <div class="booking-stat-content">
-                        <div class="booking-stat-value" id="cancelledBookingsCount">0</div>
-                        <div class="booking-stat-label">Đã Hủy</div>
-                    </div>
-                </div>
-            </div>
 
-            <!-- Tabs -->
-            <div class="card fade-in">
-                <div class="card-header" style="flex-wrap: wrap; gap: 1rem">
-                    <div style="display: flex; gap: 1rem; align-items:center;">
-                    <h3 class="card-title" style="white-space: nowrap">Quản Lý Đặt Sân</h3>
-                    <select id="stadiumSelect" class="form-select" onchange="changeStadium(this.value)" style="flex: 1;">
-                        @foreach($stadiums as $stadium)
-                            <option value="{{ $stadium->id }}" {{ $currentStadium->id == $stadium->id ? 'selected' : '' }}>
-                                {{ $stadium->name }}
-                            </option>
-                        @endforeach
-                    </select>
+                <!-- Tabs -->
+                <div class="card fade-in">
+                    <div class="card-header" style="flex-wrap: wrap; gap: 1rem">
+                        <div style="display: flex; gap: 1rem; align-items:center;">
+                        <h3 class="card-title" style="white-space: nowrap">Quản Lý Đặt Sân</h3>
+                        <select id="stadiumSelect" class="form-select" onchange="changeStadium(this.value)" style="flex: 1;">
+                            @foreach($stadiums as $stadium)
+                                <option value="{{ $stadium->id }}" {{ $currentStadium->id == $stadium->id ? 'selected' : '' }}>
+                                    {{ $stadium->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-secondary btn-sm">📥 Xuất Excel</button>
+                            <button class="btn btn-primary btn-sm" onclick="openNewBookingModal()">
+                                ➕ Đặt Sân Mới
+                            </button>
+                        </div>
                     </div>
-                    <div class="card-actions">
-                        <button class="btn btn-secondary btn-sm">📥 Xuất Excel</button>
-                        <button class="btn btn-primary btn-sm" onclick="openNewBookingModal()">
-                            ➕ Đặt Sân Mới
-                        </button>
-                    </div>
-                </div>
                 <div class="card-body">
                     <div class="tabs-booking">
                         <button class="tab-booking active" onclick="switchTabBooking('calendar')">
@@ -714,6 +725,7 @@
                 </div>
             </div>
         </div>
+            @endif
     </main>
     <div class="modal" id="newBookingModal">
         <div class="modal-content">
@@ -937,17 +949,18 @@
         }
 
         // Load courts data from form
-        let courtsData = {};
-        let bookingsData = [];
-        let currentSelectedDate = '{{$date}}';
-        const openingTime = "{{$currentStadium->opening_time ?? '00:00'}}";
-        const closingTime = "{{$currentStadium->closing_time ?? '24:00'}}";
-        
-        const openingHour = parseInt(openingTime?.split(':')[0] || '0');
-        const closingHour = parseInt(closingTime?.split(':')[0] || '24');
+         let courtsData = {};
+         let bookingsData = [];
+         let currentSelectedDate = '{{$date}}';
+         const openingTime = "{{@$currentStadium->opening_time ?? '00:00'}}";
+         const closingTime = "{{@$currentStadium->closing_time ?? '24:00'}}";
+         
+         
+         const openingHour = parseInt(openingTime?.split(':')[0] || '0');
+         const closingHour = parseInt(closingTime?.split(':')[0] || '24');
 
         function initCourtsData() {
-             const form = document.getElementById('bookingForm');
+             const form = document.getElementById('bookingForm');             
              const courstsJson = form.getAttribute('data-courts');
              if (courstsJson) {
                  try {
@@ -1550,24 +1563,24 @@
 
         // Load and update booking statistics
         function loadBookingStats() {
-            fetch(`/homeyard/bookings/stats/{{$currentStadium->id}}`, {
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    document.getElementById('totalBookingsCount').textContent = data.total || 0;
-                    document.getElementById('confirmedBookingsCount').textContent = data.confirmed || 0;
-                    document.getElementById('pendingBookingsCount').textContent = data.pending || 0;
-                    document.getElementById('cancelledBookingsCount').textContent = data.cancelled || 0;
-                }
-            })
-            .catch(error => {
-                
-            });
+                fetch(`/homeyard/bookings/stats/{{@$currentStadium->id}}`, {
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById('totalBookingsCount').textContent = data.total || 0;
+                        document.getElementById('confirmedBookingsCount').textContent = data.confirmed || 0;
+                        document.getElementById('pendingBookingsCount').textContent = data.pending || 0;
+                        document.getElementById('cancelledBookingsCount').textContent = data.cancelled || 0;
+                    }
+                })
+                .catch(error => {
+                    
+                });
         }
 
         // Get status badge HTML
@@ -1677,7 +1690,7 @@
                 page: page
             });
 
-            fetch(`/homeyard/bookings/search/{{$currentStadium->id}}?${params}`, {
+            fetch(`/homeyard/bookings/search/{{@$currentStadium->id}}?${params}`, {
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
                     'Accept': 'application/json',
