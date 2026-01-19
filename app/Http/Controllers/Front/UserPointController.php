@@ -104,7 +104,7 @@ class UserPointController extends Controller
 
                 return redirect()
                     ->route('user.points.submissions')
-                    ->with('success', 'Yeu cau da duoc gui. Ban se nhan diem khi duoc phe duyet.');
+                    ->with('success', 'Yêu cầu của bạn đã được gửi để chờ phê duyệt.');
             });
 
         } catch (\Exception $e) {
@@ -184,7 +184,7 @@ class UserPointController extends Controller
             case PointTask::PROOF_IMAGE:
                 $paths = [];
                 foreach ($request->file('images') as $image) {
-                    $path = $image->store('point-submissions/' . auth()->id(), 'public');
+                    $path = $image->store('point-submissions/' . auth()->id(), config('filesystems.default'));
 
                     // Validate path stays in intended directory (security check)
                     if (!str_starts_with($path, $expectedPrefix)) {

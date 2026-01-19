@@ -242,15 +242,15 @@ class PointEarningService
 
         switch ($task->frequency) {
             case PointTask::FREQ_DAILY:
-                return 'Da nhan hom nay';
+                return 'Đã nhận trong ngày';
             case PointTask::FREQ_WEEKLY:
-                return 'Da nhan tuan nay';
+                return 'Đã nhận trong tuần';
             case PointTask::FREQ_MONTHLY:
-                return 'Da nhan thang nay';
+                return 'Đã nhận trong tháng';
             case PointTask::FREQ_ONCE:
-                return 'Da hoan thanh';
+                return 'Đã hoàn thành';
             default:
-                return 'Khong du dieu kien';
+                return 'Không đủ điều kiện';
         }
     }
 

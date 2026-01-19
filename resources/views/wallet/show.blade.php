@@ -91,7 +91,7 @@
                         </div>
 
                         @if($transaction->metadata && count($transaction->metadata) > 0)
-                            <div class="detail-item">
+                            {{-- <div class="detail-item">
                                 <div class="detail-label">Thông tin bổ sung</div>
                                 <div class="detail-value">
                                     <div class="metadata-box">
@@ -103,7 +103,7 @@
                                         @endforeach
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         @endif
                     </div>
                 </div>

@@ -48,7 +48,7 @@ class PointSubmissionService
             ->exists();
 
         if ($existingPending) {
-            throw new InvalidArgumentException('Ban da co yeu cau dang cho duyet cho nhiem vu nay');
+            throw new InvalidArgumentException('Bạn đã có một yêu cầu đang chờ xử lý cho nhiệm vụ này');
         }
 
         // Check frequency (for once-only tasks)
@@ -59,7 +59,7 @@ class PointSubmissionService
                 ->exists();
 
             if ($alreadyApproved) {
-                throw new InvalidArgumentException('Ban da hoan thanh nhiem vu nay');
+                throw new InvalidArgumentException('Bạn đã hoàn thành nhiệm vụ này');
             }
         }
 
@@ -79,7 +79,7 @@ class PointSubmissionService
     public function approve(PointSubmission $submission, User $admin, ?string $notes = null): void
     {
         if (!$submission->isPending()) {
-            throw new InvalidArgumentException('Yeu cau khong o trang thai cho duyet');
+            throw new InvalidArgumentException('Yêu cầu không ở trạng thái chờ duyệt');
         }
 
         DB::transaction(function () use ($submission, $admin, $notes) {
@@ -124,11 +124,11 @@ class PointSubmissionService
     public function reject(PointSubmission $submission, User $admin, string $reason): void
     {
         if (!$submission->isPending()) {
-            throw new InvalidArgumentException('Yeu cau khong o trang thai cho duyet');
+            throw new InvalidArgumentException('Yêu cầu không ở trạng thái chờ duyệt');
         }
 
         if (empty($reason)) {
-            throw new InvalidArgumentException('Can phai nhap ly do tu choi');
+            throw new InvalidArgumentException('Cần phải nhập lý do từ chối');
         }
 
         $submission->update([
@@ -252,7 +252,7 @@ class PointSubmissionService
         switch ($task->proof_type) {
             case PointTask::PROOF_IMAGE:
                 if (empty($proofData['paths']) || !is_array($proofData['paths'])) {
-                    throw new InvalidArgumentException('Can upload hinh anh');
+                    throw new InvalidArgumentException('Cần upload hình ảnh làm bằng chứng');
                 }
                 // Validate each path for security
                 $this->validateImagePaths($proofData['paths']);
@@ -260,17 +260,17 @@ class PointSubmissionService
 
             case PointTask::PROOF_LINK:
                 if (empty($proofData['url']) || !filter_var($proofData['url'], FILTER_VALIDATE_URL)) {
-                    throw new InvalidArgumentException('Can nhap URL hop le');
+                    throw new InvalidArgumentException('Cần nhập URL hợp lệ');
                 }
                 // Validate URL is not already used
                 if (!$this->socialVerificationService->isUrlAvailable($proofData['url'])) {
-                    throw new InvalidArgumentException('URL nay da duoc su dung');
+                    throw new InvalidArgumentException('URL này đã được sử dụng cho một xác minh khác');
                 }
                 break;
 
             case PointTask::PROOF_QR_CODE:
                 if (empty($proofData['qr_data'])) {
-                    throw new InvalidArgumentException('Can quet ma QR');
+                    throw new InvalidArgumentException('Cần quét mã QR');
                 }
                 break;
         }
@@ -290,29 +290,29 @@ class PointSubmissionService
         foreach ($paths as $path) {
             // Check for path traversal attempts
             if (str_contains($path, '..') || str_contains($path, '//')) {
-                throw new InvalidArgumentException('Duong dan file khong hop le');
+                throw new InvalidArgumentException('Đường dẫn không hợp lệ: ' . basename($path));
             }
 
             // Validate path is within allowed directory
             if (!str_starts_with($path, $allowedPrefix)) {
-                throw new InvalidArgumentException('Duong dan file khong hop le');
+                throw new InvalidArgumentException('Đường dẫn không hợp lệ: ' . basename($path));
             }
 
             // Validate file exists
-            if (!Storage::exists($path)) {
-                throw new InvalidArgumentException('File khong ton tai: ' . basename($path));
+            if (!Storage::disk(config('filesystems.default'))->exists($path)) {
+                throw new InvalidArgumentException('File không tồn tại: ' . basename($path));
             }
 
             // Validate file is an image
             $mimeType = Storage::mimeType($path);
             if (!in_array($mimeType, $allowedMimeTypes, true)) {
-                throw new InvalidArgumentException('Chi chap nhan file hinh anh (JPEG, PNG, GIF, WebP)');
+                throw new InvalidArgumentException('Chỉ chấp nhận file hình ảnh (JPEG, PNG, GIF, WebP)');
             }
 
             // Validate file size (max 5MB)
-            $size = Storage::size($path);
+            $size = Storage::disk(config('filesystems.default'))->size($path);
             if ($size > 5 * 1024 * 1024) {
-                throw new InvalidArgumentException('File qua lon (toi da 5MB)');
+                throw new InvalidArgumentException('File quá lớn (tối đa 5MB)');
             }
         }
     }
