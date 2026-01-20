@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Events\OcrMatchConfirmed;
 
 class OcrAutoConfirmCommand extends Command
 {
@@ -77,6 +78,9 @@ class OcrAutoConfirmCommand extends Command
                             $this->badgeService->checkBadgesAfterMatch($p['user'], $match, $p['won']);
                         }
                     }
+
+                    // Dispatch event to award points
+                    OcrMatchConfirmed::dispatch($match);
                 });
 
                 $this->info("Auto-confirmed match #{$match->id}");

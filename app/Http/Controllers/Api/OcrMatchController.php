@@ -12,6 +12,7 @@ use App\Services\EloService;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\Events\OcrMatchConfirmed;
 use Illuminate\Support\Facades\DB;
 
 class OcrMatchController extends Controller
@@ -435,6 +436,9 @@ class OcrMatchController extends Controller
                         $this->badgeService->checkBadgesAfterMatch($p['user'], $match, $p['won']);
                     }
                 }
+
+                // Dispatch event to award points
+                OcrMatchConfirmed::dispatch($match);
             });
         } catch (Exception $e) {
             if (!$request->expectsJson()) {
@@ -505,13 +509,15 @@ class OcrMatchController extends Controller
             }
             return response()->json([
                 'success' => false,
-                'error' => 'Only participants can upload evidence',
+                'error' => 'Chỉ người tham gia mới có thể tải lên bằng chứng',
             ], 403);
         }
 
         $request->validate([
             'evidence' => 'required',
             'evidence.*' => 'file|mimes:jpg,jpeg,png,mp4,mov|max:20480',
+        ], [
+            'evidence.required' => 'Vui lòng chọn ít nhất một tệp để tải lên.',
         ]);
 
         // Handle multiple file uploads
@@ -528,12 +534,12 @@ class OcrMatchController extends Controller
 
         if (!$request->expectsJson()) {
             return redirect()->route('ocr.matches.show', $match)
-                ->with('success', 'Evidence uploaded successfully');
+                ->with('success', 'Bằng chứng đã được tải lên thành công.');
         }
 
         return response()->json([
             'success' => true,
-            'message' => 'Evidence uploaded',
+            'message' => 'Bằng chứng đã được tải lên thành công.',
             'data' => $match->fresh()->getMedia('evidence'),
         ]);
     }
