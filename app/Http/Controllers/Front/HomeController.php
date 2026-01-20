@@ -803,7 +803,6 @@ class HomeController extends Controller
 
     public function instructorDetail($slug)
     {
-        dd($slug);
         $instructor = Instructor::where('slug', $slug)
             ->orWhere('id', $slug) // Fallback to ID for backward compatibility
             ->firstOrFail();
