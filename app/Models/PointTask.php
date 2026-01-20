@@ -144,7 +144,7 @@ class PointTask extends Model
             self::CODE_JOIN_CLUB => route('clubs.index'),
             // HomeYard tasks
             self::CODE_UPDATE_STADIUM_INFO => route('homeyard.stadiums.index'),
-            self::CODE_CREATE_SOCIAL_SCHEDULE => route('homeyard.socials.create'),
+            self::CODE_CREATE_SOCIAL_SCHEDULE => route('homeyard.socials.index'),
             self::CODE_CREATE_TOURNAMENT => route('homeyard.tournaments.index'),
             // Referee task
             self::CODE_REFEREE_SCORE_MATCH => route('referee.matches.index'),

@@ -41,8 +41,8 @@ class RouteServiceProvider extends ServiceProvider
             return Tournament::where('slug', $slug)->firstOrFail();
         });
 
-        Route::bind('instructor', function ($slug) {
-            return Instructor::where('slug', $slug)->firstOrFail();
+        Route::bind('instructor', function ($id) {
+            return Instructor::findOrFail($id);
         });
 
         Route::bind('club', function ($slug) {
