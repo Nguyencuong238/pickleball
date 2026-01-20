@@ -801,8 +801,12 @@ class HomeController extends Controller
         return view('front.instructors', compact('instructors'));
     }
 
-    public function instructorDetail(Instructor $instructor)
+    public function instructorDetail($slug)
     {
+        $instructor = Instructor::where('slug', $slug)
+            ->orWhere('id', $slug) // Fallback to ID for backward compatibility
+            ->firstOrFail();
+            
         $instructor->load([
             'province',
             'experiences',
