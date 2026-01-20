@@ -26,6 +26,11 @@
                             @endif
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày thi đấu *</label>
+                        <input type="date" class="form-input" name="date" value="{{ $social->date }}" required>
+                    </div>
+
                     <div class="grid grid-2">
                         <div class="form-group">
                             <label class="form-label">Giờ bắt đầu *</label>

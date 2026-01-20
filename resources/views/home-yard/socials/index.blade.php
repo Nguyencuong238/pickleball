@@ -484,10 +484,7 @@
                                 <button class="btn btn-secondary btn-sm" onclick="openEditModal({{ $item->id }})">
                                     ✏️
                                 </button>
-                                <button class="btn btn-secondary btn-sm"
-                                    onclick="window.location.href='{{ route('homeyard.dashboard', $item->id) }}'">
-                                    ⚙️
-                                </button>
+                                <!-- Removed undefined route: homeyard.dashboard -->
                             </div>
                         </div>
                     </div>
@@ -566,6 +563,11 @@
                             @endif
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label class="form-label">Ngày thi đấu *</label>
+                        <input type="date" class="form-input" name="date" required>
+                    </div>
+
                     <div class="grid grid-2">
                         <div class="form-group">
                             <label class="form-label">Giờ bắt đầu *</label>
