@@ -155,8 +155,12 @@
                     <!-- Coach Card -->
                     <div class="coach-card">
                         <div class="coach-image">
-                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 300'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2300D9B5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230099CC;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23g1)' width='300' height='300'/%3E%3Ccircle cx='150' cy='120' r='60' fill='rgba(255,255,255,0.3)'/%3E%3Cellipse cx='150' cy='250' rx='80' ry='60' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E"
-                                alt="Nguyễn Văn Hùng">
+                        @if ($instructor->image)
+                            <img src="{{ storage_url($instructor->image) }}" alt="{{ $instructor->name }}">
+                        @else
+                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'%3E%3Cdefs%3E%3ClinearGradient id='gProfile' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' style='stop-color:%2300D9B5;stop-opacity:1' /%3E%3Cstop offset='100%25' style='stop-color:%230099CC;stop-opacity:1' /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill='url(%23gProfile)' width='400' height='400'/%3E%3Ccircle cx='200' cy='150' r='80' fill='rgba(255,255,255,0.3)'/%3E%3Cellipse cx='200' cy='320' rx='100' ry='80' fill='rgba(255,255,255,0.3)'/%3E%3C/svg%3E"
+                                alt="{{ $instructor->name }}">
+                        @endif
                             <span class="coach-badge verified">
                                 <svg viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
