@@ -43,7 +43,7 @@ class SkillQuizAnswerRequest extends FormRequest
             'question_id.required' => 'Thieu ID cau hoi',
             'question_id.exists' => 'Cau hoi khong ton tai',
             'answer_value.required' => 'Thieu gia tri tra loi',
-            'answer_value.between' => 'Gia tri tra loi phai tu 0 den 3',
+            'answer_value.between' => 'Gia tri tra loi phai tu 0 den 3. ID cau hoi: ' . ($this->input('question_id') ?? 'Unknown'),
         ];
     }
 }
