@@ -252,8 +252,8 @@ Route::middleware('auth:api')->prefix('skill-quiz')->name('api.skill-quiz.')->gr
     Route::get('eligibility', [SkillQuizController::class, 'eligibility'])->name('eligibility');
     Route::post('start', [SkillQuizController::class, 'start'])->name('start');
     Route::get('attempt/{id}', [SkillQuizController::class, 'attempt'])->name('attempt');
-    Route::post('answer', [SkillQuizController::class, 'answer'])->name('answer');
-    Route::post('submit', [SkillQuizController::class, 'submit'])->name('submit');
+    Route::post('answers', [SkillQuizController::class, 'answer'])->name('answer');
+    Route::post('submit-quiz', [SkillQuizController::class, 'submit'])->name('submit');
     Route::get('result/{id}', [SkillQuizController::class, 'result'])->name('result');
 });
 

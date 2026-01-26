@@ -1,0 +1,204 @@
+{
+  "info": {
+    "_postman_id": "skill-quiz-collection",
+    "name": "Skill Quiz API",
+    "description": "API endpoints for Skill Assessment Quiz",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Check Eligibility",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/skill-quiz/eligibility",
+          "host": ["{{base_url}}"],
+          "path": ["api", "skill-quiz", "eligibility"]
+        },
+        "description": "Check if user is eligible to take the skill quiz"
+      },
+      "response": []
+    },
+    {
+      "name": "2. Start Quiz",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/skill-quiz/start",
+          "host": ["{{base_url}}"],
+          "path": ["api", "skill-quiz", "start"]
+        },
+        "description": "Start a new skill quiz attempt"
+      },
+      "response": []
+    },
+    {
+      "name": "3. Get Attempt Details",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/skill-quiz/attempt/{{attempt_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "skill-quiz", "attempt", "{{attempt_id}}"]
+        },
+        "description": "Get details of a specific quiz attempt"
+      },
+      "response": []
+    },
+    {
+      "name": "4. Submit Answer",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"attempt_id\": \"{{attempt_id}}\",\n  \"question_id\": 1,\n  \"answer\": \"option_a\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/skill-quiz/answer",
+          "host": ["{{base_url}}"],
+          "path": ["api", "skill-quiz", "answer"]
+        },
+        "description": "Submit an answer to a quiz question"
+      },
+      "response": []
+    },
+    {
+      "name": "5. Submit Quiz",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"attempt_id\": \"{{attempt_id}}\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/skill-quiz/submit",
+          "host": ["{{base_url}}"],
+          "path": ["api", "skill-quiz", "submit"]
+        },
+        "description": "Submit the completed quiz"
+      },
+      "response": []
+    },
+    {
+      "name": "6. Get Quiz Result",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/skill-quiz/result/{{attempt_id}}",
+          "host": ["{{base_url}}"],
+          "path": ["api", "skill-quiz", "result", "{{attempt_id}}"]
+        },
+        "description": "Get the results of a completed quiz attempt"
+      },
+      "response": []
+    },
+    {
+      "name": "DEBUG: Get Current User",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{base_url}}/api/auth/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "auth", "me"]
+        },
+        "description": "Debug: Test if token is working"
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "attempt_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
