@@ -111,6 +111,15 @@ class SkillQuizController extends Controller
         $timeoutSeconds = SkillQuizService::TIMEOUT_SECONDS;
         $remainingSeconds = max(0, $timeoutSeconds - $elapsedSeconds);
 
+        $answers = $attempt->answers->map(function ($answer) {
+            return [
+                'question_id' => $answer->question_id,
+                'answer_value' => $answer->answer_value,
+                'time_spent_seconds' => $answer->time_spent_seconds,
+                'answered_at' => $answer->answered_at->toIso8601String(),
+            ];
+        });
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -123,7 +132,7 @@ class SkillQuizController extends Controller
                 'min_time_seconds' => SkillQuizService::MIN_TIME_SECONDS,
                 'max_time_seconds' => SkillQuizService::MAX_TIME_SECONDS,
                 'answered_count' => $attempt->answers->count(),
-                'answered_question_ids' => $attempt->answers->pluck('question_id'),
+                'answers' => $answers,
             ],
         ]);
     }
