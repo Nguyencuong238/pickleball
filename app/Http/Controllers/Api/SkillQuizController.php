@@ -126,6 +126,50 @@ class SkillQuizController extends Controller
     }
 
     /**
+     * Get questions for a quiz attempt
+     * GET /api/skill-quiz/attempt/{id}/questions
+     */
+    public function getQuestions(Request $request, string $id): JsonResponse
+    {
+        $user = $request->user();
+
+        $attempt = SkillQuizAttempt::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$attempt) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy phiên quiz',
+            ], 404);
+        }
+
+        if ($attempt->status !== SkillQuizAttempt::STATUS_IN_PROGRESS) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Phiên quiz không ở trạng thái đang làm',
+            ], 400);
+        }
+
+        $questions = $this->quizService->getQuestions();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'attempt_id' => $attempt->id,
+                'questions' => $questions,
+                'total_questions' => count($questions),
+                'answer_scale' => [
+                    ['value' => 0, 'label' => 'Chưa làm được'],
+                    ['value' => 1, 'label' => 'Làm được hiếm khi'],
+                    ['value' => 2, 'label' => 'Làm được khá thường xuyên'],
+                    ['value' => 3, 'label' => 'Làm được ổn định trong thi đấu'],
+                ],
+            ],
+        ]);
+    }
+
+    /**
      * Record an answer
      * POST /api/skill-quiz/answer
      */
