@@ -322,4 +322,44 @@ class SkillQuizController extends Controller
             'data' => $result,
         ]);
     }
+
+    /**
+     * Get skill quiz attempt history
+     * GET /api/skill-quiz/history
+     */
+    public function history(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $perPage = $request->query('per_page', 20);
+        $perPage = min($perPage, 100); // Limit max per_page to 100
+
+        $attempts = SkillQuizAttempt::where('user_id', $user->id)
+            ->where('status', SkillQuizAttempt::STATUS_COMPLETED)
+            ->orderByDesc('completed_at')
+            ->paginate($perPage);
+
+        $history = $attempts->map(fn($attempt) => [
+            'attempt_id' => $attempt->id,
+            'completed_at' => $attempt->completed_at->toIso8601String(),
+            'duration_seconds' => $attempt->duration_seconds,
+            'quiz_percent' => $attempt->quiz_percent,
+            'final_elo' => $attempt->final_elo,
+            'skill_level' => $this->quizService->eloToSkillLevel($attempt->final_elo, $user->gender),
+            'has_flags' => !empty($attempt->flags),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $history,
+            'pagination' => [
+                'total' => $attempts->total(),
+                'per_page' => $attempts->perPage(),
+                'current_page' => $attempts->currentPage(),
+                'last_page' => $attempts->lastPage(),
+                'from' => $attempts->firstItem(),
+                'to' => $attempts->lastItem(),
+            ],
+        ]);
+    }
+
 }
