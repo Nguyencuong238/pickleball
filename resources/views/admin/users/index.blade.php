@@ -16,32 +16,32 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
-            <div class="mb-4">
-                <div class="d-flex gap-2 align-items-center" style="flex-wrap: wrap;">
-                    <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex gap-2" style="flex: 1; min-width: 300px;">
-                        <input type="text" name="search" class="form-control form-control-sm" placeholder="Tìm tên VĐV..." value="{{ request('search') }}" style="font-size: 0.9rem;">
-                        <select name="role_type" class="form-control form-control-sm" style="font-size: 0.9rem;">
-                            <option value="">Tất cả loại tài khoản</option>
-                            <option value="user" {{ request('role_type') === 'user' ? 'selected' : '' }}>Người dùng</option>
-                            <option value="court_owner" {{ request('role_type') === 'court_owner' ? 'selected' : '' }}>Chủ sân</option>
-                        </select>
-                        <select name="role_filter" class="form-control form-control-sm" style="font-size: 0.9rem;">
-                            <option value="">Tất cả vai trò</option>
-                            <option value="user_only" {{ request('role_filter') === 'user_only' ? 'selected' : '' }}>Chỉ User</option>
-                        </select>
-                        <button type="submit" class="btn btn-primary btn-sm">
-                            <i class="fas fa-search"></i>
-                        </button>
-                        @if(request('search') || request('role_type') || request('role_filter'))
-                            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-times"></i>
-                            </a>
-                        @endif
-                    </form>
-                    <a href="{{ route('admin.users.import.form') }}" class="btn btn-success btn-sm">
+            <div class="mb-3">
+                <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex gap-2" style="align-items: center; flex-wrap: nowrap; overflow-x: auto;">
+                    <input type="text" name="search" class="form-control" placeholder="Tên..." value="{{ request('search') }}" style="font-size: 1rem; width: 170px; height: 40px; padding: 8px 10px; flex-shrink: 0;">
+                    <select name="role_type" class="form-control" style="font-size: 1rem; width: 150px; height: 40px; padding: 8px 10px; flex-shrink: 0;">
+                        <option value="">Loại TK</option>
+                        <option value="user" {{ request('role_type') === 'user' ? 'selected' : '' }}>Người dùng</option>
+                        <option value="court_owner" {{ request('role_type') === 'court_owner' ? 'selected' : '' }}>Chủ sân</option>
+                    </select>
+                    <select name="role_filter" class="form-control" style="font-size: 1rem; width: 140px; height: 40px; padding: 8px 10px; flex-shrink: 0;">
+                        <option value="">Vai trò</option>
+                        <option value="user_only" {{ request('role_filter') === 'user_only' ? 'selected' : '' }}>Chỉ User</option>
+                    </select>
+                    <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}" style="font-size: 1rem; width: 140px; height: 40px; padding: 8px 10px; flex-shrink: 0;">
+                    <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}" style="font-size: 1rem; width: 140px; height: 40px; padding: 8px 10px; flex-shrink: 0;">
+                    <button type="submit" class="btn btn-primary" style="height: 40px; padding: 8px 18px; font-size: 1rem; white-space: nowrap; flex-shrink: 0;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    @if(request('search') || request('role_type') || request('role_filter') || request('date_from') || request('date_to'))
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-secondary" style="height: 40px; padding: 8px 18px; font-size: 1rem; white-space: nowrap; flex-shrink: 0;">
+                            <i class="fas fa-times"></i>
+                        </a>
+                    @endif
+                    <a href="{{ route('admin.users.import.form') }}" class="btn btn-success" style="height: 40px; padding: 8px 15px; font-size: 1rem; white-space: nowrap; flex-shrink: 0;">
                         <i class="fas fa-file-excel"></i> Import
                     </a>
-                </div>
+                </form>
             </div>
 
             <table class="table table-striped table-hover">

@@ -41,6 +41,17 @@ class UserPermissionController extends Controller
             });
         }
         
+        // Filter by date range
+        if ($request->has('date_from') && !empty($request->input('date_from'))) {
+            $dateFrom = $request->input('date_from');
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        
+        if ($request->has('date_to') && !empty($request->input('date_to'))) {
+            $dateTo = $request->input('date_to');
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+        
         $users = $query->paginate(20);
         return view('admin.users.index', compact('users'));
     }
