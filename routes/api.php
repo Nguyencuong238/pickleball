@@ -24,6 +24,7 @@ use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\EventCheckinController;
 use App\Http\Controllers\Api\PointController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -252,9 +253,12 @@ Route::middleware('auth:api')->prefix('skill-quiz')->name('api.skill-quiz.')->gr
     Route::get('eligibility', [SkillQuizController::class, 'eligibility'])->name('eligibility');
     Route::post('start', [SkillQuizController::class, 'start'])->name('start');
     Route::get('attempt/{id}', [SkillQuizController::class, 'attempt'])->name('attempt');
-    Route::post('answer', [SkillQuizController::class, 'answer'])->name('answer');
-    Route::post('submit', [SkillQuizController::class, 'submit'])->name('submit');
+    Route::get('attempt/{id}/questions', [SkillQuizController::class, 'getQuestions'])->name('getQuestions');
+    Route::post('answers', [SkillQuizController::class, 'answer'])->name('answer');
+    Route::post('submit-quiz', [SkillQuizController::class, 'submit'])->name('submit');
     Route::get('result/{id}', [SkillQuizController::class, 'result'])->name('result');
+    Route::get('history', [SkillQuizController::class, 'history'])->name('history');
+    
 });
 
 /*
@@ -304,6 +308,16 @@ Route::prefix('points')->middleware(['auth:api', 'throttle:60,1'])->name('api.po
         ->middleware('throttle:10,1') // 10 submissions per minute (stricter)
         ->name('submit');
     Route::get('challenges', [PointController::class, 'challenges'])->name('challenges');
+});
+
+/*
+|--------------------------------------------------------------------------
+| User Management Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('users')->middleware('auth:api')->group(function () {
+    Route::delete('{id}', [UserController::class, 'destroy'])->name('api.users.destroy');
 });
 
 /*

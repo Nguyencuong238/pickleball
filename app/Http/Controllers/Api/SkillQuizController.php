@@ -111,6 +111,15 @@ class SkillQuizController extends Controller
         $timeoutSeconds = SkillQuizService::TIMEOUT_SECONDS;
         $remainingSeconds = max(0, $timeoutSeconds - $elapsedSeconds);
 
+        $answers = $attempt->answers->map(function ($answer) {
+            return [
+                'question_id' => $answer->question_id,
+                'answer_value' => $answer->answer_value,
+                'time_spent_seconds' => $answer->time_spent_seconds,
+                'answered_at' => $answer->answered_at->toIso8601String(),
+            ];
+        });
+
         return response()->json([
             'success' => true,
             'data' => [
@@ -119,8 +128,55 @@ class SkillQuizController extends Controller
                 'started_at' => $attempt->started_at->toIso8601String(),
                 'elapsed_seconds' => $elapsedSeconds,
                 'remaining_seconds' => $remainingSeconds,
+                'timeout_seconds' => $timeoutSeconds,
+                'min_time_seconds' => SkillQuizService::MIN_TIME_SECONDS,
+                'max_time_seconds' => SkillQuizService::MAX_TIME_SECONDS,
                 'answered_count' => $attempt->answers->count(),
-                'answered_question_ids' => $attempt->answers->pluck('question_id'),
+                'answers' => $answers,
+            ],
+        ]);
+    }
+
+    /**
+     * Get questions for a quiz attempt
+     * GET /api/skill-quiz/attempt/{id}/questions
+     */
+    public function getQuestions(Request $request, string $id): JsonResponse
+    {
+        $user = $request->user();
+
+        $attempt = SkillQuizAttempt::where('id', $id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (!$attempt) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy phiên quiz',
+            ], 404);
+        }
+
+        if ($attempt->status !== SkillQuizAttempt::STATUS_IN_PROGRESS) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Phiên quiz không ở trạng thái đang làm',
+            ], 400);
+        }
+
+        $questions = $this->quizService->getQuestions();
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'attempt_id' => $attempt->id,
+                'questions' => $questions,
+                'total_questions' => count($questions),
+                'answer_scale' => [
+                    ['value' => 0, 'label' => 'Chưa làm được'],
+                    ['value' => 1, 'label' => 'Làm được hiếm khi'],
+                    ['value' => 2, 'label' => 'Làm được khá thường xuyên'],
+                    ['value' => 3, 'label' => 'Làm được ổn định trong thi đấu'],
+                ],
             ],
         ]);
     }
@@ -266,4 +322,44 @@ class SkillQuizController extends Controller
             'data' => $result,
         ]);
     }
+
+    /**
+     * Get skill quiz attempt history
+     * GET /api/skill-quiz/history
+     */
+    public function history(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $perPage = $request->query('per_page', 20);
+        $perPage = min($perPage, 100); // Limit max per_page to 100
+
+        $attempts = SkillQuizAttempt::where('user_id', $user->id)
+            ->where('status', SkillQuizAttempt::STATUS_COMPLETED)
+            ->orderByDesc('completed_at')
+            ->paginate($perPage);
+
+        $history = $attempts->map(fn($attempt) => [
+            'attempt_id' => $attempt->id,
+            'completed_at' => $attempt->completed_at->toIso8601String(),
+            'duration_seconds' => $attempt->duration_seconds,
+            'quiz_percent' => $attempt->quiz_percent,
+            'final_elo' => $attempt->final_elo,
+            'skill_level' => $this->quizService->eloToSkillLevel($attempt->final_elo, $user->gender),
+            'has_flags' => !empty($attempt->flags),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'data' => $history,
+            'pagination' => [
+                'total' => $attempts->total(),
+                'per_page' => $attempts->perPage(),
+                'current_page' => $attempts->currentPage(),
+                'last_page' => $attempts->lastPage(),
+                'from' => $attempts->firstItem(),
+                'to' => $attempts->lastItem(),
+            ],
+        ]);
+    }
+
 }
