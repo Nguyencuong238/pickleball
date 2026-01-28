@@ -26,6 +26,21 @@ class UserPermissionController extends Controller
             $query->where('name', 'like', '%' . $search . '%');
         }
         
+        // Filter by role_type
+        if ($request->has('role_type') && !empty($request->input('role_type'))) {
+            $roleType = $request->input('role_type');
+            $query->where('role_type', $roleType);
+        }
+        
+        // Filter by roles - user only (has user role but not other roles)
+        if ($request->has('role_filter') && $request->input('role_filter') === 'user_only') {
+            $query->whereHas('roles', function ($q) {
+                $q->where('name', 'user');
+            })->whereDoesntHave('roles', function ($q) {
+                $q->where('name', '!=', 'user');
+            });
+        }
+        
         $users = $query->paginate(20);
         return view('admin.users.index', compact('users'));
     }

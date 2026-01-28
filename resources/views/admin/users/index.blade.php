@@ -20,10 +20,19 @@
                 <div class="d-flex gap-2 align-items-center" style="flex-wrap: wrap;">
                     <form method="GET" action="{{ route('admin.users.index') }}" class="d-flex gap-2" style="flex: 1; min-width: 300px;">
                         <input type="text" name="search" class="form-control form-control-sm" placeholder="Tìm tên VĐV..." value="{{ request('search') }}" style="font-size: 0.9rem;">
+                        <select name="role_type" class="form-control form-control-sm" style="font-size: 0.9rem;">
+                            <option value="">Tất cả loại tài khoản</option>
+                            <option value="user" {{ request('role_type') === 'user' ? 'selected' : '' }}>Người dùng</option>
+                            <option value="court_owner" {{ request('role_type') === 'court_owner' ? 'selected' : '' }}>Chủ sân</option>
+                        </select>
+                        <select name="role_filter" class="form-control form-control-sm" style="font-size: 0.9rem;">
+                            <option value="">Tất cả vai trò</option>
+                            <option value="user_only" {{ request('role_filter') === 'user_only' ? 'selected' : '' }}>Chỉ User</option>
+                        </select>
                         <button type="submit" class="btn btn-primary btn-sm">
                             <i class="fas fa-search"></i>
                         </button>
-                        @if(request('search'))
+                        @if(request('search') || request('role_type') || request('role_filter'))
                             <a href="{{ route('admin.users.index') }}" class="btn btn-secondary btn-sm">
                                 <i class="fas fa-times"></i>
                             </a>
@@ -127,7 +136,7 @@
 
             <!-- Pagination -->
             <div class="d-flex justify-content-center mt-4">
-                {{ $users->links() }}
+                {{ $users->appends(request()->query())->links() }}
             </div>
         </div>
     </div>
