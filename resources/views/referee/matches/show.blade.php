@@ -1280,7 +1280,13 @@
 
                 function toggleMatch() {
                     if (status.value === 'waiting') {
-                        activeModal.value = 'serveOrder'
+                        if (gameMode.value === 'singles') {
+                            // Singles: Skip serve order modal, start match directly
+                            startMatch()
+                        } else {
+                            // Doubles: Show serve order modal to select first server
+                            activeModal.value = 'serveOrder'
+                        }
                     }
                 }
 
@@ -1454,7 +1460,15 @@
                     }
                     addEvent('✅ Đã phân chia vị trí sân')
                     showToast('✅', 'Đã gán đội vào vị trí sân')
-                    activeModal.value = 'serveOrder'
+
+                    if (gameMode.value === 'singles') {
+                        // Singles: Skip serve order modal, start match directly
+                        closeModal()
+                        startMatch()
+                    } else {
+                        // Doubles: Show serve order modal to select first server
+                        activeModal.value = 'serveOrder'
+                    }
                 }
 
                 function confirmServeOrder() {
