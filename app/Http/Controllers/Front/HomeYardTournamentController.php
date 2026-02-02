@@ -1749,6 +1749,12 @@ class HomeYardTournamentController extends Controller
         $groupIndex = 0;
         $drawCount = 0;
 
+        // Track draw_order per group
+        $groupDrawOrder = [];
+        foreach ($groupsCollection as $g) {
+            $groupDrawOrder[$g->id] = 0;
+        }
+
         Log::info('Starting drawPairsByRandom', [
             'total_pairs' => count($shuffled),
             'total_groups' => $groupsCollection->count()
@@ -1757,19 +1763,25 @@ class HomeYardTournamentController extends Controller
         foreach ($shuffled as $pair) {
             $group = $groupsCollection[$groupIndex % $groupsCollection->count()];
 
-            // ✅ Cập nhật group_id cho cả 2 VĐV bằng SQL trực tiếp
+            // Increment draw_order for this group
+            $groupDrawOrder[$group->id]++;
+            $currentDrawOrder = $groupDrawOrder[$group->id];
+
+            // Cập nhật group_id và draw_order cho primary, partner chỉ có group_id
             DB::table('tournament_athletes')
                 ->where('id', $pair['primary']->id)
                 ->update([
                     'group_id' => $group->id,
-                    'seed_number' => null
+                    'seed_number' => null,
+                    'draw_order' => $currentDrawOrder
                 ]);
 
             DB::table('tournament_athletes')
                 ->where('id', $pair['partner']->id)
                 ->update([
                     'group_id' => $group->id,
-                    'seed_number' => null
+                    'seed_number' => null,
+                    'draw_order' => null  // Partner không có draw_order
                 ]);
 
             Log::info('Pair assigned', [
@@ -1876,22 +1888,34 @@ class HomeYardTournamentController extends Controller
         $ascending = true;
         $drawCount = 0;
 
+        // Track draw_order per group
+        $groupDrawOrder = [];
+        foreach ($groupsCollection as $g) {
+            $groupDrawOrder[$g->id] = 0;
+        }
+
         foreach ($sorted as $index => $pair) {
             $group = $groupsCollection[$groupIndex];
 
-            // ✅ Cập nhật group_id và seed_number bằng SQL trực tiếp
+            // Increment draw_order for this group
+            $groupDrawOrder[$group->id]++;
+            $currentDrawOrder = $groupDrawOrder[$group->id];
+
+            // Cập nhật group_id, seed_number và draw_order cho primary, partner chỉ có group_id
             DB::table('tournament_athletes')
                 ->where('id', $pair['primary']->id)
                 ->update([
                     'group_id' => $group->id,
-                    'seed_number' => $index + 1
+                    'seed_number' => $index + 1,
+                    'draw_order' => $currentDrawOrder
                 ]);
 
             DB::table('tournament_athletes')
                 ->where('id', $pair['partner']->id)
                 ->update([
                     'group_id' => $group->id,
-                    'seed_number' => $index + 1
+                    'seed_number' => $index + 1,
+                    'draw_order' => null  // Partner không có draw_order
                 ]);
 
             $drawCount++;
@@ -2003,13 +2027,24 @@ class HomeYardTournamentController extends Controller
         $groupIndex = 0;
         $drawCount = 0;
 
+        // Track draw_order per group
+        $groupDrawOrder = [];
+        foreach ($groupsCollection as $g) {
+            $groupDrawOrder[$g->id] = 0;
+        }
+
         foreach ($shuffled as $athlete) {
             $group = $groupsCollection[$groupIndex % $groupsCollection->count()];
 
-            // Lưu group_id vào tournament_athletes
+            // Increment draw_order for this group
+            $groupDrawOrder[$group->id]++;
+            $currentDrawOrder = $groupDrawOrder[$group->id];
+
+            // Lưu group_id và draw_order vào tournament_athletes
             $updated = $athlete->update([
                 'group_id' => $group->id,
-                'seed_number' => null
+                'seed_number' => null,
+                'draw_order' => $currentDrawOrder
             ]);
 
             Log::info('After update - checking DB', [
@@ -2099,13 +2134,24 @@ class HomeYardTournamentController extends Controller
         $ascending = true;
         $drawCount = 0;
 
+        // Track draw_order per group
+        $groupDrawOrder = [];
+        foreach ($groupsCollection as $g) {
+            $groupDrawOrder[$g->id] = 0;
+        }
+
         foreach ($sorted as $index => $athlete) {
             $group = $groupsCollection[$groupIndex];
 
-            // Lưu group_id và seed_number vào tournament_athletes
+            // Increment draw_order for this group
+            $groupDrawOrder[$group->id]++;
+            $currentDrawOrder = $groupDrawOrder[$group->id];
+
+            // Lưu group_id, seed_number và draw_order vào tournament_athletes
             $updated = $athlete->update([
                 'group_id' => $group->id,
-                'seed_number' => $index + 1
+                'seed_number' => $index + 1,
+                'draw_order' => $currentDrawOrder
             ]);
 
             if ($updated) {
@@ -2359,6 +2405,9 @@ class HomeYardTournamentController extends Controller
 
         foreach ($groups as $group) {
             $athletes = TournamentAthlete::where('group_id', $group->id)
+                ->whereNotNull('draw_order')  // Chỉ lấy primary athlete (partner có draw_order = NULL)
+                ->with('partner')  // Eager load partner
+                ->orderBy('draw_order')
                 ->orderBy('seed_number')
                 ->orderBy('id')
                 ->get();
@@ -2373,7 +2422,8 @@ class HomeYardTournamentController extends Controller
                         'name' => $athlete->athlete_name,
                         'seed_number' => $athlete->seed_number,
                         'position' => $athlete->position,
-                        'partner_id' => $athlete->partner_id
+                        'partner_id' => $athlete->partner_id,
+                        'partner_name' => $athlete->partner?->athlete_name  // Thêm partner name
                     ];
                 })->toArray()
             ];
@@ -2476,7 +2526,8 @@ class HomeYardTournamentController extends Controller
                 ->where('category_id', $categoryId)
                 ->update([
                     'group_id' => null,
-                    'seed_number' => null
+                    'seed_number' => null,
+                    'draw_order' => null
                 ]);
 
             // Reset số lượng VĐV trong các bảng
@@ -2603,27 +2654,50 @@ class HomeYardTournamentController extends Controller
             // Reset trước
             TournamentAthlete::where('tournament_id', $tournament->id)
                 ->where('category_id', $categoryId)
-                ->update(['group_id' => null]);
+                ->update(['group_id' => null, 'draw_order' => null]);
 
             // Cập nhật current_participants về 0
             Group::where('tournament_id', $tournament->id)
                 ->where('category_id', $categoryId)
                 ->update(['current_participants' => 0]);
 
-            // Gán VĐV vào bảng
+            // Gán VĐV vào bảng với thứ tự
             $athletesAssigned = 0;
-            foreach ($assignments as $groupId => $athleteIds) {
-                if (!empty($athleteIds)) {
-                    TournamentAthlete::whereIn('id', $athleteIds)
-                        ->update(['group_id' => (int)$groupId]);
-                    $athletesAssigned += count($athleteIds);
+            foreach ($assignments as $groupId => $athletes) {
+                if (!empty($athletes)) {
+                    foreach ($athletes as $athleteData) {
+                        // Update athlete chính (primary) - có draw_order
+                        TournamentAthlete::where('id', $athleteData['athlete_id'])
+                            ->update([
+                                'group_id' => (int)$groupId,
+                                'draw_order' => $athleteData['draw_order'] ?? null
+                            ]);
+                        $athletesAssigned++;
+
+                        // Update partner nếu có (doubles) - KHÔNG set draw_order (để NULL)
+                        if (!empty($athleteData['partner_id'])) {
+                            TournamentAthlete::where('id', $athleteData['partner_id'])
+                                ->update([
+                                    'group_id' => (int)$groupId,
+                                    'draw_order' => null  // Partner không có draw_order
+                                ]);
+                            $athletesAssigned++;
+                        }
+                    }
                 }
             }
 
             // Cập nhật current_participants cho từng bảng
-            foreach ($assignments as $groupId => $athleteIds) {
-                if (!empty($athleteIds)) {
-                    $count = count($athleteIds);
+            foreach ($assignments as $groupId => $athletes) {
+                if (!empty($athletes)) {
+                    // Đếm số VĐV thực tế (cả partner)
+                    $count = 0;
+                    foreach ($athletes as $athleteData) {
+                        $count++;
+                        if (!empty($athleteData['partner_id'])) {
+                            $count++;
+                        }
+                    }
                     Group::where('id', $groupId)
                         ->update(['current_participants' => $count]);
                 }
@@ -4159,11 +4233,12 @@ class HomeYardTournamentController extends Controller
             $groupId = request()->query('group_id');
 
             if ($category->isDoubles()) {
-                // For doubles: return pairs (athletes with partners)
+                // For doubles: return pairs (only primary athletes with draw_order set)
                 $query = TournamentAthlete::where('tournament_id', $tournament->id)
                     ->where('category_id', $categoryId)
                     ->where('status', 'approved')
-                    ->whereNotNull('partner_id');
+                    ->whereNotNull('partner_id')
+                    ->whereNotNull('draw_order');  // Chỉ lấy primary (có draw_order)
 
                 // Filter by group if group_id is provided
                 if ($groupId) {
@@ -4171,6 +4246,7 @@ class HomeYardTournamentController extends Controller
                 }
 
                 $pairs = $query->with('partner:id,athlete_name')
+                    ->orderBy('draw_order')
                     ->orderBy('athlete_name')
                     ->get()
                     ->map(function ($athlete) {
@@ -4180,11 +4256,7 @@ class HomeYardTournamentController extends Controller
                             'pair_name' => $athlete->pair_name,
                         ];
                     })
-                    // Filter to avoid duplicates (A/B and B/A)
-                    ->filter(function ($pair) {
-                        return $pair['primary_athlete_id'] < $pair['partner_id'];
-                    })
-                    ->values();
+                    ->values();  // Không cần filter duplicate vì chỉ primary có draw_order
 
                 return response()->json([
                     'success' => true,
@@ -4204,7 +4276,8 @@ class HomeYardTournamentController extends Controller
                 $query->where('group_id', $groupId);
             }
 
-            $athletes = $query->orderBy('athlete_name')
+            $athletes = $query->orderBy('draw_order')
+                ->orderBy('athlete_name')
                 ->get(['id', 'athlete_name']);
 
             return response()->json([

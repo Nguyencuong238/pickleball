@@ -22,6 +22,7 @@ class TournamentAthlete extends Model
         'position',
         'payment_status',
         'group_id',
+        'draw_order',
         'seed_number',
         'matches_played',
         'matches_won',
