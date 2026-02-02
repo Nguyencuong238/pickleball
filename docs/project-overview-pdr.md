@@ -1,8 +1,8 @@
 # Project Overview & Product Development Requirements (PDR)
 
 **Project Name**: Pickleball Platform
-**Version**: 1.0.0
-**Last Updated**: 2025-12-09
+**Version**: 1.6.0
+**Last Updated**: 2026-02-02
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -170,12 +170,29 @@ Create a centralized platform connecting pickleball players with courts, tournam
   - Complete matches with final scores
 - **Public Referee Directory**: Browse and view referee profiles
 
-### 11. News & CMS
+### 11. Point Earning System
+- **16 Point Tasks** across 4 user roles (user, home_yard, referee, expert_host)
+- **Task Categories**: Daily, Social, Event, Tournament
+- **Frequency Types**: Unlimited, Daily, Weekly, Monthly, Once
+- **Proof Types**: None (auto-award), Image, Link, QR Code
+- **User Wallet System**: Track point balance and transaction history
+- **Point Tasks**:
+  - User tasks: Referral (100 pts), Check-in Stadium (10 pts daily), Weekly 5 Matches (30 pts), Join Event (50 pts), Join Club (50 pts), Create OCR Match (20 pts)
+  - Social tasks: Join FB Group (50 pts), Follow FB Page (30 pts), Subscribe YouTube (30 pts), Follow TikTok (30 pts)
+  - HomeYard tasks: Update Stadium Info (50 pts), Create Social Schedule (40 pts), Create Tournament (100 pts)
+  - Referee task: Score Match (30 pts per match)
+  - Expert task: Verify ELO (50 pts)
+- **Special Challenges**: Time-limited challenges with max participants
+- **Events System**: Workshop/event QR check-in with point rewards
+- **Social Profile Verification**: One-time verification for Facebook, YouTube, TikTok
+- **Submission Workflow**: User submits proof → Admin reviews → Approve/Reject → Points awarded
+
+### 12. News & CMS
 - News articles with categories
 - Featured content
 - Static pages (About, Contact, etc.)
 
-### 12. User Authentication
+### 13. User Authentication
 - Email/password registration
 - OAuth (Google, Facebook)
 - Role-based access control
@@ -264,6 +281,18 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Re-quiz cooldown policy enforcement
 - Guest preview mode
 - Admin attempt flagging and review
+
+**FR11: Point Earning System**
+- 16 point tasks with role-based access control
+- Task eligibility checking (frequency, completion status)
+- Proof submission with validation (image, link, QR code)
+- Admin approval workflow for submissions
+- Wallet system with point balance tracking
+- Transaction history with metadata
+- Social profile verification (Facebook, YouTube, TikTok)
+- Special challenges with time limits and participant caps
+- Event check-in system with QR code validation
+- Automated point awarding for system-triggered tasks
 
 ### Non-Functional Requirements
 
@@ -381,6 +410,16 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **skill_quiz_answers**: Individual question responses
 - **users**: Added quiz tracking fields (quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at) and gender field for skill level mapping
 
+### Point Earning Entities
+- **point_tasks**: 16 tasks with code, points, role, category, frequency, proof_type
+- **point_submissions**: Proof submissions with status, proof_data, admin review
+- **user_wallets**: User point balance
+- **user_point_transactions**: Transaction history with type, description, metadata
+- **social_profile_verifications**: Social platform verification records
+- **special_challenges**: Time-limited challenges with max participants
+- **events**: Workshop/event system with QR check-in
+- **event_checkins**: User event attendance records
+
 ## Success Metrics
 
 ### User Metrics
@@ -430,6 +469,7 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - [x] Doubles pair selection for tournament categories
 - [x] Skill assessment quiz system (260102-1200)
 - [x] Gender-aware skill level mapping (260115-2019)
+- [x] Point earning system with 16 tasks (260114-1601)
 - [ ] Online payment integration
 - [ ] Real-time notifications for match invites and activities
 - [ ] Mobile app with OPRS integration
