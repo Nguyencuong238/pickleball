@@ -382,9 +382,9 @@
                         <div class="match-players">
                             <!-- Athlete 1 -->
                             <div class="player-item">
-                                <div class="player-avatar">{{ substr($match->athlete1?->player_name ?? 'A', 0, 1) }}</div>
+                                <div class="player-avatar">{{ substr($match->athlete1?->athlete_name ?? 'A', 0, 1) }}</div>
                                 <div class="player-info">
-                                    <div class="player-name">{{ $match->athlete1?->player_name ?? 'Athlete 1' }}</div>
+                                    <div class="player-name">{{ $match->athlete1?->athlete_name ?? 'Athlete 1' }}</div>
                                 </div>
                             </div>
 
@@ -392,9 +392,9 @@
 
                             <!-- Athlete 2 -->
                             <div class="player-item">
-                                <div class="player-avatar">{{ substr($match->athlete2?->player_name ?? 'A', 0, 1) }}</div>
+                                <div class="player-avatar">{{ substr($match->athlete2?->athlete_name ?? 'A', 0, 1) }}</div>
                                 <div class="player-info">
-                                    <div class="player-name">{{ $match->athlete2?->player_name ?? 'Athlete 2' }}</div>
+                                    <div class="player-name">{{ $match->athlete2?->athlete_name ?? 'Athlete 2' }}</div>
                                 </div>
                             </div>
                         </div>
