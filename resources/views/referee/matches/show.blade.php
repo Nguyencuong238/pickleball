@@ -98,7 +98,7 @@
                         Người thắng: <strong style="color: var(--accent);">@{{ matchWinnerName }}</strong>
                     </div>
                     <div style="font-size: 1.25rem; color: var(--text-light);">
-                        Tỉ số: @{{ MATCH_DATA.setScores?.map(s => s.athlete1 + '-' + s.athlete2).join(', ') || 'N/A' }}
+                        Tỉ số: @{{ displayFinalScore }}
                     </div>
                     
                 </div>
@@ -204,7 +204,7 @@
                                     <span>-</span> Trừ điểm
                                 </button>
                                 <button class="btn-score sideout" @click="recordFault" v-if="serving.team === 'left'">
-                                   @{{ serving.serverIndex == 0 ? '2-END' : 'Side Out' }}
+                                   @{{ faultButtonText }}
                                 </button>
                             </div>
                         </div>
@@ -298,7 +298,7 @@
                                     <span>-</span> Trừ điểm
                                 </button>
                                 <button class="btn-score sideout" @click="recordFault" v-if="serving.team === 'right'">
-                                   @{{ serving.serverIndex == 0 ? '2-END' : 'Side Out' }}
+                                   @{{ faultButtonText }}
                                 </button>
                             </div>
                         </div>
@@ -520,14 +520,52 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <div class="modal-icon">🎾</div>
-                    <div class="modal-title">Xác Định Người Giao Bóng</div>
-                    <div class="modal-subtitle">@{{ teams[serving.team].name }} được quyền giao bóng trước</div>
+                    <div class="modal-title">Xác Định Quyền Giao Bóng</div>
+                    <div class="modal-subtitle">Chọn đội giao bóng trước và người giao bóng đầu tiên</div>
                 </div>
                 <div class="modal-body">
+                    <!-- Step 1: Chọn đội giao bóng -->
+                    <div class="serve-section">
+                        <div class="serve-label">🏆 Đội giao bóng trước</div>
+                        <div class="team-options" style="margin-bottom: 1rem;">
+                            <div
+                                class="team-option"
+                                :class="{ selected: selectedServingTeam === 'left' }"
+                                @click="selectedServingTeam = 'left'; selectedServerIndex = 0"
+                            >
+                                <div class="team-option-indicator blue"></div>
+                                <div class="team-option-content">
+                                    <div class="team-option-name">🔵 @{{ teams.left.name }}</div>
+                                </div>
+                                <div class="team-option-radio">
+                                    <svg v-if="selectedServingTeam === 'left'" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" style="width:16px;height:16px">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div
+                                class="team-option"
+                                :class="{ selected: selectedServingTeam === 'right' }"
+                                @click="selectedServingTeam = 'right'; selectedServerIndex = 0"
+                            >
+                                <div class="team-option-indicator red"></div>
+                                <div class="team-option-content">
+                                    <div class="team-option-name">🔴 @{{ teams.right.name }}</div>
+                                </div>
+                                <div class="team-option-radio">
+                                    <svg v-if="selectedServingTeam === 'right'" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" style="width:16px;height:16px">
+                                        <polyline points="20 6 9 17 4 12"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Chọn người giao bóng (chỉ cho doubles) -->
                     <div class="serve-section" v-if="gameMode === 'doubles'">
-                        <div class="serve-label">✋ Chọn người giao bóng đầu tiên</div>
+                        <div class="serve-label">✋ Chọn người giao bóng đầu tiên của @{{ teams[selectedServingTeam].name }}</div>
                         <div
-                            v-for="(player, index) in teams[serving.team].players"
+                            v-for="(player, index) in teams[selectedServingTeam].players"
                             :key="index"
                             class="player-option"
                             :class="{ selected: selectedServerIndex === index }"
@@ -541,7 +579,7 @@
                         <div class="serve-label">Người giao bóng</div>
                         <div class="player-option selected">
                             <div class="player-option-radio"></div>
-                            <span class="player-option-name">@{{ teams[serving.team].players[0]?.name }}</span>
+                            <span class="player-option-name">@{{ teams[selectedServingTeam].players[0]?.name }}</span>
                         </div>
                     </div>
                 </div>
@@ -707,6 +745,7 @@
                 const coinRotation = ref(0)
                 const coinFlipping = ref(false)
                 const selectedLeftTeam = ref('left')
+                const selectedServingTeam = ref('left')  // Đội được chọn giao bóng trước
                 const selectedServerIndex = ref(0)
 
                 const timeout = reactive({
@@ -834,12 +873,31 @@
                 const isMatchCompleted = computed(() => MATCH_DATA.isCompleted || status.value === 'finished')
 
                 const matchWinnerName = computed(() => {
-                    if (!MATCH_DATA.isCompleted) return ''
-                    const winnerId = MATCH_DATA.setScores?.[0]?.athlete1 > MATCH_DATA.setScores?.[0]?.athlete2 ?
-                        MATCH_DATA.athlete1.id : MATCH_DATA.athlete2.id
-                    return winnerId === MATCH_DATA.athlete1.id ?
-                        (MATCH_DATA.athlete1.pairName || MATCH_DATA.athlete1.name) :
-                        (MATCH_DATA.athlete2.pairName || MATCH_DATA.athlete2.name)
+                    // Use client-side gamesWon to determine winner
+                    if (teams.left.gamesWon > teams.right.gamesWon) {
+                        return teams.left.name
+                    } else if (teams.right.gamesWon > teams.left.gamesWon) {
+                        return teams.right.name
+                    }
+                    // Fallback to MATCH_DATA for completed matches loaded from server
+                    if (MATCH_DATA.isCompleted && MATCH_DATA.winnerId) {
+                        return MATCH_DATA.winnerId === MATCH_DATA.athlete1.id
+                            ? (MATCH_DATA.athlete1.pairName || MATCH_DATA.athlete1.name)
+                            : (MATCH_DATA.athlete2.pairName || MATCH_DATA.athlete2.name)
+                    }
+                    return ''
+                })
+
+                const displayFinalScore = computed(() => {
+                    // Use client-side gameScores if available
+                    if (gameScores.value && gameScores.value.length > 0) {
+                        return gameScores.value.map(g => `${g.athlete1}-${g.athlete2}`).join(', ')
+                    }
+                    // Fallback to MATCH_DATA.setScores for completed matches loaded from server
+                    if (MATCH_DATA.setScores && MATCH_DATA.setScores.length > 0) {
+                        return MATCH_DATA.setScores.map(s => `${s.athlete1}-${s.athlete2}`).join(', ')
+                    }
+                    return 'N/A'
                 })
 
                 const timerDisplay = computed(() => {
@@ -890,6 +948,24 @@
                     return currentGame.value === totalGames.value &&
                            teams.left.gamesWon === teams.right.gamesWon &&
                            teams.left.gamesWon === winsNeeded - 1
+                })
+
+                // Computed: Fault button text based on serving state (singles vs doubles)
+                const faultButtonText = computed(() => {
+                    if (gameMode.value === 'singles') {
+                        return 'Side Out'
+                    }
+                    // Doubles: check serving state
+                    if (serving.isFirstServeOfGame) {
+                        // At 0-0-2, fault = side-out directly
+                        return 'Side Out'
+                    }
+                    if (serving.serverNumber === 1) {
+                        // Server 1 fault = switch to Server 2
+                        return '2-END'
+                    }
+                    // Server 2 fault = side-out
+                    return 'Side Out'
                 })
 
                 // ==================== API SYNC ====================
@@ -1207,7 +1283,9 @@
                     saveHistory()
                     recordEvent('fault', serving.team)
                     handleSideOut()
-                    addEvent('❌ Lỗi giao bóng')
+                    // Không cần addEvent() ở đây vì handleSideOut() đã log message phù hợp:
+                    // - "2️⃣ Chuyển sang Server 2" cho 2-END
+                    // - "🔄 Side-out!" cho side-out
                 }
 
                 function manualSwitchServer() {
@@ -1280,13 +1358,11 @@
 
                 function toggleMatch() {
                     if (status.value === 'waiting') {
-                        if (gameMode.value === 'singles') {
-                            // Singles: Skip serve order modal, start match directly
-                            startMatch()
-                        } else {
-                            // Doubles: Show serve order modal to select first server
-                            activeModal.value = 'serveOrder'
-                        }
+                        // Khởi tạo selectedServingTeam trước khi mở modal
+                        selectedServingTeam.value = serving.team
+                        selectedServerIndex.value = 0
+                        // Luôn hiển thị serve order modal để chọn đội giao bóng
+                        activeModal.value = 'serveOrder'
                     }
                 }
 
@@ -1343,6 +1419,17 @@
 
                     const leftScore = teams.left.score
                     const rightScore = teams.right.score
+
+                    // Validate win condition: must reach winScore and win by 2
+                    const hasValidWinner = (leftScore >= winScore.value || rightScore >= winScore.value) &&
+                                           Math.abs(leftScore - rightScore) >= 2
+
+                    if (!hasValidWinner) {
+                        const confirmEnd = confirm(
+                            `Tỉ số hiện tại ${leftScore}-${rightScore} chưa đủ điều kiện thắng (cần đạt ${winScore.value} điểm và cách biệt ít nhất 2 điểm).\n\nBạn có chắc muốn kết thúc game này không?`
+                        )
+                        if (!confirmEnd) return
+                    }
 
                     let winner = 'Hòa'
                     if (leftScore > rightScore) {
@@ -1461,17 +1548,17 @@
                     addEvent('✅ Đã phân chia vị trí sân')
                     showToast('✅', 'Đã gán đội vào vị trí sân')
 
-                    if (gameMode.value === 'singles') {
-                        // Singles: Skip serve order modal, start match directly
-                        closeModal()
-                        startMatch()
-                    } else {
-                        // Doubles: Show serve order modal to select first server
-                        activeModal.value = 'serveOrder'
-                    }
+                    // Khởi tạo selectedServingTeam dựa trên serving.team hiện tại
+                    selectedServingTeam.value = serving.team
+                    selectedServerIndex.value = 0
+
+                    // Luôn hiển thị serve order modal để chọn đội giao bóng
+                    activeModal.value = 'serveOrder'
                 }
 
                 function confirmServeOrder() {
+                    // Cập nhật đội giao bóng dựa trên lựa chọn
+                    serving.team = selectedServingTeam.value
                     if (gameMode.value === 'doubles') {
                         serving.serverIndex = selectedServerIndex.value
                     }
@@ -1511,9 +1598,47 @@
                     }
                 }
 
+                // Handle page unload - sync pending events before leaving
+                function handleBeforeUnload(e) {
+                    if (pendingEvents.value.length > 0 || (status.value === 'playing' || status.value === 'paused')) {
+                        // Sync any pending events using fetch with keepalive (supports headers)
+                        if (pendingEvents.value.length > 0) {
+                            const matchState = {
+                                currentGame: currentGame.value,
+                                gamesWonAthlete1: teams.left.gamesWon,
+                                gamesWonAthlete2: teams.right.gamesWon,
+                                gameScores: gameScores.value,
+                                servingTeam: serving.team === 'left' ? 'athlete1' : 'athlete2',
+                                serverNumber: serving.serverNumber,
+                                timerSeconds: timer.value
+                            }
+                            // Use fetch with keepalive for reliable delivery with CSRF support
+                            fetch(API_ENDPOINTS.syncEvents, {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': CSRF_TOKEN
+                                },
+                                body: JSON.stringify({
+                                    events: pendingEvents.value,
+                                    match_state: matchState
+                                }),
+                                keepalive: true  // Ensures request completes even if page unloads
+                            }).catch(() => {})  // Ignore errors on unload
+                        }
+                        // Show warning if match is in progress
+                        if (status.value === 'playing' || status.value === 'paused') {
+                            e.preventDefault()
+                            e.returnValue = 'Trận đấu đang diễn ra. Dữ liệu sẽ được lưu.'
+                            return e.returnValue
+                        }
+                    }
+                }
+
                 // Lifecycle
                 onMounted(() => {
                     document.addEventListener('keydown', handleKeydown)
+                    window.addEventListener('beforeunload', handleBeforeUnload)
 
                     if (MATCH_DATA.isCompleted) {
                         status.value = 'finished'
@@ -1543,6 +1668,7 @@
 
                 onUnmounted(() => {
                     document.removeEventListener('keydown', handleKeydown)
+                    window.removeEventListener('beforeunload', handleBeforeUnload)
                     stopTimer()
                 })
 
@@ -1553,11 +1679,11 @@
                     gameMode, status, timer, currentGame, totalGames, winScore,
                     teams, serving, history, eventLog, activeModal,
                     coinResult, coinRotation, coinFlipping,
-                    selectedLeftTeam, selectedServerIndex, timeout, toast,
+                    selectedLeftTeam, selectedServingTeam, selectedServerIndex, timeout, toast,
                     // Computed
-                    isMatchCompleted, matchWinnerName,
+                    isMatchCompleted, matchWinnerName, displayFinalScore,
                     timerDisplay, statusText, scoreCall, servingCourtSide,
-                    coinStyle, timeoutDisplay,
+                    coinStyle, timeoutDisplay, faultButtonText,
                     // Methods
                     rallyWon, adjustScore, undo, recordFault,
                     manualSwitchServer, requestTimeout, startTimeout, endTimeout,
