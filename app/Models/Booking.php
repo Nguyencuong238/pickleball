@@ -26,6 +26,8 @@ class Booking extends Model
         'status',
         'payment_method',
         'notes',
+        'confirmed_at',
+        'lock_expires_at',
     ];
 
     protected $casts = [
@@ -36,6 +38,7 @@ class Booking extends Model
         'service_fee' => 'integer',
         'start_time' => 'string',
         'end_time' => 'string',
+        'confirmed_at' => 'datetime',
     ];
 
     /**
@@ -83,6 +86,30 @@ class Booking extends Model
      */
     public function confirm(): void
     {
-        $this->update(['status' => 'confirmed']);
+        $this->update([
+            'status' => 'confirmed',
+            'confirmed_at' => now(),
+            'lock_expires_at' => null,
+        ]);
+    }
+
+    /**
+     * Check if booking is locked (chuyển khoản, chờ xác nhận trong 15 phút)
+     * Locked = pending + transfer + lock_expires_at not expired
+     */
+    public function isLocked(): bool
+    {
+        return $this->status === 'pending' 
+            && $this->payment_method === 'transfer'
+            && $this->lock_expires_at !== null
+            && $this->lock_expires_at > time();
+    }
+
+    /**
+     * Check if lock has expired
+     */
+    public function isLockExpired(): bool
+    {
+        return $this->lock_expires_at !== null && $this->lock_expires_at <= time();
     }
 }

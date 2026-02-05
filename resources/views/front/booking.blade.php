@@ -33,6 +33,217 @@
             background-color: #e9ecef;
             border-color: #dee2e6;
         }
+
+        /* Calendar Grid Styles */
+        .calendar-legend {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0 20px 0;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+
+        /* Booking Instruction */
+        .booking-instruction {
+            background-color: #f0f8ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px 15px;
+            margin: 15px 0 20px 0;
+            border-radius: 4px;
+        }
+
+        .instruction-item {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .instruction-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .instruction-item kbd {
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            padding: 2px 6px;
+            font-family: monospace;
+            font-weight: 600;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+
+        .calendar-table-wrapper {
+            overflow-x: auto;
+            margin: 20px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            max-height: 600px;
+            /* Hide scrollbar nhưng vẫn scroll */
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        
+        .calendar-table-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        .calendar-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 1000px;
+        }
+
+        .calendar-table thead {
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .calendar-table th {
+            padding: 12px 8px;
+            text-align: center;
+            font-weight: 600;
+            border-right: 1px solid #ddd;
+            min-width: 70px;
+        }
+
+        .calendar-table th:first-child {
+            min-width: 80px;
+            text-align: left;
+            padding-left: 15px;
+        }
+
+        .calendar-table td {
+            padding: 0;
+            border-right: 1px solid #ddd;
+            height: 50px;
+        }
+
+        .calendar-table tr {
+            border-bottom: 1px solid #ddd;
+        }
+
+        .calendar-table tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .calendar-table tr:last-child {
+            border-bottom: none;
+        }
+
+        .calendar-court-name {
+            padding: 12px 15px;
+            font-weight: 500;
+            text-align: center;
+            background-color: #f8f9fa;
+            border-right: 2px solid #ddd;
+            min-width: 80px;
+        }
+
+        .time-slot-cell {
+            position: relative;
+            cursor: pointer;
+            border: none;
+            padding: 0;
+            height: 100%;
+            min-width: 70px;
+        }
+
+        .time-slot-cell.available {
+            background-color: #fff;
+            border-right: 1px solid #ddd;
+        }
+
+        .time-slot-cell.available:hover {
+            background-color: #e3f2fd;
+        }
+
+        .time-slot-cell.booked {
+            background-color: #ff6b6b;
+            cursor: not-allowed;
+        }
+
+        .time-slot-cell.locked {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .time-slot-cell.event {
+            background-color: #ffd700;
+            cursor: not-allowed;
+        }
+
+        .time-slot-cell.selected {
+            background-color: #2196F3;
+            color: white;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .time-slot-cell-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            font-size: 13px;
+            font-weight: 500;
+            padding: 0 4px;
+        }
+
+        .calendar-table.merged-cells .time-slot-cell {
+            border-right: none;
+        }
+
+        .calendar-table.merged-cells .time-slot-cell:last-child {
+            border-right: 1px solid #ddd;
+        }
+
+        /* Layout Styles */
+        .booking-layout {
+            display: block;
+        }
+
+        .booking-form-section {
+            margin-bottom: 30px;
+        }
+
+        .booking-summary {
+            margin-top: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+
+            .calendar-table th,
+            .calendar-table td {
+                padding: 8px 4px;
+                min-width: 50px;
+                font-size: 12px;
+            }
+
+            .time-slot-cell-content {
+                font-size: 11px;
+            }
+
+            .calendar-legend {
+                gap: 10px;
+                font-size: 12px;
+            }
+        }
     </style>
 @endsection
 
@@ -66,18 +277,19 @@
 
                     <form id="bookingForm">
                         @csrf
+                        <input type="hidden" id="stadiumId" value="{{ $stadium->id }}">
                         <div class="booking-card">
                             <h2>Chọn ngày & giờ</h2>
 
-                            <!-- Chọn Sân -->
-                            <div class="form-group">
+                            <!-- Chọn Sân - Hidden (selected from calendar grid) -->
+                            <div class="form-group" style="display: none;">
                                 <label>Chọn sân *</label>
                                 <select class="form-control bg-white" id="courtSelect" name="court_id" required>
                                     <option value="">-- Chọn sân --</option>
                                     @if (isset($courts) && count($courts) > 0)
                                         @foreach ($courts as $court)
                                              <option value="{{ $court->id }}">{{ $court->court_name }}</option>
-                                         @endforeach
+                                          @endforeach
                                     @else
                                         <option value="" disabled>Không có sân nào khả dụng</option>
                                     @endif
@@ -91,10 +303,46 @@
                             </div>
 
                             <div class="time-slots">
-                                <h3>Chọn giờ *</h3>
-                                <div class="slots-grid" id="slotsGrid">
-                                    <!-- Time slots will be generated dynamically -->
-                                    <p style="grid-column: 1/-1; text-align: center; color: #666;">Vui lòng chọn sân và ngày trước</p>
+                                <h3>Chọn ngày & giờ *</h3>
+                                <div id="calendarLegend" class="calendar-legend">
+                                    <div class="legend-item">
+                                        <span class="legend-color"
+                                            style="background-color: #fff; border: 1px solid #ddd;"></span>
+                                        <span>Trống</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #ff6b6b;"></span>
+                                        <span>Đã đặt</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #ccc;"></span>
+                                        <span>Khoá</span>
+                                    </div>
+                                    <div class="legend-item">
+                                        <span class="legend-color" style="background-color: #ffd700;"></span>
+                                        <span>Sự kiện</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Hướng dẫn chọn giờ -->
+                                <div class="booking-instruction">
+                                    <div class="instruction-item">
+                                        <strong>📌 Cách 1 - Chọn nhiều giờ liền:</strong> Giữ <kbd>Shift</kbd> + Click khung giờ bắt đầu và khung giờ kết thúc
+                                    </div>
+                                    <div class="instruction-item">
+                                        <strong>📌 Cách 2 - Chọn thời lượng:</strong> Click khung giờ bắt đầu, rồi chọn "Thời lượng" ở dưới
+                                    </div>
+                                    <div class="instruction-item">
+                                        <strong>💳 Lưu ý phương thức thanh toán:</strong>
+                                        <ul style="margin: 5px 0 0 0; padding-left: 20px;">
+                                            <li><strong style="color: #28a745;">Tiền mặt:</strong> Đặt sân xác nhận ngay</li>
+                                            <li><strong style="color: #ffc107;">Chuyển khoản:</strong> Khóa 15 phút, nếu không xác nhận sẽ hủy tự động</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="calendar-table-wrapper" id="calendarWrapper">
+                                    <p style="text-align: center; color: #666; padding: 20px;">Vui lòng chọn sân và ngày
+                                        trước</p>
                                 </div>
                                 <input type="hidden" id="selectedSlot" name="start_time" required>
                             </div>
@@ -206,87 +454,213 @@
         document.addEventListener('DOMContentLoaded', function() {
             const courtSelect = document.getElementById('courtSelect');
             const bookingDate = document.getElementById('bookingDate');
-            const slotsGrid = document.getElementById('slotsGrid');
+            const calendarWrapper = document.getElementById('calendarWrapper');
             const selectedSlot = document.getElementById('selectedSlot');
             const durationSelect = document.getElementById('durationHours');
             const hourlyRate = document.getElementById('hourlyRate');
             const bookingForm = document.getElementById('bookingForm');
             let timeSlots = [];
-            let closingHour = 22; // Default closing hour
+            let closingHour = 22;
+            let openingHour = 6;
 
             // Load available time slots from API
             async function loadAvailableSlots() {
-                const courtId = courtSelect.value;
                 const date = bookingDate.value;
+                const stadiumId = document.getElementById('stadiumId').value;
 
-                if (!courtId || !date) {
-                    slotsGrid.innerHTML =
-                        '<p style="grid-column: 1/-1; text-align: center; color: #666;">Vui lòng chọn sân và ngày trước</p>';
+                if (!date) {
+                    calendarWrapper.innerHTML =
+                        '<p style="text-align: center; color: #666; padding: 20px;">Vui lòng chọn ngày trước</p>';
                     return;
                 }
 
                 try {
-                    slotsGrid.innerHTML =
-                        '<p style="grid-column: 1/-1; text-align: center; color: #666;">Đang tải...</p>';
+                    calendarWrapper.innerHTML =
+                        '<p style="text-align: center; color: #666; padding: 20px;">Đang tải...</p>';
 
-                    const response = await fetch(`/api/courts/${courtId}/available-slots?date=${date}`);
-                    const result = await response.json();
+                    // Load all courts for the stadium on this date
+                     const response = await fetch(`/api/bookings/stadium/${stadiumId}/slots-all?date=${date}`);
+                     const result = await response.json();
 
-                    if (result.success && result.available_slots) {
-                        timeSlots = result.available_slots;
-                        // Extract closing hour from the last slot
-                        if (timeSlots.length > 0) {
-                            closingHour = timeSlots[timeSlots.length - 1].end_hour;
-                        }
-                        generateTimeSlots();
-                    } else {
-                        slotsGrid.innerHTML =
-                            '<p style="grid-column: 1/-1; text-align: center; color: #666;">Không thể tải khoảng thời gian</p>';
-                    }
+                     console.log('Slots response:', result);
+
+                     if (result.success && result.available_slots && result.available_slots.length > 0) {
+                         timeSlots = result.available_slots;
+                         if (timeSlots.length > 0) {
+                             const hours = timeSlots.map(s => s.hour);
+                             openingHour = Math.min(...hours);
+                             closingHour = Math.max(...(timeSlots.map(s => s.end_hour || s.hour + 1)));
+                         }
+                         generateCalendarTable();
+                     } else if (result.success && result.available_slots && result.available_slots.length === 0) {
+                         calendarWrapper.innerHTML =
+                             '<p style="text-align: center; color: #666; padding: 20px;">Không có khoảng thời gian khả dụng cho ngày này</p>';
+                     } else {
+                         calendarWrapper.innerHTML =
+                             '<p style="text-align: center; color: #666; padding: 20px;">Không thể tải khoảng thời gian: ' + (result.message || 'Lỗi không xác định') + '</p>';
+                     }
                 } catch (error) {
                     console.error('Error loading slots:', error);
-                    slotsGrid.innerHTML =
-                        '<p style="grid-column: 1/-1; text-align: center; color: #666;">Lỗi khi tải dữ liệu</p>';
+                    calendarWrapper.innerHTML =
+                        '<p style="text-align: center; color: #666; padding: 20px;">Lỗi khi tải dữ liệu</p>';
                 }
             }
 
-            // Generate time slots dynamically
-            function generateTimeSlots() {
-                slotsGrid.innerHTML = '';
-                if (timeSlots.length === 0) {
-                    slotsGrid.innerHTML =
-                        '<p style="grid-column: 1/-1; text-align: center; color: #666;">Không có khoảng thời gian khả dụng</p>';
-                    return;
+            // Generate calendar table
+            function generateCalendarTable() {
+                calendarWrapper.innerHTML = '';
+                const table = document.createElement('table');
+                table.className = 'calendar-table';
+
+                // Create header with time slots
+                const thead = document.createElement('thead');
+                const headerRow = document.createElement('tr');
+                const emptyHeader = document.createElement('th');
+                emptyHeader.textContent = 'Sân';
+                headerRow.appendChild(emptyHeader);
+
+                for (let hour = openingHour; hour < closingHour; hour++) {
+                    const th = document.createElement('th');
+                    th.textContent = `${String(hour).padStart(2, '0')}:00`;
+                    headerRow.appendChild(th);
                 }
 
-                timeSlots.forEach(slot => {
-                    const button = document.createElement('button');
-                    button.type = 'button';
-                    button.className = 'slot-btn' + (slot.is_booked ||slot.is_pending ? ' disabled' : '');
+                thead.appendChild(headerRow);
+                table.appendChild(thead);
 
-                    const priceDisplay = slot.price.toLocaleString('vi-VN') + 'đ';
-                    const statusText = slot.is_booked ? 'Đã đặt' : (slot.is_pending ? 'Đang chờ' : priceDisplay);
+                // Create body with courts
+                const tbody = document.createElement('tbody');
+                const courts = getCourtsFromSelect();
 
-                    button.innerHTML =
-                        `${slot.time} - ${String(slot.end_hour).padStart(2, '0')}:00<span>${statusText}</span>`;
+                courts.forEach(court => {
+                    const row = document.createElement('tr');
 
-                    if (!slot.is_booked) {
-                        button.addEventListener('click', function(e) {
-                            e.preventDefault();
-                            selectSlot(slot, button);
-                        });
-                    } else {
-                        button.disabled = true;
+                    // Court name cell
+                    const nameCell = document.createElement('td');
+                    nameCell.className = 'calendar-court-name';
+                    nameCell.textContent = court.name;
+                    row.appendChild(nameCell);
+
+                    // Time slot cells
+                    for (let hour = openingHour; hour < closingHour; hour++) {
+                        const slotCell = document.createElement('td');
+                        const slot = findSlot(court.id, hour);
+
+                        if (slot) {
+                            slotCell.className = `time-slot-cell ${getSlotStatus(slot)}`;
+                            slotCell.dataset.slotTime = slot.time;
+                            slotCell.dataset.slotHour = slot.hour;
+                            slotCell.dataset.slotPrice = slot.price;
+                            slotCell.dataset.courtId = slot.court_id;
+
+                            const content = document.createElement('div');
+                            content.className = 'time-slot-cell-content';
+                            content.textContent = slot.price.toLocaleString('vi-VN') + 'đ';
+                            slotCell.appendChild(content);
+
+                            // Add click handler for available slots
+                            if (!slot.is_booked && !slot.is_locked && !slot.is_pending) {
+                                slotCell.addEventListener('click', (e) => {
+                                    // Shift+Click để chọn range giờ
+                                    if (e.shiftKey) {
+                                        const selectedCells = document.querySelectorAll('.time-slot-cell.selected');
+                                        if (selectedCells.length > 0) {
+                                            const firstSelected = selectedCells[0];
+                                            const firstHour = parseInt(firstSelected.dataset.slotHour);
+                                            const firstCourt = parseInt(firstSelected.dataset.courtId);
+                                            const secondHour = slot.hour;
+                                            const secondCourt = slot.court_id;
+                                            
+                                            // Chỉ cho phép chọn range nếu cùng sân
+                                            if (firstCourt === secondCourt) {
+                                                const startHour = Math.min(firstHour, secondHour);
+                                                const endHour = Math.max(firstHour, secondHour);
+                                                
+                                                // Highlight range
+                                                let firstSlotInRange = null;
+                                                const allCells = document.querySelectorAll('.time-slot-cell');
+                                                allCells.forEach(cell => {
+                                                    const cellHour = parseInt(cell.dataset.slotHour);
+                                                    const cellCourt = parseInt(cell.dataset.courtId);
+                                                    
+                                                    if (cellCourt === secondCourt && cellHour >= startHour && cellHour <= endHour) {
+                                                        if (!cell.classList.contains('booked') && !cell.classList.contains('locked')) {
+                                                            cell.classList.add('selected');
+                                                            // Lưu slot đầu tiên trong range
+                                                            if (!firstSlotInRange) {
+                                                                firstSlotInRange = cell;
+                                                            }
+                                                        }
+                                                    } else {
+                                                        cell.classList.remove('selected');
+                                                    }
+                                                });
+                                                
+                                                // Set start_time bằng slot đầu tiên, không phải slot cuối
+                                                if (firstSlotInRange) {
+                                                    const firstSlotTime = firstSlotInRange.dataset.slotTime;
+                                                    courtSelect.value = secondCourt;
+                                                    selectedSlot.value = firstSlotTime;
+                                                    updateDurationOptions(startHour);
+                                                    
+                                                    // Tính duration từ range (include both start and end hours)
+                                                    const duration = endHour - startHour + 1;
+                                                    if (duration > 0 && duration <= 6) {
+                                                        durationSelect.value = duration.toString();
+                                                    }
+                                                    updateSummary();
+                                                }
+                                            }
+                                        }
+                                    } else {
+                                        // Click thường - chọn 1 ô
+                                        selectSlot(slot, slotCell);
+                                    }
+                                });
+                            }
+                        } else {
+                            slotCell.className = 'time-slot-cell locked';
+                        }
+
+                        row.appendChild(slotCell);
                     }
 
-                    slotsGrid.appendChild(button);
+                    tbody.appendChild(row);
                 });
+
+                table.appendChild(tbody);
+                calendarWrapper.appendChild(table);
+            }
+
+            function getCourtsFromSelect() {
+                const courts = [];
+                const options = courtSelect.querySelectorAll('option');
+                options.forEach(opt => {
+                    if (opt.value) {
+                        courts.push({
+                            id: opt.value,
+                            name: opt.textContent
+                        });
+                    }
+                });
+                return courts;
+            }
+
+            function findSlot(courtId, hour) {
+                return timeSlots.find(s => s.court_id == courtId && s.hour == hour);
+            }
+
+            function getSlotStatus(slot) {
+                if (slot.is_booked) return 'booked';
+                if (slot.is_locked) return 'locked';
+                if (slot.is_event) return 'event';
+                return 'available';
             }
 
             function updateDurationOptions(startHour) {
                 // Calculate maximum duration based on closing hour
                 const maxDuration = closingHour - startHour;
-                
+
                 // Hide/show duration options
                 const options = durationSelect.querySelectorAll('option');
                 options.forEach(option => {
@@ -297,9 +671,10 @@
                         option.hidden = false;
                     }
                 });
-                
+
                 // Reset duration to first available option if current is hidden
-                if (durationSelect.selectedIndex > 0 && durationSelect.options[durationSelect.selectedIndex].hidden) {
+                if (durationSelect.selectedIndex > 0 && durationSelect.options[durationSelect.selectedIndex]
+                    .hidden) {
                     durationSelect.value = '';
                     for (let i = 1; i < options.length; i++) {
                         if (!options[i].hidden) {
@@ -310,27 +685,58 @@
                 }
             }
 
-            function selectSlot(slot, buttonElement) {
-                document.querySelectorAll('.slot-btn:not(.disabled)').forEach(btn => btn.classList.remove(
-                'active'));
-                buttonElement.classList.add('active');
+            function selectSlot(slot, cellElement, isRangeEnd = false) {
+                // Remove previous selection from same court
+                if (!isRangeEnd) {
+                    document.querySelectorAll('.time-slot-cell.selected').forEach(cell => cell.classList.remove(
+                        'selected'));
+                }
+                
+                cellElement.classList.add('selected');
+                
+                // Auto-select the court from the slot
+                courtSelect.value = slot.court_id;
                 selectedSlot.value = slot.time;
-                updateDurationOptions(slot.hour);
+                
+                // If not range end, calculate duration based on selected cells
+                if (!isRangeEnd) {
+                    updateDurationOptions(slot.hour);
+                    // Set default duration to 1 if not set
+                    if (!durationSelect.value) {
+                        durationSelect.value = '1';
+                    }
+                }
+                
+                // Calculate duration from selected range
+                const selectedCells = document.querySelectorAll('.time-slot-cell.selected');
+                if (selectedCells.length > 1) {
+                    const firstCell = selectedCells[0];
+                    const lastCell = selectedCells[selectedCells.length - 1];
+                    const startHour = parseInt(firstCell.dataset.slotHour);
+                    const endHour = parseInt(lastCell.dataset.slotHour) + 1;
+                    const duration = endHour - startHour;
+                    
+                    if (duration > 0 && duration <= 6) {
+                        durationSelect.value = duration.toString();
+                    }
+                }
+                
                 updateSummary();
             }
 
             function calculateAverageRate() {
+                const courtId = courtSelect.value;
                 const time = selectedSlot.value;
                 const duration = parseInt(document.getElementById('durationHours').value) || 0;
 
-                if (!time || duration <= 0) return 0;
+                if (!time || !courtId || duration <= 0) return 0;
 
-                const selectedSlotObj = timeSlots.find(s => s.time === time);
+                const selectedSlotObj = timeSlots.find(s => s.time === time && s.court_id == courtId);
                 if (!selectedSlotObj) return 0;
 
                 let subtotal = 0;
                 for (let i = 0; i < duration; i++) {
-                    const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i);
+                    const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i && s.court_id == courtId);
                     if (slotIndex !== -1) {
                         subtotal += timeSlots[slotIndex].price || 0;
                     }
@@ -371,12 +777,12 @@
                 // Calculate total with multi-hour pricing
                 let subtotal = 0;
                 const averageRate = calculateAverageRate();
-                
+
                 if (time && duration > 0) {
-                    const selectedSlotObj = timeSlots.find(s => s.time === time);
+                    const selectedSlotObj = timeSlots.find(s => s.time === time && s.court_id == courtId);
                     if (selectedSlotObj) {
                         for (let i = 0; i < duration; i++) {
-                            const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i);
+                            const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i && s.court_id == courtId);
                             if (slotIndex !== -1) {
                                 subtotal += timeSlots[slotIndex].price || 0;
                             }
@@ -389,7 +795,8 @@
                 const total = subtotal + fee;
 
                 document.getElementById('summaryDuration').textContent = `${duration} giờ`;
-                document.getElementById('summaryHourlyRate').textContent = (averageRate ? averageRate.toLocaleString('vi-VN') :
+                document.getElementById('summaryHourlyRate').textContent = (averageRate ? averageRate
+                    .toLocaleString('vi-VN') :
                     0) + 'đ';
                 document.getElementById('summarySubtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
                 document.getElementById('summaryFee').textContent = fee.toLocaleString('vi-VN') + 'đ';
@@ -398,7 +805,6 @@
 
             // Event listeners
             courtSelect.addEventListener('change', function() {
-                loadAvailableSlots();
                 updateSummary();
             });
 
@@ -484,13 +890,12 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        toastr.success('Đặt sân thành công! Mã đơn đặt của bạn: ' + result.booking.booking_id +
+                        toastr.success('Đặt sân thành công! Mã đơn đặt của bạn: ' + result.booking
+                            .booking_id +
                             '\n\nVui lòng chờ xác nhận.');
                         // Reset form
                         bookingForm.reset();
-                        generateTimeSlots();
-                        slotsGrid.innerHTML =
-                        '<p style="grid-column: 1/-1; text-align: center; color: #666;">Vui lòng chọn sân và ngày trước</p>';
+                        loadAvailableSlots();
                         updateSummary();
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Đặt sân';

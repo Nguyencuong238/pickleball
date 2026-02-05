@@ -357,11 +357,13 @@
 
     .modal-footer {
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
+        align-items: center;
         gap: 1rem;
         margin-top: 1.5rem;
-        padding-top: 1rem;
+        padding-top: 1.5rem;
         border-top: 2px solid var(--border-color);
+        flex-wrap: wrap;
     }
 
     .booking-summary {
@@ -913,6 +915,7 @@
                  <button class="btn btn-danger" onclick="deleteBookingFromModal()">🗑️ Xóa Vĩnh Viễn</button>
                  <button class="btn btn-warning" onclick="cancelBooking()">❌ Hủy Đơn</button>
                  <button class="btn btn-secondary" onclick="closeBookingDetailsModal()">Đóng</button>
+                 <button class="btn btn-success" id="confirmBookingBtn" onclick="confirmBookingAction()" style="display:none;">✅ Xác Nhận Đơn</button>
                  {{-- <button class="btn btn-primary">✏️ Chỉnh Sửa</button> --}}
              </div>
         </div>
@@ -1401,7 +1404,18 @@
             document.getElementById('modalCreatedBy').textContent = 'Admin User'; // This could be enhanced with actual creator info
             document.getElementById('modalPaymentMethod').textContent = booking.payment_method ? getPaymentMethodText(booking.payment_method) : '-';
             document.getElementById('modalBookingId').textContent = `#${bookingId}`;
-        }
+            
+            // Store booking ID for confirm action
+            document.getElementById('confirmBookingBtn').dataset.bookingId = booking.id;
+            
+            // Show confirm button only for pending bookings
+            const confirmBtn = document.getElementById('confirmBookingBtn');
+            if (booking.status === 'pending') {
+                confirmBtn.style.display = 'inline-block';
+            } else {
+                confirmBtn.style.display = 'none';
+            }
+            }
 
         // Fetch and update booking summary with detailed pricing
          function fetchAndUpdateBookingSummary(courtId, bookingDate, startTime, durationHours, totalPrice) {
@@ -1926,6 +1940,44 @@
             })
             .catch(error => {
                 toastr.error('Lỗi khi xóa đơn đặt');
+            });
+        }
+
+        // Confirm booking
+        function confirmBookingAction() {
+            const bookingId = document.getElementById('confirmBookingBtn').dataset.bookingId;
+            
+            if (!bookingId) {
+                toastr.error('Không tìm thấy ID booking');
+                return;
+            }
+            
+            if (!confirm('Bạn chắc chắn muốn xác nhận đơn đặt này?')) {
+                return;
+            }
+
+            fetch(`/homeyard/bookings/${bookingId}/confirm`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    toastr.success(data.message || 'Xác nhận đơn đặt thành công');
+                    closeBookingDetailsModal();
+                    applyFilters(currentPage); // Refresh list
+                    loadBookingStats(); // Refresh stats
+                } else {
+                    toastr.error(data.message || 'Lỗi xác nhận đơn đặt');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                toastr.error('Lỗi khi xác nhận đơn đặt: ' + error.message);
             });
         }
 

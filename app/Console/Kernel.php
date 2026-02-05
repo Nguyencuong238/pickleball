@@ -23,6 +23,9 @@ class Kernel extends ConsoleKernel
 
         // Point Earning - Check and award weekly 5-match bonus
         $schedule->command('points:check-weekly')->dailyAt('00:05');
+
+        // Cancel expired transfer bookings after 15 minutes
+        $schedule->job(new \App\Jobs\CancelExpiredTransferBookings())->everyMinute();
     }
 
     /**

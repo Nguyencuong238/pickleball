@@ -267,6 +267,18 @@ class HomeController extends Controller
             ]);
         }
 
+        // Determine lock status based on payment method
+        // All bookings start as 'pending' waiting for admin confirmation
+        // Cash = no lock (others can book the same slot)
+        // Transfer = 15-min lock (others cannot book, waiting for payment confirmation)
+        $status = 'pending';
+        $lockExpiresAt = null;
+        
+        if ($request->payment_method === 'transfer') {
+            // Lock for 15 minutes for transfer payments
+            $lockExpiresAt = time() + (15 * 60);
+        }
+
         // Create booking
         $booking = Booking::create([
             'court_id' => $request->court_id,
@@ -281,9 +293,11 @@ class HomeController extends Controller
             'hourly_rate' => (int) $request->hourly_rate,
             'total_price' => $totalPrice,
             'service_fee' => $totalPrice * 0.05,
-            'status' => $request->status ?? 'pending',
+            'status' => $status,
             'payment_method' => $request->payment_method,
             'notes' => $request->notes ?? null,
+            'confirmed_at' => null,
+            'lock_expires_at' => $lockExpiresAt,
         ]);
 
         return response()->json([

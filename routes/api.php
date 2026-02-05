@@ -215,8 +215,12 @@ Route::prefix('bookings')->middleware('auth:api')->group(function () {
     Route::post('booking', [BookingController::class, 'bookingCourt']);
 });
 
-//Court
-Route::get('court/{court:id}/available-slots', [BookingController::class, 'getAvailableSlots']);
+// Admin booking confirmation routes (using web guard for homeyard users)
+Route::post('bookings/{bookingId}/confirm', [BookingController::class, 'confirmBooking'])->middleware('auth');
+Route::post('bookings/{bookingId}/reject', [BookingController::class, 'rejectBooking'])->middleware('auth');
+
+//Court - Calendar Grid View (Get all courts in stadium)
+Route::get('bookings/stadium/{stadiumId}/slots-all', [BookingController::class, 'getAvailableSlotsForAllCourts']);
 
 /*
 |--------------------------------------------------------------------------

@@ -7,6 +7,7 @@ use App\Http\Resources\BookingResource;
 use App\Models\Booking;
 use App\Models\Court;
 use App\Models\CourtPricing;
+use App\Models\Stadium;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -500,6 +501,9 @@ class BookingController extends Controller
                     'price' => $price,
                     'is_booked' => $isBooked,
                     'is_pending' => $isPending,
+                    'is_locked' => false,
+                    'is_event' => false,
+                    'court_id' => $court->id,
                 ];
             }
 
@@ -513,6 +517,289 @@ class BookingController extends Controller
                 'success' => false,
                 'message' => 'Không thể lấy dữ liệu khoảng thời gian: ' . $e->getMessage()
             ]);
+        }
+    }
+
+    /**
+     * Get available slots for all courts in a stadium on a specific date
+     */
+    public function getAvailableSlotsForAllCourts($stadiumId, Request $request)
+    {
+        try {
+            $date = $request->query('date');
+            
+            if (!$date) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ngày không hợp lệ'
+                ], 400);
+            }
+
+            // Get stadium
+            $stadiumModel = Stadium::find($stadiumId);
+            if (!$stadiumModel) {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Không tìm thấy cụm sân ID: $stadiumId"
+                ], 404);
+            }
+
+            // Parse the booking date
+            try {
+                $bookingDate = \Carbon\Carbon::createFromFormat('Y-m-d', $date);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Định dạng ngày không hợp lệ (Y-m-d): ' . $date
+                ], 400);
+            }
+            $dayOfWeek = $bookingDate->dayOfWeek;
+
+            // Get all courts in this stadium
+            $courts = $stadiumModel->courts()->where('is_active', true)->get();
+            
+            if ($courts->isEmpty()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Không có sân nào hoạt động trong cụm sân này',
+                    'available_slots' => [],
+                    'booked_slots' => [],
+                ]);
+            }
+
+            // Parse opening hours to get start and end hours
+            $openingHours = $stadiumModel->opening_time . ' - ' . $stadiumModel->closing_time;
+            preg_match('/(\d{1,2}):(\d{2})\s*-\s*(\d{1,2}):(\d{2})/', $openingHours, $matches);
+            $startHour = isset($matches[1]) ? (int)$matches[1] : 6;
+            $endHour = isset($matches[3]) ? (int)$matches[3] : 22;
+
+            // Generate time slots for all courts
+            $timeSlots = [];
+            $allBookedSlots = [];
+
+            foreach ($courts as $court) {
+                // Get booked slots for this court on this date
+                $bookings = Booking::where('court_id', $court->id)
+                    ->where('booking_date', $date)
+                    ->where('status', '!=', 'cancelled')
+                     ->get(['start_time', 'end_time', 'status', 'payment_method', 'lock_expires_at']);
+
+                    $bookedSlots = [];
+                    foreach ($bookings as $booking) {
+                     $bookedSlots[] = [
+                         'start_time' => $booking->start_time,
+                         'end_time' => $booking->end_time,
+                         'status' => $booking->status,
+                         'payment_method' => $booking->payment_method,
+                         'lock_expires_at' => $booking->lock_expires_at
+                     ];
+                     $allBookedSlots[] = [
+                         'court_id' => $court->id,
+                         'start_time' => $booking->start_time,
+                         'end_time' => $booking->end_time,
+                         'status' => $booking->status,
+                         'payment_method' => $booking->payment_method
+                     ];
+                    }
+
+                // Generate slots for this court
+                for ($hour = $startHour; $hour < $endHour; $hour++) {
+                    $slotTime = sprintf('%02d:00', $hour);
+
+                    // Get pricing for this hour
+                    $pricing = CourtPricing::where('court_id', $court->id)
+                        ->where('is_active', true)
+                        ->where(function ($query) use ($bookingDate) {
+                            $query->whereNull('valid_from')
+                                  ->orWhere('valid_from', '<=', $bookingDate);
+                        })
+                        ->where(function ($query) use ($bookingDate) {
+                            $query->whereNull('valid_to')
+                                  ->orWhere('valid_to', '>=', $bookingDate);
+                        })
+                        ->where(function ($query) use ($slotTime) {
+                            $query->whereRaw('start_time <= ?', [$slotTime])
+                                  ->whereRaw('end_time > ?', [$slotTime]);
+                        })
+                        ->where(function ($query) use ($dayOfWeek) {
+                            $query->whereNull('days_of_week')
+                                  ->orWhereJsonContains('days_of_week', $dayOfWeek);
+                        })
+                        ->orderByRaw('TIME(start_time) DESC')
+                        ->first();
+
+                    // Use pricing if found, otherwise use court's rental_price
+                    $price = $pricing ? $pricing->price_per_hour : ($court->rental_price ?? 0);
+
+                    // Check if this slot is booked
+                     $isBooked = false;
+                     $isPending = false;
+                     $isLocked = false;
+                     $nextHour = $hour + 1;
+                     $nextSlotTime = sprintf('%02d:00', $nextHour);
+                     
+                     foreach ($bookedSlots as $booked) {
+                         $bookedStart = $booked['start_time'];
+                         $bookedEnd = $booked['end_time'];
+                         $currentSlotEnd = $nextSlotTime;
+                         
+                         if ($slotTime < $bookedEnd && $currentSlotEnd > $bookedStart && $booked['status'] != 'cancelled') {
+                             if ($booked['status'] == 'pending') {
+                                 // Check if transfer payment is locked (not expired)
+                                 if ($booked['payment_method'] == 'transfer' && $booked['lock_expires_at'] !== null && $booked['lock_expires_at'] > time()) {
+                                     $isLocked = true;
+                                 } else {
+                                     $isPending = true;
+                                 }
+                             } else {
+                                 $isBooked = true;
+                             }
+                             break;
+                         }
+                     }
+
+                     $timeSlots[] = [
+                         'court_id' => $court->id,
+                         'time' => $slotTime,
+                         'hour' => $hour,
+                         'end_hour' => $nextHour,
+                         'price' => $price,
+                         'is_booked' => $isBooked,
+                         'is_pending' => $isPending,
+                         'is_locked' => $isLocked,
+                         'is_event' => false,
+                     ];
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'available_slots' => $timeSlots,
+                'booked_slots' => $allBookedSlots,
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể lấy dữ liệu khoảng thời gian: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Confirm a pending booking (admin/owner only)
+     * Updates status from pending to confirmed
+     */
+    public function confirmBooking($bookingId, Request $request)
+    {
+        try {
+            // Check authentication
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated.'
+                ], 401);
+            }
+
+            $booking = Booking::findOrFail($bookingId);
+
+            // Check if user owns the stadium (is admin)
+            $stadium = $booking->court->stadium;
+            if ($stadium->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không có quyền xác nhận booking này'
+                ], 403);
+            }
+
+            // Only pending bookings can be confirmed
+            if ($booking->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Chỉ có thể xác nhận booking ở trạng thái chờ xác nhận. Hiện tại: {$booking->status}"
+                ], 400);
+            }
+
+            // Confirm the booking
+            $booking->confirm();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Xác nhận booking thành công',
+                'booking' => [
+                    'id' => $booking->id,
+                    'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                    'status' => $booking->status,
+                    'confirmed_at' => $booking->confirmed_at,
+                ]
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy booking'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi xác nhận booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Reject/Cancel a pending booking (admin/owner only)
+     */
+    public function rejectBooking($bookingId, Request $request)
+    {
+        try {
+            // Check authentication
+            if (!Auth::check()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthenticated.'
+                ], 401);
+            }
+
+            $booking = Booking::findOrFail($bookingId);
+
+            // Check if user owns the stadium (is admin)
+            $stadium = $booking->court->stadium;
+            if ($stadium->user_id !== Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không có quyền hủy booking này'
+                ], 403);
+            }
+
+            // Only pending bookings can be rejected
+            if ($booking->status !== 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => "Chỉ có thể hủy booking ở trạng thái chờ xác nhận. Hiện tại: {$booking->status}"
+                ], 400);
+            }
+
+            $reason = $request->input('reason', 'Không có lý do');
+            $booking->cancel();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Hủy booking thành công',
+                'booking' => [
+                    'id' => $booking->id,
+                    'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                    'status' => $booking->status,
+                ]
+            ]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy booking'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi hủy booking: ' . $e->getMessage()
+            ], 500);
         }
     }
 }
