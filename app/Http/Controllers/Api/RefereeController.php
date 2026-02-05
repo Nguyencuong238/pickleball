@@ -146,6 +146,7 @@ class RefereeController extends Controller
 
     /**
      * Start a match
+     * Also handles starting subsequent sets (when match is already in_progress)
      */
     public function startMatch(MatchModel $match, Request $request): JsonResponse
     {
@@ -165,19 +166,22 @@ class RefereeController extends Controller
             ], 403);
         }
 
-        if (!in_array($match->status, ['scheduled', 'ready'])) {
+        // Allow: scheduled, ready (first start), or in_progress (subsequent sets)
+        if (!in_array($match->status, ['scheduled', 'ready', 'in_progress'])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Match cannot be started. Current status: ' . $match->status,
             ], 400);
         }
 
-        $match->update([
-            'status' => 'in_progress',
-            'actual_start_time' => now(),
-        ]);
+        // Only update start time if match hasn't started yet
+        $updateData = ['status' => 'in_progress'];
+        if (in_array($match->status, ['scheduled', 'ready'])) {
+            $updateData['actual_start_time'] = now();
+            ActivityLog::log("Trận đấu #{$match->id} bắt đầu bởi trọng tài qua API", 'Match', $match->id);
+        }
 
-        ActivityLog::log("Match #{$match->id} started by referee via API", 'Match', $match->id);
+        $match->update($updateData);
 
         return response()->json([
             'success' => true,

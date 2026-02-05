@@ -120,6 +120,7 @@ class RefereeController extends Controller
 
     /**
      * Start a match (AJAX)
+     * Also handles starting subsequent sets (when match is already in_progress)
      */
     public function startMatch(MatchModel $match): JsonResponse
     {
@@ -129,16 +130,19 @@ class RefereeController extends Controller
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
-        if (!in_array($match->status, ['scheduled', 'ready'])) {
-            return response()->json(['error' => 'Match already started'], 400);
+        // Allow: scheduled, ready (first start), or in_progress (subsequent sets)
+        if (!in_array($match->status, ['scheduled', 'ready', 'in_progress'])) {
+            return response()->json(['error' => 'Match cannot be started'], 400);
         }
 
-        $match->update([
-            'status' => 'in_progress',
-            'actual_start_time' => now(),
-        ]);
+        // Only update start time if match hasn't started yet
+        $updateData = ['status' => 'in_progress'];
+        if (in_array($match->status, ['scheduled', 'ready'])) {
+            $updateData['actual_start_time'] = now();
+            ActivityLog::log("Trận đấu #{$match->id} bắt đầu bởi trọng tài", 'Match', $match->id);
+        }
 
-        ActivityLog::log("Trận đấu #{$match->id} bắt đầu bởi trọng tài", 'Match', $match->id);
+        $match->update($updateData);
 
         return response()->json([
             'success' => true,

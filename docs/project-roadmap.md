@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-01-15
-**Current Version:** 1.5.1
+**Last Updated:** 2026-02-02
+**Current Version:** 1.6.0
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -155,7 +155,7 @@ Referee management system for tournament match officiating.
 ### Phase 3: Enhanced Features (IN PROGRESS - 2025 Q4)
 **Status:** 🔄 In Progress
 **Target:** 2026 Q1
-**Progress:** 30%
+**Progress:** 40%
 
 #### Completed Features
 - [x] User profile management with avatar upload (Dec 7)
@@ -164,6 +164,14 @@ Referee management system for tournament match officiating.
 - [x] Doubles pair selection for tournament categories (Dec 18)
 - [x] Skill assessment quiz system (Jan 3, 2026)
 - [x] Gender-aware skill level mapping (Jan 15, 2026)
+- [x] Point earning system with 16 tasks (Jan 14, 2026)
+  - [x] 4 role-based task categories (user, home_yard, referee, expert_host)
+  - [x] Wallet system with transaction history
+  - [x] Social platform verification (Facebook, YouTube, TikTok)
+  - [x] Special challenges with time limits
+  - [x] Event check-in system with QR codes
+  - [x] Admin approval workflow for submissions
+  - [x] 3 proof types: Image, Link, QR Code
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -266,6 +274,10 @@ Referee management system for tournament match officiating.
 - Gender-aware skill level mapping (Jan 15, 2026)
 - Female players +0.5 level adjustment (Jan 15, 2026)
 - 8-level skill system with VN/EN names (Jan 15, 2026)
+- Point earning system with 16 tasks (Jan 14, 2026)
+- Wallet system with transaction history (Jan 14, 2026)
+- Social platform verification (Jan 14, 2026)
+- Special challenges and event check-ins (Jan 14, 2026)
 
 ### In Development
 - 🔄 Payment integration
@@ -386,6 +398,8 @@ Referee management system for tournament match officiating.
 | Milestone | Status | Due Date | Progress |
 |-----------|--------|----------|----------|
 | Skill Assessment Quiz | Complete | 2026-01-03 | 100% |
+| Gender-Aware Skill Levels | Complete | 2026-01-15 | 100% |
+| Point Earning System | Complete | 2026-01-14 | 100% |
 | Payment Gateway Integration | 🔄 In Progress | 2026-03-31 | 30% |
 | Notification System Design | Planned | 2026-03-15 | 0% |
 
@@ -463,6 +477,80 @@ Referee management system for tournament match officiating.
 ---
 
 ## Change Log
+
+### Version 1.6.0 (2026-01-14)
+
+#### Major Features Added
+- **Point Earning System:** Complete gamification system with 16 tasks across 4 user roles
+  - User tasks (6): Referral, Check-in Stadium, Weekly 5 Matches, Join Event, Join Club, Create OCR Match
+  - Social tasks (4): Join FB Group, Follow FB Page, Subscribe YouTube, Follow TikTok
+  - HomeYard tasks (3): Update Stadium Info, Create Social Schedule, Create Tournament
+  - Referee task (1): Score Match
+  - Expert task (1): Verify ELO
+  - Task categories: Daily, Social, Event, Tournament
+  - Frequency types: Unlimited, Daily, Weekly, Monthly, Once
+  - Proof types: None (auto-award), Image, Link, QR Code
+
+- **Wallet System:** User point balance and transaction management
+  - `UserWallet` model with add/deduct methods
+  - `UserPointTransaction` history with type, description, metadata
+  - Formatted point display
+
+- **Submission Workflow:** Proof submission and admin approval system
+  - `PointSubmission` model with UUID, status (pending/approved/rejected)
+  - Image upload with base64 encoding, sanitization, EXIF stripping
+  - Link validation with social platform uniqueness checking
+  - QR code validation
+  - Admin review with notes and point award tracking
+  - Composite indexes for performance
+
+- **Social Platform Verification:** One-time verification system
+  - Facebook, YouTube, TikTok profile verification
+  - URL uniqueness enforcement across users
+  - `SocialProfileVerification` model with platform tracking
+
+- **Special Challenges:** Time-limited challenges with participant limits
+  - `SpecialChallenge` model with start/end dates
+  - Max participant enforcement
+  - Cached participant counts (5-min TTL)
+  - Status tracking (upcoming/ongoing/ended)
+
+- **Event System:** Workshop/event management with QR check-in
+  - `Event` model with UUID, location, stadium, datetime, points
+  - Auto-generated QR codes for check-in
+  - `EventCheckin` model with check-in method tracking
+  - Max attendee limits
+  - Point rewards for attendance
+
+#### Technical Implementation
+- `PointEarningService` - Task eligibility checking, frequency validation, auto-award logic
+- `PointSubmissionService` - Submission creation, proof validation, admin review workflow
+- `SocialVerificationService` - Social platform verification, URL uniqueness checking
+- `PointController` (API) - 6 endpoints: tasks, balance, history, submissions (GET/POST), challenges
+- 8 new models: PointTask, PointSubmission, UserWallet, UserPointTransaction, SocialProfileVerification, SpecialChallenge, Event, EventCheckin
+- Image security: DoS protection, image bomb detection, EXIF stripping, dimension limits (4000x4000)
+- Proof validation: Base64 decoding, MIME type checking, size limits (5MB)
+
+#### Database Changes
+- `point_tasks` table - 16 tasks with code, points, role, category, frequency, proof_type, is_active
+- `point_submissions` table - UUID, user_id, point_task_id, status, proof_data (JSON), admin review fields, composite indexes
+- `user_wallets` table - user_id, points balance
+- `user_point_transactions` table - user_id, points, type, description, metadata (JSON)
+- `social_profile_verifications` table - user_id, platform, profile_url, verified_at
+- `special_challenges` table - title, description, points, start_date, end_date, max_participants, is_active
+- `events` table - UUID, title, description, location, stadium_id, datetimes, points, max_attendees, qr_code_data, created_by
+- `event_checkins` table - event_id, user_id, checked_in_at, check_in_method, points_awarded
+- `matches` table - Added points_per_set column
+
+#### API Endpoints (New)
+- `GET /api/points/tasks` - Get available tasks with eligibility
+- `GET /api/points/balance` - Get wallet balance
+- `GET /api/points/history` - Get transaction history (pagination)
+- `GET /api/points/submissions` - Get user submissions (status filter)
+- `POST /api/points/submissions` - Submit proof for task
+- `GET /api/points/challenges` - Get active special challenges
+
+---
 
 ### Version 1.5.1 (2026-01-15)
 

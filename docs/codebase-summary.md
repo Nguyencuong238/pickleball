@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-01-15
+**Last Updated**: 2026-02-02
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -17,20 +17,20 @@ pickleball/
 │   ├── Exceptions/             # Exception handlers
 │   ├── Http/
 │   │   ├── Controllers/
-│   │   │   ├── Admin/          # Admin panel controllers (15)
-│   │   │   ├── Api/            # API endpoints (8)
-│   │   │   └── Front/          # Public frontend controllers (16)
+│   │   │   ├── Admin/          # Admin panel controllers (22)
+│   │   │   ├── Api/            # API endpoints (24)
+│   │   │   └── Front/          # Public frontend controllers (26)
 │   │   ├── Middleware/         # HTTP middleware
 │   │   └── Kernel.php          # HTTP kernel
-│   ├── Models/                 # Eloquent models (42)
+│   ├── Models/                 # Eloquent models (66)
 │   ├── Policies/               # Authorization policies
-│   ├── Services/               # Business logic (6 services)
+│   ├── Services/               # Business logic (12 services)
 │   └── Providers/              # Service providers
 ├── bootstrap/                  # Framework bootstrap
 ├── config/                     # Configuration files
 ├── database/
 │   ├── factories/              # Model factories
-│   ├── migrations/             # Database migrations (90+)
+│   ├── migrations/             # Database migrations (160)
 │   └── seeders/                # Database seeders
 ├── docs/                       # Project documentation
 ├── public/                     # Public assets
@@ -45,7 +45,7 @@ pickleball/
 │       ├── layouts/            # Layout templates (includes referee layout)
 │       └── vendor/             # Third-party views
 ├── routes/
-│   ├── api.php                 # API routes (22 OPRS routes)
+│   ├── api.php                 # API routes (28 routes, includes 6 point earning routes)
 │   └── web.php                 # Web routes (11 admin OPRS routes)
 ├── storage/                    # File storage
 └── tests/                      # Test suites
@@ -70,7 +70,7 @@ pickleball/
 - **Vite**: 5.0+ (Asset bundling)
 - **Axios**: 1.6+ (HTTP client)
 
-## Models Overview (42 Models)
+## Models Overview (66 Models)
 
 ### User & Auth
 - `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data (avatar, location, province, gender), referee fields
@@ -130,13 +130,23 @@ pickleball/
 - `CommunityActivity` - Community engagement activities
 - `OprsHistory` - OPRS change audit log
 
-### Skill Quiz System (New)
+### Skill Quiz System
 - `SkillDomain` - 6 quiz domains with weights
 - `SkillQuestion` - 36 quiz questions with domain, scale, weight
 - `SkillQuizAttempt` - User attempts with scores, ELO, completion time, flags
 - `SkillQuizAnswer` - Individual answers with rating (0-3)
 
-## Services Overview
+### Point Earning System (New - 2026-01-14)
+- `PointTask` - 16 tasks with code, points, role, category, frequency, proof_type
+- `PointSubmission` - Proof submissions with UUID, status, proof_data, admin review
+- `UserWallet` - User point balance with add/deduct methods
+- `UserPointTransaction` - Transaction history with type, description, metadata
+- `SocialProfileVerification` - Social platform verification (Facebook, YouTube, TikTok)
+- `SpecialChallenge` - Time-limited challenges with max participants, cached counts
+- `Event` - Workshop/event system with UUID, QR code, datetime, points
+- `EventCheckin` - User event attendance records
+
+## Services Overview (12 Services)
 
 ### Business Logic Services
 - `EloService` - Elo rating calculations, K-factor management, match processing
@@ -146,10 +156,15 @@ pickleball/
 - `CommunityService` - Activity tracking, check-ins, weekly bonuses
 - `ProfileService` - Profile updates, avatar management, email/password changes
 - `SkillQuizService` - Quiz logic, scoring, cross-validation, ELO calculation, gender-aware skill level mapping
+- `PointEarningService` - Task eligibility checking, frequency validation, auto-award logic
+- `PointSubmissionService` - Submission creation, proof validation, admin review workflow
+- `SocialVerificationService` - Social platform verification, URL uniqueness checking
+- `WalletService` - Point balance management, transaction recording (if exists)
+- `EventService` - Event check-in, QR validation, attendance tracking (if exists)
 
 ## Controllers Overview
 
-### Admin Controllers (15)
+### Admin Controllers (22)
 | Controller | Purpose |
 |------------|---------|
 | `DashboardController` | Admin dashboard |
@@ -168,8 +183,14 @@ pickleball/
 | `OprsChallengeController` | Challenge verification |
 | `OprsActivityController` | Community activity management |
 | `SkillQuizController` | Admin quiz attempt management, flag review |
+| `PointTaskController` | Point task CRUD, activate/deactivate |
+| `PointSubmissionController` | Submission review, approve/reject |
+| `SpecialChallengeController` | Special challenge management |
+| `EventController` | Event creation, QR management |
+| `WalletController` | User wallet management, manual adjustments |
+| `PointReportController` | Point earning analytics and reports |
 
-### API Controllers (11)
+### API Controllers (24)
 | Controller | Purpose |
 |------------|---------|
 | `MediaUploadController` | Media file uploads |
@@ -184,8 +205,14 @@ pickleball/
 | `RefereePublicController` | Public referee directory and profiles |
 | `SkillQuizController` | API quiz endpoints (domains, questions, submit) |
 | `PointController` | Point earning API (tasks, balance, history, submissions, challenges) |
+| `WalletController` | Wallet API (balance, transactions, formatted display) |
+| `PointSubmissionController` | Submission API (create, list, filter by status) |
+| `SpecialChallengeController` | Active challenges API |
+| `EventController` | Event list, details, check-in API |
+| `SocialVerificationController` | Social verification status and URLs |
+| (Plus 7 more API controllers for bookings, courts, etc.) |
 
-### Front Controllers (17)
+### Front Controllers (26)
 | Controller | Purpose |
 |------------|---------|
 | `HomeController` | Homepage, listings, booking |
@@ -206,6 +233,13 @@ pickleball/
 | `RefereeController` | Referee dashboard, match officiating, score entry |
 | `RefereeProfileController` | Public referee directory and profiles |
 | `SkillQuizController` | Frontend quiz flow (index, start, quiz, result) |
+| `PointController` | Point earning frontend (tasks, wallet, submissions) |
+| `PointSubmissionController` | Submission form, history, status tracking |
+| `SpecialChallengeController` | Challenge listing, details, participation |
+| `EventController` | Event listing, registration, QR check-in |
+| `WalletController` | Wallet dashboard, transaction history |
+| `SocialVerificationController` | Social verification flow |
+| (Plus 2 more front controllers) |
 
 ### Root Controllers (5)
 | Controller | Purpose |
@@ -237,6 +271,7 @@ pickleball/
 - **Matchmaking**: Opponent suggestions
 - **Referee**: Dashboard, matches, start, score update (5 protected routes)
 - **Referee Public**: List referees, profile (2 public routes)
+- **Skill Quiz**: Domains, questions, submit (3 routes)
 - **Point Earning**: Tasks, balance, history, submissions, challenges (6 protected routes)
 
 ## Key Features by Module
@@ -340,7 +375,7 @@ pickleball/
 - OAuth users can set initial password
 - Province relationship for location data
 
-## Database Migrations (90+ files)
+## Database Migrations (160 files)
 
 ### Core Tables (2014-2019)
 - `users`, `password_reset_tokens`, `failed_jobs`, `personal_access_tokens`
@@ -383,12 +418,14 @@ pickleball/
 - `users` - Added quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at, gender (enum: male/female, nullable)
 
 ### Point Earning Tables (2026-01-14)
-- `point_tasks` - 16 tasks across 4 roles with points, frequency, proof type
-- `point_submissions` - User proof submissions for approval with status, proof_data
-- `social_profile_verifications` - Social platform verification (Facebook, YouTube, TikTok)
-- `special_challenges` - Time-limited challenges with participant limits
-- `events` - Workshop/event system with QR check-in
-- `event_checkins` - User event attendance records
+- `point_tasks` - 16 tasks across 4 roles with code, points, role, category, frequency, proof_type, is_active
+- `point_submissions` - User proof submissions with UUID, user_id, point_task_id, status, proof_data, admin_id, admin_notes, reviewed_at, points_awarded, composite indexes
+- `user_wallets` - User point balance with user_id, points
+- `user_point_transactions` - Transaction history with user_id, points, type, description, metadata
+- `social_profile_verifications` - Social platform verification with user_id, platform, profile_url, verified_at
+- `special_challenges` - Time-limited challenges with title, description, points, start_date, end_date, max_participants, is_active
+- `events` - Workshop/event system with UUID, title, description, location, stadium_id, start_datetime, end_datetime, points, max_attendees, is_active, qr_code_data, created_by
+- `event_checkins` - User event attendance with event_id, user_id, checked_in_at, check_in_method, points_awarded
 
 ## View Structure
 

@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-01-15
+**Last Updated**: 2026-02-02
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -333,6 +333,17 @@ SkillQuestion ──── SkillDomain (N:1)
 │ skill_quiz_attempts │ User attempts with ELO, flags     │
 │ skill_quiz_answers  │ Individual question responses     │
 │ users          │ Added quiz tracking fields + gender     │
+├─────────────────────────────────────────────────────────┤
+│                Point Earning Tables                      │
+├─────────────────────────────────────────────────────────┤
+│ point_tasks    │ 16 tasks with roles, frequency, proof   │
+│ point_submissions │ Proof submissions with admin review │
+│ user_wallets   │ User point balance                      │
+│ user_point_transactions │ Transaction history           │
+│ social_profile_verifications │ Social platform records  │
+│ special_challenges │ Time-limited challenges             │
+│ events         │ Workshop/event system with QR           │
+│ event_checkins │ User event attendance                   │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -706,6 +717,80 @@ User: Update Profile
                 ▼
 ┌─────────────────────────────┐
 │  Return Success Message     │
+└─────────────────────────────┘
+```
+
+### Point Earning Flow
+
+```
+User: View Available Tasks
+        │
+        ▼
+┌─────────────────────────────┐
+│  PointController@tasks      │
+│  PointEarningService        │
+└───────────────┬─────────────┘
+                │
+                ▼
+┌─────────────────────────────┐
+│  Get Active Tasks by Role   │
+│  Check Eligibility          │
+└───────────────┬─────────────┘
+                │
+                ▼
+┌─────────────────────────────┐
+│  For Each Task:             │
+│  - Check frequency limits   │
+│  - Check completion status  │
+│  - Return can_earn + reason │
+└───────────────┬─────────────┘
+                │
+         ┌──────┴──────┐
+         │             │
+   [Auto-Award]   [Requires Proof]
+         │             │
+         ▼             ▼
+┌─────────────┐  ┌──────────────┐
+│User performs│  │User submits  │
+│action (OCR  │  │proof (image, │
+│match, etc)  │  │link, QR)     │
+└──────┬──────┘  └──────┬───────┘
+       │                │
+       ▼                ▼
+┌─────────────┐  ┌──────────────┐
+│System auto  │  │PointSubmit   │
+│awards points│  │Service create│
+│via Wallet   │  │submission    │
+└──────┬──────┘  └──────┬───────┘
+       │                │
+       │                ▼
+       │         ┌──────────────┐
+       │         │Admin reviews │
+       │         │Approve/Reject│
+       │         └──────┬───────┘
+       │                │
+       │         ┌──────┴──────┐
+       │         │             │
+       │    [Approved]    [Rejected]
+       │         │             │
+       │         ▼             ▼
+       │  ┌──────────────┐  ┌─────┐
+       │  │Award points  │  │Deny │
+       │  │Update wallet │  └─────┘
+       │  └──────┬───────┘
+       │         │
+       └─────────┴─────────┐
+                           ▼
+┌─────────────────────────────┐
+│  UserWallet@addPoints()     │
+│  Create PointTransaction    │
+│  Update user->wallet->points│
+└───────────────┬─────────────┘
+                │
+                ▼
+┌─────────────────────────────┐
+│  Transaction History        │
+│  (type, description, meta)  │
 └─────────────────────────────┘
 ```
 
