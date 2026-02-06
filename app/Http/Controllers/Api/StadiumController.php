@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StadiumResource;
 use App\Models\Stadium;
+use App\Models\BankInfo;
+use App\Models\PosStadiumSetting;
 use Illuminate\Http\Request;
 
 class StadiumController extends Controller
@@ -55,5 +57,48 @@ class StadiumController extends Controller
         }
 
         return new StadiumResource($stadium);
+    }
+
+    /**
+     * Get bank info for stadium (for payment QR generation)
+     */
+    public function getBankInfo($stadiumId)
+    {
+        try {
+            $stadium = Stadium::find($stadiumId);
+
+            if (!$stadium) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Stadium not found',
+                ], 404);
+            }
+
+            // Get bank info from pos_stadium_setting table in pickleball_pos database
+            $bankInfo = PosStadiumSetting::getBankInfo($stadiumId);
+
+            if (!$bankInfo || !$bankInfo['bank_code'] || !$bankInfo['account_number']) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Bank information not configured for this stadium',
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'bank_code' => $bankInfo['bank_code'],
+                    'account_number' => $bankInfo['account_number'],
+                    'account_name' => $bankInfo['account_name'],
+                    'bank_name' => $bankInfo['bank_name']
+                ]
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('getBankInfo error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error fetching bank information',
+            ], 500);
+        }
     }
 }

@@ -95,5 +95,20 @@ class Stadium extends Model implements HasMedia
         }
     }
 
+    /**
+     * Get bank info for this stadium
+     */
+    public function bankInfos()
+    {
+        return $this->hasMany(BankInfo::class);
+    }
+
+    /**
+     * Get primary bank info (first active)
+     */
+    public function primaryBankInfo()
+    {
+        return $this->hasOne(BankInfo::class)->where('is_active', true);
+    }
 
 }

@@ -205,7 +205,12 @@ Route::prefix('news')->group(function () {
     Route::get('{id}', [NewsController::class, 'show']);
 });
 
+// Stadium API - Bank Info for payment
+Route::get('stadiums/{stadiumId}/bank-info', [StadiumController::class, 'getBankInfo']);
+
 // Court Bookings API
+Route::post('bookings', [BookingController::class, 'store']); // Public booking creation
+
 Route::prefix('bookings')->middleware('auth:api')->group(function () {
     Route::get('list', [BookingController::class, 'index']);
     Route::get('history', [BookingController::class, 'history']);

@@ -225,6 +225,149 @@
             margin-top: 20px;
         }
 
+        /* Modal QR Code Styles */
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 30px 20px;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-radius: 0 0 12px 12px;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal.show {
+            display: block !important;
+        }
+
+        .modal-dialog {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 500px;
+            width: 85%;
+            max-height: 95vh;
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            margin: 0;
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+
+        .close {
+            font-size: 24px;
+            font-weight: 300;
+            color: #999;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .close:hover {
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 15px 20px;
+            background-color: #f8f9fa;
+            border-radius: 0 0 12px 12px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-primary {
+            background-color: #00d9b5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #00b894;
+        }
+
+        #confirmPaymentBtn {
+            padding: 12px 50px !important;
+            font-size: 16px !important;
+            font-weight: 600 !important;
+            min-width: 200px;
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
 
@@ -242,6 +385,10 @@
             .calendar-legend {
                 gap: 10px;
                 font-size: 12px;
+            }
+
+            .modal-body {
+                padding: 20px 15px;
             }
         }
     </style>
@@ -447,6 +594,50 @@
             </div>
         </div>
     </section>
+
+    <!-- Modal QR Code Thanh toán -->
+    <div class="modal fade" id="paymentQRModal" tabindex="-1" role="dialog" aria-labelledby="paymentQRLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="paymentQRLabel">Thanh toán bằng chuyển khoản</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <p style="color: #666; margin-bottom: 20px;">Vui lòng quét mã QR để thanh toán</p>
+                    <div style="margin-bottom: 20px;">
+                        <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 300px; width: 100%;">
+                    </div>
+                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left;">
+                        <p style="margin-bottom: 10px;">
+                            <strong>Chủ sân:</strong> <span id="bankOwner">-</span>
+                        </p>
+                        <p style="margin-bottom: 10px;">
+                            <strong>Số tài khoản:</strong> <span id="bankAccount">-</span>
+                        </p>
+                        <p style="margin-bottom: 10px;">
+                            <strong>Ngân hàng:</strong> <span id="bankName">-</span>
+                        </p>
+                        <p style="margin-bottom: 0;">
+                            <strong>Số tiền:</strong> <span id="qrAmount">0</span> VND
+                        </p>
+                        <p style="margin-top: 10px; font-size: 12px; color: #999;">
+                            <strong>Nội dung chuyển:</strong> <span id="qrContent">-</span>
+                        </p>
+                    </div>
+                    <p style="color: #e74c3c; margin-top: 15px; font-size: 13px;">
+                        ⏱️ <strong>Lưu ý:</strong> Sân sẽ được khóa trong 5 phút. Nếu không xác nhận thanh toán sẽ tự động hủy.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="confirmPaymentBtn">Tôi đã thanh toán</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('js')
@@ -867,24 +1058,130 @@
                 submitBtn.textContent = 'Đang xử lý...';
 
                 try {
+                    const amount = document.getElementById('summaryTotal').textContent.replace(/[^\d]/g, '');
+                    const bookingData = {
+                        court_id: parseInt(courtId),
+                        customer_name: customerName,
+                        customer_phone: customerPhone,
+                        customer_email: formData.get('customer_email') || null,
+                        booking_date: bookingDate,
+                        start_time: startTime,
+                        duration_hours: parseInt(formData.get('duration_hours')),
+                        hourly_rate: parseInt(formData.get('hourly_rate')),
+                        payment_method: paymentMethod,
+                        notes: formData.get('notes') || null,
+                        total_amount: parseInt(amount)
+                    };
+
+                    // If payment method is transfer, show QR modal
+                    console.log('Payment method:', paymentMethod);
+                    if (paymentMethod === 'transfer') {
+                        console.log('Showing QR modal...');
+                        // Store booking data for later use
+                        window.pendingBookingData = bookingData;
+                        showPaymentQRModal(bookingData);
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Đặt sân';
+                        return;
+                    }
+
+                    // For other payment methods, proceed directly
+                    submitBooking(bookingData, submitBtn);
+                } catch (error) {
+                    toastr.error('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Đặt sân';
+                }
+            });
+
+            // Function to show payment QR modal
+            async function showPaymentQRModal(bookingData) {
+                const amount = bookingData.total_amount;
+                const invoiceNumber = 'DAT-' + new Date().getTime();
+                const stadiumId = document.getElementById('stadiumId').value;
+                
+                try {
+                    // Fetch bank info from API
+                    const response = await fetch(`/api/stadiums/${stadiumId}/bank-info`, {
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                        }
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (!result.success || !result.data) {
+                        toastr.error('Không thể lấy thông tin ngân hàng. Vui lòng thử lại.');
+                        return;
+                    }
+
+                    const bankInfo = result.data;
+
+                    // Generate QR code URL
+                    const qrUrl = `https://img.vietqr.io/image/${bankInfo.bank_code}-${bankInfo.account_number}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(invoiceNumber)}`;
+
+                    // Update modal with QR info
+                    document.getElementById('qrCodeImage').src = qrUrl;
+                    document.getElementById('bankOwner').textContent = bankInfo.account_name;
+                    document.getElementById('bankAccount').textContent = bankInfo.account_number;
+                    document.getElementById('bankName').textContent = bankInfo.bank_name || 'Ngân hàng';
+                    document.getElementById('qrAmount').textContent = amount.toLocaleString('vi-VN');
+                    document.getElementById('qrContent').textContent = invoiceNumber;
+
+                    // Show modal
+                    const modal = document.getElementById('paymentQRModal');
+                    modal.classList.add('show');
+                    modal.style.display = 'block';
+                    modal.style.zIndex = '10000';
+                    document.body.style.overflow = 'hidden';
+                } catch (error) {
+                    console.error('Error fetching bank info:', error);
+                    toastr.error('Không thể lấy thông tin ngân hàng. Vui lòng thử lại.');
+                }
+            }
+
+            // Close modal functions
+            function closePaymentModal() {
+                const modal = document.getElementById('paymentQRModal');
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+
+            // Close button handler
+            document.querySelectorAll('[data-dismiss="modal"]').forEach(btn => {
+                btn.addEventListener('click', closePaymentModal);
+            });
+
+            // Click outside modal to close
+            document.getElementById('paymentQRModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closePaymentModal();
+                }
+            });
+
+            // Confirm payment button
+            document.getElementById('confirmPaymentBtn').addEventListener('click', async function() {
+                const bookingData = window.pendingBookingData;
+                closePaymentModal();
+                
+                const submitBtn = document.getElementById('submitBtn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Đang xử lý...';
+
+                await submitBooking(bookingData, submitBtn);
+            });
+
+            // Function to submit booking
+            async function submitBooking(bookingData, submitBtn) {
+                try {
                     const response = await fetch('/api/bookings', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                         },
-                        body: JSON.stringify({
-                            court_id: parseInt(courtId),
-                            customer_name: customerName,
-                            customer_phone: customerPhone,
-                            customer_email: formData.get('customer_email') || null,
-                            booking_date: bookingDate,
-                            start_time: startTime,
-                            duration_hours: parseInt(formData.get('duration_hours')),
-                            hourly_rate: parseInt(formData.get('hourly_rate')),
-                            payment_method: formData.get('payment_method'),
-                            notes: formData.get('notes') || null,
-                        })
+                        body: JSON.stringify(bookingData)
                     });
 
                     const result = await response.json();
@@ -899,6 +1196,7 @@
                         updateSummary();
                         submitBtn.disabled = false;
                         submitBtn.textContent = 'Đặt sân';
+                        window.pendingBookingData = null;
                     } else {
                         toastr.error('Lỗi: ' + (result.message || 'Đặt sân thất bại'));
                         submitBtn.disabled = false;
@@ -909,7 +1207,7 @@
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Đặt sân';
                 }
-            });
+            }
 
             // Initialize
             updateSummary();

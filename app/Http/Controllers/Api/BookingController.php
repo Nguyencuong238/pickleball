@@ -93,54 +93,74 @@ class BookingController extends Controller
     }
 
     /**
-     * Create new booking
+     * Create new booking (guest or authenticated user)
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'court_id' => 'required|exists:courts,id',
+            'court_id' => 'required|integer|exists:courts,id',
             'booking_date' => 'required|date|after_or_equal:today',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_time' => 'required|string',
+            'duration_hours' => 'required|integer|min:1|max:6',
             'customer_name' => 'required|string|max:255',
             'customer_phone' => 'required|string|max:20',
-            'customer_email' => 'required|email',
-            'payment_method' => 'nullable|string',
+            'customer_email' => 'nullable|email',
+            'payment_method' => 'required|string|in:cash,card,transfer,wallet',
+            'hourly_rate' => 'required|integer|min:0',
+            'total_amount' => 'required|integer|min:0',
             'notes' => 'nullable|string',
         ]);
 
-        // Calculate duration and total price
-        $startTime = \Carbon\Carbon::createFromFormat('H:i', $request->start_time);
-        $endTime = \Carbon\Carbon::createFromFormat('H:i', $request->end_time);
-        $duration = $endTime->diffInMinutes($startTime) / 60;
+        $court = Court::find($request->court_id);
+        if (!$court) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Court not found',
+            ], 404);
+        }
 
-        $court = \App\Models\Court::find($request->court_id);
-        $hourlyRate = $court->hourly_rate ?? 0;
-        $totalPrice = $duration * $hourlyRate;
-        $serviceFee = ceil($totalPrice * 0.1); // 10% service fee
+        // Calculate end time
+        $startTime = \Carbon\Carbon::createFromFormat('H:i', $request->start_time);
+        $endTime = $startTime->copy()->addHours($request->duration_hours);
+
+        $serviceFee = (int)($request->total_amount * 0.05); // 5% service fee
+        $subtotal = $request->total_amount - $serviceFee;
+
+        // If transfer payment, set status to pending_payment and lock for 5 minutes
+        $status = $request->payment_method === 'transfer' ? 'pending_payment' : 'pending';
 
         $booking = Booking::create([
             'user_id' => Auth::id(),
             'court_id' => $request->court_id,
             'customer_name' => $request->customer_name,
             'customer_phone' => $request->customer_phone,
-            'customer_email' => $request->customer_email,
+            'customer_email' => $request->customer_email ?? null,
             'booking_date' => $request->booking_date,
             'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'duration_hours' => $duration,
-            'hourly_rate' => $hourlyRate,
-            'total_price' => $totalPrice,
+            'end_time' => $endTime->format('H:i'),
+            'duration_hours' => $request->duration_hours,
+            'hourly_rate' => $request->hourly_rate,
+            'total_price' => $subtotal,
             'service_fee' => $serviceFee,
-            'status' => 'pending',
+            'status' => $status,
             'payment_method' => $request->payment_method,
-            'notes' => $request->notes,
+            'notes' => $request->notes ?? null,
         ]);
+
+        // Dispatch job to auto-cancel if payment not confirmed within 5 minutes
+        if ($request->payment_method === 'transfer') {
+            \Illuminate\Support\Facades\Bus::dispatch(
+                new \App\Jobs\CancelUnpaidBooking($booking->id, 300) // 300 seconds = 5 minutes
+            );
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Booking created successfully',
-            'data' => $booking->load('court'),
+            'booking' => [
+                'id' => $booking->id,
+                'booking_id' => $booking->id,
+            ],
         ], 201);
     }
 
@@ -578,10 +598,10 @@ class BookingController extends Controller
             $allBookedSlots = [];
 
             foreach ($courts as $court) {
-                // Get booked slots for this court on this date
+                // Get booked slots for this court on this date (exclude cancelled, include pending_payment as locked)
                 $bookings = Booking::where('court_id', $court->id)
                     ->where('booking_date', $date)
-                    ->where('status', '!=', 'cancelled')
+                    ->whereIn('status', ['confirmed', 'pending', 'pending_payment'])
                      ->get(['start_time', 'end_time', 'status', 'payment_method', 'lock_expires_at']);
 
                     $bookedSlots = [];
