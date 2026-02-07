@@ -533,10 +533,7 @@
                                 <label>Phương thức thanh toán *</label>
                                 <select class="form-control bg-white" name="payment_method" required>
                                     <option value="">-- Chọn phương thức --</option>
-                                    <option value="cash">Tiền mặt</option>
-                                    <option value="card">Thẻ tín dụng</option>
                                     <option value="transfer">Chuyển khoản</option>
-                                    <option value="wallet">Ví điện tử</option>
                                 </select>
                             </div>
 
@@ -588,7 +585,7 @@
                         </div>
                         <button type="submit" form="bookingForm" class="btn btn-primary btn-block btn-lg"
                             id="submitBtn">Đặt sân</button>
-                        <p class="payment-note">🔒 Thanh toán an toàn với VNPay, Momo, Banking</p>
+                        <p class="payment-note">🔒 Thanh toán an toàn với Banking</p>
                     </div>
                 </div>
             </div>
@@ -606,9 +603,8 @@
                     </button>
                 </div>
                 <div class="modal-body text-center">
-                    <p style="color: #666; margin-bottom: 20px;">Vui lòng quét mã QR để thanh toán</p>
-                    <div style="margin-bottom: 20px;">
-                        <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 300px; width: 100%;">
+                    <div style="margin-bottom: 20px; margin: 0 auto;width: fit-content;">
+                        <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 250px; width: 100%;">
                     </div>
                     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left;">
                         <p style="margin-bottom: 10px;">
@@ -623,7 +619,7 @@
                         <p style="margin-bottom: 0;">
                             <strong>Số tiền:</strong> <span id="qrAmount">0</span> VND
                         </p>
-                        <p style="margin-top: 10px; font-size: 12px; color: #999;">
+                        <p style="margin-top: 10px">
                             <strong>Nội dung chuyển:</strong> <span id="qrContent">-</span>
                         </p>
                     </div>
@@ -1097,7 +1093,7 @@
             // Function to show payment QR modal
             async function showPaymentQRModal(bookingData) {
                 const amount = bookingData.total_amount;
-                const invoiceNumber = 'DAT-' + new Date().getTime();
+                const invoiceNumber = 'DAT' + new Date().getTime();
                 const stadiumId = document.getElementById('stadiumId').value;
                 
                 try {

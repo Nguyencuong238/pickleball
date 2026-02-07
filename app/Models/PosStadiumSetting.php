@@ -20,13 +20,11 @@ class PosStadiumSetting extends Model
     public static function getBankInfo($stadiumId)
     {
         try {
-            \Log::info('Fetching bank info for stadium: ' . $stadiumId);
             
             $settings = self::where('stadium_id', $stadiumId)
                 ->whereIn('setting_key', ['bank_code', 'bank_account_number', 'bank_account_name'])
                 ->get();
 
-            \Log::info('Settings found: ' . $settings->count());
 
             if ($settings->isEmpty()) {
                 \Log::warning('No bank settings found for stadium: ' . $stadiumId);
@@ -37,8 +35,6 @@ class PosStadiumSetting extends Model
             foreach ($settings as $setting) {
                 $bankInfo[$setting->setting_key] = $setting->setting_value;
             }
-
-            \Log::info('Bank info: ' . json_encode($bankInfo));
 
             return [
                 'bank_code' => $bankInfo['bank_code'] ?? null,
