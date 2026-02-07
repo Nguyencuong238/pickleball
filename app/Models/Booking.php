@@ -2,15 +2,18 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OverflowException;
 
 class Booking extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'booking_code',
         'court_id',
         'user_id',
         'customer_name',
@@ -111,5 +114,56 @@ class Booking extends Model
     public function isLockExpired(): bool
     {
         return $this->lock_expires_at !== null && $this->lock_expires_at <= time();
+    }
+
+    /**
+     * Generate a unique booking code: BK{courtId:3}{date:YYMMDD}{seq:3}
+     * Must be called inside a DB::transaction().
+     */
+    public static function generateBookingCode(int $courtId, string $bookingDate): string
+    {
+        if ($courtId < 1 || $courtId > 999) {
+            throw new \InvalidArgumentException("Court ID must be between 1 and 999, got {$courtId}");
+        }
+
+        $date = Carbon::parse($bookingDate);
+        $datePart = $date->format('ymd');
+        $courtPart = str_pad($courtId, 3, '0', STR_PAD_LEFT);
+        $prefix = 'BK' . $courtPart . $datePart;
+
+        $lastCode = static::where('court_id', $courtId)
+            ->whereDate('booking_date', $date->toDateString())
+            ->whereNotNull('booking_code')
+            ->lockForUpdate()
+            ->orderByDesc('booking_code')
+            ->value('booking_code');
+
+        if ($lastCode) {
+            $lastSeq = (int) substr($lastCode, -3);
+            $nextSeq = $lastSeq + 1;
+        } else {
+            $nextSeq = 1;
+        }
+
+        if ($nextSeq > 999) {
+            throw new OverflowException("Booking sequence overflow for court {$courtId} on {$bookingDate}");
+        }
+
+        return $prefix . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Get formatted booking code for UI display: BK001-260207-001
+     */
+    public function getFormattedBookingCodeAttribute(): string
+    {
+        if (!$this->booking_code) {
+            return '';
+        }
+
+        // BK001260207001 -> BK001-260207-001
+        return substr($this->booking_code, 0, 5) . '-'
+             . substr($this->booking_code, 5, 6) . '-'
+             . substr($this->booking_code, 11, 3);
     }
 }

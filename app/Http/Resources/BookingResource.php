@@ -21,7 +21,9 @@ class BookingResource extends JsonResource
 
         return [
             'id' => $this->id,
-            'booking_id' => $this->booking_id,
+            'booking_code' => $this->booking_code,
+            'formatted_booking_code' => $this->formatted_booking_code,
+            'booking_id' => $this->formatted_booking_code ?: ('BK-' . str_pad($this->id, 6, '0', STR_PAD_LEFT)),
             'customer_name' => $this->customer_name,
             'customer_phone' => $this->customer_phone,
             'customer_email' => $this->customer_email,

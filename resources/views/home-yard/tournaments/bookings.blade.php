@@ -1327,10 +1327,7 @@
         }
 
         function viewBookingDetails(bookingId) {
-            // Extract numeric ID from BK-XXXXXX format
-            const numericId = bookingId.replace('BK-', '');
-            
-            fetch(`/homeyard/bookings/${numericId}`, {
+            fetch(`/homeyard/bookings/${bookingId}`, {
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',
                     'Accept': 'application/json',
@@ -1378,8 +1375,8 @@
             const endTimeStr = booking.end_time.substring(0, 5);
             
             // Update modal title
-            const bookingId = 'BK-' + String(booking.id).padStart(6, '0');
-            document.getElementById('modalTitle').textContent = `Chi Tiết Đơn Đặt ${bookingId}`;
+            const bookingDisplayCode = booking.formatted_booking_code || ('BK-' + String(booking.id).padStart(6, '0'));
+            document.getElementById('modalTitle').textContent = `Chi Tiết Đơn Đặt ${bookingDisplayCode}`;
             
             // Update customer info
             document.getElementById('modalCustomerName').textContent = booking.customer_name || '-';
@@ -1403,7 +1400,9 @@
             document.getElementById('modalCreatedAt').textContent = createdAt;
             document.getElementById('modalCreatedBy').textContent = 'Admin User'; // This could be enhanced with actual creator info
             document.getElementById('modalPaymentMethod').textContent = booking.payment_method ? getPaymentMethodText(booking.payment_method) : '-';
-            document.getElementById('modalBookingId').textContent = `#${bookingId}`;
+            document.getElementById('modalBookingId').textContent = `#${bookingDisplayCode}`;
+            // Store numeric ID for cancel/delete actions
+            document.getElementById('modalBookingId').dataset.numericId = booking.id;
             
             // Store booking ID for confirm action
             document.getElementById('confirmBookingBtn').dataset.bookingId = booking.id;
@@ -1630,12 +1629,12 @@
                     });
                     const startTime = booking.start_time.substring(0, 5);
                     const endTime = booking.end_time.substring(0, 5);
-                    const bookingId = 'BK-' + String(booking.id).padStart(6, '0');
+                    const bookingDisplayCode = booking.formatted_booking_code || ('BK-' + String(booking.id).padStart(6, '0'));
                     const totalPrice = (parseInt(booking.total_price) + parseInt(booking.service_fee)).toLocaleString('vi-VN');
 
                     html += `
                         <div class="booking-row">
-                            <div class="booking-id">#${bookingId}</div>
+                            <div class="booking-id">#${bookingDisplayCode}</div>
                             <div class="booking-info">
                                 <div class="booking-customer">${booking.customer_name}</div>
                                 <div class="booking-details">
@@ -1648,8 +1647,8 @@
                             <div class="booking-price">₫${totalPrice}</div>
                             ${getStatusBadge(booking.status)}
                             <div class="booking-actions">
-                                <button class="btn btn-ghost btn-icon-sm" onclick="viewBookingDetails('${bookingId}')">👁️</button>
-                                <button class="btn btn-ghost btn-icon-sm" onclick="deleteBooking('${bookingId}')">🗑️</button>
+                                <button class="btn btn-ghost btn-icon-sm" onclick="viewBookingDetails(${booking.id})">👁️</button>
+                                <button class="btn btn-ghost btn-icon-sm" onclick="deleteBooking(${booking.id})">🗑️</button>
                             </div>
                         </div>
                     `;
@@ -1842,7 +1841,7 @@
         let currentBookingIdForAction = null;
 
         function cancelBooking() {
-            const bookingId = document.getElementById('modalBookingId').textContent.replace('#BK-', '');
+            const bookingId = document.getElementById('modalBookingId').dataset.numericId;
             if (!bookingId) {
                 toastr.error('Không tìm thấy mã đơn đặt');
                 return;
@@ -1878,7 +1877,7 @@
 
         // Delete booking from modal
         function deleteBookingFromModal() {
-            const bookingId = document.getElementById('modalBookingId').textContent.replace('#BK-', '');
+            const bookingId = document.getElementById('modalBookingId').dataset.numericId;
             if (!bookingId) {
                 toastr.error('Không tìm thấy mã đơn đặt');
                 return;
@@ -1914,13 +1913,11 @@
 
         // Delete booking from list
         function deleteBooking(bookingId) {
-            const numericId = bookingId.replace('BK-', '');
-            
             if (!confirm('Bạn chắc chắn muốn xóa đơn đặt này? Hành động này không thể hoàn tác.')) {
                 return;
             }
 
-            fetch(`/homeyard/bookings/${numericId}`, {
+            fetch(`/homeyard/bookings/${bookingId}`, {
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')?.value || '{{ csrf_token() }}',

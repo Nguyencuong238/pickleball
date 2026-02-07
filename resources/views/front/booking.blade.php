@@ -1069,20 +1069,8 @@
                         total_amount: parseInt(amount)
                     };
 
-                    // If payment method is transfer, show QR modal
-                    console.log('Payment method:', paymentMethod);
-                    if (paymentMethod === 'transfer') {
-                        console.log('Showing QR modal...');
-                        // Store booking data for later use
-                        window.pendingBookingData = bookingData;
-                        showPaymentQRModal(bookingData);
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Đặt sân';
-                        return;
-                    }
-
-                    // For other payment methods, proceed directly
-                    submitBooking(bookingData, submitBtn);
+                    // Always submit booking first (server generates booking_code)
+                    submitBooking(bookingData, submitBtn, paymentMethod);
                 } catch (error) {
                     toastr.error('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.');
                     submitBtn.disabled = false;
@@ -1090,12 +1078,11 @@
                 }
             });
 
-            // Function to show payment QR modal
-            async function showPaymentQRModal(bookingData) {
+            // Function to show payment QR modal with server-generated booking code
+            async function showPaymentQRModal(bookingData, bookingCode) {
                 const amount = bookingData.total_amount;
-                const invoiceNumber = 'DAT' + new Date().getTime();
                 const stadiumId = document.getElementById('stadiumId').value;
-                
+
                 try {
                     // Fetch bank info from API
                     const response = await fetch(`/api/stadiums/${stadiumId}/bank-info`, {
@@ -1103,9 +1090,9 @@
                             'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                         }
                     });
-                    
+
                     const result = await response.json();
-                    
+
                     if (!result.success || !result.data) {
                         toastr.error('Không thể lấy thông tin ngân hàng. Vui lòng thử lại.');
                         return;
@@ -1113,8 +1100,8 @@
 
                     const bankInfo = result.data;
 
-                    // Generate QR code URL
-                    const qrUrl = `https://img.vietqr.io/image/${bankInfo.bank_code}-${bankInfo.account_number}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(invoiceNumber)}`;
+                    // Generate QR code URL using server booking code
+                    const qrUrl = `https://img.vietqr.io/image/${bankInfo.bank_code}-${bankInfo.account_number}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(bookingCode)}`;
 
                     // Update modal with QR info
                     document.getElementById('qrCodeImage').src = qrUrl;
@@ -1122,7 +1109,7 @@
                     document.getElementById('bankAccount').textContent = bankInfo.account_number;
                     document.getElementById('bankName').textContent = bankInfo.bank_name || 'Ngân hàng';
                     document.getElementById('qrAmount').textContent = amount.toLocaleString('vi-VN');
-                    document.getElementById('qrContent').textContent = invoiceNumber;
+                    document.getElementById('qrContent').textContent = bookingCode;
 
                     // Show modal
                     const modal = document.getElementById('paymentQRModal');
@@ -1156,20 +1143,13 @@
                 }
             });
 
-            // Confirm payment button
-            document.getElementById('confirmPaymentBtn').addEventListener('click', async function() {
-                const bookingData = window.pendingBookingData;
+            // Confirm payment button - booking already created, just close modal
+            document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
                 closePaymentModal();
-                
-                const submitBtn = document.getElementById('submitBtn');
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Đang xử lý...';
-
-                await submitBooking(bookingData, submitBtn);
             });
 
             // Function to submit booking
-            async function submitBooking(bookingData, submitBtn) {
+            async function submitBooking(bookingData, submitBtn, paymentMethod) {
                 try {
                     const response = await fetch('/api/bookings', {
                         method: 'POST',
@@ -1183,8 +1163,14 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        toastr.success('Đặt sân thành công! Mã đơn đặt của bạn: ' + result.booking
-                            .booking_id +
+                        const displayCode = result.booking.formatted_booking_code || result.booking.booking_id;
+
+                        // If transfer, show QR modal with server booking code
+                        if (paymentMethod === 'transfer') {
+                            showPaymentQRModal(bookingData, displayCode);
+                        }
+
+                        toastr.success('Đặt sân thành công! Mã đơn đặt của bạn: ' + displayCode +
                             '\n\nVui lòng chờ xác nhận.');
                         // Reset form
                         bookingForm.reset();

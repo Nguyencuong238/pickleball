@@ -279,33 +279,40 @@ class HomeController extends Controller
             $lockExpiresAt = time() + (15 * 60);
         }
 
-        // Create booking
-        $booking = Booking::create([
-            'court_id' => $request->court_id,
-            'user_id' => auth()->id() ?? null,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_email' => $request->customer_email,
-            'booking_date' => $request->booking_date,
-            'start_time' => $request->start_time,
-            'end_time' => $endTime,
-            'duration_hours' => $durationHours,
-            'hourly_rate' => (int) $request->hourly_rate,
-            'total_price' => $totalPrice,
-            'service_fee' => $totalPrice * 0.05,
-            'status' => $status,
-            'payment_method' => $request->payment_method,
-            'notes' => $request->notes ?? null,
-            'confirmed_at' => null,
-            'lock_expires_at' => $lockExpiresAt,
-        ]);
+        // Create booking inside transaction for booking_code generation
+        $booking = DB::transaction(function () use ($request, $endTime, $durationHours, $totalPrice, $status, $lockExpiresAt) {
+            $bookingCode = Booking::generateBookingCode($request->court_id, $request->booking_date);
+
+            return Booking::create([
+                'booking_code' => $bookingCode,
+                'court_id' => $request->court_id,
+                'user_id' => auth()->id() ?? null,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email,
+                'booking_date' => $request->booking_date,
+                'start_time' => $request->start_time,
+                'end_time' => $endTime,
+                'duration_hours' => $durationHours,
+                'hourly_rate' => (int) $request->hourly_rate,
+                'total_price' => $totalPrice,
+                'service_fee' => $totalPrice * 0.05,
+                'status' => $status,
+                'payment_method' => $request->payment_method,
+                'notes' => $request->notes ?? null,
+                'confirmed_at' => null,
+                'lock_expires_at' => $lockExpiresAt,
+            ]);
+        });
 
         return response()->json([
             'success' => true,
             'message' => 'Đặt sân thành công. Đơn đặt của bạn đang chờ xác nhận.',
             'booking' => [
                 'id' => $booking->id,
-                'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                'booking_code' => $booking->booking_code,
+                'formatted_booking_code' => $booking->formatted_booking_code,
+                'booking_id' => $booking->formatted_booking_code,
                 'status' => $booking->status,
             ]
         ]);

@@ -10,6 +10,7 @@ use App\Models\CourtPricing;
 use App\Models\Stadium;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -129,23 +130,28 @@ class BookingController extends Controller
         // If transfer payment, set status to pending_payment and lock for 5 minutes
         $status = $request->payment_method === 'transfer' ? 'pending_payment' : 'pending';
 
-        $booking = Booking::create([
-            'user_id' => Auth::id(),
-            'court_id' => $request->court_id,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_email' => $request->customer_email ?? null,
-            'booking_date' => $request->booking_date,
-            'start_time' => $request->start_time,
-            'end_time' => $endTime->format('H:i'),
-            'duration_hours' => $request->duration_hours,
-            'hourly_rate' => $request->hourly_rate,
-            'total_price' => $subtotal,
-            'service_fee' => $serviceFee,
-            'status' => $status,
-            'payment_method' => $request->payment_method,
-            'notes' => $request->notes ?? null,
-        ]);
+        $booking = DB::transaction(function () use ($request, $endTime, $subtotal, $serviceFee, $status) {
+            $bookingCode = Booking::generateBookingCode($request->court_id, $request->booking_date);
+
+            return Booking::create([
+                'booking_code' => $bookingCode,
+                'user_id' => Auth::id(),
+                'court_id' => $request->court_id,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email ?? null,
+                'booking_date' => $request->booking_date,
+                'start_time' => $request->start_time,
+                'end_time' => $endTime->format('H:i'),
+                'duration_hours' => $request->duration_hours,
+                'hourly_rate' => $request->hourly_rate,
+                'total_price' => $subtotal,
+                'service_fee' => $serviceFee,
+                'status' => $status,
+                'payment_method' => $request->payment_method,
+                'notes' => $request->notes ?? null,
+            ]);
+        });
 
         // Dispatch job to auto-cancel if payment not confirmed within 5 minutes
         if ($request->payment_method === 'transfer') {
@@ -159,7 +165,9 @@ class BookingController extends Controller
             'message' => 'Booking created successfully',
             'booking' => [
                 'id' => $booking->id,
-                'booking_id' => $booking->id,
+                'booking_code' => $booking->booking_code,
+                'formatted_booking_code' => $booking->formatted_booking_code,
+                'booking_id' => $booking->formatted_booking_code,
             ],
         ], 201);
     }
@@ -347,35 +355,42 @@ class BookingController extends Controller
             ]);
         }
 
-        // Create booking
-        $booking = Booking::create([
-            'court_id' => $request->court_id,
-            'user_id' => auth()->id() ?? null,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_email' => $request->customer_email,
-            'booking_date' => $request->booking_date,
-            'start_time' => $request->start_time,
-            'end_time' => $endTime->format('H:i'),
-            'duration_hours' => $durationHours,
-            'hourly_rate' => $hourlyRate,
-            'total_price' => $totalPrice,
-            'service_fee' => $serviceFee,
-            'status' => 'pending',
-            'payment_method' => $request->payment_method,
-            'notes' => $request->notes ?? null,
-        ]);
+        // Create booking inside transaction for booking_code generation
+        $booking = DB::transaction(function () use ($request, $endTime, $durationHours, $hourlyRate, $totalPrice, $serviceFee) {
+            $bookingCode = Booking::generateBookingCode($request->court_id, $request->booking_date);
+
+            return Booking::create([
+                'booking_code' => $bookingCode,
+                'court_id' => $request->court_id,
+                'user_id' => auth()->id() ?? null,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email,
+                'booking_date' => $request->booking_date,
+                'start_time' => $request->start_time,
+                'end_time' => $endTime->format('H:i'),
+                'duration_hours' => $durationHours,
+                'hourly_rate' => $hourlyRate,
+                'total_price' => $totalPrice,
+                'service_fee' => $serviceFee,
+                'status' => 'pending',
+                'payment_method' => $request->payment_method,
+                'notes' => $request->notes ?? null,
+            ]);
+        });
 
         return response()->json([
             'success' => true,
             'message' => 'Đặt sân thành công. Đơn đặt của bạn đang chờ xác nhận.',
             'booking' => [
                 'id' => $booking->id,
-                'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                'booking_code' => $booking->booking_code,
+                'formatted_booking_code' => $booking->formatted_booking_code,
+                'booking_id' => $booking->formatted_booking_code,
                 'status' => $booking->status,
             ]
         ]);
-        
+
     }
     
     private function calculateBookingTotalPrice($courtId, $bookingDate, $startTime, $durationHours)
@@ -747,7 +762,9 @@ class BookingController extends Controller
                 'message' => 'Xác nhận booking thành công',
                 'booking' => [
                     'id' => $booking->id,
-                    'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                    'booking_code' => $booking->booking_code,
+                    'formatted_booking_code' => $booking->formatted_booking_code,
+                    'booking_id' => $booking->formatted_booking_code ?: ('BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT)),
                     'status' => $booking->status,
                     'confirmed_at' => $booking->confirmed_at,
                 ]
@@ -806,7 +823,9 @@ class BookingController extends Controller
                 'message' => 'Hủy booking thành công',
                 'booking' => [
                     'id' => $booking->id,
-                    'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                    'booking_code' => $booking->booking_code,
+                    'formatted_booking_code' => $booking->formatted_booking_code,
+                    'booking_id' => $booking->formatted_booking_code ?: ('BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT)),
                     'status' => $booking->status,
                 ]
             ]);
