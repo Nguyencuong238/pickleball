@@ -904,6 +904,12 @@
                             <div class="court-info-label">Thanh toán:</div>
                             <div class="court-info-value" id="modalPaymentMethod">Tiền mặt</div>
                         </div>
+                        <div class="court-info-item grid grid-2 mb-1" id="transferProofRow" style="display:none;">
+                            <div class="court-info-label">Ảnh CK:</div>
+                            <div class="court-info-value">
+                                <a id="modalTransferProof" href="#" target="_blank">Xem ảnh</a>
+                            </div>
+                        </div>
                         <div class="court-info-item grid grid-2 mb-1">
                             <div class="court-info-label">Mã đơn:</div>
                             <div class="court-info-value" id="modalBookingId">#BK-001</div>
@@ -1400,6 +1406,16 @@
             document.getElementById('modalCreatedAt').textContent = createdAt;
             document.getElementById('modalCreatedBy').textContent = 'Admin User'; // This could be enhanced with actual creator info
             document.getElementById('modalPaymentMethod').textContent = booking.payment_method ? getPaymentMethodText(booking.payment_method) : '-';
+
+            // Show transfer proof link if available
+            const proofRow = document.getElementById('transferProofRow');
+            if (booking.transfer_proof_url) {
+                proofRow.style.display = '';
+                document.getElementById('modalTransferProof').href = booking.transfer_proof_url;
+            } else {
+                proofRow.style.display = 'none';
+            }
+
             document.getElementById('modalBookingId').textContent = `#${bookingDisplayCode}`;
             // Store numeric ID for cancel/delete actions
             document.getElementById('modalBookingId').dataset.numericId = booking.id;

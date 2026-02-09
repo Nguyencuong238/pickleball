@@ -11,6 +11,7 @@ use App\Models\Stadium;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -838,6 +839,79 @@ class BookingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi hủy booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Upload transfer proof image for a booking
+     */
+    public function uploadTransferProof($bookingId, Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'proof_image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+            ], [
+                'proof_image.required' => 'Vui lòng chọn ảnh xác nhận chuyển khoản.',
+                'proof_image.image' => 'File phải là ảnh.',
+                'proof_image.mimes' => 'Chỉ chấp nhận ảnh JPG, JPEG, PNG.',
+                'proof_image.max' => 'Ảnh không được vượt quá 5MB.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()->first(),
+                ], 422);
+            }
+
+            $booking = Booking::find($bookingId);
+
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy đơn đặt sân.',
+                ], 404);
+            }
+
+            if ($booking->payment_method !== 'transfer') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đơn đặt này không phải thanh toán chuyển khoản.',
+                ], 422);
+            }
+
+            if ($booking->status === 'cancelled') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đơn đặt đã bị hủy.',
+                ], 422);
+            }
+
+            // Delete old proof file if exists
+            $disk = Storage::disk(config('filesystems.default'));
+            if ($booking->transfer_proof && $disk->exists($booking->transfer_proof)) {
+                $disk->delete($booking->transfer_proof);
+            }
+
+            // Save new proof image
+            $file = $request->file('proof_image');
+            $ext = $file->getClientOriginalExtension();
+            $filename = "transfer-proofs/booking_{$bookingId}_" . time() . ".{$ext}";
+            $disk->put($filename, file_get_contents($file));
+
+            // Update booking
+            $booking->update(['transfer_proof' => $filename]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Upload ảnh xác nhận thành công.',
+                'url' => $disk->url($filename),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi upload: ' . $e->getMessage(),
             ], 500);
         }
     }

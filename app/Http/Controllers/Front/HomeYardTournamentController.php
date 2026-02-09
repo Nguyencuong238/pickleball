@@ -23,6 +23,7 @@ use App\Services\EloService;
 use App\Services\OprsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -3182,6 +3183,9 @@ class HomeYardTournamentController extends Controller
                     'total_price' => $booking->total_price,
                     'status' => $booking->status,
                     'payment_method' => $booking->payment_method,
+                    'transfer_proof_url' => $booking->transfer_proof
+                        ? Storage::disk(config('filesystems.default'))->url($booking->transfer_proof)
+                        : null,
                     'notes' => $booking->notes,
                     'created_at' => $booking->created_at,
                 ]

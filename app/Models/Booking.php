@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\Storage;
 use OverflowException;
 
 class Booking extends Model
@@ -28,6 +29,7 @@ class Booking extends Model
         'service_fee',
         'status',
         'payment_method',
+        'transfer_proof',
         'notes',
         'confirmed_at',
         'lock_expires_at',
@@ -117,13 +119,14 @@ class Booking extends Model
     }
 
     /**
-     * Generate a unique booking code: BK{courtId:3}{date:YYMMDD}{seq:3}
+     * Generate a unique booking code: BK{courtId:3+}{date:YYMMDD}{seq:3}
+     * Court ID >= 1000 uses more digits (e.g. BK1234260207001).
      * Must be called inside a DB::transaction().
      */
     public static function generateBookingCode(int $courtId, string $bookingDate): string
     {
-        if ($courtId < 1 || $courtId > 999) {
-            throw new \InvalidArgumentException("Court ID must be between 1 and 999, got {$courtId}");
+        if ($courtId < 1) {
+            throw new \InvalidArgumentException("Court ID must be positive, got {$courtId}");
         }
 
         $date = Carbon::parse($bookingDate);
@@ -154,6 +157,7 @@ class Booking extends Model
 
     /**
      * Get formatted booking code for UI display: BK001-260207-001
+     * Parses from the end to support variable-length court IDs (>= 1000).
      */
     public function getFormattedBookingCodeAttribute(): string
     {
@@ -161,9 +165,23 @@ class Booking extends Model
             return '';
         }
 
-        // BK001260207001 -> BK001-260207-001
-        return substr($this->booking_code, 0, 5) . '-'
-             . substr($this->booking_code, 5, 6) . '-'
-             . substr($this->booking_code, 11, 3);
+        $code = $this->booking_code;
+        $seq = substr($code, -3);            // last 3: sequence
+        $date = substr($code, -9, 6);        // previous 6: YYMMDD
+        $court = substr($code, 2, strlen($code) - 11); // after "BK", before date+seq
+
+        return 'BK' . $court . '-' . $date . '-' . $seq;
+    }
+
+    /**
+     * Get the full URL for the transfer proof image.
+     */
+    public function getTransferProofUrlAttribute(): ?string
+    {
+        if (!$this->transfer_proof) {
+            return null;
+        }
+
+        return Storage::disk(config('filesystems.default'))->url($this->transfer_proof);
     }
 }
