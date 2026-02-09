@@ -296,7 +296,7 @@ class HomeController extends Controller
                 'duration_hours' => $durationHours,
                 'hourly_rate' => (int) $request->hourly_rate,
                 'total_price' => $totalPrice,
-                'service_fee' => $totalPrice * 0.05,
+                'service_fee' => 0,
                 'status' => $status,
                 'payment_method' => $request->payment_method,
                 'notes' => $request->notes ?? null,

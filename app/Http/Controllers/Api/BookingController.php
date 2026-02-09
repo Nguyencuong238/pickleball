@@ -125,7 +125,7 @@ class BookingController extends Controller
         $startTime = \Carbon\Carbon::createFromFormat('H:i', $request->start_time);
         $endTime = $startTime->copy()->addHours($request->duration_hours);
 
-        $serviceFee = (int)($request->total_amount * 0.05); // 5% service fee
+        $serviceFee = 0;
         $subtotal = $request->total_amount - $serviceFee;
 
         // If transfer payment, set status to pending_payment and lock for 5 minutes
@@ -249,7 +249,7 @@ class BookingController extends Controller
 
             $validated['duration_hours'] = $duration;
             $validated['total_price'] = $duration * $booking->hourly_rate;
-            $validated['service_fee'] = ceil($validated['total_price'] * 0.1);
+            $validated['service_fee'] = 0;
         }
 
         $booking->update($validated);
