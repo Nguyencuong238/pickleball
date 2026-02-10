@@ -538,6 +538,9 @@
                     <ul class="dropdown-menu">
                         <li><a href="{{ route('courts') }}" class="dropdown-item">Danh sách sân</a></li>
                         <li><a href="{{ route('social') }}" class="dropdown-item">Lịch thi đấu Social</a></li>
+                        @auth
+                            <li><a href="{{ route('user.booking-history.index') }}" class="dropdown-item">Lịch sử đặt sân</a></li>
+                        @endauth
                     </ul>
                 </li>
                 <li class="nav-item dropdown">

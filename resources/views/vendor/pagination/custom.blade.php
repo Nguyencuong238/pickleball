@@ -1,50 +1,46 @@
 @if ($paginator->hasPages())
-    <ul class="custom-pagination">
-        {{-- Previous Page Link --}}
-        @if ($paginator->onFirstPage())
-            <li class="disabled">
-                <span class="page-link">← Trước</span>
-            </li>
-        @else
-            <li>
-                <a class="page-link" href="{{ $paginator->previousPageUrl() }}" rel="prev">← Trước</a>
-            </li>
-        @endif
-
-        {{-- Pagination Elements --}}
-        @foreach ($elements as $element)
-            {{-- "Three Dots" Separator --}}
-            @if (is_string($element))
-                <li class="disabled">
-                    <span class="page-link">{{ $element }}</span>
-                </li>
+    <nav style="display: flex; justify-content: center; margin-top: 30px; margin-bottom: 30px;">
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;">
+            {{-- Previous Page Link --}}
+            @if ($paginator->onFirstPage())
+                <span style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #999; cursor: not-allowed; opacity: 0.5;">← Trước</span>
+            @else
+                <a href="{{ $paginator->previousPageUrl() }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #00d9b5; text-decoration: none; display: inline-block; transition: all 0.3s ease;">← Trước</a>
             @endif
 
-            {{-- Array Of Links --}}
-            @if (is_array($element))
-                @foreach ($element as $page => $url)
-                    @if ($page == $paginator->currentPage())
-                        <li class="active">
-                            <span class="page-link">{{ $page }}</span>
-                        </li>
-                    @else
-                        <li>
-                            <a class="page-link" href="{{ $url }}">{{ $page }}</a>
-                        </li>
-                    @endif
-                @endforeach
-            @endif
-        @endforeach
+            {{-- Pagination Elements --}}
+            @foreach ($elements as $element)
+                {{-- "Three Dots" Separator --}}
+                @if (is_string($element))
+                    <span style="padding: 8px 12px; color: #999;">{{ $element }}</span>
+                @endif
 
-        {{-- Next Page Link --}}
-        @if ($paginator->hasMorePages())
-            <li>
-                <a class="page-link" href="{{ $paginator->nextPageUrl() }}" rel="next">Sau →</a>
-            </li>
-        @else
-            <li class="disabled">
-                <span class="page-link">Sau →</span>
-            </li>
-        @endif
-    </ul>
+                {{-- Array Of Links --}}
+                @if (is_array($element))
+                    @foreach ($element as $page => $url)
+                        @if ($page == $paginator->currentPage())
+                            <span style="padding: 8px 12px; border: 1px solid #00d9b5; border-radius: 4px; background-color: #00d9b5; color: white; display: inline-block;">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #00d9b5; text-decoration: none; display: inline-block; transition: all 0.3s ease;">{{ $page }}</a>
+                        @endif
+                    @endforeach
+                @endif
+            @endforeach
+
+            {{-- Next Page Link --}}
+            @if ($paginator->hasMorePages())
+                <a href="{{ $paginator->nextPageUrl() }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #00d9b5; text-decoration: none; display: inline-block; transition: all 0.3s ease;">Sau →</a>
+            @else
+                <span style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #999; cursor: not-allowed; opacity: 0.5;">Sau →</span>
+            @endif
+        </div>
+    </nav>
+
+    <style>
+        nav a:hover {
+            background-color: #00d9b5 !important;
+            color: white !important;
+            border-color: #00d9b5 !important;
+        }
+    </style>
 @endif

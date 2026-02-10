@@ -248,6 +248,12 @@ Route::middleware('auth')->group(function () {
          Route::get('/{id}', [WalletController::class, 'show'])->name('show');
      });
 
+     // User Booking History Routes
+     Route::prefix('user/booking-history')->name('user.booking-history.')->group(function () {
+         Route::get('/', [\App\Http\Controllers\Front\BookingHistoryController::class, 'index'])->name('index');
+         Route::get('/{booking}', [\App\Http\Controllers\Front\BookingHistoryController::class, 'show'])->name('show');
+     });
+
      // Permission Request Routes
      Route::prefix('user/permission-request')->name('user.permission-request.')->group(function () {
          Route::post('/', [\App\Http\Controllers\Front\PermissionRequestController::class, 'store'])->name('store');

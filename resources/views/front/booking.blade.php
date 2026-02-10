@@ -631,7 +631,7 @@
                     </div>
                     <div style="background-color: #e8f5e9; border-left: 4px solid #27ae60; padding: 12px; border-radius: 4px; text-align: left;">
                         <p style="margin: 0; font-size: 13px; color: #2e7d32;">
-                            <strong>💡 Ghi chú:</strong> Bạn có thể theo dõi tình trạng đơn đặt trong mục "Lịch sử đặt sân".
+                            <strong>💡 Ghi chú:</strong> Bạn có thể theo dõi tình trạng đơn đặt trong mục "<a href="{{ route('user.booking-history.index') }}" style="color: #00d9b5; text-decoration: underline;">Lịch sử đặt sân</a>".
                         </p>
                     </div>
                 </div>
