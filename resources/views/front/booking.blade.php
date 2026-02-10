@@ -98,7 +98,7 @@
             scrollbar-width: none;
             -ms-overflow-style: none;
         }
-        
+
         .calendar-table-wrapper::-webkit-scrollbar {
             display: none;
         }
@@ -226,6 +226,10 @@
         }
 
         /* Modal QR Code Styles */
+        .modal.show {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
         .modal-content {
             border-radius: 12px;
             border: none;
@@ -435,8 +439,8 @@
                                     <option value="">-- Chọn sân --</option>
                                     @if (isset($courts) && count($courts) > 0)
                                         @foreach ($courts as $court)
-                                             <option value="{{ $court->id }}">{{ $court->court_name }}</option>
-                                          @endforeach
+                                            <option value="{{ $court->id }}">{{ $court->court_name }}</option>
+                                        @endforeach
                                     @else
                                         <option value="" disabled>Không có sân nào khả dụng</option>
                                     @endif
@@ -470,23 +474,28 @@
                                         <span>Sự kiện</span>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Hướng dẫn chọn giờ -->
                                 <div class="booking-instruction">
                                     <div class="instruction-item">
-                                        <strong>📌 Cách 1 - Chọn nhiều giờ liền (cùng sân):</strong> Click khung giờ bắt đầu, giữ <kbd>Shift</kbd>, rồi click khung giờ kết thúc
+                                        <strong>📌 Cách 1 - Chọn nhiều giờ liền (cùng sân):</strong> Click khung giờ bắt
+                                        đầu, giữ <kbd>Shift</kbd>, rồi click khung giờ kết thúc
                                     </div>
                                     <div class="instruction-item">
-                                        <strong>📌 Cách 2 - Chọn thời lượng:</strong> Click khung giờ bắt đầu, rồi chọn "Thời lượng" ở dưới
+                                        <strong>📌 Cách 2 - Chọn thời lượng:</strong> Click khung giờ bắt đầu, rồi chọn
+                                        "Thời lượng" ở dưới
                                     </div>
                                     <div class="instruction-item">
-                                        <strong>📌 Cách 3 - Chọn nhiều sân:</strong> Click từng sân khác nhau để chọn nhiều sân (không cần Shift)
+                                        <strong>📌 Cách 3 - Chọn nhiều sân:</strong> Click từng sân khác nhau để chọn nhiều
+                                        sân (không cần Shift)
                                     </div>
                                     <div class="instruction-item">
                                         <strong>💳 Lưu ý phương thức thanh toán:</strong>
                                         <ul style="margin: 5px 0 0 0; padding-left: 20px;">
-                                            <li><strong style="color: #28a745;">Tiền mặt:</strong> Đặt sân xác nhận ngay</li>
-                                            <li><strong style="color: #ffc107;">Chuyển khoản:</strong> Khóa 15 phút, nếu không xác nhận sẽ hủy tự động</li>
+                                            <li><strong style="color: #28a745;">Tiền mặt:</strong> Đặt sân xác nhận ngay
+                                            </li>
+                                            <li><strong style="color: #ffc107;">Chuyển khoản:</strong> Khóa 15 phút, nếu
+                                                không xác nhận sẽ hủy tự động</li>
                                         </ul>
                                     </div>
                                 </div>
@@ -532,13 +541,8 @@
                                 <textarea class="form-control" name="notes" rows="3" placeholder="Ghi chú thêm..."></textarea>
                             </div>
 
-                            <div class="form-group">
-                                <label>Phương thức thanh toán *</label>
-                                <select class="form-control bg-white" name="payment_method" required>
-                                    <option value="">-- Chọn phương thức --</option>
-                                    <option value="transfer">Chuyển khoản</option>
-                                </select>
-                            </div>
+                            <!-- Payment method fixed to transfer -->
+                            <input type="hidden" name="payment_method" value="transfer">
 
                             <input type="hidden" id="hourlyRate" name="hourly_rate" value="0">
                         </div>
@@ -595,8 +599,52 @@
         </div>
     </section>
 
+    <!-- Modal Success Booking -->
+    <div class="modal fade" id="bookingSuccessModal" tabindex="-1" role="dialog"
+        aria-labelledby="bookingSuccessLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: #27ae60; border: none;">
+                    <h5 class="modal-title" id="bookingSuccessLabel" style="color: white; font-weight: 600;">✓ Đặt sân
+                        thành công!</h5>
+                </div>
+                <div class="modal-body text-center" style="padding: 30px;">
+                    <div style="font-size: 48px; margin-bottom: 20px;">✓</div>
+                    <p style="font-size: 16px; margin-bottom: 15px; color: #333;">
+                        <strong>Yêu cầu đặt sân của bạn đã được gửi thành công!</strong>
+                    </p>
+                    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                        <p style="margin-bottom: 8px; color: #666;">
+                            <strong>Mã đơn đặt:</strong>
+                        </p>
+                        <p style="font-size: 20px; font-weight: 600; color: #00d9b5; margin: 0;" id="successBookingCode">-
+                        </p>
+                    </div>
+                    <div
+                        style="background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 4px; text-align: left; margin-bottom: 20px;">
+                        <p style="margin: 0; font-size: 14px; color: #856404;">
+                            <strong>📋 Trạng thái:</strong> <span style="color: #ffc107; font-weight: 600;">⏳ Chờ xác nhận từ sân</span>
+                        </p>
+                        <p style="margin: 8px 0 0 0; font-size: 13px; color: #666;">
+                            Sân sẽ liên hệ với bạn trong thời gian sớm nhất để xác nhận hoặc từ chối yêu cầu đặt sân.
+                        </p>
+                    </div>
+                    <div style="background-color: #e8f5e9; border-left: 4px solid #27ae60; padding: 12px; border-radius: 4px; text-align: left;">
+                        <p style="margin: 0; font-size: 13px; color: #2e7d32;">
+                            <strong>💡 Ghi chú:</strong> Bạn có thể theo dõi tình trạng đơn đặt trong mục "Lịch sử đặt sân".
+                        </p>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e9ecef;">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Modal QR Code Thanh toán -->
-    <div class="modal fade" id="paymentQRModal" tabindex="-1" role="dialog" aria-labelledby="paymentQRLabel" aria-hidden="true">
+    <div class="modal fade" id="paymentQRModal" tabindex="-1" role="dialog" aria-labelledby="paymentQRLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -627,32 +675,41 @@
                         </p>
                     </div>
                     <!-- Upload transfer proof -->
-                    <div style="margin-top: 15px; border: 2px dashed #ccc; border-radius: 8px; padding: 15px; text-align: center;" id="proofUploadArea">
-                        <input type="file" id="transferProofInput" accept="image/jpeg,image/png,image/jpg" style="display: none;">
-                        <button type="button" id="selectProofBtn" style="background: none; border: 2px dashed #00d9b5; color: #00d9b5; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                    <div style="margin-top: 15px; border: 2px dashed #ccc; border-radius: 8px; padding: 15px; text-align: center;"
+                        id="proofUploadArea">
+                        <input type="file" id="transferProofInput" accept="image/jpeg,image/png,image/jpg"
+                            style="display: none;">
+                        <button type="button" id="selectProofBtn"
+                            style="background: none; border: 2px dashed #00d9b5; color: #00d9b5; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
                             Chọn ảnh xác nhận chuyển khoản
                         </button>
-                        <p style="color: #888; font-size: 12px; margin-top: 8px; margin-bottom: 0;">JPG, PNG - Tối đa 5MB</p>
+                        <p style="color: #888; font-size: 12px; margin-top: 8px; margin-bottom: 0;">JPG, PNG - Tối đa 5MB
+                        </p>
                     </div>
                     <!-- Preview uploaded image -->
                     <div id="proofPreviewContainer" style="display: none; margin-top: 10px; text-align: center;">
-                        <img id="proofPreviewImg" src="" alt="Preview" style="max-width: 200px; border-radius: 8px; border: 1px solid #ddd;">
-                        <p id="proofUploadStatus" style="color: #27ae60; font-size: 13px; margin-top: 5px; font-weight: 600;"></p>
+                        <img id="proofPreviewImg" src="" alt="Preview"
+                            style="max-width: 200px; border-radius: 8px; border: 1px solid #ddd;">
+                        <p id="proofUploadStatus"
+                            style="color: #27ae60; font-size: 13px; margin-top: 5px; font-weight: 600;"></p>
                     </div>
                     <!-- Upload progress bar -->
                     <div id="proofProgressBar" style="display: none; margin-top: 10px;">
                         <div style="background: #eee; border-radius: 4px; overflow: hidden; height: 6px;">
-                            <div id="proofProgressFill" style="background: #00d9b5; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                            <div id="proofProgressFill"
+                                style="background: #00d9b5; height: 100%; width: 0%; transition: width 0.3s;"></div>
                         </div>
                         <p style="color: #888; font-size: 12px; margin-top: 4px;">Đang tải lên...</p>
                     </div>
 
                     <p style="color: #e74c3c; margin-top: 15px; font-size: 13px;">
-                        [!] <strong>Lưu ý:</strong> Sân sẽ được khóa trong 5 phút. Nếu không xác nhận thanh toán sẽ tự động hủy.
+                        [!] <strong>Lưu ý:</strong> Sân sẽ được khóa trong 5 phút. Nếu không xác nhận thanh toán sẽ tự động
+                        hủy.
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="confirmPaymentBtn" disabled>Tôi đã thanh toán</button>
+                    <button type="button" class="btn btn-primary" id="confirmPaymentBtn" disabled>Tôi đã thanh
+                        toán</button>
                 </div>
             </div>
         </div>
@@ -689,26 +746,28 @@
                         '<p style="text-align: center; color: #666; padding: 20px;">Đang tải...</p>';
 
                     // Load all courts for the stadium on this date
-                     const response = await fetch(`/api/bookings/stadium/${stadiumId}/slots-all?date=${date}`);
-                     const result = await response.json();
+                    const response = await fetch(`/api/bookings/stadium/${stadiumId}/slots-all?date=${date}`);
+                    const result = await response.json();
 
-                     console.log('Slots response:', result);
+                    console.log('Slots response:', result);
 
-                     if (result.success && result.available_slots && result.available_slots.length > 0) {
-                         timeSlots = result.available_slots;
-                         if (timeSlots.length > 0) {
-                             const hours = timeSlots.map(s => s.hour);
-                             openingHour = Math.min(...hours);
-                             closingHour = Math.max(...(timeSlots.map(s => s.end_hour || s.hour + 1)));
-                         }
-                         generateCalendarTable();
-                     } else if (result.success && result.available_slots && result.available_slots.length === 0) {
-                         calendarWrapper.innerHTML =
-                             '<p style="text-align: center; color: #666; padding: 20px;">Không có khoảng thời gian khả dụng cho ngày này</p>';
-                     } else {
-                         calendarWrapper.innerHTML =
-                             '<p style="text-align: center; color: #666; padding: 20px;">Không thể tải khoảng thời gian: ' + (result.message || 'Lỗi không xác định') + '</p>';
-                     }
+                    if (result.success && result.available_slots && result.available_slots.length > 0) {
+                        timeSlots = result.available_slots;
+                        if (timeSlots.length > 0) {
+                            const hours = timeSlots.map(s => s.hour);
+                            openingHour = Math.min(...hours);
+                            closingHour = Math.max(...(timeSlots.map(s => s.end_hour || s.hour + 1)));
+                        }
+                        generateCalendarTable();
+                    } else if (result.success && result.available_slots && result.available_slots.length ===
+                        0) {
+                        calendarWrapper.innerHTML =
+                            '<p style="text-align: center; color: #666; padding: 20px;">Không có khoảng thời gian khả dụng cho ngày này</p>';
+                    } else {
+                        calendarWrapper.innerHTML =
+                            '<p style="text-align: center; color: #666; padding: 20px;">Không thể tải khoảng thời gian: ' +
+                            (result.message || 'Lỗi không xác định') + '</p>';
+                    }
                 } catch (error) {
                     console.error('Error loading slots:', error);
                     calendarWrapper.innerHTML =
@@ -773,28 +832,38 @@
                                 slotCell.addEventListener('click', (e) => {
                                     // Shift+Click để chọn range giờ (cùng sân)
                                     if (e.shiftKey) {
-                                        const selectedCells = document.querySelectorAll('.time-slot-cell.selected');
+                                        const selectedCells = document.querySelectorAll(
+                                            '.time-slot-cell.selected');
                                         if (selectedCells.length > 0) {
                                             const firstSelected = selectedCells[0];
-                                            const firstHour = parseInt(firstSelected.dataset.slotHour);
-                                            const firstCourt = parseInt(firstSelected.dataset.courtId);
+                                            const firstHour = parseInt(firstSelected.dataset
+                                                .slotHour);
+                                            const firstCourt = parseInt(firstSelected.dataset
+                                                .courtId);
                                             const secondHour = slot.hour;
                                             const secondCourt = slot.court_id;
-                                            
+
                                             // Chỉ cho phép chọn range nếu cùng sân
                                             if (firstCourt === secondCourt) {
                                                 const startHour = Math.min(firstHour, secondHour);
                                                 const endHour = Math.max(firstHour, secondHour);
-                                                
+
                                                 // Highlight range
                                                 let firstSlotInRange = null;
-                                                const allCells = document.querySelectorAll('.time-slot-cell');
+                                                const allCells = document.querySelectorAll(
+                                                    '.time-slot-cell');
                                                 allCells.forEach(cell => {
-                                                    const cellHour = parseInt(cell.dataset.slotHour);
-                                                    const cellCourt = parseInt(cell.dataset.courtId);
-                                                    
-                                                    if (cellCourt === secondCourt && cellHour >= startHour && cellHour <= endHour) {
-                                                        if (!cell.classList.contains('booked') && !cell.classList.contains('locked')) {
+                                                    const cellHour = parseInt(cell.dataset
+                                                        .slotHour);
+                                                    const cellCourt = parseInt(cell.dataset
+                                                        .courtId);
+
+                                                    if (cellCourt === secondCourt &&
+                                                        cellHour >= startHour && cellHour <=
+                                                        endHour) {
+                                                        if (!cell.classList.contains(
+                                                                'booked') && !cell.classList
+                                                            .contains('locked')) {
                                                             cell.classList.add('selected');
                                                             // Lưu slot đầu tiên trong range
                                                             if (!firstSlotInRange) {
@@ -805,14 +874,15 @@
                                                         cell.classList.remove('selected');
                                                     }
                                                 });
-                                                
+
                                                 // Set start_time bằng slot đầu tiên, không phải slot cuối
                                                 if (firstSlotInRange) {
-                                                    const firstSlotTime = firstSlotInRange.dataset.slotTime;
+                                                    const firstSlotTime = firstSlotInRange.dataset
+                                                        .slotTime;
                                                     courtSelect.value = secondCourt;
                                                     selectedSlot.value = firstSlotTime;
                                                     updateDurationOptions(startHour);
-                                                    
+
                                                     // Tính duration từ range (include both start and end hours)
                                                     const duration = endHour - startHour + 1;
                                                     if (duration > 0 && duration <= 6) {
@@ -903,12 +973,12 @@
                 } else {
                     // Add to selection (don't remove others)
                     cellElement.classList.add('selected');
-                    
+
                     // Auto-select the court from the slot
                     courtSelect.value = slot.court_id;
                     selectedSlot.value = slot.time;
                 }
-                
+
                 // If not range end, calculate duration based on selected cells
                 if (!isRangeEnd) {
                     updateDurationOptions(slot.hour);
@@ -917,7 +987,7 @@
                         durationSelect.value = '1';
                     }
                 }
-                
+
                 // Calculate duration from selected range
                 const selectedCells = document.querySelectorAll('.time-slot-cell.selected');
                 if (selectedCells.length > 1) {
@@ -926,12 +996,12 @@
                     const startHour = parseInt(firstCell.dataset.slotHour);
                     const endHour = parseInt(lastCell.dataset.slotHour) + 1;
                     const duration = endHour - startHour;
-                    
+
                     if (duration > 0 && duration <= 6) {
                         durationSelect.value = duration.toString();
                     }
                 }
-                
+
                 updateSummary();
             }
 
@@ -947,7 +1017,8 @@
 
                 let subtotal = 0;
                 for (let i = 0; i < duration; i++) {
-                    const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i && s.court_id == courtId);
+                    const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i && s.court_id ==
+                        courtId);
                     if (slotIndex !== -1) {
                         subtotal += timeSlots[slotIndex].price || 0;
                     }
@@ -993,7 +1064,8 @@
                     const selectedSlotObj = timeSlots.find(s => s.time === time && s.court_id == courtId);
                     if (selectedSlotObj) {
                         for (let i = 0; i < duration; i++) {
-                            const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i && s.court_id == courtId);
+                            const slotIndex = timeSlots.findIndex(s => s.hour === selectedSlotObj.hour + i && s
+                                .court_id == courtId);
                             if (slotIndex !== -1) {
                                 subtotal += timeSlots[slotIndex].price || 0;
                             }
@@ -1078,7 +1150,8 @@
                 submitBtn.textContent = 'Đang xử lý...';
 
                 try {
-                    const amount = document.getElementById('summaryTotal').textContent.replace(/[^\d]/g, '');
+                    const amount = document.getElementById('summaryTotal').textContent.replace(/[^\d]/g,
+                        '');
                     const bookingData = {
                         court_id: parseInt(courtId),
                         customer_name: customerName,
@@ -1174,13 +1247,16 @@
 
                         if (xhr.status === 200 && result.success) {
                             proofUploaded = true;
-                            document.getElementById('proofUploadStatus').textContent = '[OK] Đã tải ảnh thành công!';
+                            document.getElementById('proofUploadStatus').textContent =
+                                '[OK] Đã tải ảnh thành công!';
                             document.getElementById('proofUploadStatus').style.color = '#27ae60';
                             document.getElementById('confirmPaymentBtn').disabled = false;
-                            document.getElementById('selectProofBtn').textContent = '[UPLOAD] Chọn ảnh khác';
+                            document.getElementById('selectProofBtn').textContent =
+                            '[UPLOAD] Chọn ảnh khác';
                             toastr.success('Upload ảnh xác nhận thành công!');
                         } else {
-                            document.getElementById('proofUploadStatus').textContent = result.message || 'Upload thất bại.';
+                            document.getElementById('proofUploadStatus').textContent = result.message ||
+                                'Upload thất bại.';
                             document.getElementById('proofUploadStatus').style.color = '#e74c3c';
                             toastr.error(result.message || 'Upload thất bại.');
                         }
@@ -1188,7 +1264,8 @@
 
                     xhr.onerror = function() {
                         document.getElementById('proofProgressBar').style.display = 'none';
-                        document.getElementById('proofUploadStatus').textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+                        document.getElementById('proofUploadStatus').textContent =
+                            'Lỗi kết nối. Vui lòng thử lại.';
                         document.getElementById('proofUploadStatus').style.color = '#e74c3c';
                         toastr.error('Lỗi kết nối. Vui lòng thử lại.');
                     };
@@ -1205,6 +1282,9 @@
                 const amount = bookingData.total_amount;
                 const stadiumId = document.getElementById('stadiumId').value;
 
+                // Store booking code for later use in success modal
+                document.getElementById('successBookingCode').textContent = bookingCode;
+
                 // Set booking ID and reset upload UI
                 currentBookingId = bookingId;
                 proofUploaded = false;
@@ -1212,7 +1292,8 @@
                 document.getElementById('proofPreviewContainer').style.display = 'none';
                 document.getElementById('proofProgressBar').style.display = 'none';
                 document.getElementById('proofUploadStatus').textContent = '';
-                document.getElementById('selectProofBtn').textContent = '[UPLOAD] Chọn ảnh xác nhận chuyển khoản';
+                document.getElementById('selectProofBtn').textContent =
+                    '[UPLOAD] Chọn ảnh xác nhận chuyển khoản';
                 document.getElementById('confirmPaymentBtn').disabled = true;
 
                 try {
@@ -1233,7 +1314,8 @@
                     const bankInfo = result.data;
 
                     // Generate QR code URL using server booking code
-                    const qrUrl = `https://img.vietqr.io/image/${bankInfo.bank_code}-${bankInfo.account_number}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(bookingCode)}`;
+                    const qrUrl =
+                        `https://img.vietqr.io/image/${bankInfo.bank_code}-${bankInfo.account_number}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(bookingCode)}`;
 
                     // Update modal with QR info
                     document.getElementById('qrCodeImage').src = qrUrl;
@@ -1280,9 +1362,13 @@
                 }
             });
 
-            // Confirm payment button - booking already created, just close modal (no warning since proof uploaded)
+            // Confirm payment button - show success modal after confirming payment
             document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
+                const bookingCode = document.getElementById('successBookingCode').textContent;
                 closePaymentModal(true);
+                setTimeout(function() {
+                    showBookingSuccessModal(bookingCode);
+                }, 300);
             });
 
             // Function to submit booking
@@ -1302,20 +1388,23 @@
                     if (result.success) {
                         const displayCode = result.booking.formatted_booking_code || result.booking.booking_id;
 
-                        // If transfer, show QR modal with server booking code
                         if (paymentMethod === 'transfer') {
+                            // For transfer: show QR modal first, then success modal after payment confirmation
                             showPaymentQRModal(bookingData, displayCode, result.booking.id);
+                        } else {
+                            // For other payment methods: show success modal immediately
+                            showBookingSuccessModal(displayCode);
+                            
+                            // Reset form after 2 seconds
+                            setTimeout(function() {
+                                bookingForm.reset();
+                                loadAvailableSlots();
+                                updateSummary();
+                                submitBtn.disabled = false;
+                                submitBtn.textContent = 'Đặt sân';
+                                window.pendingBookingData = null;
+                            }, 2000);
                         }
-
-                        toastr.success('Đặt sân thành công! Mã đơn đặt của bạn: ' + displayCode +
-                            '\n\nVui lòng chờ xác nhận.');
-                        // Reset form
-                        bookingForm.reset();
-                        loadAvailableSlots();
-                        updateSummary();
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Đặt sân';
-                        window.pendingBookingData = null;
                     } else {
                         toastr.error('Lỗi: ' + (result.message || 'Đặt sân thất bại'));
                         submitBtn.disabled = false;
@@ -1326,6 +1415,39 @@
                     submitBtn.disabled = false;
                     submitBtn.textContent = 'Đặt sân';
                 }
+            }
+
+            // Helper function to show booking success modal
+            function showBookingSuccessModal(bookingCode) {
+                document.getElementById('successBookingCode').textContent = bookingCode;
+                const successModal = document.getElementById('bookingSuccessModal');
+                successModal.classList.add('show');
+                successModal.style.display = 'block';
+                successModal.style.zIndex = '10000';
+                document.body.style.overflow = 'hidden';
+
+                // Setup close button handler
+                const closeBtn = successModal.querySelector('[data-dismiss="modal"]');
+                closeBtn.replaceWith(closeBtn.cloneNode(true));
+                document.querySelector('#bookingSuccessModal [data-dismiss="modal"]').addEventListener('click', function() {
+                    closeBookingSuccessModal();
+                    // Reset form after closing
+                    bookingForm.reset();
+                    loadAvailableSlots();
+                    updateSummary();
+                    const submitBtn = document.getElementById('submitBtn');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Đặt sân';
+                    window.pendingBookingData = null;
+                });
+            }
+
+            // Helper function to close booking success modal
+            function closeBookingSuccessModal() {
+                const successModal = document.getElementById('bookingSuccessModal');
+                successModal.classList.remove('show');
+                successModal.style.display = 'none';
+                document.body.style.overflow = 'auto';
             }
 
             // Initialize

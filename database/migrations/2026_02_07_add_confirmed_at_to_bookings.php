@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::table('bookings', function (Blueprint $table) {
             // Thêm cột để tracking thời điểm xác nhận
-            $table->timestamp('confirmed_at')->nullable()->after('status');
+            if (!Schema::hasColumn('bookings', 'confirmed_at')) {
+                $table->timestamp('confirmed_at')->nullable()->after('status');
+            }
             // Thêm cột để tracking thời điểm booking được tạo (tự động)
-            $table->integer('lock_expires_at')->nullable()->after('confirmed_at')->comment('Unix timestamp khi khóa hết hạn');
+            if (!Schema::hasColumn('bookings', 'lock_expires_at')) {
+                $table->integer('lock_expires_at')->nullable()->after('confirmed_at')->comment('Unix timestamp khi khóa hết hạn');
+            }
         });
     }
 
