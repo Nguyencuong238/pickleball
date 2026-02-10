@@ -474,10 +474,13 @@
                                 <!-- Hướng dẫn chọn giờ -->
                                 <div class="booking-instruction">
                                     <div class="instruction-item">
-                                        <strong>📌 Cách 1 - Chọn nhiều giờ liền:</strong> Giữ <kbd>Shift</kbd> + Click khung giờ bắt đầu và khung giờ kết thúc
+                                        <strong>📌 Cách 1 - Chọn nhiều giờ liền (cùng sân):</strong> Click khung giờ bắt đầu, giữ <kbd>Shift</kbd>, rồi click khung giờ kết thúc
                                     </div>
                                     <div class="instruction-item">
                                         <strong>📌 Cách 2 - Chọn thời lượng:</strong> Click khung giờ bắt đầu, rồi chọn "Thời lượng" ở dưới
+                                    </div>
+                                    <div class="instruction-item">
+                                        <strong>📌 Cách 3 - Chọn nhiều sân:</strong> Click từng sân khác nhau để chọn nhiều sân (không cần Shift)
                                     </div>
                                     <div class="instruction-item">
                                         <strong>💳 Lưu ý phương thức thanh toán:</strong>
@@ -752,7 +755,7 @@
                             // Add click handler for available slots
                             if (!slot.is_booked && !slot.is_locked && !slot.is_pending) {
                                 slotCell.addEventListener('click', (e) => {
-                                    // Shift+Click để chọn range giờ
+                                    // Shift+Click để chọn range giờ (cùng sân)
                                     if (e.shiftKey) {
                                         const selectedCells = document.querySelectorAll('.time-slot-cell.selected');
                                         if (selectedCells.length > 0) {
@@ -804,7 +807,7 @@
                                             }
                                         }
                                     } else {
-                                        // Click thường - chọn 1 ô
+                                        // Click thường - chọn 1 ô (support multi-court selection)
                                         selectSlot(slot, slotCell);
                                     }
                                 });
@@ -877,17 +880,18 @@
             }
 
             function selectSlot(slot, cellElement, isRangeEnd = false) {
-                // Remove previous selection from same court
-                if (!isRangeEnd) {
-                    document.querySelectorAll('.time-slot-cell.selected').forEach(cell => cell.classList.remove(
-                        'selected'));
+                // Allow multi-court selection: check if already selected
+                if (cellElement.classList.contains('selected')) {
+                    // If already selected, deselect it
+                    cellElement.classList.remove('selected');
+                } else {
+                    // Add to selection (don't remove others)
+                    cellElement.classList.add('selected');
+                    
+                    // Auto-select the court from the slot
+                    courtSelect.value = slot.court_id;
+                    selectedSlot.value = slot.time;
                 }
-                
-                cellElement.classList.add('selected');
-                
-                // Auto-select the court from the slot
-                courtSelect.value = slot.court_id;
-                selectedSlot.value = slot.time;
                 
                 // If not range end, calculate duration based on selected cells
                 if (!isRangeEnd) {
