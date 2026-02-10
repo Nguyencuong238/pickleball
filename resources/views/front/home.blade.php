@@ -406,7 +406,7 @@
                             <p class="news-excerpt">
                                 {!! Str::words(strip_tags($news->content), 20) !!}
                             </p>
-                            <a href="{{ route('news.show', $news->id) }}" class="news-link">
+                            <a href="{{ route('news.show', $news->slug) }}" class="news-link">
                                 Đọc tiếp
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                     <line x1="5" y1="12" x2="19" y2="12" />

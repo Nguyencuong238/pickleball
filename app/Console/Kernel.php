@@ -26,6 +26,9 @@ class Kernel extends ConsoleKernel
 
         // Cancel expired transfer bookings after 15 minutes
         $schedule->job(new \App\Jobs\CancelExpiredTransferBookings())->everyMinute();
+
+        // Auto-update status of old matches from in_progress to completed
+        $schedule->command('app:update-old-matches-status')->daily();
     }
 
     /**

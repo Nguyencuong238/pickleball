@@ -94,12 +94,16 @@ class OcrController extends Controller
         ]);
 
         if ($filter === 'ongoing') {
-            // Matches currently in progress
-            $query->where('status', 'in_progress');
+            // Matches currently in progress - must have started (date/time <= now) and not completed
+            $query->where('status', 'in_progress')
+                  ->where(function ($q) use ($now) {
+                      $q->whereRaw("CONCAT(match_date, ' ', match_time) <= ?", [$now->format('Y-m-d H:i:s')])
+                        ->orWhereNull('match_time');
+                  });
         } elseif ($filter === 'upcoming') {
-            // Scheduled matches not yet started
+            // Scheduled matches not yet started - must start after now
             $query->whereIn('status', ['scheduled', 'ready'])
-                  ->where('match_date', '>=', $now->toDateString());
+                  ->whereRaw("CONCAT(match_date, ' ', match_time) > ?", [$now->format('Y-m-d H:i:s')]);
         } elseif ($filter === 'past') {
             // Completed matches
             $query->where('status', 'completed');

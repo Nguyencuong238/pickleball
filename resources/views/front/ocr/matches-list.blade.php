@@ -358,24 +358,66 @@
         @if($matches->count() > 0)
             <div class="matches-grid">
                 @foreach($matches as $match)
-                    <div class="match-card {{ $match->status }}">
-                        <!-- Status Badge -->
-                        @if($match->status === 'in_progress')
-                            <span class="match-status status-ongoing">⚡ Đang Diễn Ra</span>
-                        @elseif(in_array($match->status, ['scheduled', 'ready']))
-                            <span class="match-status status-upcoming">⏰ Sắp Diễn Ra</span>
-                        @elseif($match->status === 'completed')
-                            <span class="match-status status-past">✓ Đã Diễn Ra</span>
-                        @endif
+                    @php
+                        $now = \Carbon\Carbon::now();
+                        $matchTime = trim($match->match_time ?? '00:00:00');
+                        
+                        // Validate match_time format (HH:MM:SS or HH:MM)
+                        if (!preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $matchTime)) {
+                            $matchTime = '00:00:00';
+                        } elseif (strlen($matchTime) === 5) {
+                            // Add seconds if only HH:MM provided
+                            $matchTime .= ':00';
+                        }
+                        
+                        try {
+                            $matchDateTime = \Carbon\Carbon::createFromFormat(
+                                'Y-m-d H:i:s',
+                                $match->match_date->format('Y-m-d') . ' ' . $matchTime,
+                                null,
+                                false
+                            );
+                        } catch (\Exception $e) {
+                            // If parsing fails, use just the date at midnight
+                            $matchDateTime = $match->match_date->copy()->startOfDay();
+                        }
+                        
+                        $displayStatus = $match->status;
+                        
+                        // Override display status based on actual date/time
+                        if ($match->status === 'in_progress') {
+                            if ($matchDateTime > $now) {
+                                $displayStatus = 'upcoming';
+                            }
+                        } elseif (in_array($match->status, ['scheduled', 'ready'])) {
+                            if ($matchDateTime <= $now) {
+                                $displayStatus = 'in_progress';
+                            }
+                        }
+                    @endphp
+                    
+                    <div class="match-card {{ $displayStatus }}">
+                         <!-- Status Badge -->
+                         @if($displayStatus === 'in_progress')
+                             <span class="match-status status-ongoing">⚡ Đang Diễn Ra</span>
+                         @elseif(in_array($displayStatus, ['scheduled', 'ready', 'upcoming']))
+                             <span class="match-status status-upcoming">⏰ Sắp Diễn Ra</span>
+                         @elseif($displayStatus === 'completed')
+                             <span class="match-status status-past">✓ Đã Diễn Ra</span>
+                         @endif
 
                         <!-- Tournament & Category Info -->
                         <div class="tournament-info">
-                            <div class="tournament-name">
-                                {{ $match->tournament?->name ?? 'Tournament' }}
-                            </div>
-                            <span class="category-badge">
-                                {{ $match->category?->name ?? 'Category' }}
-                            </span>
+                            @if($match->tournament->name)
+                                <div class="tournament-name">
+                                    {{ $match->tournament?->name }}
+                                </div>
+                            @endif
+                            @if($match->category->name)
+                                <span class="category-badge">
+                                    {{ $match->category->name  }}
+                                </span>
+                            @endif
                         </div>
 
                         <!-- Players -->
