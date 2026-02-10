@@ -10,6 +10,8 @@ use App\Models\CourtPricing;
 use App\Models\Stadium;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class BookingController extends Controller
@@ -123,29 +125,34 @@ class BookingController extends Controller
         $startTime = \Carbon\Carbon::createFromFormat('H:i', $request->start_time);
         $endTime = $startTime->copy()->addHours($request->duration_hours);
 
-        $serviceFee = (int)($request->total_amount * 0.05); // 5% service fee
+        $serviceFee = 0;
         $subtotal = $request->total_amount - $serviceFee;
 
         // If transfer payment, set status to pending_payment and lock for 5 minutes
         $status = $request->payment_method === 'transfer' ? 'pending_payment' : 'pending';
 
-        $booking = Booking::create([
-            'user_id' => Auth::id(),
-            'court_id' => $request->court_id,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_email' => $request->customer_email ?? null,
-            'booking_date' => $request->booking_date,
-            'start_time' => $request->start_time,
-            'end_time' => $endTime->format('H:i'),
-            'duration_hours' => $request->duration_hours,
-            'hourly_rate' => $request->hourly_rate,
-            'total_price' => $subtotal,
-            'service_fee' => $serviceFee,
-            'status' => $status,
-            'payment_method' => $request->payment_method,
-            'notes' => $request->notes ?? null,
-        ]);
+        $booking = DB::transaction(function () use ($request, $endTime, $subtotal, $serviceFee, $status) {
+            $bookingCode = Booking::generateBookingCode($request->court_id, $request->booking_date);
+
+            return Booking::create([
+                'booking_code' => $bookingCode,
+                'user_id' => Auth::id(),
+                'court_id' => $request->court_id,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email ?? null,
+                'booking_date' => $request->booking_date,
+                'start_time' => $request->start_time,
+                'end_time' => $endTime->format('H:i'),
+                'duration_hours' => $request->duration_hours,
+                'hourly_rate' => $request->hourly_rate,
+                'total_price' => $subtotal,
+                'service_fee' => $serviceFee,
+                'status' => $status,
+                'payment_method' => $request->payment_method,
+                'notes' => $request->notes ?? null,
+            ]);
+        });
 
         // Dispatch job to auto-cancel if payment not confirmed within 5 minutes
         if ($request->payment_method === 'transfer') {
@@ -159,7 +166,9 @@ class BookingController extends Controller
             'message' => 'Booking created successfully',
             'booking' => [
                 'id' => $booking->id,
-                'booking_id' => $booking->id,
+                'booking_code' => $booking->booking_code,
+                'formatted_booking_code' => $booking->formatted_booking_code,
+                'booking_id' => $booking->formatted_booking_code,
             ],
         ], 201);
     }
@@ -240,7 +249,7 @@ class BookingController extends Controller
 
             $validated['duration_hours'] = $duration;
             $validated['total_price'] = $duration * $booking->hourly_rate;
-            $validated['service_fee'] = ceil($validated['total_price'] * 0.1);
+            $validated['service_fee'] = 0;
         }
 
         $booking->update($validated);
@@ -347,35 +356,42 @@ class BookingController extends Controller
             ]);
         }
 
-        // Create booking
-        $booking = Booking::create([
-            'court_id' => $request->court_id,
-            'user_id' => auth()->id() ?? null,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_email' => $request->customer_email,
-            'booking_date' => $request->booking_date,
-            'start_time' => $request->start_time,
-            'end_time' => $endTime->format('H:i'),
-            'duration_hours' => $durationHours,
-            'hourly_rate' => $hourlyRate,
-            'total_price' => $totalPrice,
-            'service_fee' => $serviceFee,
-            'status' => 'pending',
-            'payment_method' => $request->payment_method,
-            'notes' => $request->notes ?? null,
-        ]);
+        // Create booking inside transaction for booking_code generation
+        $booking = DB::transaction(function () use ($request, $endTime, $durationHours, $hourlyRate, $totalPrice, $serviceFee) {
+            $bookingCode = Booking::generateBookingCode($request->court_id, $request->booking_date);
+
+            return Booking::create([
+                'booking_code' => $bookingCode,
+                'court_id' => $request->court_id,
+                'user_id' => auth()->id() ?? null,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email,
+                'booking_date' => $request->booking_date,
+                'start_time' => $request->start_time,
+                'end_time' => $endTime->format('H:i'),
+                'duration_hours' => $durationHours,
+                'hourly_rate' => $hourlyRate,
+                'total_price' => $totalPrice,
+                'service_fee' => $serviceFee,
+                'status' => 'pending',
+                'payment_method' => $request->payment_method,
+                'notes' => $request->notes ?? null,
+            ]);
+        });
 
         return response()->json([
             'success' => true,
             'message' => 'Đặt sân thành công. Đơn đặt của bạn đang chờ xác nhận.',
             'booking' => [
                 'id' => $booking->id,
-                'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                'booking_code' => $booking->booking_code,
+                'formatted_booking_code' => $booking->formatted_booking_code,
+                'booking_id' => $booking->formatted_booking_code,
                 'status' => $booking->status,
             ]
         ]);
-        
+
     }
     
     private function calculateBookingTotalPrice($courtId, $bookingDate, $startTime, $durationHours)
@@ -747,7 +763,9 @@ class BookingController extends Controller
                 'message' => 'Xác nhận booking thành công',
                 'booking' => [
                     'id' => $booking->id,
-                    'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                    'booking_code' => $booking->booking_code,
+                    'formatted_booking_code' => $booking->formatted_booking_code,
+                    'booking_id' => $booking->formatted_booking_code ?: ('BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT)),
                     'status' => $booking->status,
                     'confirmed_at' => $booking->confirmed_at,
                 ]
@@ -806,7 +824,9 @@ class BookingController extends Controller
                 'message' => 'Hủy booking thành công',
                 'booking' => [
                     'id' => $booking->id,
-                    'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                    'booking_code' => $booking->booking_code,
+                    'formatted_booking_code' => $booking->formatted_booking_code,
+                    'booking_id' => $booking->formatted_booking_code ?: ('BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT)),
                     'status' => $booking->status,
                 ]
             ]);
@@ -819,6 +839,79 @@ class BookingController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Lỗi khi hủy booking: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Upload transfer proof image for a booking
+     */
+    public function uploadTransferProof($bookingId, Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'proof_image' => 'required|image|mimes:jpg,jpeg,png|max:5120',
+            ], [
+                'proof_image.required' => 'Vui lòng chọn ảnh xác nhận chuyển khoản.',
+                'proof_image.image' => 'File phải là ảnh.',
+                'proof_image.mimes' => 'Chỉ chấp nhận ảnh JPG, JPEG, PNG.',
+                'proof_image.max' => 'Ảnh không được vượt quá 5MB.',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $validator->errors()->first(),
+                ], 422);
+            }
+
+            $booking = Booking::find($bookingId);
+
+            if (!$booking) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không tìm thấy đơn đặt sân.',
+                ], 404);
+            }
+
+            if ($booking->payment_method !== 'transfer') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đơn đặt này không phải thanh toán chuyển khoản.',
+                ], 422);
+            }
+
+            if ($booking->status === 'cancelled') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Đơn đặt đã bị hủy.',
+                ], 422);
+            }
+
+            // Delete old proof file if exists
+            $disk = Storage::disk(config('filesystems.default'));
+            if ($booking->transfer_proof && $disk->exists($booking->transfer_proof)) {
+                $disk->delete($booking->transfer_proof);
+            }
+
+            // Save new proof image
+            $file = $request->file('proof_image');
+            $ext = $file->getClientOriginalExtension();
+            $filename = "transfer-proofs/booking_{$bookingId}_" . time() . ".{$ext}";
+            $disk->put($filename, file_get_contents($file));
+
+            // Update booking
+            $booking->update(['transfer_proof' => $filename]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Upload ảnh xác nhận thành công.',
+                'url' => $disk->url($filename),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi khi upload: ' . $e->getMessage(),
             ], 500);
         }
     }

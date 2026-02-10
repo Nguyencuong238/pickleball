@@ -184,6 +184,7 @@ Route::prefix('academy')->name('academy.')->group(function () {
 
 // Booking API for front-end
 Route::post('/api/bookings', [HomeController::class, 'bookingCourt'])->name('api.bookings.store');
+Route::post('/api/bookings/{bookingId}/upload-proof', [\App\Http\Controllers\Api\BookingController::class, 'uploadTransferProof'])->name('api.bookings.upload-proof');
 Route::get('/api/courts/{court}/available-slots', [HomeController::class, 'getAvailableSlots'])->name('api.courts.available-slots');
 
 // Instructor Booking Routes

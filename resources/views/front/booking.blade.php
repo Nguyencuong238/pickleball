@@ -536,10 +536,7 @@
                                 <label>Phương thức thanh toán *</label>
                                 <select class="form-control bg-white" name="payment_method" required>
                                     <option value="">-- Chọn phương thức --</option>
-                                    <option value="cash">Tiền mặt</option>
-                                    <option value="card">Thẻ tín dụng</option>
                                     <option value="transfer">Chuyển khoản</option>
-                                    <option value="wallet">Ví điện tử</option>
                                 </select>
                             </div>
 
@@ -591,7 +588,7 @@
                         </div>
                         <button type="submit" form="bookingForm" class="btn btn-primary btn-block btn-lg"
                             id="submitBtn">Đặt sân</button>
-                        <p class="payment-note">🔒 Thanh toán an toàn với VNPay, Momo, Banking</p>
+                        <p class="payment-note">🔒 Thanh toán an toàn với Banking</p>
                     </div>
                 </div>
             </div>
@@ -609,9 +606,8 @@
                     </button>
                 </div>
                 <div class="modal-body text-center">
-                    <p style="color: #666; margin-bottom: 20px;">Vui lòng quét mã QR để thanh toán</p>
-                    <div style="margin-bottom: 20px;">
-                        <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 300px; width: 100%;">
+                    <div style="margin-bottom: 20px; margin: 0 auto;width: fit-content;">
+                        <img id="qrCodeImage" src="" alt="QR Code" style="max-width: 250px; width: 100%;">
                     </div>
                     <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; text-align: left;">
                         <p style="margin-bottom: 10px;">
@@ -626,17 +622,37 @@
                         <p style="margin-bottom: 0;">
                             <strong>Số tiền:</strong> <span id="qrAmount">0</span> VND
                         </p>
-                        <p style="margin-top: 10px; font-size: 12px; color: #999;">
+                        <p style="margin-top: 10px">
                             <strong>Nội dung chuyển:</strong> <span id="qrContent">-</span>
                         </p>
                     </div>
+                    <!-- Upload transfer proof -->
+                    <div style="margin-top: 15px; border: 2px dashed #ccc; border-radius: 8px; padding: 15px; text-align: center;" id="proofUploadArea">
+                        <input type="file" id="transferProofInput" accept="image/jpeg,image/png,image/jpg" style="display: none;">
+                        <button type="button" id="selectProofBtn" style="background: none; border: 2px dashed #00d9b5; color: #00d9b5; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                            Chọn ảnh xác nhận chuyển khoản
+                        </button>
+                        <p style="color: #888; font-size: 12px; margin-top: 8px; margin-bottom: 0;">JPG, PNG - Tối đa 5MB</p>
+                    </div>
+                    <!-- Preview uploaded image -->
+                    <div id="proofPreviewContainer" style="display: none; margin-top: 10px; text-align: center;">
+                        <img id="proofPreviewImg" src="" alt="Preview" style="max-width: 200px; border-radius: 8px; border: 1px solid #ddd;">
+                        <p id="proofUploadStatus" style="color: #27ae60; font-size: 13px; margin-top: 5px; font-weight: 600;"></p>
+                    </div>
+                    <!-- Upload progress bar -->
+                    <div id="proofProgressBar" style="display: none; margin-top: 10px;">
+                        <div style="background: #eee; border-radius: 4px; overflow: hidden; height: 6px;">
+                            <div id="proofProgressFill" style="background: #00d9b5; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                        </div>
+                        <p style="color: #888; font-size: 12px; margin-top: 4px;">Đang tải lên...</p>
+                    </div>
+
                     <p style="color: #e74c3c; margin-top: 15px; font-size: 13px;">
-                        ⏱️ <strong>Lưu ý:</strong> Sân sẽ được khóa trong 5 phút. Nếu không xác nhận thanh toán sẽ tự động hủy.
+                        [!] <strong>Lưu ý:</strong> Sân sẽ được khóa trong 5 phút. Nếu không xác nhận thanh toán sẽ tự động hủy.
                     </p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
-                    <button type="button" class="btn btn-primary" id="confirmPaymentBtn">Tôi đã thanh toán</button>
+                    <button type="button" class="btn btn-primary" id="confirmPaymentBtn" disabled>Tôi đã thanh toán</button>
                 </div>
             </div>
         </div>
@@ -1077,20 +1093,8 @@
                         total_amount: parseInt(amount)
                     };
 
-                    // If payment method is transfer, show QR modal
-                    console.log('Payment method:', paymentMethod);
-                    if (paymentMethod === 'transfer') {
-                        console.log('Showing QR modal...');
-                        // Store booking data for later use
-                        window.pendingBookingData = bookingData;
-                        showPaymentQRModal(bookingData);
-                        submitBtn.disabled = false;
-                        submitBtn.textContent = 'Đặt sân';
-                        return;
-                    }
-
-                    // For other payment methods, proceed directly
-                    submitBooking(bookingData, submitBtn);
+                    // Always submit booking first (server generates booking_code)
+                    submitBooking(bookingData, submitBtn, paymentMethod);
                 } catch (error) {
                     toastr.error('Đã xảy ra lỗi khi gửi yêu cầu. Vui lòng thử lại.');
                     submitBtn.disabled = false;
@@ -1098,12 +1102,119 @@
                 }
             });
 
-            // Function to show payment QR modal
-            async function showPaymentQRModal(bookingData) {
+            // Track current booking for proof upload
+            let currentBookingId = null;
+            let proofUploaded = false;
+
+            // Select proof button
+            document.getElementById('selectProofBtn').addEventListener('click', function() {
+                document.getElementById('transferProofInput').click();
+            });
+
+            // Handle file selection
+            document.getElementById('transferProofInput').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                // Client-side validation
+                const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                if (!allowedTypes.includes(file.type)) {
+                    toastr.error('Chỉ chấp nhận ảnh JPG, JPEG, PNG.');
+                    this.value = '';
+                    return;
+                }
+                if (file.size > 5 * 1024 * 1024) {
+                    toastr.error('Ảnh không được vượt quá 5MB.');
+                    this.value = '';
+                    return;
+                }
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    document.getElementById('proofPreviewImg').src = ev.target.result;
+                    document.getElementById('proofPreviewContainer').style.display = 'block';
+                    document.getElementById('proofUploadStatus').textContent = '';
+                };
+                reader.readAsDataURL(file);
+
+                // Upload
+                uploadProofImage(file);
+            });
+
+            // Upload proof image
+            async function uploadProofImage(file) {
+                if (!currentBookingId) {
+                    toastr.error('Không tìm thấy đơn đặt sân.');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('proof_image', file);
+
+                // Show progress
+                document.getElementById('proofProgressBar').style.display = 'block';
+                document.getElementById('proofProgressFill').style.width = '30%';
+
+                try {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', `/api/bookings/${currentBookingId}/upload-proof`);
+                    xhr.setRequestHeader('X-CSRF-TOKEN', document.querySelector('input[name="_token"]').value);
+
+                    xhr.upload.onprogress = function(e) {
+                        if (e.lengthComputable) {
+                            const pct = Math.round((e.loaded / e.total) * 100);
+                            document.getElementById('proofProgressFill').style.width = pct + '%';
+                        }
+                    };
+
+                    xhr.onload = function() {
+                        document.getElementById('proofProgressBar').style.display = 'none';
+                        const result = JSON.parse(xhr.responseText);
+
+                        if (xhr.status === 200 && result.success) {
+                            proofUploaded = true;
+                            document.getElementById('proofUploadStatus').textContent = '[OK] Đã tải ảnh thành công!';
+                            document.getElementById('proofUploadStatus').style.color = '#27ae60';
+                            document.getElementById('confirmPaymentBtn').disabled = false;
+                            document.getElementById('selectProofBtn').textContent = '[UPLOAD] Chọn ảnh khác';
+                            toastr.success('Upload ảnh xác nhận thành công!');
+                        } else {
+                            document.getElementById('proofUploadStatus').textContent = result.message || 'Upload thất bại.';
+                            document.getElementById('proofUploadStatus').style.color = '#e74c3c';
+                            toastr.error(result.message || 'Upload thất bại.');
+                        }
+                    };
+
+                    xhr.onerror = function() {
+                        document.getElementById('proofProgressBar').style.display = 'none';
+                        document.getElementById('proofUploadStatus').textContent = 'Lỗi kết nối. Vui lòng thử lại.';
+                        document.getElementById('proofUploadStatus').style.color = '#e74c3c';
+                        toastr.error('Lỗi kết nối. Vui lòng thử lại.');
+                    };
+
+                    xhr.send(formData);
+                } catch (error) {
+                    document.getElementById('proofProgressBar').style.display = 'none';
+                    toastr.error('Lỗi khi upload ảnh.');
+                }
+            }
+
+            // Function to show payment QR modal with server-generated booking code
+            async function showPaymentQRModal(bookingData, bookingCode, bookingId) {
                 const amount = bookingData.total_amount;
-                const invoiceNumber = 'DAT-' + new Date().getTime();
                 const stadiumId = document.getElementById('stadiumId').value;
-                
+
+                // Set booking ID and reset upload UI
+                currentBookingId = bookingId;
+                proofUploaded = false;
+                document.getElementById('transferProofInput').value = '';
+                document.getElementById('proofPreviewContainer').style.display = 'none';
+                document.getElementById('proofProgressBar').style.display = 'none';
+                document.getElementById('proofUploadStatus').textContent = '';
+                document.getElementById('selectProofBtn').textContent = '[UPLOAD] Chọn ảnh xác nhận chuyển khoản';
+                document.getElementById('confirmPaymentBtn').disabled = true;
+
                 try {
                     // Fetch bank info from API
                     const response = await fetch(`/api/stadiums/${stadiumId}/bank-info`, {
@@ -1111,9 +1222,9 @@
                             'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                         }
                     });
-                    
+
                     const result = await response.json();
-                    
+
                     if (!result.success || !result.data) {
                         toastr.error('Không thể lấy thông tin ngân hàng. Vui lòng thử lại.');
                         return;
@@ -1121,8 +1232,8 @@
 
                     const bankInfo = result.data;
 
-                    // Generate QR code URL
-                    const qrUrl = `https://img.vietqr.io/image/${bankInfo.bank_code}-${bankInfo.account_number}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(invoiceNumber)}`;
+                    // Generate QR code URL using server booking code
+                    const qrUrl = `https://img.vietqr.io/image/${bankInfo.bank_code}-${bankInfo.account_number}-compact.png?amount=${amount}&addInfo=${encodeURIComponent(bookingCode)}`;
 
                     // Update modal with QR info
                     document.getElementById('qrCodeImage').src = qrUrl;
@@ -1130,7 +1241,7 @@
                     document.getElementById('bankAccount').textContent = bankInfo.account_number;
                     document.getElementById('bankName').textContent = bankInfo.bank_name || 'Ngân hàng';
                     document.getElementById('qrAmount').textContent = amount.toLocaleString('vi-VN');
-                    document.getElementById('qrContent').textContent = invoiceNumber;
+                    document.getElementById('qrContent').textContent = bookingCode;
 
                     // Show modal
                     const modal = document.getElementById('paymentQRModal');
@@ -1145,7 +1256,12 @@
             }
 
             // Close modal functions
-            function closePaymentModal() {
+            function closePaymentModal(skipWarning) {
+                if (!skipWarning && !proofUploaded) {
+                    if (!confirm('Bạn chưa tải ảnh xác nhận chuyển khoản. Bạn có chắc chắn muốn đóng?')) {
+                        return;
+                    }
+                }
                 const modal = document.getElementById('paymentQRModal');
                 modal.classList.remove('show');
                 modal.style.display = 'none';
@@ -1164,20 +1280,13 @@
                 }
             });
 
-            // Confirm payment button
-            document.getElementById('confirmPaymentBtn').addEventListener('click', async function() {
-                const bookingData = window.pendingBookingData;
-                closePaymentModal();
-                
-                const submitBtn = document.getElementById('submitBtn');
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Đang xử lý...';
-
-                await submitBooking(bookingData, submitBtn);
+            // Confirm payment button - booking already created, just close modal (no warning since proof uploaded)
+            document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
+                closePaymentModal(true);
             });
 
             // Function to submit booking
-            async function submitBooking(bookingData, submitBtn) {
+            async function submitBooking(bookingData, submitBtn, paymentMethod) {
                 try {
                     const response = await fetch('/api/bookings', {
                         method: 'POST',
@@ -1191,8 +1300,14 @@
                     const result = await response.json();
 
                     if (result.success) {
-                        toastr.success('Đặt sân thành công! Mã đơn đặt của bạn: ' + result.booking
-                            .booking_id +
+                        const displayCode = result.booking.formatted_booking_code || result.booking.booking_id;
+
+                        // If transfer, show QR modal with server booking code
+                        if (paymentMethod === 'transfer') {
+                            showPaymentQRModal(bookingData, displayCode, result.booking.id);
+                        }
+
+                        toastr.success('Đặt sân thành công! Mã đơn đặt của bạn: ' + displayCode +
                             '\n\nVui lòng chờ xác nhận.');
                         // Reset form
                         bookingForm.reset();

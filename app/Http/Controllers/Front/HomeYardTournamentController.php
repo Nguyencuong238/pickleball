@@ -23,6 +23,7 @@ use App\Services\EloService;
 use App\Services\OprsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -2878,31 +2879,38 @@ class HomeYardTournamentController extends Controller
             ]);
         }
 
-        // Create booking
-        $booking = Booking::create([
-            'court_id' => $request->court_id,
-            'user_id' => auth()->id() ?? null,
-            'customer_name' => $request->customer_name,
-            'customer_phone' => $request->customer_phone,
-            'customer_email' => $request->customer_email,
-            'booking_date' => $request->booking_date,
-            'start_time' => $request->start_time,
-            'end_time' => $endTime,
-            'duration_hours' => $durationHours,
-            'hourly_rate' => (int) $request->hourly_rate,
-            'total_price' => $totalPrice,
-            'service_fee' => $totalPrice * 0.05,
-            'status' => $request->status ?? 'pending',
-            'payment_method' => $request->payment_method,
-            'notes' => $request->notes ?? null,
-        ]);
+        // Create booking inside transaction for booking_code generation
+        $booking = DB::transaction(function () use ($request, $endTime, $durationHours, $totalPrice) {
+            $bookingCode = Booking::generateBookingCode($request->court_id, $request->booking_date);
+
+            return Booking::create([
+                'booking_code' => $bookingCode,
+                'court_id' => $request->court_id,
+                'user_id' => auth()->id() ?? null,
+                'customer_name' => $request->customer_name,
+                'customer_phone' => $request->customer_phone,
+                'customer_email' => $request->customer_email,
+                'booking_date' => $request->booking_date,
+                'start_time' => $request->start_time,
+                'end_time' => $endTime,
+                'duration_hours' => $durationHours,
+                'hourly_rate' => (int) $request->hourly_rate,
+                'total_price' => $totalPrice,
+                'service_fee' => 0,
+                'status' => $request->status ?? 'pending',
+                'payment_method' => $request->payment_method,
+                'notes' => $request->notes ?? null,
+            ]);
+        });
 
         return response()->json([
             'success' => true,
             'message' => 'Đặt sân thành công. Đơn đặt của bạn đang chờ xác nhận.',
             'booking' => [
                 'id' => $booking->id,
-                'booking_id' => 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT),
+                'booking_code' => $booking->booking_code,
+                'formatted_booking_code' => $booking->formatted_booking_code,
+                'booking_id' => $booking->formatted_booking_code,
                 'status' => $booking->status,
             ]
         ]);
@@ -3111,6 +3119,8 @@ class HomeYardTournamentController extends Controller
             $formattedBookings = $bookings->getCollection()->map(function ($booking) {
                 return [
                     'id' => $booking->id,
+                    'booking_code' => $booking->booking_code,
+                    'formatted_booking_code' => $booking->formatted_booking_code,
                     'court_id' => $booking->court_id,
                     'court_name' => $booking->court?->court_name ?? 'Sân',
                     'customer_name' => $booking->customer_name,
@@ -3158,6 +3168,8 @@ class HomeYardTournamentController extends Controller
                 'success' => true,
                 'booking' => [
                     'id' => $booking->id,
+                    'booking_code' => $booking->booking_code,
+                    'formatted_booking_code' => $booking->formatted_booking_code,
                     'court_id' => $booking->court_id,
                     'court_name' => $booking->court?->court_name ?? 'Sân',
                     'customer_name' => $booking->customer_name,
@@ -3171,6 +3183,9 @@ class HomeYardTournamentController extends Controller
                     'total_price' => $booking->total_price,
                     'status' => $booking->status,
                     'payment_method' => $booking->payment_method,
+                    'transfer_proof_url' => $booking->transfer_proof
+                        ? Storage::disk(config('filesystems.default'))->url($booking->transfer_proof)
+                        : null,
                     'notes' => $booking->notes,
                     'created_at' => $booking->created_at,
                 ]
