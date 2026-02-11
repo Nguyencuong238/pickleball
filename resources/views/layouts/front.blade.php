@@ -628,41 +628,41 @@
                                 💰 Ví điểm ({{ auth()->user()->getPoints() }})
                             </a>
                             <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
-                                Profile
+                                👤 Profile
                             </a>
                             <a href="{{ route('homeyard.overview') }}" class="nav-link">
-                                <i class="icon-home"></i> Quản lý cộng đồng
+                                🏘️ Quản lý cộng đồng
                             </a>
                             <a href="{{ route('user.referral.index') }}" class="nav-link">
                                 💼 Giới thiệu người dùng
                             </a>
                             <a href="{{ route('user.profile.edit') }}" class="nav-link">
-                                Chỉnh sửa hồ sơ
+                                ✏️ Chỉnh sửa hồ sơ
                             </a>
                             @if(auth()->check())
                                 @if(auth()->user()->hasRole('admin'))
                                     <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                                        <i class="icon-admin"></i> Bảng điều khiển Admin
+                                        ⚙️ Bảng điều khiển Admin
                                     </a>
                                 @endif
                                 {{-- @if(auth()->user()->hasRole('home_yard'))
                                     <a href="{{ route('homeyard.overview') }}" class="nav-link">
-                                        <i class="icon-home"></i> Bảng điều khiển
+                                         Bảng điều khiển
                                     </a>
                                 @endif --}}
                                 {{-- @if(auth()->user()->hasRole('user'))
                                     <a href="{{ route('user.dashboard') }}" class="nav-link">
-                                        <i class="icon-user"></i> Bảng điều khiển Người dùng
+                                        Bảng điều khiển Người dùng
                                     </a>
                                 @endif --}}
                                 @if(auth()->user()->hasRole('referee'))
                                     <a href="{{ route('referee.dashboard') }}" class="nav-link">
-                                        <i class="icon-user"></i> Bảng điều khiển Trọng tài
+                                        🏆 Bảng điều khiển Trọng tài
                                     </a>
                                 @endif
                                 @if(auth()->user()->canVerifyElo())
                                     <a href="{{ route('verifier.dashboard') }}" class="nav-link">
-                                        <i class="icon-user"></i> Xác thực tài khoản OPR
+                                        ✅ Xác thực tài khoản OPR
                                     </a>
                                 @endif
                             @endif
@@ -670,7 +670,7 @@
                                 @csrf
                                 <a href="{{ route('logout') }}" class="nav-link" style="color: red;"
                                     onclick="event.preventDefault();this.closest('form').submit();">
-                                    <i class="icon-switch2"></i> Đăng xuất
+                                    🚪 Đăng xuất
                                 </a>
                             </form>
                         </div>
