@@ -6,6 +6,7 @@ use App\Http\Controllers\Front\NewsController as FrontNewsController;
 use App\Http\Controllers\Front\DashboardController;
 use App\Http\Controllers\Front\HomeYardStadiumController;
 use App\Http\Controllers\Front\HomeYardTournamentController;
+use App\Http\Controllers\Front\HomeYardClubController;
 use App\Http\Controllers\Front\AthleteManagementController;
 use App\Http\Controllers\Front\TournamentRegistrationController;
 use App\Http\Controllers\Front\CategoryController;
@@ -212,7 +213,10 @@ Route::get('/reviews/stadium/{stadium}', [ReviewController::class, 'getStadiumRe
 Route::get('/reviews/summary/{stadium}', [ReviewController::class, 'getRatingSummary'])->name('reviews.summary');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard')->middleware('role:user');
+    // Route::get('/user/dashboard', [DashboardController::class, 'index'])->name('user.dashboard')->middleware('role:user');
+    Route::get('/user/dashboard', function() {
+        return redirect(route('homeyard.overview'));
+    });
     
     Route::post('/reviews/store', [ReviewController::class, 'store'])->name('reviews.store');
     Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
@@ -343,8 +347,10 @@ Route::middleware('web')->group(function () {
 });
 
 // HomeYard Routes
-Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyard.')->group(function () {
-    Route::resource('stadiums', HomeYardStadiumController::class);
+Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(function () { //exclude middleware: 'role:home_yard'
+    Route::resource('clubs', HomeYardClubController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
+
+    // Route::resource('stadiums', HomeYardStadiumController::class);
 
     // Tournament export routes (before resource route to take priority)
     Route::get('tournaments/export/list', [HomeYardTournamentController::class, 'exportTournamentsList'])->name('tournaments.export');
@@ -372,32 +378,32 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
     Route::get('matches', [HomeYardTournamentController::class, 'matches'])->name('matches');
     Route::get('athletes', [HomeYardTournamentController::class, 'athletes'])->name('athletes');
     Route::get('rankings', [HomeYardTournamentController::class, 'rankings'])->name('rankings');
-    Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
-    Route::post('courts', [HomeYardTournamentController::class, 'storeCourt'])->name('courts.store');
-    Route::get('courts/{court}/edit', [HomeYardTournamentController::class, 'editCourt'])->name('courts.edit');
-    Route::get('courts/{court}/pricing', [HomeYardTournamentController::class, 'getPricingTiers'])->name('courts.pricing');
-    Route::put('courts/{court}', [HomeYardTournamentController::class, 'updateCourt'])->name('courts.update');
-    Route::get('courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('courts.available-slots');
-    Route::post('courts/bulk-delete', [HomeYardTournamentController::class, 'deleteCourts'])->name('courts.bulk-delete');
-    // Specific booking routes (must come before generic routes)
-    Route::post('bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('bookings.store');
-    Route::post('bookings/calculate-price', [HomeYardTournamentController::class, 'calculateBookingPrice'])->name('bookings.calculate-price');
-    Route::get('bookings/by-date', [HomeYardTournamentController::class, 'getBookingsByDate'])->name('bookings.by-date');
-    Route::get('bookings/stats/{stadiumId}', [HomeYardTournamentController::class, 'getBookingStats'])->name('bookings.stats');
-    Route::get('bookings/all', [HomeYardTournamentController::class, 'getAllBookings'])->name('bookings.all');
-    Route::get('bookings/search/{stadiumId}', [HomeYardTournamentController::class, 'searchBookings'])->name('bookings.search');
+    // Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
+    // Route::post('courts', [HomeYardTournamentController::class, 'storeCourt'])->name('courts.store');
+    // Route::get('courts/{court}/edit', [HomeYardTournamentController::class, 'editCourt'])->name('courts.edit');
+    // Route::get('courts/{court}/pricing', [HomeYardTournamentController::class, 'getPricingTiers'])->name('courts.pricing');
+    // Route::put('courts/{court}', [HomeYardTournamentController::class, 'updateCourt'])->name('courts.update');
+    // Route::get('courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('courts.available-slots');
+    // Route::post('courts/bulk-delete', [HomeYardTournamentController::class, 'deleteCourts'])->name('courts.bulk-delete');
+    // // Specific booking routes (must come before generic routes)
+    // Route::post('bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('bookings.store');
+    // Route::post('bookings/calculate-price', [HomeYardTournamentController::class, 'calculateBookingPrice'])->name('bookings.calculate-price');
+    // Route::get('bookings/by-date', [HomeYardTournamentController::class, 'getBookingsByDate'])->name('bookings.by-date');
+    // Route::get('bookings/stats/{stadiumId}', [HomeYardTournamentController::class, 'getBookingStats'])->name('bookings.stats');
+    // Route::get('bookings/all', [HomeYardTournamentController::class, 'getAllBookings'])->name('bookings.all');
+    // Route::get('bookings/search/{stadiumId}', [HomeYardTournamentController::class, 'searchBookings'])->name('bookings.search');
     
-    // Generic booking routes (must come after specific routes)
-    Route::get('bookings/{bookingId}', [HomeYardTournamentController::class, 'getBookingDetails'])->name('bookings.show')->where('bookingId', '\d+');
-    Route::put('bookings/{bookingId}/cancel', [HomeYardTournamentController::class, 'cancelBooking'])->name('bookings.cancel')->where('bookingId', '\d+');
-    Route::delete('bookings/{bookingId}', [HomeYardTournamentController::class, 'deleteBooking'])->name('bookings.delete')->where('bookingId', '\d+');
+    // // Generic booking routes (must come after specific routes)
+    // Route::get('bookings/{bookingId}', [HomeYardTournamentController::class, 'getBookingDetails'])->name('bookings.show')->where('bookingId', '\d+');
+    // Route::put('bookings/{bookingId}/cancel', [HomeYardTournamentController::class, 'cancelBooking'])->name('bookings.cancel')->where('bookingId', '\d+');
+    // Route::delete('bookings/{bookingId}', [HomeYardTournamentController::class, 'deleteBooking'])->name('bookings.delete')->where('bookingId', '\d+');
     
-    // Booking confirmation routes
-    Route::post('bookings/{bookingId}/confirm', [BookingController::class, 'confirmBooking'])->name('bookings.confirm')->where('bookingId', '\d+');
-    Route::post('bookings/{bookingId}/reject', [BookingController::class, 'rejectBooking'])->name('bookings.reject')->where('bookingId', '\d+');
+    // // Booking confirmation routes
+    // Route::post('bookings/{bookingId}/confirm', [BookingController::class, 'confirmBooking'])->name('bookings.confirm')->where('bookingId', '\d+');
+    // Route::post('bookings/{bookingId}/reject', [BookingController::class, 'rejectBooking'])->name('bookings.reject')->where('bookingId', '\d+');
     
-    // Main booking page (lowest priority)
-    Route::get('bookings/{stadiumId?}', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
+    // // Main booking page (lowest priority)
+    // Route::get('bookings/{stadiumId?}', [HomeYardTournamentController::class, 'bookings'])->name('bookings');
 
     // Tournament Categories, Rounds, and Groups
     Route::post('tournaments/{tournament_id}/categories', [CategoryController::class, 'store'])->name('tournaments.categories.store');
@@ -478,9 +484,9 @@ Route::middleware(['auth', 'role:home_yard'])->prefix('homeyard')->name('homeyar
         ]);
     })->name('athlete-management.debug');
 
-    // Social Events Routes
-    Route::resource('socials', SocialController::class);
-    Route::post('socials/bulk-delete', [SocialController::class, 'bulkDelete'])->name('socials.bulkDelete');
+    // // Social Events Routes
+    // Route::resource('socials', SocialController::class);
+    // Route::post('socials/bulk-delete', [SocialController::class, 'bulkDelete'])->name('socials.bulkDelete');
 
     // Tournament Referee Management
     Route::post('tournaments/{tournament_id}/referees/add', [HomeYardTournamentController::class, 'addReferee'])->name('tournaments.referees.add');

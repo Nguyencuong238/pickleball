@@ -28,9 +28,9 @@
             </div>
         </div>
 
-        <div class="row mt-5">
+        <div class="wallet-content mt-5">
             <!-- Main Content -->
-            <div class="col-lg-8">
+            <div class="wallet-main">
                 <!-- Transactions History -->
                 <div class="transactions-section">
                     <div class="section-header">
@@ -96,7 +96,7 @@
             </div>
 
             <!-- Sidebar -->
-            <div class="col-lg-4">
+            <div class="wallet-sidebar">
                 <!-- How to Earn Points -->
                 <div class="info-card">
                     <h3 class="info-title">📈 Cách kiếm điểm</h3>
@@ -152,6 +152,20 @@
 </div>
 
 <style>
+
+    .py-5 {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+
+    .mt-5 {
+        margin-top: 3rem;
+    }
+
+    .mt-4 {
+        margin-top: 1.5rem;
+    }
+
     * {
         margin: 0;
         padding: 0;
@@ -241,6 +255,23 @@
         font-size: 6rem;
         opacity: 0.1;
         z-index: 0;
+    }
+
+    /* Wallet Content Layout */
+    .wallet-content {
+        display: flex;
+        gap: 2rem;
+        margin-top: 3rem;
+    }
+
+    .wallet-main {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .wallet-sidebar {
+        width: 320px;
+        flex-shrink: 0;
     }
 
     /* Transactions Section */
@@ -465,6 +496,15 @@
             font-size: 2.5rem;
         }
 
+        .wallet-content {
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .wallet-sidebar {
+            width: 100%;
+        }
+
         .section-header {
             flex-direction: column;
             align-items: flex-start;
@@ -513,6 +553,14 @@
 
         .section-header {
             padding: 1rem;
+        }
+
+        .wallet-content {
+            gap: 1rem;
+        }
+
+        .wallet-sidebar {
+            width: 100%;
         }
     }
 </style>

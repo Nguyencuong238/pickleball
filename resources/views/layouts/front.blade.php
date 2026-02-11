@@ -627,11 +627,14 @@
                             <a href="{{ route('user.wallet.index') }}" class="nav-link">
                                 💰 Ví điểm ({{ auth()->user()->getPoints() }})
                             </a>
+                            <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
+                                Profile
+                            </a>
+                            <a href="{{ route('homeyard.overview') }}" class="nav-link">
+                                <i class="icon-home"></i> Quản lý cộng đồng
+                            </a>
                             <a href="{{ route('user.referral.index') }}" class="nav-link">
                                 💼 Giới thiệu người dùng
-                            </a>
-                            <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
-                                Hồ sơ OPRS
                             </a>
                             <a href="{{ route('user.profile.edit') }}" class="nav-link">
                                 Chỉnh sửa hồ sơ
@@ -642,16 +645,16 @@
                                         <i class="icon-admin"></i> Bảng điều khiển Admin
                                     </a>
                                 @endif
-                                @if(auth()->user()->hasRole('home_yard'))
+                                {{-- @if(auth()->user()->hasRole('home_yard'))
                                     <a href="{{ route('homeyard.overview') }}" class="nav-link">
                                         <i class="icon-home"></i> Bảng điều khiển
                                     </a>
-                                @endif
-                                @if(auth()->user()->hasRole('user'))
+                                @endif --}}
+                                {{-- @if(auth()->user()->hasRole('user'))
                                     <a href="{{ route('user.dashboard') }}" class="nav-link">
                                         <i class="icon-user"></i> Bảng điều khiển Người dùng
                                     </a>
-                                @endif
+                                @endif --}}
                                 @if(auth()->user()->hasRole('referee'))
                                     <a href="{{ route('referee.dashboard') }}" class="nav-link">
                                         <i class="icon-user"></i> Bảng điều khiển Trọng tài

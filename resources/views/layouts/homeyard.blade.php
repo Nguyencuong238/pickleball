@@ -19,8 +19,8 @@
     <style>
         /* Select2 Custom Styling */
         .select2-container--default .select2-selection--multiple {
-            border: 1px solid #e2e8f0 !important;
-            border-radius: 6px !important;
+            border: 2px solid #e2e8f0 !important;
+            border-radius: var(--radius-md) !important;
             background-color: white !important;
             padding: 6px 12px !important;
             min-height: 44px !important;
@@ -35,8 +35,6 @@
             background-color: #f0f9ff !important;
             border: 1px solid #bfdbfe !important;
             border-radius: 4px !important;
-            padding: 4px 8px !important;
-            margin: 2px 4px 2px 0 !important;
         }
 
         .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
@@ -80,8 +78,8 @@
         .select2-container--default .select2-results__option[aria-selected=true]:hover {
             background-color: #bfdbfe !important;
         }
-    /* Page-specific styles */
-     .tournament-header-banner {
+        /* Page-specific styles */
+        .tournament-header-banner {
             background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
             color: white;
             padding: 2rem;
@@ -852,7 +850,7 @@
                     </a>
                 </div>
 
-                <div class="nav-section">
+                {{-- <div class="nav-section">
                     <div class="nav-section-title">Quản lý Sân</div>
                     <a href="{{ route('homeyard.stadiums.index') }}" class="nav-item">
                         <span class="nav-icon">🏢</span>
@@ -870,7 +868,7 @@
                         <span class="nav-icon">🎾</span>
                         <span class="nav-text">Quản lý thi đấu Social</span>
                     </a>
-                </div>
+                </div> --}}
 
                 <div class="nav-section">
                     <div class="nav-section-title">Vận động viên</div>
@@ -883,6 +881,15 @@
                     <a href="{{ route('homeyard.rankings') }}" class="nav-item">
                         <span class="nav-icon">🏅</span>
                         <span class="nav-text">Xếp hạng</span>
+                    </a>
+
+                </div>
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Quản Lý Nhóm/CLB</div>
+                    <a href="{{ route('homeyard.clubs.index') }}" class="nav-item">
+                        <span class="nav-icon">📋</span>
+                        <span class="nav-text">Danh sách nhóm/CLB</span>
                     </a>
 
                 </div>
@@ -1254,7 +1261,7 @@
 
                 // Get the href attribute
                 const href = item.getAttribute('href');
-
+console.log(href, currentPath, href.split('/').pop())
                 // Check if current path matches the href
                 if (href && (currentPath === href || currentPath.includes(href.split('/').pop()))) {
                     item.classList.add('active');

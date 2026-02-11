@@ -275,11 +275,11 @@ class AuthController extends Controller
             return redirect(route('referee.dashboard'));
         }
 
-        if ($user->hasRole('home_yard')) {
+        // if ($user->hasRole('home_yard')) {
             return redirect(route('homeyard.overview'));
-        }
+        // }
 
-        return redirect('/user/dashboard');
+        // return redirect('/user/dashboard');
     }
 
     // ---------- FACEBOOK OAUTH ----------
@@ -333,10 +333,10 @@ class AuthController extends Controller
             return redirect(route('referee.dashboard'));
         }
 
-        if ($user->hasRole('home_yard')) {
+        // if ($user->hasRole('home_yard')) {
             return redirect(route('homeyard.overview'));
-        }
+        // }
 
-        return redirect('/user/dashboard');
+        // return redirect('/user/dashboard');
     }
 }

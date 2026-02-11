@@ -11,7 +11,7 @@ class CategoryController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['auth', 'role:home_yard']);
+        $this->middleware(['auth']); // exclude 'role:home_yard'
     }
 
     /**

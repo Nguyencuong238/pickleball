@@ -36,7 +36,7 @@ class HomeYardTournamentController extends Controller
 
     public function __construct(EloService $eloService, OprsService $oprsService)
     {
-        $this->middleware(['auth', 'role:home_yard']);
+        $this->middleware(['auth']); //exclude 'role:home_yard'
         $this->eloService = $eloService;
         $this->oprsService = $oprsService;
     }
