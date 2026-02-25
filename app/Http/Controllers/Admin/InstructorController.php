@@ -205,8 +205,10 @@ class InstructorController extends Controller
         return view('admin.instructors.edit', compact('instructor', 'provinces'));
     }
 
-    public function update(Request $request, Instructor $instructor)
+    public function update(Request $request, $id)
     {
+        $instructor = Instructor::findOrFail($id);
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'image' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:2048',
