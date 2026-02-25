@@ -47,6 +47,10 @@ use App\Http\Controllers\WalletController;
 use App\Http\Controllers\Front\OprVerificationController;
 use App\Http\Controllers\Verifier\VerifierDashboardController;
 use App\Http\Controllers\Front\UserPointController;
+use App\Http\Controllers\Front\HomeYardLeagueController;
+use App\Http\Controllers\Front\LeagueTeamController;
+use App\Http\Controllers\Front\LeagueMatchController;
+use App\Http\Controllers\Admin\LeagueController as AdminLeagueController;
 
 /*
 |--------------------------------------------------------------------------
@@ -492,6 +496,23 @@ Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(functi
     Route::post('tournaments/{tournament_id}/referees/add', [HomeYardTournamentController::class, 'addReferee'])->name('tournaments.referees.add');
     Route::delete('tournaments/{tournament_id}/referees/{referee}', [HomeYardTournamentController::class, 'removeReferee'])->name('tournaments.referees.remove');
     Route::get('referees/available', [HomeYardTournamentController::class, 'getAvailableReferees'])->name('referees.available');
+
+    // League Management
+    Route::resource('leagues', HomeYardLeagueController::class);
+    Route::patch('leagues/{league}/status', [HomeYardLeagueController::class, 'updateStatus'])->name('leagues.status');
+    Route::post('leagues/{league}/schedule', [HomeYardLeagueController::class, 'generateSchedule'])->name('leagues.schedule.generate');
+
+    // League Teams
+    Route::post('leagues/{league}/teams', [LeagueTeamController::class, 'store'])->name('leagues.teams.store');
+    Route::put('leagues/{league}/teams/{team}', [LeagueTeamController::class, 'update'])->name('leagues.teams.update');
+    Route::delete('leagues/{league}/teams/{team}', [LeagueTeamController::class, 'destroy'])->name('leagues.teams.destroy');
+    Route::post('leagues/{league}/teams/{team}/players', [LeagueTeamController::class, 'addPlayer'])->name('leagues.teams.players.store');
+    Route::delete('leagues/{league}/teams/{team}/players/{player}', [LeagueTeamController::class, 'removePlayer'])->name('leagues.teams.players.destroy');
+
+    // League Matches
+    Route::get('leagues/{league}/matches', [LeagueMatchController::class, 'index'])->name('leagues.matches.index');
+    Route::put('leagues/{league}/matches/{match}/score', [LeagueMatchController::class, 'updateScore'])->name('leagues.matches.score');
+    Route::put('leagues/{league}/matches/{match}/games/{game}/score', [LeagueMatchController::class, 'updateGameScore'])->name('leagues.matches.games.score');
 });
 
 // Referee Routes
@@ -643,6 +664,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     });
 
     Route::resource('special-challenges', \App\Http\Controllers\Admin\SpecialChallengeController::class);
+
+    // League Management (Admin)
+    Route::resource('leagues', AdminLeagueController::class)->only(['index', 'show']);
 });
 
 // OPR Verification Request Routes (for authenticated users)

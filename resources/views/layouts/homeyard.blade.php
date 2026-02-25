@@ -848,6 +848,11 @@
                         <span class="nav-text">Trận đấu</span>
                         {{-- <span class="nav-badge">{{ $matchesCount ?? 0 }}</span> --}}
                     </a>
+
+                    <a href="{{ route('homeyard.leagues.index') }}" class="nav-item">
+                        <span class="nav-icon">🏅</span>
+                        <span class="nav-text">Giải đấu League</span>
+                    </a>
                 </div>
 
                 {{-- <div class="nav-section">

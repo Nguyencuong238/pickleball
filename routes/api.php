@@ -331,6 +331,22 @@ Route::prefix('users')->middleware('auth:api')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| League API Routes (Mixed Auth)
+|--------------------------------------------------------------------------
+*/
+
+use App\Http\Controllers\Api\LeagueApiController;
+
+// Authenticated: league list for current user
+Route::get('leagues', [LeagueApiController::class, 'index'])->middleware('auth:sanctum');
+
+// Public: league detail, standings, schedule
+Route::get('leagues/{league}', [LeagueApiController::class, 'show']);
+Route::get('leagues/{league}/standings', [LeagueApiController::class, 'standings']);
+Route::get('leagues/{league}/schedule', [LeagueApiController::class, 'schedule']);
+
+/*
+|--------------------------------------------------------------------------
 | Media Upload Routes (Works for both Web & API)
 |--------------------------------------------------------------------------
 */

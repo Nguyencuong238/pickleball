@@ -309,6 +309,10 @@
                     <div class="quick-action-icon">🎾</div>
                     <div class="quick-action-title">Cập Nhật Kết Quả</div>
                 </a>
+                <a href="{{ route('homeyard.leagues.index') }}" class="quick-action-btn">
+                    <div class="quick-action-icon">🏅</div>
+                    <div class="quick-action-title">Quản Lý League</div>
+                </a>
                 {{-- <a href="#" class="quick-action-btn">
                     <div class="quick-action-icon">📊</div>
                     <div class="quick-action-title">Xem Báo Cáo</div>
