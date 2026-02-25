@@ -199,8 +199,10 @@ class InstructorController extends Controller
         }
     }
 
-    public function edit(Instructor $instructor)
+    public function edit($id)
     {
+        $instructor = Instructor::findOrFail($id);
+        
         $provinces = Province::all();
         return view('admin.instructors.edit', compact('instructor', 'provinces'));
     }
