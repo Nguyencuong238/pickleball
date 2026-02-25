@@ -15,9 +15,9 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('instructor_id')->comment('Reference to instructors table');
             $table->string('title')->comment('Position/job title');
-            $table->string('organization')->comment('Organization or club name');
+            $table->string('organization')->comment('Organization or club name')->nullable();
             $table->text('description')->nullable()->comment('Description of role and responsibilities');
-            $table->year('start_year')->comment('Start year of position');
+            $table->year('start_year')->comment('Start year of position')->nullable();
             $table->year('end_year')->nullable()->comment('End year (null = current position)');
             $table->boolean('is_current')->default(false)->comment('Whether currently in this position');
             $table->unsignedTinyInteger('sort_order')->default(0)->comment('Display order');
