@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-02-02
+**Last Updated**: 2026-02-25
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -165,6 +165,8 @@ Controller Action
 
 #### Core Models
 
+See [docs/codebase-summary.md](./codebase-summary.md) for complete relationships. Quick reference:
+
 **User Management**
 ```
 User ──┬── Stadium (1:N)
@@ -261,6 +263,23 @@ SkillQuizAnswer ──┬── SkillQuizAttempt (N:1)
 SkillQuestion ──── SkillDomain (N:1)
 ```
 
+**Club System**
+```
+Club ──┬── User (creator) (N:1)
+       ├── ClubPost (1:N)
+       │   ├── ClubPostComment (1:N)
+       │   ├── ClubPostReaction (1:N)
+       │   └── ClubPostMedia (1:N)
+       ├── ClubActivity (1:N)
+       └── ClubJoinRequest (1:N)
+
+User ──┬── Club (created) (1:N)
+       ├── ClubPost (creator) (1:N)
+       ├── ClubPostComment (1:N)
+       ├── ClubPostReaction (1:N)
+       └── ClubJoinRequest (1:N)
+```
+
 ### 4. Infrastructure Layer
 
 #### Database Schema
@@ -334,6 +353,16 @@ SkillQuestion ──── SkillDomain (N:1)
 │ skill_quiz_answers  │ Individual question responses     │
 │ users          │ Added quiz tracking fields + gender     │
 ├─────────────────────────────────────────────────────────┤
+│                     Club System Tables                   │
+├─────────────────────────────────────────────────────────┤
+│ clubs          │ Club management and configuration       │
+│ club_activities │ Club activity tracking                │
+│ club_join_requests │ Club join request management       │
+│ club_posts     │ Club discussion posts                   │
+│ club_post_comments │ Comments on club posts             │
+│ club_post_media  │ Media in club posts                  │
+│ club_post_reactions │ Reactions/likes on posts         │
+├─────────────────────────────────────────────────────────┤
 │                Point Earning Tables                      │
 ├─────────────────────────────────────────────────────────┤
 │ point_tasks    │ 16 tasks with roles, frequency, proof   │
@@ -344,631 +373,61 @@ SkillQuestion ──── SkillDomain (N:1)
 │ special_challenges │ Time-limited challenges             │
 │ events         │ Workshop/event system with QR           │
 │ event_checkins │ User event attendance                   │
+├─────────────────────────────────────────────────────────┤
+│              Booking Enhancement Tables                  │
+├─────────────────────────────────────────────────────────┤
+│ bookings       │ Added booking_code, confirmed_at,      │
+│                │ transfer_proof for booking management   │
 └─────────────────────────────────────────────────────────┘
 ```
 
 ## Data Flow
 
-### Court Booking Flow
+Key flows summarized (detailed diagrams available per section):
 
-```
-User Request: Book Court
-        │
-        ▼
-┌───────────────────┐
-│   HomeController  │
-│ getAvailableSlots │
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│   Court Model     │
-│   with Pricing    │
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│ Check Existing    │
-│    Bookings       │
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│ Calculate Price   │
-│ Based on Time     │
-└─────────┬─────────┘
-          │
-          ▼
-┌───────────────────┐
-│  Create Booking   │
-│     Record        │
-└───────────────────┘
-```
+### Court Booking Flow
+User request → HomeController checks availability → Validates pricing → Creates booking record
 
 ### Tournament Registration Flow
+Register → Validate category (singles/doubles) → Create TournamentAthlete → Link partner (if doubles)
 
-```
-User Request: Register for Tournament
-        │
-        ▼
-┌─────────────────────────────┐
-│ TournamentRegistrationCtrl  │
-│         register()          │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│    Validate Category        │
-│    Check if Doubles         │
-│    Check Capacity           │
-└───────────────┬─────────────┘
-         ┌──────┴──────┐
-         │             │
-    [Singles]     [Doubles]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌──────────────┐
-│Create       │  │Validate      │
-│Athlete      │  │Partner Info  │
-│             │  │Create Pair   │
-└──────┬──────┘  └──────┬───────┘
-       │                │
-       └────────┬───────┘
-                ▼
-┌─────────────────────────────┐
-│  Create TournamentAthlete   │
-│  Status: 'pending'          │
-│  partner_id (if doubles)    │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│   Await Organizer Approval  │
-└─────────────────────────────┘
-```
 
 ### OCR Match Flow
-
-```
-User A: Challenge User B
-        │
-        ▼
-┌─────────────────────────────┐
-│  OcrMatchController@store   │
-│  Create Match (pending)     │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│ User B: Accept or Reject    │
-└───────────────┬─────────────┘
-                │
-         ┌──────┴──────┐
-         │             │
-    [Accept]      [Reject]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌─────────┐
-│In Progress  │  │Cancelled│
-└──────┬──────┘  └─────────┘
-       │
-       ▼
-┌─────────────────────────────┐
-│  Play Match                 │
-│  User A: Submit Result      │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│ User B: Confirm or Dispute  │
-└───────────────┬─────────────┘
-         ┌──────┴──────┐
-         │             │
-    [Confirm]     [Dispute]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌──────────┐
-│EloService   │  │Admin     │
-│Process Elo  │  │Review    │
-└──────┬──────┘  └──────────┘
-       │
-       ▼
-┌─────────────────────────────┐
-│ BadgeService                │
-│ Check & Award Badges        │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│ Match Completed             │
-│ Elo Updated, Badges Awarded │
-└─────────────────────────────┘
-```
+Challenge → Accept/Reject → Play → Submit result → Confirm/Dispute → EloService calculates Elo → BadgeService awards badges
 
 ### OPRS Calculation Flow
-
-```
-User Action (Match/Challenge/Activity)
-        │
-        ▼
-┌─────────────────────────────┐
-│  Component Service          │
-│  (Elo/Challenge/Community)  │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Update Component Score     │
-│  (elo_rating, challenge_    │
-│   score, community_score)   │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  OprsService                │
-│  calculateOprs()            │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Calculate Total OPRS       │
-│  (0.7*Elo + 0.2*Challenge   │
-│   + 0.1*Community)          │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Determine OPR Level        │
-│  (1.0 to 5.0+ based on      │
-│   threshold mapping)        │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Record OprsHistory         │
-│  (audit trail with reason   │
-│   and metadata)             │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Update User Record         │
-│  (total_oprs, opr_level)    │
-└─────────────────────────────┘
-```
+Action triggers → Component service updates score (Elo/Challenge/Community) → OprsService.calculateOprs() (0.7*Elo + 0.2*Challenge + 0.1*Community) → Determine OPR Level → Record OprsHistory → Update User
 
 ### Challenge Submission Flow
-
-```
-User: Submit Challenge
-        │
-        ▼
-┌─────────────────────────────┐
-│  ChallengeService           │
-│  submitChallenge()          │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Validate Challenge Type    │
-│  Check Monthly Limit        │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Create ChallengeResult     │
-│  (score, type, timestamp)   │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Check Pass Threshold       │
-│  Calculate Points Earned    │
-└───────────────┬─────────────┘
-         ┌──────┴──────┐
-         │             │
-    [Passed]      [Failed]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌─────────┐
-│Award Points │  │No Points│
-│Update Score │  │Record   │
-└──────┬──────┘  └─────────┘
-       │
-       ▼
-┌─────────────────────────────┐
-│  OprsService                │
-│  recalculateAfterChallenge()│
-└─────────────────────────────┘
-```
+Submit → Validate type & monthly limit → Create ChallengeResult → Check pass threshold → Award points (if passed) or record failure → Recalculate OPRS
 
 ### Community Activity Flow
-
-```
-User Action (Check-in/Event/Referral)
-        │
-        ▼
-┌─────────────────────────────┐
-│  CommunityService           │
-│  (checkIn/recordEvent/etc)  │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Validate Eligibility       │
-│  Check Daily/Monthly Limits │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Create CommunityActivity   │
-│  (type, points, reference)  │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Award Points               │
-│  Update community_score     │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  OprsService                │
-│  recalculateAfterActivity() │
-└─────────────────────────────┘
-```
+User action → CommunityService validates eligibility & limits → Create CommunityActivity → Award points → Recalculate OPRS
 
 ### Referee Match Officiating Flow
-
-```
-Referee: View Assigned Match
-        │
-        ▼
-┌─────────────────────────────┐
-│  RefereeController@show     │
-│  Check isAssignedToReferee  │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Match Status: scheduled    │
-│  Referee clicks "Start"     │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  RefereeController@start    │
-│  Status: in_progress        │
-│  Record actual_start_time   │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Play Match                 │
-│  Referee enters set scores  │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  RefereeController@update   │
-│  Validate set_scores array  │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Calculate Winner           │
-│  From set scores            │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Update Match               │
-│  - set_scores (JSON)        │
-│  - final_score (string)     │
-│  - winner_id                │
-│  - status: completed        │
-│  - actual_end_time          │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Log Activity               │
-│  Match completed            │
-└─────────────────────────────┘
-```
+View assigned match → Start match (status: in_progress) → Enter set scores → Calculate winner → Update match (set_scores, final_score, winner_id, status: completed)
 
 ### Profile Management Flow
-
-```
-User: Update Profile
-        │
-        ▼
-┌─────────────────────────────┐
-│  ProfileController          │
-│  (updateProfile/Avatar/     │
-│   Email/Password)           │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Validate Input             │
-│  (name, location, avatar,   │
-│   email, password)          │
-└───────────────┬─────────────┘
-                │
-         ┌──────┴──────┐
-         │             │
-    [Avatar]      [Email/Password]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌──────────────┐
-│ProfileSvc   │  │Verify        │
-│Upload/      │  │Password      │
-│Delete       │  └──────┬───────┘
-│Avatar       │         │
-└──────┬──────┘         │
-       │                │
-       ▼                ▼
-┌─────────────────────────────┐
-│  Update User Record         │
-│  (avatar path, email, etc)  │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Return Success Message     │
-└─────────────────────────────┘
-```
+Edit profile → Validate input (name, location, avatar, email, password) → Update avatar or verify password → Update User record
 
 ### Point Earning Flow
-
-```
-User: View Available Tasks
-        │
-        ▼
-┌─────────────────────────────┐
-│  PointController@tasks      │
-│  PointEarningService        │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Get Active Tasks by Role   │
-│  Check Eligibility          │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  For Each Task:             │
-│  - Check frequency limits   │
-│  - Check completion status  │
-│  - Return can_earn + reason │
-└───────────────┬─────────────┘
-                │
-         ┌──────┴──────┐
-         │             │
-   [Auto-Award]   [Requires Proof]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌──────────────┐
-│User performs│  │User submits  │
-│action (OCR  │  │proof (image, │
-│match, etc)  │  │link, QR)     │
-└──────┬──────┘  └──────┬───────┘
-       │                │
-       ▼                ▼
-┌─────────────┐  ┌──────────────┐
-│System auto  │  │PointSubmit   │
-│awards points│  │Service create│
-│via Wallet   │  │submission    │
-└──────┬──────┘  └──────┬───────┘
-       │                │
-       │                ▼
-       │         ┌──────────────┐
-       │         │Admin reviews │
-       │         │Approve/Reject│
-       │         └──────┬───────┘
-       │                │
-       │         ┌──────┴──────┐
-       │         │             │
-       │    [Approved]    [Rejected]
-       │         │             │
-       │         ▼             ▼
-       │  ┌──────────────┐  ┌─────┐
-       │  │Award points  │  │Deny │
-       │  │Update wallet │  └─────┘
-       │  └──────┬───────┘
-       │         │
-       └─────────┴─────────┐
-                           ▼
-┌─────────────────────────────┐
-│  UserWallet@addPoints()     │
-│  Create PointTransaction    │
-│  Update user->wallet->points│
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Transaction History        │
-│  (type, description, meta)  │
-└─────────────────────────────┘
-```
+View tasks → Get eligible tasks by role → Auto-award or require proof submission → Admin review → Award/reject points → Update UserWallet & create PointTransaction
 
 ### Skill Quiz Flow
-
-```
-User: Start Quiz
-        │
-        ▼
-┌─────────────────────────────┐
-│  SkillQuizController@start  │
-│  Check eligibility          │
-└───────────────┬─────────────┘
-                │
-         ┌──────┴──────┐
-         │             │
-    [Eligible]   [Ineligible]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌─────────┐
-│Display Quiz │  │Redirect │
-│36 Questions │  │w/ Error │
-└──────┬──────┘  └─────────┘
-       │
-       ▼
-┌─────────────────────────────┐
-│  User answers (0-3 scale)   │
-│  Record start time          │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  SkillQuizService@submit    │
-│  Validate completion time   │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Calculate total score      │
-│  Cross-validate answers     │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Calculate initial ELO      │
-│  Apply ELO caps             │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  eloToSkillLevel()          │
-│  Check user->gender         │
-│  Apply gender-aware mapping │
-└───────────────┬─────────────┘
-         ┌──────┴──────┐
-         │             │
-    [male/null]    [female]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌──────────────┐
-│Use MALE     │  │Use FEMALE    │
-│thresholds   │  │thresholds    │
-│             │  │(+0.5 level)  │
-└──────┬──────┘  └──────┬───────┘
-       │                │
-       └────────┬───────┘
-                ▼
-┌─────────────────────────────┐
-│  Return skill level string  │
-│  (e.g., "3.5", "4.0")       │
-└───────────────┬─────────────┘
-                │
-         ┌──────┴──────┐
-         │             │
-   [Consistent]  [Suspicious]
-         │             │
-         ▼             ▼
-┌─────────────┐  ┌──────────────┐
-│Assign ELO   │  │Flag attempt  │
-│Update User  │  │Admin review  │
-└──────┬──────┘  └──────┬───────┘
-       │                │
-       └────────┬───────┘
-                ▼
-┌─────────────────────────────┐
-│  Set re-quiz cooldown       │
-│  (30-90 days based on ELO)  │
-└───────────────┬─────────────┘
-                │
-                ▼
-┌─────────────────────────────┐
-│  Display results & ELO      │
-│  Show skill level + VN name │
-│  Show recommendations       │
-└─────────────────────────────┘
-```
+Start quiz → Check eligibility → Answer 36 questions (0-3 scale) → Validate time (3-20 min) → Calculate score & ELO → Cross-validate answers → Gender-aware skill level mapping → Check consistency → Assign ELO or flag for admin → Set re-quiz cooldown → Display results
 
 ### Authentication Flow
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                  Authentication Flows                    │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  Standard Login:                                        │
-│  ┌─────────┐    ┌────────────┐    ┌──────────────┐    │
-│  │  Login  │ -> │ Validate   │ -> │   Session    │    │
-│  │  Form   │    │ Credentials│    │   Created    │    │
-│  └─────────┘    └────────────┘    └──────────────┘    │
-│                                                         │
-│  OAuth (Google/Facebook):                               │
-│  ┌─────────┐    ┌────────────┐    ┌──────────────┐    │
-│  │ Redirect│ -> │ Callback   │ -> │ Find/Create  │    │
-│  │ to OAuth│    │ Handler    │    │    User      │    │
-│  └─────────┘    └────────────┘    └──────────────┘    │
-│                                                         │
-│  Admin Login:                                           │
-│  ┌─────────┐    ┌────────────┐    ┌──────────────┐    │
-│  │  Admin  │ -> │ Check Role │ -> │ Admin Session│    │
-│  │  Login  │    │  'admin'   │    │   Created    │    │
-│  └─────────┘    └────────────┘    └──────────────┘    │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+Standard: Login form → Validate credentials → Create session
+OAuth: Redirect to provider → Callback → Find/Create user
+Admin: Admin login → Check role 'admin' → Create admin session
 
 ## Security Architecture
 
-### Authentication
+### Authentication & Authorization
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                 Authentication Layer                     │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  Web Authentication (Session-based):                    │
-│  ├── Laravel's built-in auth                           │
-│  ├── CSRF token protection                             │
-│  └── Encrypted cookies                                  │
-│                                                         │
-│  API Authentication:                                    │
-│  ├── Laravel Sanctum                                   │
-│  └── Personal access tokens                             │
-│                                                         │
-│  OAuth Providers:                                       │
-│  ├── Google (via Socialite)                            │
-│  └── Facebook (via Socialite)                          │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+**Authentication:** Laravel session-based + CSRF protection + encrypted cookies. API: Laravel Sanctum + personal tokens. OAuth: Google, Facebook via Socialite.
 
-### Authorization
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                 Authorization Layer                      │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  Role-Based Access (Spatie Permission):                │
-│  ┌─────────────────────────────────────────────────────┐│
-│  │ Roles:                                              ││
-│  │ ├── admin     -> Full system access                 ││
-│  │ ├── home_yard -> Stadium/tournament management      ││
-│  │ ├── referee   -> Match officiating                  ││
-│  │ └── user      -> Basic user features                ││
-│  └─────────────────────────────────────────────────────┘│
-│                                                         │
-│  Middleware Protection:                                 │
-│  ├── role:admin     -> Admin routes                    │
-│  ├── role:home_yard -> Home Yard routes                │
-│  ├── role:referee   -> Referee routes                  │
-│  └── auth           -> Authenticated routes             │
-│                                                         │
-│  Policy-Based Authorization:                            │
-│  ├── TournamentPolicy                                  │
-│  └── Custom policies for resource ownership            │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+**Authorization:** Spatie Permissions with roles: admin (full access), home_yard (stadium/tournament), referee (officiating), user (basic features). Middleware: role:admin, role:home_yard, role:referee, auth. Policies for resource ownership.
 
 ### Security Measures
 
@@ -981,43 +440,11 @@ User: Start Quiz
 | Database | Parameterized queries |
 | Files | Storage access control |
 
-## File Storage Architecture
+## File Storage & Media
 
-```
-storage/
-├── app/
-│   └── public/              # Public uploads
-│       ├── stadiums/        # Stadium images
-│       ├── tournaments/     # Tournament media
-│       ├── instructors/     # Instructor photos
-│       └── videos/          # Video thumbnails
-├── framework/
-│   ├── cache/
-│   ├── sessions/
-│   └── views/
-└── logs/
-    └── laravel.log
+**Structure:** `storage/app/public/` (stadiums, tournaments, instructors, videos) + symlink to `public/storage`
 
-public/
-└── storage -> ../storage/app/public  # Symlink
-```
-
-### Media Management (Spatie)
-
-```php
-// Media collections per model
-Stadium::class
-├── 'images'     # Stadium photos
-└── 'gallery'    # Additional images
-
-Tournament::class
-├── 'thumbnail'  # Main image
-└── 'gallery'    # Event photos
-
-Instructor::class
-├── 'avatar'     # Profile photo
-└── 'portfolio'  # Work samples
-```
+**Media Collections (Spatie):** Stadium (images, gallery), Tournament (thumbnail, gallery), Instructor (avatar, portfolio)
 
 ## API Architecture
 
@@ -1107,45 +534,11 @@ Instructor::class
 - News articles
 - Static pages
 
-## Deployment Architecture
+## Deployment
 
-### Development Environment
+**Dev:** PHP 8.1+, MySQL 8.0+, Node.js 18+, Composer. Commands: `php artisan serve` + `npm run dev`
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Development                           │
-├─────────────────────────────────────────────────────────┤
-│  Local Machine                                          │
-│  ├── PHP 8.1+ with extensions                          │
-│  ├── MySQL 8.0+                                        │
-│  ├── Node.js 18+ (for Vite)                            │
-│  └── Composer                                           │
-│                                                         │
-│  Commands:                                              │
-│  ├── php artisan serve    (Backend)                    │
-│  └── npm run dev          (Frontend assets)            │
-└─────────────────────────────────────────────────────────┘
-```
-
-### Production Environment
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Production                            │
-├─────────────────────────────────────────────────────────┤
-│  Web Server (Nginx/Apache)                              │
-│  ├── PHP-FPM 8.1+                                      │
-│  ├── MySQL 8.0+                                        │
-│  ├── Redis (optional, for caching)                     │
-│  └── SSL Certificate                                    │
-│                                                         │
-│  Optimization:                                          │
-│  ├── php artisan config:cache                          │
-│  ├── php artisan route:cache                           │
-│  ├── php artisan view:cache                            │
-│  └── npm run build                                      │
-└─────────────────────────────────────────────────────────┘
-```
+**Prod:** Nginx/Apache, PHP-FPM 8.1+, MySQL 8.0+, Redis (optional), SSL. Optimize: config/route/view cache, `npm run build`
 
 ## Scalability Considerations
 

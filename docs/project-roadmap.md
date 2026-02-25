@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-02-02
-**Current Version:** 1.6.0
+**Last Updated:** 2026-02-25
+**Current Version:** 1.6.0+
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -152,10 +152,10 @@ Referee management system for tournament match officiating.
 
 ---
 
-### Phase 3: Enhanced Features (IN PROGRESS - 2025 Q4)
+### Phase 3: Enhanced Features (IN PROGRESS - 2025 Q4 - 2026 Q1)
 **Status:** 🔄 In Progress
 **Target:** 2026 Q1
-**Progress:** 40%
+**Progress:** 85%
 
 #### Completed Features
 - [x] User profile management with avatar upload (Dec 7)
@@ -172,6 +172,28 @@ Referee management system for tournament match officiating.
   - [x] Event check-in system with QR codes
   - [x] Admin approval workflow for submissions
   - [x] 3 proof types: Image, Link, QR Code
+- [x] Booking code system and history (Feb 7, 2026)
+  - [x] Booking code generation: BK{courtId:3+}{date:YYMMDD}{seq:3}
+  - [x] Booking confirmation tracking (confirmed_at)
+  - [x] Transfer proof system for booking transfers
+  - [x] Booking history and cancellation management
+- [x] Club system with posts, comments, reactions (Feb 2026)
+  - [x] Club creation and management
+  - [x] Club posts with media support
+  - [x] Comments and reactions on posts
+  - [x] Club activity tracking
+- [x] League Management System - Phase 4 (Feb 25, 2026)
+  - [x] 10 Blade views for league CRUD operations
+  - [x] Tab system for league overview, teams, schedule, standings
+  - [x] URL hash persistence for navigation
+  - [x] Team management with player roster
+  - [x] Match scheduling with AJAX score entry
+  - [x] League standings calculation and display
+  - [x] User search for player management
+  - [x] XSS prevention: @json() escaping, textContent DOM manipulation
+  - [x] Vanilla JS modals and fetch() API integration
+  - [x] Toastr notifications for user feedback
+  - [x] Vietnamese UI text with diacritics
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -183,7 +205,6 @@ Referee management system for tournament match officiating.
   - [ ] User engagement metrics
   - [ ] Revenue tracking
   - [ ] Popular time slots
-- [ ] OCR season/league system
 - [ ] Email notifications
 - [ ] Mobile-responsive optimizations
 
@@ -248,7 +269,7 @@ Referee management system for tournament match officiating.
 - ✅ News & CMS
 - ✅ OCR Ranking System
 
-### Recent Additions (December 2025)
+### Recent Additions (December 2025 - February 2026)
 - OCR Elo rating system (Dec 2)
 - Match challenge workflow (Dec 2)
 - Achievement badges (Dec 2)
@@ -278,6 +299,20 @@ Referee management system for tournament match officiating.
 - Wallet system with transaction history (Jan 14, 2026)
 - Social platform verification (Jan 14, 2026)
 - Special challenges and event check-ins (Jan 14, 2026)
+- User soft delete support (Jan 27, 2026)
+- Tournament draw_order field (Feb 2, 2026)
+- Booking code generation system (Feb 7, 2026)
+- Booking confirmation tracking (Feb 7, 2026)
+- Booking transfer proof system (Feb 9, 2026)
+- Club system with posts and comments (Feb 2026)
+- Club post reactions and media (Feb 2026)
+- Club activity management (Feb 2026)
+- League management system with tab UI (Feb 25, 2026)
+- League CRUD operations (create, read, update, delete)
+- Team management with player roster (Feb 25, 2026)
+- Match scheduling with automatic standings calculation (Feb 25, 2026)
+- AJAX score entry and game result updates (Feb 25, 2026)
+- Vanilla JS modals and fetch API (Feb 25, 2026)
 
 ### In Development
 - 🔄 Payment integration
@@ -400,6 +435,9 @@ Referee management system for tournament match officiating.
 | Skill Assessment Quiz | Complete | 2026-01-03 | 100% |
 | Gender-Aware Skill Levels | Complete | 2026-01-15 | 100% |
 | Point Earning System | Complete | 2026-01-14 | 100% |
+| Booking Code System | Complete | 2026-02-07 | 100% |
+| Club Management System | Complete | 2026-02-14 | 100% |
+| League Management (Phase 4) | Complete | 2026-02-25 | 100% |
 | Payment Gateway Integration | 🔄 In Progress | 2026-03-31 | 30% |
 | Notification System Design | Planned | 2026-03-15 | 0% |
 
@@ -477,6 +515,81 @@ Referee management system for tournament match officiating.
 ---
 
 ## Change Log
+
+### Version 1.7.0 (2026-02-25)
+
+#### Major Features Added
+- **League Management System:** Complete league management for Home Yard operators
+  - League CRUD operations: create, list, edit, delete
+  - League status transitions (draft, active, completed)
+  - Team management: add teams, manage roster, assign players
+  - Match scheduling: automatic round/match generation
+  - Score tracking: AJAX score entry for matches and games
+  - League standings: automatic calculation and display
+  - Tab-based UI: Overview, Teams, Schedule (Matches), Standings
+  - URL hash persistence for tab navigation
+  - User search interface for player/team member assignment
+
+#### Technical Implementation
+- 3 new models: `League`, `LeagueTeam`, `LeagueRound`, `LeagueMatch`, `LeagueMatchGame`, `LeagueTeamPlayer`, `LeagueStanding`
+- 3 services: `LeagueService`, `LeagueScheduleService`, `LeagueStandingsService`
+- 3 controllers: `HomeYardLeagueController` (Front), `LeagueTeamController` (Front), `LeagueMatchController` (Front), `LeagueController` (Admin)
+- 10 Blade views in `resources/views/home-yard/leagues/`
+  - index.blade.php - League listing
+  - create.blade.php - League creation form
+  - edit.blade.php - League editing
+  - _form.blade.php - Shared league form component
+  - show.blade.php - League detail page with tabs
+  - _tab-overview.blade.php - Overview tab
+  - _tab-teams.blade.php - Teams management tab
+  - _tab-matches.blade.php - Match scheduling tab
+  - _tab-standings.blade.php - Standings display tab
+  - matches.blade.php - Detailed matches view
+- UI Features:
+  - Vanilla JS modals for team/player operations
+  - fetch() API for AJAX operations
+  - Toastr.js notifications for user feedback
+  - XSS prevention with @json() for JS params, textContent for DOM
+  - Vietnamese UI with proper diacritics
+
+#### Web Routes
+- `GET /homeyard/leagues` - List leagues
+- `GET /homeyard/leagues/create` - Create form
+- `POST /homeyard/leagues` - Store league
+- `GET /homeyard/leagues/{league}` - View league details
+- `GET /homeyard/leagues/{league}/edit` - Edit form
+- `PUT /homeyard/leagues/{league}` - Update league
+- `DELETE /homeyard/leagues/{league}` - Delete league
+- `PATCH /homeyard/leagues/{league}/status` - Update status
+- `POST /homeyard/leagues/{league}/schedule` - Generate schedule
+- `POST /homeyard/leagues/{league}/teams` - Add team
+- `PUT /homeyard/leagues/{league}/teams/{team}` - Update team
+- `DELETE /homeyard/leagues/{league}/teams/{team}` - Remove team
+- `POST /homeyard/leagues/{league}/teams/{team}/players` - Add player
+- `DELETE /homeyard/leagues/{league}/teams/{team}/players/{player}` - Remove player
+- `GET /homeyard/leagues/{league}/matches` - List matches
+- `PUT /homeyard/leagues/{league}/matches/{match}/score` - Update match score
+- `PUT /homeyard/leagues/{league}/matches/{match}/games/{game}/score` - Update game score
+
+#### Database Changes
+- Created `leagues` table (name, description, sport, format, status, stadium_id, created_by)
+- Created `league_teams` table (league_id, team_id, team_name, seed_position)
+- Created `league_team_players` table (team_id, player_id, player_name)
+- Created `league_rounds` table (league_id, round_number, is_finished)
+- Created `league_matches` table (league_id, round_id, team_1_id, team_2_id, status)
+- Created `league_match_games` table (match_id, game_number, team_1_score, team_2_score, winner_id)
+- Created `league_standings` table (league_id, team_id, wins, losses, points)
+
+#### Frontend Patterns
+- Tab navigation with URL hash (#overview, #teams, #matches, #standings)
+- AJAX team/player management with modal forms
+- Real-time standings recalculation after score update
+- User search dropdown for player assignment
+- Match score entry form with game-by-game breakdown
+- Status badge display (draft, active, completed)
+- Sidebar navigation link with icon
+
+---
 
 ### Version 1.6.0 (2026-01-14)
 
@@ -708,97 +821,20 @@ Referee management system for tournament match officiating.
 ---
 
 ### Version 1.2.0 (2025-12-07)
-
-#### Features Added
-- **User Profile Management:** Complete profile editing system
-  - Profile information editing (name, location, province)
-  - Avatar upload and management with validation
-  - Email change with password verification
-  - Password update with current password check
-  - OAuth users can set initial password
-  - Province relationship for location data
-
-#### Technical Implementation
-- `ProfileService` - Profile update business logic
-- `ProfileController` - 5 endpoints (edit, update, avatar, email, password)
-- Profile edit view at `resources/views/user/profile/edit.blade.php`
-- User model methods: `province()`, `getAvatarUrl()`
-
-#### Database Changes
+- User profile management (avatar, email/password updates, location)
+- Added `ProfileService`, 5 endpoints, profile views
 - Added `avatar`, `location`, `province_id` to users table
-- Foreign key: province_id references provinces.id
-
-#### Routes Added
-- `GET /user/profile/edit` - user.profile.edit
-- `PUT /user/profile` - user.profile.update
-- `PUT /user/profile/avatar` - user.profile.avatar
-- `PUT /user/profile/email` - user.profile.email
-- `PUT /user/profile/password` - user.profile.password
-
----
 
 ### Version 1.1.0 (2025-12-05)
-
-#### Features Added
-- **OPRS Rating System:** Multi-component rating extending OCR
-  - Three-component scoring: Elo (70%) + Challenge (20%) + Community (10%)
-  - Seven OPR Levels: 1.0 to 5.0+ (Beginner to Elite)
-  - Challenge system with 5 challenge types
-  - Community activity tracking with 5 activity types
-  - Real-time OPRS calculation and history
-  - Level-based leaderboards and matchmaking
-  - Admin management and verification tools
-
-#### Technical Implementation
-- `OprsService` - Core OPRS calculation service
-- `ChallengeService` - Challenge submission and verification
-- `CommunityService` - Community activity tracking
-- 3 new models: `ChallengeResult`, `CommunityActivity`, `OprsHistory`
-- 3 new API controllers (OPRS, Leaderboard, Matchmaking)
-- 3 new admin controllers (OPRS, Challenge, Activity)
-- Frontend views for challenges and community
-- Blade components for OPRS visualization
-- 2 Artisan commands for batch operations
-
-#### Database Changes
-- Added `challenge_score`, `community_score`, `total_oprs`, `opr_level` to users table
-- Created `challenge_results` table
-- Created `community_activities` table
-- Created `oprs_histories` table
-- Added `match_category` to `ocr_matches` table
-
-#### API Changes
-- 22 new OPRS API endpoints
-- 11 new admin OPRS routes
-- Enhanced user profile with OPRS breakdown
-
----
+- OPRS multi-component rating (Elo 70% + Challenge 20% + Community 10%)
+- Added `OprsService`, `ChallengeService`, `CommunityService`
+- New models: `ChallengeResult`, `CommunityActivity`, `OprsHistory`
+- 22 new API endpoints, 11 admin routes
 
 ### Version 1.0.0 (2025-12-02)
-
-#### Features Added
-- **OCR Ranking System:** Complete competitive ranking system
-  - Elo rating (100-3000+) with seven rank tiers
-  - Match challenge workflow (singles/doubles)
-  - Achievement badge system (12+ badge types)
-  - Global leaderboard with filtering
-  - Admin dispute resolution
-  - Elo history tracking
-
-#### Technical Implementation
-- `EloService` with dynamic K-factor adjustment
-- `BadgeService` with automated badge awarding
-- `OcrMatch` model with state transitions
-- 3 new API controllers (Match, User, Leaderboard)
-- 2 new admin controllers (Dispute, Badge)
-- Frontend views for OCR system
-- Database migrations for OCR tables
-
-#### Database Changes
-- Added `elo_rating`, `elo_rank`, `total_ocr_matches`, `ocr_wins`, `ocr_losses` to users table
-- Created `ocr_matches` table
-- Created `elo_histories` table
-- Created `user_badges` table
+- OCR Elo ranking system (100-3000+, 7 tiers), match challenges, badges, leaderboard
+- `EloService`, `BadgeService`, `OcrMatch` model
+- New tables: `ocr_matches`, `elo_histories`, `user_badges`
 
 ---
 
@@ -810,9 +846,11 @@ Referee management system for tournament match officiating.
 4. **OCR Seasons:** Should we implement seasonal rankings with resets?
 5. **Multi-language:** Timeline for English language support?
 6. **API Access:** Should we provide public API for third-party integrations?
+7. **Club Features:** Should clubs have event hosting capabilities?
+8. **Booking Transfers:** Should transfer fees apply based on stadium policy?
 
 ---
 
 **Maintained By:** Development Team
-**Last Review:** 2025-12-09
-**Next Review Target:** 2026-01-09
+**Last Review:** 2026-02-25
+**Next Review Target:** 2026-03-25

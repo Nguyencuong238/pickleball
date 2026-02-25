@@ -1,6 +1,6 @@
 # Code Standards & Conventions
 
-**Last Updated**: 2026-02-02
+**Last Updated**: 2026-02-25
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -20,13 +20,13 @@ app/
 ├── Exceptions/            # Exception handlers
 ├── Http/
 │   ├── Controllers/       # Route controllers
-│   │   ├── Admin/        # Admin panel (22 controllers)
-│   │   ├── Api/          # API endpoints (24 controllers)
-│   │   └── Front/        # Public frontend (26 controllers)
+│   │   ├── Admin/        # Admin panel (22+ controllers)
+│   │   ├── Api/          # API endpoints (24+ controllers)
+│   │   └── Front/        # Public frontend (28+ controllers)
 │   └── Middleware/        # HTTP middleware
-├── Models/                # Eloquent models (66 models)
+├── Models/                # Eloquent models (67+ models)
 ├── Policies/              # Authorization policies
-├── Services/              # Business logic (12 services)
+├── Services/              # Business logic (12+ services)
 └── Providers/             # Service providers
 ```
 
@@ -113,7 +113,7 @@ class Stadium extends Model implements HasMedia
 
 ### Migration Conventions
 
-**Naming**: `YYYY_MM_DD_HHMMSS_action_table_name.php`
+**Naming**: Recent migrations use `YYYY_MM_DD_action_table_name.php` (without timestamp suffix)
 
 **Actions**:
 - `create_*_table` - New table
@@ -121,7 +121,8 @@ class Stadium extends Model implements HasMedia
 - `drop_*_from_*_table` - Remove columns
 - `modify_*_in_*_table` - Change columns
 
-**Example**:
+**Example**: `2026_02_07_add_booking_code_to_bookings_table.php`
+
 ```php
 public function up(): void
 {
@@ -393,6 +394,36 @@ DB::select("SELECT * FROM users WHERE email = '$email'");
 ```
 
 ## Code Organization
+
+### Database Transaction & Lock Pattern
+
+For sequence generation (e.g., booking codes), use DB transactions with pessimistic locking:
+
+```php
+return DB::transaction(function () use ($courtId, $date) {
+    $last = self::where('court_id', $courtId)
+        ->where('booking_date', $date)
+        ->lockForUpdate()
+        ->latest('id')
+        ->first();
+
+    $seq = ($last ? (int)substr($last->booking_code, -3) : 0) + 1;
+    return 'BK' . str_pad($courtId, 3, '0', STR_PAD_LEFT)
+         . date('ymd', strtotime($date))
+         . str_pad($seq, 3, '0', STR_PAD_LEFT);
+});
+```
+
+Key: `lockForUpdate()` prevents race conditions; `DB::transaction()` ensures atomicity. Fallback: `$booking->formatted_booking_code ?: 'BK-' . str_pad($booking->id, 6, '0', STR_PAD_LEFT)`
+
+### Soft Delete Pattern
+
+Use `SoftDeletes` trait for logical deletion with recovery:
+```php
+use Illuminate\Database\Eloquent\SoftDeletes;
+class User extends Model { use SoftDeletes; }
+// Auto-excludes deleted; withTrashed() includes; onlyTrashed() filters
+```
 
 ### Service Classes
 
@@ -732,10 +763,7 @@ hotfix/auth-redirect-loop
 - Views: < 200 lines
 - Services: < 300 lines
 
-If exceeding limits, consider:
-1. Extract to service classes
-2. Split into multiple controllers
-3. Use Blade components/partials
+If exceeding: extract to services, split controllers, or use Blade components.
 
 ## Documentation Standards
 
@@ -759,12 +787,7 @@ public function getAvailableSlots(Court $court, string $date): Collection
 
 ### Inline Comments
 
-Use sparingly, only for complex logic:
-
-```php
-// Calculate price with weekend surcharge (20% extra)
-$price = $basePrice * ($isWeekend ? 1.2 : 1.0);
-```
+Use sparingly for complex logic: `// Price with weekend surcharge (20%)`
 
 ## Related Documentation
 

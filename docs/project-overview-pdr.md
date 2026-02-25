@@ -1,8 +1,8 @@
 # Project Overview & Product Development Requirements (PDR)
 
 **Project Name**: Pickleball Platform
-**Version**: 1.6.0
-**Last Updated**: 2026-02-02
+**Version**: 1.6.0+
+**Last Updated**: 2026-02-25
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -64,14 +64,17 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Stadium profiles with media gallery
 - Multiple courts per stadium
 - Dynamic court pricing (time-based tiers)
-- Booking management with calendar view
+- Booking management with calendar view, history, and cancellation
+- Booking code system: BK{courtId:3+}{date:YYMMDD}{seq:3}
+- Booking confirmation tracking with confirmed_at timestamp
+- Transfer proof system for booking transfers
 - Reviews and ratings
 
 ### 2. Tournament System
 - Tournament creation and configuration
 - Category management (skill levels, age groups, singles/doubles)
 - Athlete registration with partner selection for doubles categories
-- Partner linking system for doubles pairs
+- Partner linking system for doubles pairs with draw_order for tournament draws
 - Round and group management
 - Match scheduling with pair support
 - Match results and rankings
@@ -346,20 +349,20 @@ Create a centralized platform connecting pickleball players with courts, tournam
 ## Database Schema Overview
 
 ### Core Entities
-- **users**: User accounts with OAuth support
+- **users**: User accounts with OAuth support, soft deletes
 - **stadiums**: Venue information
 - **courts**: Individual courts within stadiums
 - **court_pricings**: Time-based pricing tiers
-- **bookings**: Court reservations
+- **bookings**: Court reservations with booking_code, confirmed_at, transfer_proof
 
 ### Tournament Entities
 - **tournaments**: Tournament configuration
 - **tournament_categories**: Skill/age categories (singles/doubles)
-- **tournament_athletes**: Registered participants with partner_id for doubles
+- **tournament_athletes**: Registered participants with partner_id and draw_order for doubles
 - **rounds**: Tournament rounds
 - **groups**: Group stage groupings
 - **group_standings**: Group rankings
-- **matches**: Individual matches with pair support
+- **matches**: Individual matches with pair support and referee assignment
 
 ### Instructor Entities
 - **instructors**: Coach profiles
@@ -409,6 +412,15 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **skill_quiz_attempts**: User attempts with scores, ELO, flags
 - **skill_quiz_answers**: Individual question responses
 - **users**: Added quiz tracking fields (quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at) and gender field for skill level mapping
+
+### Club System Entities
+- **clubs**: Club management and configuration
+- **club_activities**: Club activity tracking
+- **club_join_requests**: Club join request management
+- **club_posts**: Club discussion posts
+- **club_post_comments**: Comments on club posts
+- **club_post_media**: Media in club posts
+- **club_post_reactions**: Reactions/likes on posts
 
 ### Point Earning Entities
 - **point_tasks**: 16 tasks with code, points, role, category, frequency, proof_type
@@ -463,13 +475,17 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - [x] OPRS multi-component rating system
 - [x] Challenge and community activity systems
 
-### Phase 2: Enhanced Features (In Progress)
+### Phase 2: Enhanced Features (In Progress - 70%)
 - [x] User profile management with avatar upload
 - [x] Referee system with match officiating
 - [x] Doubles pair selection for tournament categories
-- [x] Skill assessment quiz system (260102-1200)
+- [x] Skill assessment quiz system (260103-1200)
 - [x] Gender-aware skill level mapping (260115-2019)
 - [x] Point earning system with 16 tasks (260114-1601)
+- [x] Booking history and management
+- [x] Club system with posts, comments, reactions
+- [x] Booking code generation and confirmation tracking
+- [x] Transfer proof system for booking transfers
 - [ ] Online payment integration
 - [ ] Real-time notifications for match invites and activities
 - [ ] Mobile app with OPRS integration

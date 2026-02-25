@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-02-02
+**Last Updated**: 2026-02-25
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -70,7 +70,7 @@ pickleball/
 - **Vite**: 5.0+ (Asset bundling)
 - **Axios**: 1.6+ (HTTP client)
 
-## Models Overview (66 Models)
+## Models Overview (75+ Models)
 
 ### User & Auth
 - `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data (avatar, location, province, gender), referee fields
@@ -80,18 +80,19 @@ pickleball/
 - `Stadium` - Venue profiles
 - `Court` - Individual courts
 - `CourtPricing` - Time-based pricing tiers
-- `Booking` - Court reservations
+- `Booking` - Court reservations with booking_code, confirmed_at, transfer_proof
 - `Province` - Geographic regions
 
 ### Tournament System
 - `Tournament` - Tournament configuration
 - `TournamentCategory` - Skill/age categories (singles/doubles)
-- `TournamentAthlete` - Registered participants with partner_id for doubles
+- `TournamentAthlete` - Registered participants with partner_id and draw_order for doubles
 - `TournamentReferee` - Referee-tournament assignments
 - `Round` - Tournament rounds
 - `Group` - Group stage groupings
 - `GroupStanding` - Group rankings
 - `MatchModel` - Individual matches with referee assignment and pair support
+- `MatchEvent` - Match event records
 
 ### Instructor System
 - `Instructor` - Coach profiles
@@ -119,22 +120,36 @@ pickleball/
 - `Review` - Venue reviews
 - `Payment` - Payment records
 - `Tempo` - Temporary data
+- `Referral` - User referral tracking
+
+### Club System (NEW)
+- `Club` - Club management
+- `ClubActivity` - Club activity tracking
+- `ClubJoinRequest` - Club join request management
+- `ClubPost` - Club discussion posts
+- `ClubPostComment` - Comments on club posts
+- `ClubPostMedia` - Media in club posts
+- `ClubPostReaction` - Reactions/likes on posts
 
 ### OCR System (Elo-based)
 - `OcrMatch` - Ranked matches (singles/doubles)
 - `EloHistory` - Elo rating change records
 - `UserBadge` - Achievement badges
 
-### OPRS System (New)
+### OPRS System
 - `ChallengeResult` - Technical skill challenge records
 - `CommunityActivity` - Community engagement activities
 - `OprsHistory` - OPRS change audit log
+- `OprVerificationRequest` - OPRS verification requests
+- `PermissionRequest` - User permission requests
+- `PosStadiumSetting` - Point of sale stadium settings
 
 ### Skill Quiz System
 - `SkillDomain` - 6 quiz domains with weights
 - `SkillQuestion` - 36 quiz questions with domain, scale, weight
 - `SkillQuizAttempt` - User attempts with scores, ELO, completion time, flags
 - `SkillQuizAnswer` - Individual answers with rating (0-3)
+- `Quiz` - Quiz configuration and management
 
 ### Point Earning System (New - 2026-01-14)
 - `PointTask` - 16 tasks with code, points, role, category, frequency, proof_type
@@ -146,12 +161,22 @@ pickleball/
 - `Event` - Workshop/event system with UUID, QR code, datetime, points
 - `EventCheckin` - User event attendance records
 
-## Services Overview (12 Services)
+### League Management System (NEW - 2026-02-25)
+- `League` - League configuration (name, description, sport, format, status)
+- `LeagueTeam` - Team enrollment with seed position
+- `LeagueTeamPlayer` - Player roster for each team
+- `LeagueRound` - Tournament rounds within league
+- `LeagueMatch` - Individual match records with status tracking
+- `LeagueMatchGame` - Game-by-game score breakdown for matches
+- `LeagueStanding` - Calculated standings (wins, losses, points)
+
+## Services Overview (15+ Services)
 
 ### Business Logic Services
 - `EloService` - Elo rating calculations, K-factor management, match processing
 - `BadgeService` - Badge awarding, streak tracking, progress calculations
 - `OprsService` - OPRS calculation (Elo 70% + Challenge 20% + Community 10%), level mapping
+- `OprVerificationService` - OPRS verification request handling
 - `ChallengeService` - Challenge submission, verification, point awarding
 - `CommunityService` - Activity tracking, check-ins, weekly bonuses
 - `ProfileService` - Profile updates, avatar management, email/password changes
@@ -159,12 +184,14 @@ pickleball/
 - `PointEarningService` - Task eligibility checking, frequency validation, auto-award logic
 - `PointSubmissionService` - Submission creation, proof validation, admin review workflow
 - `SocialVerificationService` - Social platform verification, URL uniqueness checking
-- `WalletService` - Point balance management, transaction recording (if exists)
-- `EventService` - Event check-in, QR validation, attendance tracking (if exists)
+- `ClubPostMediaService` - Club post media management and processing
+- `LeagueService` - League CRUD, team management, player assignment
+- `LeagueScheduleService` - Match schedule generation, round creation
+- `LeagueStandingsService` - Standings calculation, win/loss tracking
 
 ## Controllers Overview
 
-### Admin Controllers (22)
+### Admin Controllers (23)
 | Controller | Purpose |
 |------------|---------|
 | `DashboardController` | Admin dashboard |
@@ -189,6 +216,7 @@ pickleball/
 | `EventController` | Event creation, QR management |
 | `WalletController` | User wallet management, manual adjustments |
 | `PointReportController` | Point earning analytics and reports |
+| `LeagueController` | League admin viewing and reporting |
 
 ### API Controllers (24)
 | Controller | Purpose |
@@ -212,14 +240,19 @@ pickleball/
 | `SocialVerificationController` | Social verification status and URLs |
 | (Plus 7 more API controllers for bookings, courts, etc.) |
 
-### Front Controllers (26)
+### Front Controllers (31+)
 | Controller | Purpose |
 |------------|---------|
 | `HomeController` | Homepage, listings, booking |
 | `DashboardController` | User/Home Yard dashboard |
 | `ProfileController` | Profile management (edit, avatar, email, password) |
+| `BookingHistoryController` | Booking history and cancellation |
 | `HomeYardStadiumController` | Stadium owner CRUD |
 | `HomeYardTournamentController` | Tournament + referee management, match-level referee assignment |
+| `HomeYardClubController` | HomeYard club management and activities |
+| `HomeYardLeagueController` | League CRUD, status updates, schedule generation |
+| `LeagueTeamController` | Team and player roster management |
+| `LeagueMatchController` | Match listing and score entry |
 | `AthleteManagementController` | Athlete operations |
 | `TournamentRegistrationController` | Registration flow |
 | `CategoryController` | Tournament categories |
@@ -232,6 +265,9 @@ pickleball/
 | `OcrController` | OCR/OPRS frontend (matches, leaderboard, profile, challenges, community) |
 | `RefereeController` | Referee dashboard, match officiating, score entry |
 | `RefereeProfileController` | Public referee directory and profiles |
+| `ReferralController` | Referral system frontend |
+| `UserPointController` | User point dashboard |
+| `OprVerificationController` | OPRS verification requests |
 | `SkillQuizController` | Frontend quiz flow (index, start, quiz, result) |
 | `PointController` | Point earning frontend (tasks, wallet, submissions) |
 | `PointSubmissionController` | Submission form, history, status tracking |
@@ -239,7 +275,9 @@ pickleball/
 | `EventController` | Event listing, registration, QR check-in |
 | `WalletController` | Wallet dashboard, transaction history |
 | `SocialVerificationController` | Social verification flow |
-| (Plus 2 more front controllers) |
+| `ClubPostController` | Club post CRUD operations |
+| `ClubPostCommentController` | Club post comments |
+| `ClubPostReactionController` | Club post reactions/likes |
 
 ### Root Controllers (5)
 | Controller | Purpose |
@@ -257,9 +295,10 @@ pickleball/
 - **Auth**: Login, register, OAuth (Google, Facebook)
 - **User**: Dashboard, profile management, reviews, favorites
 - **OCR/OPRS**: Matches, challenges, community activities
-- **Home Yard**: Stadium/tournament/referee management (role-protected)
+- **Home Yard**: Stadium/tournament/referee management, league management (role-protected)
+- **League Management**: CRUD, team/player management, match scheduling, score entry (9 routes + actions)
 - **Referee**: Dashboard, match officiating, score entry (role-protected)
-- **Admin**: Full CMS access + OPRS management (role-protected)
+- **Admin**: Full CMS access + OPRS management + league viewing (role-protected)
 
 ### API Routes (`routes/api.php`)
 - **Booking**: Operations and availability
@@ -375,6 +414,42 @@ pickleball/
 - OAuth users can set initial password
 - Province relationship for location data
 
+### 9. League Management System (NEW)
+- **League Creation & Management:**
+  - CRUD operations for leagues (create, read, update, delete)
+  - League status tracking (draft, active, completed)
+  - Sport and format configuration
+  - League description and configuration
+- **Team Management:**
+  - Add/remove teams from leagues
+  - Seed position assignment
+  - Team status tracking
+- **Player Roster Management:**
+  - Add players to team roster
+  - User search interface for player assignment
+  - Player removal from roster
+  - Roster size validation
+- **Match Scheduling:**
+  - Automatic round and match generation
+  - Schedule generation based on league format
+  - Round-robin or bracket scheduling
+- **Score Tracking:**
+  - Game-by-game score entry
+  - Match result recording
+  - Winner calculation from games
+- **Standings Display:**
+  - Automatic standings calculation
+  - Wins, losses, and points tracking
+  - Real-time updates after score entry
+- **User Interface:**
+  - Tab-based league detail page (Overview, Teams, Schedule, Standings)
+  - URL hash persistence for tab navigation
+  - AJAX-powered team/player management
+  - Vanilla JS modals for operations
+  - Fetch API for asynchronous updates
+  - Toastr notifications for feedback
+  - Vietnamese localization with proper diacritics
+
 ## Database Migrations (160 files)
 
 ### Core Tables (2014-2019)
@@ -391,12 +466,14 @@ pickleball/
 - Social activities
 - OCR system (matches, elo_histories, user_badges)
 
-### OPRS Tables (2025-12-05)
+### OPRS Tables (2025-12-05+)
 - `users` - Added OPRS fields (challenge_score, community_score, total_oprs, opr_level)
 - `challenge_results` - Challenge submission records
 - `community_activities` - Community engagement tracking
 - `oprs_histories` - OPRS change audit log
 - `ocr_matches` - Added match_category field for matchmaking
+- `opr_verification_requests` - OPRS verification tracking
+- `permission_requests` - User permission request management
 
 ### Profile Tables (2025-12-07)
 - `users` - Added profile fields (avatar, location, province_id)
@@ -408,24 +485,47 @@ pickleball/
 - `matches` - Added referee_id and referee_name columns
 
 ### Doubles Support Tables (2025-12-18)
-- `tournament_athletes` - Added partner_id column for doubles pair linking
+- `tournament_athletes` - Added partner_id and draw_order columns for doubles pair linking and drawing
 
-### Skill Quiz Tables (2026-01-03)
+### Club System Tables (2026-02+)
+- `clubs` - Club configuration and management
+- `club_activities` - Club activity tracking
+- `club_join_requests` - Club join request management
+- `club_posts` - Club discussion posts
+- `club_post_comments` - Comments on club posts
+- `club_post_media` - Media attachments in club posts
+- `club_post_reactions` - Reactions/likes on posts
+
+### Skill Quiz Tables (2026-01-03+)
 - `skill_domains` - 6 fixed domains (Technical Skills, Strategy, Physical, Mental, Experience, Situations)
 - `skill_questions` - 36 questions with domain_id, text, description, scale (0-3), weight
 - `skill_quiz_attempts` - User attempts with total_score, elo_assigned, completion_time, is_flagged
 - `skill_quiz_answers` - Individual answers with question_id, rating (0-3)
 - `users` - Added quiz_completed_at, quiz_elo_assigned, can_retake_quiz_at, gender (enum: male/female, nullable)
+- `quizzes` - Quiz configuration and management
 
-### Point Earning Tables (2026-01-14)
+### Point Earning Tables (2026-01-14+)
 - `point_tasks` - 16 tasks across 4 roles with code, points, role, category, frequency, proof_type, is_active
-- `point_submissions` - User proof submissions with UUID, user_id, point_task_id, status, proof_data, admin_id, admin_notes, reviewed_at, points_awarded, composite indexes
+- `point_submissions` - User proof submissions with UUID, user_id, point_task_id, status, proof_data, admin_id, admin_notes, reviewed_at, points_awarded
 - `user_wallets` - User point balance with user_id, points
 - `user_point_transactions` - Transaction history with user_id, points, type, description, metadata
 - `social_profile_verifications` - Social platform verification with user_id, platform, profile_url, verified_at
 - `special_challenges` - Time-limited challenges with title, description, points, start_date, end_date, max_participants, is_active
 - `events` - Workshop/event system with UUID, title, description, location, stadium_id, start_datetime, end_datetime, points, max_attendees, is_active, qr_code_data, created_by
 - `event_checkins` - User event attendance with event_id, user_id, checked_in_at, check_in_method, points_awarded
+
+### Booking Enhancement Tables (2026-02-02+)
+- `bookings` - Added booking_code (BK{courtId:3+}{date:YYMMDD}{seq:3}), confirmed_at, transfer_proof
+- `users` - Added soft delete support
+
+### League Management Tables (2026-02-25+)
+- `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)
+- `league_teams` - Team enrollment with league_id, team_id, team_name, seed_position
+- `league_team_players` - Player roster with team_id, player_id, player_name
+- `league_rounds` - Tournament rounds with league_id, round_number, is_finished
+- `league_matches` - Match records with league_id, round_id, team_1_id, team_2_id, status
+- `league_match_games` - Game-by-game scores with match_id, game_number, team_1_score, team_2_score, winner_id
+- `league_standings` - Calculated standings with league_id, team_id, wins, losses, points
 
 ## View Structure
 
@@ -455,6 +555,7 @@ pickleball/
 - Dashboard, stadiums
 - Tournaments, athletes (includes referee assignment)
 - Bookings, courts
+- Leagues (CRUD, tab-based detail view, teams, matches, standings)
 
 ### Referee (`resources/views/referee/`)
 - Dashboard with stats and upcoming matches
@@ -502,6 +603,10 @@ php artisan db:seed --class=SkillQuestionSeeder
 - `/homeyard/stadiums` - Stadium management
 - `/homeyard/tournaments` - Tournament management
 - `/homeyard/tournaments/{id}/referees` - Referee assignment
+- `/homeyard/leagues` - League listing and management
+- `/homeyard/leagues/create` - Create new league
+- `/homeyard/leagues/{league}` - League detail with tabs
+- `/homeyard/leagues/{league}/edit` - Edit league
 
 ### For Referees
 - `/referee/dashboard` - Referee overview and stats
@@ -656,4 +761,4 @@ The skill quiz system implements gender-differentiated skill level mapping align
 
 ## Unresolved Questions
 
-None. Codebase structure documented with OPRS, Referee, and Gender-Aware Skill Level systems.
+None. Codebase structure documented with OPRS, Referee, Gender-Aware Skill Level, Club Management, and League Management systems.
