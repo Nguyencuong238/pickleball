@@ -55,6 +55,8 @@ class InstructorController extends Controller
             'province_id' => 'nullable|exists:provinces,id',
         ]);
 
+        dd(1);
+
         DB::beginTransaction();
         try {
             $data = $request->only('name', 'bio', 'description', 'experience_years', 'student_count', 
@@ -202,7 +204,7 @@ class InstructorController extends Controller
     public function edit($id)
     {
         $instructor = Instructor::findOrFail($id);
-        
+
         $provinces = Province::all();
         return view('admin.instructors.edit', compact('instructor', 'provinces'));
     }
@@ -382,8 +384,10 @@ class InstructorController extends Controller
         }
     }
 
-    public function destroy(Instructor $instructor)
+    public function destroy($id)
     {
+        $instructor = Instructor::findOrFail($id);
+
         if ($instructor->image) {
             Storage::disk(config('filesystems.default'))->delete($instructor->image);
         }
