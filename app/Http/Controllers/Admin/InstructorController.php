@@ -55,8 +55,6 @@ class InstructorController extends Controller
             'province_id' => 'nullable|exists:provinces,id',
         ]);
 
-        dd(1);
-
         DB::beginTransaction();
         try {
             $data = $request->only('name', 'bio', 'description', 'experience_years', 'student_count', 
@@ -196,6 +194,7 @@ class InstructorController extends Controller
             
             return redirect()->route('admin.instructors.index')->with('success', 'Tạo giảng viên thành công.');
         } catch (\Exception $e) {
+            \Log::error('Error creating instructor: ' . $e->getMessage(), ['exception' => $e]);
             DB::rollBack();
             return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage())->withInput();
         }
