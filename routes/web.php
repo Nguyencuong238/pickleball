@@ -350,7 +350,7 @@ Route::middleware('web')->group(function () {
 Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(function () { //exclude middleware: 'role:home_yard'
     Route::resource('clubs', HomeYardClubController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
 
-    // Route::resource('stadiums', HomeYardStadiumController::class);
+    Route::resource('stadiums', HomeYardStadiumController::class);
 
     // Tournament export routes (before resource route to take priority)
     Route::get('tournaments/export/list', [HomeYardTournamentController::class, 'exportTournamentsList'])->name('tournaments.export');
@@ -378,13 +378,13 @@ Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(functi
     Route::get('matches', [HomeYardTournamentController::class, 'matches'])->name('matches');
     Route::get('athletes', [HomeYardTournamentController::class, 'athletes'])->name('athletes');
     Route::get('rankings', [HomeYardTournamentController::class, 'rankings'])->name('rankings');
-    // Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
-    // Route::post('courts', [HomeYardTournamentController::class, 'storeCourt'])->name('courts.store');
-    // Route::get('courts/{court}/edit', [HomeYardTournamentController::class, 'editCourt'])->name('courts.edit');
-    // Route::get('courts/{court}/pricing', [HomeYardTournamentController::class, 'getPricingTiers'])->name('courts.pricing');
-    // Route::put('courts/{court}', [HomeYardTournamentController::class, 'updateCourt'])->name('courts.update');
-    // Route::get('courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('courts.available-slots');
-    // Route::post('courts/bulk-delete', [HomeYardTournamentController::class, 'deleteCourts'])->name('courts.bulk-delete');
+    Route::get('courts', [HomeYardTournamentController::class, 'courts'])->name('courts');
+    Route::post('courts', [HomeYardTournamentController::class, 'storeCourt'])->name('courts.store');
+    Route::get('courts/{court}/edit', [HomeYardTournamentController::class, 'editCourt'])->name('courts.edit');
+    Route::get('courts/{court}/pricing', [HomeYardTournamentController::class, 'getPricingTiers'])->name('courts.pricing');
+    Route::put('courts/{court}', [HomeYardTournamentController::class, 'updateCourt'])->name('courts.update');
+    Route::get('courts/{court}/available-slots', [HomeYardTournamentController::class, 'getAvailableSlots'])->name('courts.available-slots');
+    Route::post('courts/bulk-delete', [HomeYardTournamentController::class, 'deleteCourts'])->name('courts.bulk-delete');
     // // Specific booking routes (must come before generic routes)
     // Route::post('bookings', [HomeYardTournamentController::class, 'bookingCourt'])->name('bookings.store');
     // Route::post('bookings/calculate-price', [HomeYardTournamentController::class, 'calculateBookingPrice'])->name('bookings.calculate-price');

@@ -696,7 +696,7 @@ class HomeController extends Controller
             $query->where('days_of_week', 'like', '%' . $day . '%');
         }
 
-        $socials = $query->paginate(10)->appends($request->query());
+        $socials = $query->paginate(12)->appends($request->query());
 
         // Add join status for each social event
         if (auth()->check()) {
