@@ -1,6 +1,6 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-02-25
+**Last Updated:** 2026-02-27
 **Current Version:** 1.6.0+
 **Project:** Pickleball Platform
 
@@ -155,7 +155,7 @@ Referee management system for tournament match officiating.
 ### Phase 3: Enhanced Features (IN PROGRESS - 2025 Q4 - 2026 Q1)
 **Status:** 🔄 In Progress
 **Target:** 2026 Q1
-**Progress:** 85%
+**Progress:** 90%
 
 #### Completed Features
 - [x] User profile management with avatar upload (Dec 7)
@@ -194,6 +194,13 @@ Referee management system for tournament match officiating.
   - [x] Vanilla JS modals and fetch() API integration
   - [x] Toastr notifications for user feedback
   - [x] Vietnamese UI text with diacritics
+- [x] Club Activities ReClub-Style Upgrade (Complete - Feb 27, 2026)
+  - [x] Phase 1: Database migrations - Activity types, participants, competition tables (Complete)
+  - [x] Phase 2: Models & Services - ClubActivity, Participant, Competition models + services (Complete)
+  - [x] Phase 3: Controllers & Routes - RSVP, competition, participant management endpoints (Complete)
+  - [x] Phase 4: Views & UI - 12 partials, type selector, RSVP panel, competition panel (Complete - Feb 27)
+  - [x] Phase 5: Scheduled Command - Auto-generate recurring activity instances (Complete)
+  - [x] Phase 6: Testing - Unit/integration tests for all phases (Complete - 25 tests passing)
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)

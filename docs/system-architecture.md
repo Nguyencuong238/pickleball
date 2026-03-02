@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-02-25
+**Last Updated**: 2026-02-27
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -103,6 +103,9 @@ app/Http/Controllers/
 ├── FavoriteController.php      # Favorites
 ├── ReviewController.php        # Stadium reviews
 ├── SocialController.php        # Social events
+├── ClubActivityController.php  # Club activities CRUD
+├── ClubActivityParticipantController.php # RSVP management
+├── ClubCompetitionController.php # Competition scheduling & scores
 ├── Admin/
 │   ├── DashboardController.php
 │   ├── CategoryController.php
@@ -128,6 +131,7 @@ app/Http/Controllers/
     ├── DashboardController.php         # User dashboard
     ├── HomeYardStadiumController.php
     ├── HomeYardTournamentController.php  # Includes referee assignment
+    ├── HomeYardLeagueController.php    # League management
     ├── AthleteManagementController.php
     ├── TournamentRegistrationController.php
     ├── CategoryController.php
@@ -270,14 +274,18 @@ Club ──┬── User (creator) (N:1)
        │   ├── ClubPostComment (1:N)
        │   ├── ClubPostReaction (1:N)
        │   └── ClubPostMedia (1:N)
-       ├── ClubActivity (1:N)
+       ├── ClubActivity (1:N) ──── ClubActivityParticipant (1:N)
+       │   ├── ClubCompetitionTeam (1:N)
+       │   ├── ClubCompetitionMatch (1:N)
+       │   └── ClubCompetitionStanding (1:N)
        └── ClubJoinRequest (1:N)
 
 User ──┬── Club (created) (1:N)
        ├── ClubPost (creator) (1:N)
        ├── ClubPostComment (1:N)
        ├── ClubPostReaction (1:N)
-       └── ClubJoinRequest (1:N)
+       ├── ClubJoinRequest (1:N)
+       └── ClubActivityParticipant (1:N) ──── ClubActivity
 ```
 
 ### 4. Infrastructure Layer
@@ -362,6 +370,11 @@ User ──┬── Club (created) (1:N)
 │ club_post_comments │ Comments on club posts             │
 │ club_post_media  │ Media in club posts                  │
 │ club_post_reactions │ Reactions/likes on posts         │
+│ club_activities  │ Activities (type: one_off/recurring/competition) │
+│ club_activity_participants │ RSVP/participation tracking │
+│ club_competition_teams │ Teams in competitions           │
+│ club_competition_matches │ Matches with scores            │
+│ club_competition_standings │ Calculated standings         │
 ├─────────────────────────────────────────────────────────┤
 │                Point Earning Tables                      │
 ├─────────────────────────────────────────────────────────┤
@@ -415,6 +428,15 @@ View tasks → Get eligible tasks by role → Auto-award or require proof submis
 
 ### Skill Quiz Flow
 Start quiz → Check eligibility → Answer 36 questions (0-3 scale) → Validate time (3-20 min) → Calculate score & ELO → Cross-validate answers → Gender-aware skill level mapping → Check consistency → Assign ELO or flag for admin → Set re-quiz cooldown → Display results
+
+### Club Activity RSVP Flow (All Types)
+Show page loaded → User clicks RSVP button (AJAX) → Check spots available vs max_participants → If confirmed: create ClubActivityParticipant with status='confirmed' → If waitlisted: create with status='waitlisted' + position → Update participant count & avatars on frontend → Enable cancel button
+
+### Club Activity Competition Flow (Competition Type)
+RSVP phase complete → Management assigns RSVPd players to teams (AJAX) → Click "Tao lich thi dau" → Select format (round_robin|pool_play|single_elimination) → ClubCompetitionService generates matches grouped by round → View schedule matrix → Enter scores per match (AJAX PUT) → Recalculate standings (wins, losses, points) → Display real-time standings
+
+### Recurring Activity Generation Flow (Scheduled Command)
+Daily 06:00 → Query active recurring templates (status=upcoming, type=recurring) → For each template: iterate 7 days ahead → Check recurrence day of week match → Skip if instance already exists for target date → Create instance via ClubActivityService.createRecurringInstance() → Log output → Idempotent: safe to run multiple times
 
 ### Authentication Flow
 Standard: Login form → Validate credentials → Create session

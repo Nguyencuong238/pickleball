@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-02-25
+**Last Updated**: 2026-02-27
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -557,6 +557,13 @@ pickleball/
 - Bookings, courts
 - Leagues (CRUD, tab-based detail view, teams, matches, standings)
 
+### Club Activities (`resources/views/clubs/activities/`) [Phase 4 Complete]
+- Index: Activity listing with type badges, participant counts
+- Create/Edit: Type selector, conditional field sections, form validation
+- Show: Activity detail card, RSVP panel, competition panel (if competition)
+- Partials: 12 modular partials for type selection, RSVP, teams, schedule, standings
+- See [club-activities-feature.md](./club-activities-feature.md) for detailed architecture
+
 ### Referee (`resources/views/referee/`)
 - Dashboard with stats and upcoming matches
 - Matches index with filters
@@ -568,6 +575,12 @@ pickleball/
 - Referee layout
 
 ## Artisan Commands
+
+### Club Activities Commands (New)
+```bash
+# Generate recurring meet instances (auto-generated daily at 06:00)
+php artisan clubs:generate-recurring-meets [--days=7]
+```
 
 ### OPRS Commands (New)
 ```bash
@@ -587,6 +600,21 @@ php artisan app:create-admin-user
 php artisan db:seed --class=SkillDomainSeeder
 php artisan db:seed --class=SkillQuestionSeeder
 ```
+
+## Test Factories (2026-02-27)
+
+### Club Activity Factories
+- `ClubFactory` - Creates clubs with creator relationship
+- `ClubActivityFactory` - Creates activities (recurring/one-off/competition types)
+- `ClubActivityParticipantFactory` - Creates RSVP participants with status
+- `ClubCompetitionTeamFactory` - Creates competition teams
+
+### Test Coverage (25 tests, all passing)
+- **ClubActivityServiceTest** (6 tests) - RSVP confirmation, waitlist, promotion, skill validation, duplicates, instance creation
+- **ClubCompetitionServiceTest** (5 tests) - Round-robin generation, odd teams, score updates, standings calculation, initialization
+- **ClubActivityRsvpTest** (4 tests) - Member RSVP, non-member rejection, cancel RSVP, participant data
+- **ClubCompetitionTest** (5 tests) - Team management, schedule generation, score entry, standings
+- **GenerateRecurringMeetsTest** (3 tests) - Correct day generation, idempotency, inactive templates
 
 ## Entry Points
 
