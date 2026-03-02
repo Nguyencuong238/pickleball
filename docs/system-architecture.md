@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-02-27
+**Last Updated**: 2026-03-02
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -269,23 +269,13 @@ SkillQuestion ──── SkillDomain (N:1)
 
 **Club System**
 ```
-Club ──┬── User (creator) (N:1)
-       ├── ClubPost (1:N)
-       │   ├── ClubPostComment (1:N)
-       │   ├── ClubPostReaction (1:N)
-       │   └── ClubPostMedia (1:N)
-       ├── ClubActivity (1:N) ──── ClubActivityParticipant (1:N)
-       │   ├── ClubCompetitionTeam (1:N)
-       │   ├── ClubCompetitionMatch (1:N)
-       │   └── ClubCompetitionStanding (1:N)
+Club ──┬── ClubPost (1:N) ──── ClubPostComment/Reaction/Media
+       ├── ClubActivity ──── ClubActivityParticipant (RSVP)
+       │   └── Competitions (teams, matches, standings)
        └── ClubJoinRequest (1:N)
 
-User ──┬── Club (created) (1:N)
-       ├── ClubPost (creator) (1:N)
-       ├── ClubPostComment (1:N)
-       ├── ClubPostReaction (1:N)
-       ├── ClubJoinRequest (1:N)
-       └── ClubActivityParticipant (1:N) ──── ClubActivity
+User ──┬── Club (creator)
+       └── Participations (posts, comments, reactions, activities)
 ```
 
 ### 4. Infrastructure Layer
@@ -755,58 +745,20 @@ User Gender Field (for skill level mapping):
 └── Defaults to 'male' for backward compatibility
 ```
 
-### Skill Quiz Configuration
+### Skill Quiz Configuration (see code-standards.md for details)
 
 ```php
-// Domain Weights (6 domains)
-Technical Skills:      weight = 1.2
-Strategy & Tactics:    weight = 1.0
-Physical Conditioning: weight = 0.9
-Mental Game:           weight = 1.0
-Experience Level:      weight = 1.1
-Game Situations:       weight = 1.0
-
-// Rating Scale (per question)
-0 = Never/Not at all
-1 = Rarely/Beginner level
-2 = Sometimes/Intermediate level
-3 = Often or Always/Advanced level
-
-// ELO Calculation
-Base ELO = 800
-Max ELO from quiz = 1400
-Formula: 800 + (percentage_score * 6)
-
-// ELO Caps
-New players (< 5 matches): 1100 max
-Experienced (5+ matches): 1200 max
-
-// Cooldown Periods
-ELO < 900: 30 days
-ELO 900-1100: 60 days
-ELO > 1100: 90 days
-
-// Anti-Fraud Thresholds
-Min completion time: 3 minutes (180 sec)
-Max completion time: 20 minutes (1200 sec)
-Max inconsistency score: 3 (cross-validation)
-
-// Gender-Aware Skill Level Mapping
-Female players: +0.5 level at same ELO
-Aligns with Vietnam tournament standards:
-- Male amateur: <4.0
-- Female amateur: <3.5
-
-ELO Thresholds:
-Male:   700→2.0, 800→2.5, 900→3.0, 1000→3.5, 1100→4.0, 1200→4.5, 1300→5.0, >=1300→5.5+
-Female: 700→2.5, 800→3.0, 900→3.5, 1000→4.0, 1100→4.5, 1200→5.0, 1300→5.5, >=1300→5.5+
+// Summary
+Base ELO = 800, Max = 1400, Caps: 1100 (new)/1200 (exp)
+Anti-fraud: 3-20 min window, max inconsistency = 3
+Gender-aware: Female +0.5 level at same ELO
+Cooldown: 30/60/90 days based on ELO tier
 ```
 
 ## Unresolved Questions
 
-1. **Queue Strategy**: Which queue driver for production (Redis, SQS)?
-2. **CDN Choice**: Which CDN for media (Cloudflare, AWS CloudFront)?
-3. **Monitoring**: Which monitoring stack (New Relic, Sentry)?
-4. **Search**: Elasticsearch vs Algolia for search functionality?
-5. **OPRS Scaling**: Caching strategy for leaderboards and level distributions?
-6. **Challenge Automation**: Integration with video analysis for automatic verification?
+1. **Queue Driver**: Redis vs SQS for production?
+2. **CDN**: Cloudflare vs AWS CloudFront for media?
+3. **Monitoring**: New Relic vs Sentry?
+4. **Search**: Elasticsearch vs Algolia?
+5. **OPRS Caching**: Leaderboard cache TTL strategy?

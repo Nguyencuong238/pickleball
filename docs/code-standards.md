@@ -1,6 +1,6 @@
 # Code Standards & Conventions
 
-**Last Updated**: 2026-02-25
+**Last Updated**: 2026-03-02
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 

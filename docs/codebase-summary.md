@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-02-27
+**Last Updated**: 2026-03-02
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -13,25 +13,25 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 ```
 pickleball/
 ├── app/
-│   ├── Console/Commands/       # Artisan commands (4 commands)
+│   ├── Console/Commands/       # Artisan commands (22)
 │   ├── Exceptions/             # Exception handlers
 │   ├── Http/
 │   │   ├── Controllers/
-│   │   │   ├── Admin/          # Admin panel controllers (22)
-│   │   │   ├── Api/            # API endpoints (24)
-│   │   │   └── Front/          # Public frontend controllers (26)
+│   │   │   ├── Admin/          # Admin panel (23)
+│   │   │   ├── Api/            # API endpoints (22)
+│   │   │   └── Front/          # Public frontend (37)
 │   │   ├── Middleware/         # HTTP middleware
 │   │   └── Kernel.php          # HTTP kernel
-│   ├── Models/                 # Eloquent models (66)
-│   ├── Policies/               # Authorization policies
-│   ├── Services/               # Business logic (12 services)
+│   ├── Models/                 # Eloquent models (81)
+│   ├── Policies/               # Authorization policies (8)
+│   ├── Services/               # Business logic (17)
 │   └── Providers/              # Service providers
 ├── bootstrap/                  # Framework bootstrap
 ├── config/                     # Configuration files
 ├── database/
 │   ├── factories/              # Model factories
-│   ├── migrations/             # Database migrations (160)
-│   └── seeders/                # Database seeders
+│   ├── migrations/             # Database migrations (177)
+│   └── seeders/                # Database seeders (20)
 ├── docs/                       # Project documentation
 ├── public/                     # Public assets
 ├── resources/
@@ -70,7 +70,7 @@ pickleball/
 - **Vite**: 5.0+ (Asset bundling)
 - **Axios**: 1.6+ (HTTP client)
 
-## Models Overview (75+ Models)
+## Models Overview (81 Models)
 
 ### User & Auth
 - `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data (avatar, location, province, gender), referee fields

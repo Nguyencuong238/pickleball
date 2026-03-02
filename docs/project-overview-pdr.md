@@ -1,8 +1,8 @@
 # Project Overview & Product Development Requirements (PDR)
 
 **Project Name**: Pickleball Platform
-**Version**: 1.6.0+
-**Last Updated**: 2026-02-25
+**Version**: 1.7.0
+**Last Updated**: 2026-03-02
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 

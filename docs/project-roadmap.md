@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-02-27
-**Current Version:** 1.6.0+
+**Last Updated:** 2026-03-02
+**Current Version:** 1.7.0
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -152,10 +152,9 @@ Referee management system for tournament match officiating.
 
 ---
 
-### Phase 3: Enhanced Features (IN PROGRESS - 2025 Q4 - 2026 Q1)
-**Status:** 🔄 In Progress
-**Target:** 2026 Q1
-**Progress:** 90%
+### Phase 3: Enhanced Features (COMPLETED - 2026-02-27)
+**Status:** ✅ Complete
+**Progress:** 100%
 
 #### Completed Features
 - [x] User profile management with avatar upload (Dec 7)
@@ -276,50 +275,18 @@ Referee management system for tournament match officiating.
 - ✅ News & CMS
 - ✅ OCR Ranking System
 
-### Recent Additions (December 2025 - February 2026)
-- OCR Elo rating system (Dec 2)
-- Match challenge workflow (Dec 2)
-- Achievement badges (Dec 2)
-- Global leaderboard (Dec 2)
-- Admin dispute resolution (Dec 2)
-- Elo history tracking (Dec 2)
-- OPRS multi-component rating system (Dec 5)
-- Challenge system (skill tests) (Dec 5)
-- Community activity tracking (Dec 5)
-- Level-based leaderboards (Dec 5)
-- User profile management (Dec 7)
-- Avatar upload and management (Dec 7)
-- Email and password update (Dec 7)
+### Recent Additions (Dec 2025 - Feb 2026)
+- OCR Elo system with Elo history and badges (Dec 2)
+- OPRS multi-component rating with challenges & community (Dec 5)
+- User profile management with avatar and location (Dec 7)
 - Referee system with match officiating (Dec 9)
-- Tournament referee assignment (Dec 9)
-- Public referee directory (Dec 9)
 - Doubles pair selection for tournaments (Dec 18)
-- Partner linking system for doubles categories (Dec 18)
-- Skill assessment quiz system (Jan 3, 2026)
-- Initial ELO calculation from 36-question quiz (Jan 3, 2026)
-- Anti-fraud measures with cross-validation (Jan 3, 2026)
-- Guest quiz preview mode (Jan 3, 2026)
-- Gender-aware skill level mapping (Jan 15, 2026)
-- Female players +0.5 level adjustment (Jan 15, 2026)
-- 8-level skill system with VN/EN names (Jan 15, 2026)
-- Point earning system with 16 tasks (Jan 14, 2026)
-- Wallet system with transaction history (Jan 14, 2026)
-- Social platform verification (Jan 14, 2026)
-- Special challenges and event check-ins (Jan 14, 2026)
-- User soft delete support (Jan 27, 2026)
-- Tournament draw_order field (Feb 2, 2026)
-- Booking code generation system (Feb 7, 2026)
-- Booking confirmation tracking (Feb 7, 2026)
-- Booking transfer proof system (Feb 9, 2026)
-- Club system with posts and comments (Feb 2026)
-- Club post reactions and media (Feb 2026)
-- Club activity management (Feb 2026)
-- League management system with tab UI (Feb 25, 2026)
-- League CRUD operations (create, read, update, delete)
-- Team management with player roster (Feb 25, 2026)
-- Match scheduling with automatic standings calculation (Feb 25, 2026)
-- AJAX score entry and game result updates (Feb 25, 2026)
-- Vanilla JS modals and fetch API (Feb 25, 2026)
+- Skill assessment quiz system with gender-aware mapping (Jan 2026)
+- Point earning system (16 tasks, wallet, verification) (Jan 2026)
+- Booking code system with confirmation & transfer proof (Feb 2026)
+- Club system (posts, comments, reactions, activities) (Feb 2026)
+- League management with AJAX scoring and standings (Feb 25, 2026)
+- Club activity RSVP with auto-promotion, competitions (Feb 27, 2026)
 
 ### In Development
 - 🔄 Payment integration
@@ -448,13 +415,6 @@ Referee management system for tournament match officiating.
 | Payment Gateway Integration | 🔄 In Progress | 2026-03-31 | 30% |
 | Notification System Design | Planned | 2026-03-15 | 0% |
 
-### Q1 2026 (Continued)
-| Milestone | Status | Due Date | Progress |
-|-----------|--------|----------|----------|
-| Payment Integration Complete | 📋 Planned | 2026-03-31 | 0% |
-| Email Notifications | 📋 Planned | 2026-03-15 | 0% |
-| Analytics Dashboard | 📋 Planned | 2026-03-31 | 0% |
-| Mobile PWA | 📋 Planned | 2026-03-31 | 0% |
 
 ### Q2 2026
 | Milestone | Status | Due Date | Progress |
@@ -559,42 +519,21 @@ Referee management system for tournament match officiating.
   - XSS prevention with @json() for JS params, textContent for DOM
   - Vietnamese UI with proper diacritics
 
-#### Web Routes
-- `GET /homeyard/leagues` - List leagues
-- `GET /homeyard/leagues/create` - Create form
-- `POST /homeyard/leagues` - Store league
-- `GET /homeyard/leagues/{league}` - View league details
-- `GET /homeyard/leagues/{league}/edit` - Edit form
-- `PUT /homeyard/leagues/{league}` - Update league
-- `DELETE /homeyard/leagues/{league}` - Delete league
-- `PATCH /homeyard/leagues/{league}/status` - Update status
-- `POST /homeyard/leagues/{league}/schedule` - Generate schedule
-- `POST /homeyard/leagues/{league}/teams` - Add team
-- `PUT /homeyard/leagues/{league}/teams/{team}` - Update team
-- `DELETE /homeyard/leagues/{league}/teams/{team}` - Remove team
-- `POST /homeyard/leagues/{league}/teams/{team}/players` - Add player
-- `DELETE /homeyard/leagues/{league}/teams/{team}/players/{player}` - Remove player
-- `GET /homeyard/leagues/{league}/matches` - List matches
-- `PUT /homeyard/leagues/{league}/matches/{match}/score` - Update match score
-- `PUT /homeyard/leagues/{league}/matches/{match}/games/{game}/score` - Update game score
+#### Web Routes (17 total)
+- CRUD: GET|POST /homeyard/leagues/{id}, PUT|DELETE for updates
+- Teams: POST|PUT|DELETE /homeyard/leagues/{id}/teams/{team}
+- Players: POST|DELETE /homeyard/leagues/{id}/teams/{team}/players
+- Matches: GET /matches, PUT /matches/{match}/score
 
-#### Database Changes
-- Created `leagues` table (name, description, sport, format, status, stadium_id, created_by)
-- Created `league_teams` table (league_id, team_id, team_name, seed_position)
-- Created `league_team_players` table (team_id, player_id, player_name)
-- Created `league_rounds` table (league_id, round_number, is_finished)
-- Created `league_matches` table (league_id, round_id, team_1_id, team_2_id, status)
-- Created `league_match_games` table (match_id, game_number, team_1_score, team_2_score, winner_id)
-- Created `league_standings` table (league_id, team_id, wins, losses, points)
+#### Database Changes (7 tables)
+- leagues, league_teams, league_team_players
+- league_rounds, league_matches, league_match_games
+- league_standings
 
 #### Frontend Patterns
-- Tab navigation with URL hash (#overview, #teams, #matches, #standings)
-- AJAX team/player management with modal forms
-- Real-time standings recalculation after score update
-- User search dropdown for player assignment
-- Match score entry form with game-by-game breakdown
-- Status badge display (draft, active, completed)
-- Sidebar navigation link with icon
+- Tab navigation, AJAX team/player CRUD, user search dropdown
+- Real-time standings recalculation, match score entry per game
+- Status badges, modals, vanilla JS fetch API
 
 ---
 
@@ -847,14 +786,11 @@ Referee management system for tournament match officiating.
 
 ## Unresolved Questions
 
-1. **Payment Gateway:** Which payment gateway to prioritize (MoMo, VNPay, or ZaloPay)?
-2. **Mobile Strategy:** PWA first or native app development?
-3. **Caching Strategy:** Redis implementation timeline and migration approach?
-4. **OCR Seasons:** Should we implement seasonal rankings with resets?
-5. **Multi-language:** Timeline for English language support?
-6. **API Access:** Should we provide public API for third-party integrations?
-7. **Club Features:** Should clubs have event hosting capabilities?
-8. **Booking Transfers:** Should transfer fees apply based on stadium policy?
+1. **Payment Gateway:** MoMo, VNPay, or ZaloPay priority?
+2. **Mobile Strategy:** PWA first or native app?
+3. **Redis Timeline:** Implementation and migration approach?
+4. **Caching:** Leaderboard caching strategy for OPRS?
+5. **Club Events:** Should clubs host events with tickets?
 
 ---
 
