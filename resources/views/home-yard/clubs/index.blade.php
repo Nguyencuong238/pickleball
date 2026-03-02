@@ -15,7 +15,66 @@
             </a>
         </div>
 
-        <!-- Clubs List -->
+        <!-- Joined Clubs Section -->
+        @if ($joinedClubs->count() > 0)
+            <div style="margin-bottom: 40px;">
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 20px;">👥 CLB/Nhóm đã tham gia</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
+                    @foreach ($joinedClubs as $joinedClub)
+                        @php
+                            $memberRole = $joinedClub->members->where('id', Auth::id())->first()?->pivot->role;
+                            $roleLabels = [
+                                'creator' => 'Người sáng lập',
+                                'admin' => 'Quản trị viên',
+                                'moderator' => 'Điều phối viên',
+                                'member' => 'Thành viên',
+                            ];
+                            $roleColors = [
+                                'creator' => '#dc2626',
+                                'admin' => '#ea580c',
+                                'moderator' => '#2563eb',
+                                'member' => '#16a34a',
+                            ];
+                        @endphp
+                        <a href="{{ route('clubs.show', $joinedClub) }}" class="joined-club-card" style="text-decoration: none; color: inherit;">
+                            <div class="joined-club-banner">
+                                @if ($joinedClub->banner)
+                                    <img src="{{ storage_url($joinedClub->banner) }}" alt="{{ $joinedClub->name }}">
+                                @else
+                                    <div class="joined-banner-placeholder">
+                                        {{ $joinedClub->type === 'club' ? '🏆' : '👥' }}
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="joined-club-body">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    @if ($joinedClub->image)
+                                        <img src="{{ storage_url($joinedClub->image) }}" alt="{{ $joinedClub->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                    @else
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem;">
+                                            {{ $joinedClub->type === 'club' ? '🏆' : '👥' }}
+                                        </div>
+                                    @endif
+                                    <div style="flex: 1; min-width: 0;">
+                                        <h4 style="font-size: 1rem; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $joinedClub->name }}</h4>
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                            <span style="font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px; color: white; background: {{ $roleColors[$memberRole] ?? '#6b7280' }}; font-weight: 500;">
+                                                {{ $roleLabels[$memberRole] ?? $memberRole }}
+                                            </span>
+                                            <span style="font-size: 0.8rem; color: #6b7280;">{{ $joinedClub->members->count() }} thành viên</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid #e5e7eb; margin-bottom: 30px;">
+        @endif
+
+        <!-- My Clubs List -->
         @if ($clubs->count() > 0)
             <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px; margin-bottom: 40px;">
                 @foreach ($clubs as $club)
@@ -294,6 +353,46 @@
     .empty-state p {
         color: var(--text-secondary);
         margin-bottom: 30px;
+    }
+
+    .joined-club-card {
+        background: white;
+        border-radius: var(--radius-lg, 12px);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm, 0 1px 3px rgba(0,0,0,0.1));
+        transition: all 0.2s ease;
+        display: block;
+    }
+
+    .joined-club-card:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-md, 0 4px 12px rgba(0,0,0,0.15));
+    }
+
+    .joined-club-banner {
+        width: 100%;
+        height: 80px;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--primary-color, #3b82f6), var(--secondary-color, #8b5cf6));
+    }
+
+    .joined-club-banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .joined-banner-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .joined-club-body {
+        padding: 12px 16px;
     }
 
     @media (max-width: 768px) {
