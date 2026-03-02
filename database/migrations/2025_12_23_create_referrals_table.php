@@ -8,19 +8,21 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('referrals', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('referrer_id');
-            $table->unsignedBigInteger('referred_user_id');
-            $table->string('status')->default('pending'); // pending, completed
-            $table->timestamp('referred_at');
-            $table->timestamp('completed_at')->nullable();
-            $table->timestamps();
+        if (!Schema::hasTable('referrals')) {
+            Schema::create('referrals', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('referrer_id');
+                $table->unsignedBigInteger('referred_user_id');
+                $table->string('status')->default('pending'); // pending, completed
+                $table->timestamp('referred_at');
+                $table->timestamp('completed_at')->nullable();
+                $table->timestamps();
 
-            $table->foreign('referrer_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('referred_user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->unique(['referrer_id', 'referred_user_id']);
-        });
+                $table->foreign('referrer_id')->references('id')->on('users')->onDelete('cascade');
+                $table->foreign('referred_user_id')->references('id')->on('users')->onDelete('cascade');
+                $table->unique(['referrer_id', 'referred_user_id']);
+            });
+        }
     }
 
     public function down(): void

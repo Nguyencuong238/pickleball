@@ -12,6 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Skip on fresh migration (no data to populate)
+        if (\DB::table('users')->count() === 0) {
+            return;
+        }
+
         // Populate slugs for videos
         Video::whereNull('slug')->orWhere('slug', '')->each(function ($video) {
             $slug = Str::slug($video->name);

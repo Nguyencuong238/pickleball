@@ -40,6 +40,8 @@ use App\Http\Controllers\Front\RefereeController;
 use App\Http\Controllers\Front\RefereeProfileController;
 use App\Http\Controllers\ClubController;
 use App\Http\Controllers\ClubActivityController;
+use App\Http\Controllers\ClubActivityParticipantController;
+use App\Http\Controllers\ClubCompetitionController;
 use App\Http\Controllers\Front\ClubPostController;
 use App\Http\Controllers\Front\ClubPostReactionController;
 use App\Http\Controllers\Front\ClubPostCommentController;
@@ -295,6 +297,7 @@ Route::middleware('auth')->group(function () {
     
     // Club Activities Routes
     Route::prefix('clubs/{club}/activities')->name('clubs.activities.')->group(function () {
+        // CRUD
         Route::get('/', [ClubActivityController::class, 'index'])->name('index');
         Route::get('create', [ClubActivityController::class, 'create'])->name('create');
         Route::post('/', [ClubActivityController::class, 'store'])->name('store');
@@ -302,6 +305,22 @@ Route::middleware('auth')->group(function () {
         Route::put('{activity}', [ClubActivityController::class, 'update'])->name('update');
         Route::delete('{activity}', [ClubActivityController::class, 'destroy'])->name('destroy');
         Route::get('{activity}', [ClubActivityController::class, 'show'])->name('show');
+
+        // RSVP / Participants
+        Route::post('{activity}/rsvp', [ClubActivityParticipantController::class, 'rsvp'])->name('rsvp');
+        Route::delete('{activity}/rsvp', [ClubActivityParticipantController::class, 'cancelRsvp'])->name('cancel-rsvp');
+        Route::get('{activity}/participants', [ClubActivityParticipantController::class, 'index'])->name('participants');
+
+        // Competition
+        Route::prefix('{activity}/competition')->name('competition.')->group(function () {
+            Route::get('teams', [ClubCompetitionController::class, 'teams'])->name('teams');
+            Route::post('teams', [ClubCompetitionController::class, 'addTeam'])->name('add-team');
+            Route::delete('teams/{team}', [ClubCompetitionController::class, 'removeTeam'])->name('remove-team');
+            Route::post('generate-schedule', [ClubCompetitionController::class, 'generateSchedule'])->name('generate-schedule');
+            Route::put('matches/{match}/score', [ClubCompetitionController::class, 'saveScore'])->name('save-score');
+            Route::get('standings', [ClubCompetitionController::class, 'standings'])->name('standings');
+            Route::get('matches', [ClubCompetitionController::class, 'matches'])->name('matches');
+        });
     });
 
     // Club Member Management Routes

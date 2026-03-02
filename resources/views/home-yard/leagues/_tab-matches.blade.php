@@ -56,7 +56,7 @@
                             @endswitch
 
                             @if(in_array($league->status, ['active']) && $match->status !== 'cancelled')
-                                <button onclick="openScoreModal({{ $match->id }}, @json($match->homeTeam->name ?? 'TBD'), @json($match->awayTeam->name ?? 'TBD'), {{ $match->home_score ?? 0 }}, {{ $match->away_score ?? 0 }})"
+                                <button onclick='openScoreModal({{ $match->id }}, @json($match->homeTeam->name ?? "TBD"), @json($match->awayTeam->name ?? "TBD"), {{ $match->home_score ?? 0 }}, {{ $match->away_score ?? 0 }})'
                                     style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
                                     <i class="fas fa-edit"></i> Điểm
                                 </button>

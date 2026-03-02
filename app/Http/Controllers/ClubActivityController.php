@@ -9,80 +9,76 @@ use Illuminate\Support\Facades\Auth;
 
 class ClubActivityController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Club $club)
     {
         $this->authorize('view', $club);
 
-        $query = $club->activities();
+        $query = $club->activities()->whereNull('parent_activity_id');
 
-        // Apply status filter
         if ($status = request('status')) {
             $query->where('status', $status);
         }
 
-        // Apply sorting
-        $sort = request('sort', 'date_desc');
-        if ($sort === 'date_asc') {
-            $query->orderBy('activity_date', 'asc');
-        } else {
-            $query->orderBy('activity_date', 'desc');
+        if ($type = request('type')) {
+            $query->where('type', $type);
         }
 
-        $activities = $query->paginate(10);
+        $sort = request('sort', 'date_desc');
+        $query->orderBy('activity_date', $sort === 'date_asc' ? 'asc' : 'desc');
 
-        // AJAX response
+        $activities = $query->withCount('confirmedParticipants')->paginate(10);
+
         if (request()->ajax()) {
             return response()->json([
                 'activities' => $activities->items(),
-                'hasMore' => $activities->hasMorePages()
+                'hasMore' => $activities->hasMorePages(),
             ]);
         }
 
-        return view('clubs.activities.index', compact('club', 'activities'));
+        $isManagement = Auth::check() && $club->isManagement(Auth::user());
+
+        return view('clubs.activities.index', compact('club', 'activities', 'isManagement'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create(Club $club)
     {
-        $this->authorize('update', $club);
-        
+        $this->authorize('manageActivity', $club);
+
         return view('clubs.activities.create', compact('club'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request, Club $club)
     {
-        $this->authorize('update', $club);
+        $this->authorize('manageActivity', $club);
 
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
+            'type' => 'required|in:one_off,recurring,competition',
             'activity_date' => 'required|date_format:Y-m-d\TH:i',
+            'end_time' => 'nullable|date_format:H:i,H:i:s',
             'location' => 'nullable|string|max:255',
+            'max_participants' => 'required|integer|min:2|max:200',
             'status' => 'required|in:upcoming,completed,cancelled',
+            'auto_approve' => 'boolean',
+            'min_skill_level' => 'nullable|numeric|min:1.0|max:6.0',
+            'max_skill_level' => 'nullable|numeric|min:1.0|max:6.0|gte:min_skill_level',
+            'recurrence_day' => 'required_if:type,recurring|nullable|integer|min:0|max:6',
+            'competition_config' => 'nullable|array',
+            'competition_config.format' => 'nullable|in:round_robin,pool_play,single_elimination',
+            'competition_config.points_for_win' => 'nullable|integer|min:0',
+            'competition_config.points_for_loss' => 'nullable|integer|min:0',
         ]);
 
-        $activity = $club->activities()->create([
-            'title' => $validated['title'],
-            'description' => $validated['description'],
-            'activity_date' => $validated['activity_date'],
-            'location' => $validated['location'],
-            'status' => $validated['status'],
-        ]);
+        $validated['created_by'] = Auth::id();
 
-        // AJAX response
+        $activity = $club->activities()->create($validated);
+
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Hoạt động được tạo thành công!',
-                'activity' => $activity
+                'activity' => $activity,
             ]);
         }
 
@@ -90,27 +86,32 @@ class ClubActivityController extends Controller
             ->with('success', 'Hoạt động được tạo thành công!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Club $club, ClubActivity $activity)
     {
         $this->authorize('view', $club);
-        
+
         if ($activity->club_id !== $club->id) {
             abort(404);
         }
 
-        return view('clubs.activities.show', compact('club', 'activity'));
+        $activity->loadCount(['confirmedParticipants', 'waitlistedParticipants']);
+        $activity->load(['confirmedParticipants.user', 'waitlistedParticipants.user']);
+
+        $isManagement = Auth::check() && $club->isManagement(Auth::user());
+        $isMember = Auth::check() && $club->isMember(Auth::user());
+        $userParticipation = Auth::check()
+            ? $activity->participants()->where('user_id', Auth::id())->first()
+            : null;
+
+        return view('clubs.activities.show', compact(
+            'club', 'activity', 'isManagement', 'isMember', 'userParticipation'
+        ));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Club $club, ClubActivity $activity)
     {
-        $this->authorize('update', $club);
-        
+        $this->authorize('manageActivity', $club);
+
         if ($activity->club_id !== $club->id) {
             abort(404);
         }
@@ -118,12 +119,9 @@ class ClubActivityController extends Controller
         return view('clubs.activities.edit', compact('club', 'activity'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, Club $club, ClubActivity $activity)
     {
-        $this->authorize('update', $club);
+        $this->authorize('manageActivity', $club);
 
         if ($activity->club_id !== $club->id) {
             if ($request->ajax()) {
@@ -136,18 +134,30 @@ class ClubActivityController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
             'activity_date' => 'required|date_format:Y-m-d\TH:i',
+            'end_time' => 'nullable|date_format:H:i,H:i:s',
             'location' => 'nullable|string|max:255',
+            'max_participants' => 'required|integer|min:2|max:200',
             'status' => 'required|in:upcoming,completed,cancelled',
+            'auto_approve' => 'boolean',
+            'min_skill_level' => 'nullable|numeric|min:1.0|max:6.0',
+            'max_skill_level' => 'nullable|numeric|min:1.0|max:6.0|gte:min_skill_level',
+            'recurrence_day' => 'nullable|integer|min:0|max:6',
+            'competition_config' => 'nullable|array',
+            'competition_config.format' => 'nullable|in:round_robin,pool_play,single_elimination',
+            'competition_config.points_for_win' => 'nullable|integer|min:0',
+            'competition_config.points_for_loss' => 'nullable|integer|min:0',
         ]);
+
+        // Prevent type change after creation
+        unset($validated['type']);
 
         $activity->update($validated);
 
-        // AJAX response
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Hoạt động được cập nhật thành công!',
-                'activity' => $activity->fresh()
+                'activity' => $activity->fresh(),
             ]);
         }
 
@@ -155,12 +165,9 @@ class ClubActivityController extends Controller
             ->with('success', 'Hoạt động được cập nhật thành công!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Request $request, Club $club, ClubActivity $activity)
     {
-        $this->authorize('delete', $club);
+        $this->authorize('manageActivity', $club);
 
         if ($activity->club_id !== $club->id) {
             if ($request->ajax()) {
@@ -171,11 +178,10 @@ class ClubActivityController extends Controller
 
         $activity->delete();
 
-        // AJAX response
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Hoạt động được xóa thành công!'
+                'message' => 'Hoạt động được xóa thành công!',
             ]);
         }
 

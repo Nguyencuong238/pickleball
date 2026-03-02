@@ -29,6 +29,9 @@ class Kernel extends ConsoleKernel
 
         // Auto-update status of old matches from in_progress to completed
         $schedule->command('app:update-old-matches-status')->daily();
+
+        // Club Activities - Generate recurring meet instances 7 days ahead
+        $schedule->command('clubs:generate-recurring-meets')->daily()->at('06:00');
     }
 
     /**

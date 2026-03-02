@@ -63,4 +63,20 @@ class ClubPolicy
     {
         return $user->id === $club->user_id;
     }
+
+    /**
+     * Quản lý hoạt động (creator/admin/moderator)
+     */
+    public function manageActivity(User $user, Club $club): bool
+    {
+        return $club->isManagement($user);
+    }
+
+    /**
+     * Tham gia hoạt động (member)
+     */
+    public function joinActivity(User $user, Club $club): bool
+    {
+        return $club->isMember($user);
+    }
 }
