@@ -93,6 +93,7 @@ class HomeYardTournamentController extends Controller
             'event_timeline' => 'nullable|string',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'string|in:single,double,mixed',
+            'club_id' => 'nullable|exists:clubs,id',
         ]);
 
         $data = $request->only([
@@ -113,7 +114,8 @@ class HomeYardTournamentController extends Controller
             'organizer_email',
             'organizer_hotline',
             'social_information',
-            'registration_benefits'
+            'registration_benefits',
+            'club_id'
         ]);
 
         $data['user_id'] = auth()->id();
@@ -198,6 +200,7 @@ class HomeYardTournamentController extends Controller
             'organizer_hotline' => 'nullable|string|max:20',
             'category_ids' => 'nullable|array',
             'category_ids.*' => 'string|in:single,double,mixed',
+            'club_id' => 'nullable|exists:clubs,id',
         ]);
 
         $data = $request->only([
@@ -218,6 +221,7 @@ class HomeYardTournamentController extends Controller
             'social_information',
             'organizer_email',
             'organizer_hotline',
+            'club_id',
         ]);
 
         // Sync gallery images

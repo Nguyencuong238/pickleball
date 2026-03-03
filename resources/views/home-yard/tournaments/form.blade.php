@@ -32,6 +32,29 @@
                     <option value="0" {{ (isset($tournament) && $tournament->status == 0) || old('status') == 0 ? 'selected' : '' }}>Không Hoạt Động</option>
                 </select>
             </div>
+
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Câu Lạc Bộ</label>
+                @php
+                    $userClubs = \App\Models\Club::where('user_id', auth()->id())
+                        ->orWhereHas('members', function($q) { $q->where('user_id', auth()->id()); })
+                        ->orderBy('name')
+                        ->get();
+                @endphp
+                <select name="club_id" class="form-control"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                    <option value="">-- Không thuộc CLB nào --</option>
+                    @foreach($userClubs as $club)
+                        <option value="{{ $club->id }}"
+                            {{ (isset($tournament) && $tournament->club_id == $club->id) || old('club_id') == $club->id ? 'selected' : '' }}>
+                            {{ $club->name }}
+                        </option>
+                    @endforeach
+                </select>
+                <small style="display: block; margin-top: 6px; color: #64748b; font-size: 0.85rem;">
+                    Chọn câu lạc bộ của bạn (nếu có)
+                </small>
+            </div>
         </div>
 
         <!-- Mô Tả -->

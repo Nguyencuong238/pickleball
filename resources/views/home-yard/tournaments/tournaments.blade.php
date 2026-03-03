@@ -712,16 +712,31 @@
                     </div>
                     <div class="grid grid-2">
                          <div class="form-group">
-                             <label class="form-label">Hạng Đấu</label>
-                             <select class="form-select" name="tournament_rank">
-                                 <option value="">-- Chọn --</option>
-                                 <option value="beginner">Sơ Cấp</option>
-                                 <option value="intermediate">Trung Cấp</option>
-                                 <option value="advanced">Cao Cấp</option>
-                                 <option value="professional">Chuyên Nghiệp</option>
-                             </select>
-                         </div>
-                      </div>
+                              <label class="form-label">Hạng Đấu</label>
+                              <select class="form-select" name="tournament_rank">
+                                  <option value="">-- Chọn --</option>
+                                  <option value="beginner">Sơ Cấp</option>
+                                  <option value="intermediate">Trung Cấp</option>
+                                  <option value="advanced">Cao Cấp</option>
+                                  <option value="professional">Chuyên Nghiệp</option>
+                              </select>
+                          </div>
+                          <div class="form-group">
+                              <label class="form-label">Câu Lạc Bộ</label>
+                              @php
+                                  $userClubs = \App\Models\Club::where('user_id', auth()->id())
+                                      ->orWhereHas('members', function($q) { $q->where('user_id', auth()->id()); })
+                                      ->orderBy('name')
+                                      ->get();
+                              @endphp
+                              <select class="form-select" name="club_id">
+                                  <option value="">-- Không thuộc CLB --</option>
+                                  @foreach($userClubs as $club)
+                                      <option value="{{ $club->id }}">{{ $club->name }}</option>
+                                  @endforeach
+                              </select>
+                          </div>
+                       </div>
 
                       <!-- Loại Giải -->
                       <div class="form-group">
