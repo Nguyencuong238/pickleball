@@ -125,11 +125,18 @@ pickleball/
 ### Club System (NEW)
 - `Club` - Club management
 - `ClubActivity` - Club activity tracking
+- `ClubActivityParticipant` - RSVP participants with status
+- `ClubActivityMatchRound` - Match rounds for casual matches
+- `ClubActivityMatch` - Individual matches (singles/doubles)
+- `ClubActivityMatchStanding` - Match standings and statistics
 - `ClubJoinRequest` - Club join request management
 - `ClubPost` - Club discussion posts
 - `ClubPostComment` - Comments on club posts
 - `ClubPostMedia` - Media in club posts
 - `ClubPostReaction` - Reactions/likes on posts
+- `ClubCompetitionTeam` - Teams in competitions
+- `ClubCompetitionMatch` - Competition matches with scores
+- `ClubCompetitionStanding` - Competition standings
 
 ### OCR System (Elo-based)
 - `OcrMatch` - Ranked matches (singles/doubles)
@@ -170,7 +177,7 @@ pickleball/
 - `LeagueMatchGame` - Game-by-game score breakdown for matches
 - `LeagueStanding` - Calculated standings (wins, losses, points)
 
-## Services Overview (15+ Services)
+## Services Overview (17+ Services)
 
 ### Business Logic Services
 - `EloService` - Elo rating calculations, K-factor management, match processing
@@ -185,6 +192,7 @@ pickleball/
 - `PointSubmissionService` - Submission creation, proof validation, admin review workflow
 - `SocialVerificationService` - Social platform verification, URL uniqueness checking
 - `ClubPostMediaService` - Club post media management and processing
+- `ClubMatchService` - Casual match generation (3 algorithms), score tracking, standings
 - `LeagueService` - League CRUD, team management, player assignment
 - `LeagueScheduleService` - Match schedule generation, round creation
 - `LeagueStandingsService` - Standings calculation, win/loss tracking
@@ -240,7 +248,7 @@ pickleball/
 | `SocialVerificationController` | Social verification status and URLs |
 | (Plus 7 more API controllers for bookings, courts, etc.) |
 
-### Front Controllers (31+)
+### Front Controllers (32+)
 | Controller | Purpose |
 |------------|---------|
 | `HomeController` | Homepage, listings, booking |
@@ -253,6 +261,7 @@ pickleball/
 | `HomeYardLeagueController` | League CRUD, status updates, schedule generation |
 | `LeagueTeamController` | Team and player roster management |
 | `LeagueMatchController` | Match listing and score entry |
+| `ClubMatchController` | Casual match generation, scoring, standings (7 AJAX endpoints) |
 | `AthleteManagementController` | Athlete operations |
 | `TournamentRegistrationController` | Registration flow |
 | `CategoryController` | Tournament categories |
@@ -518,6 +527,11 @@ pickleball/
 - `bookings` - Added booking_code (BK{courtId:3+}{date:YYMMDD}{seq:3}), confirmed_at, transfer_proof
 - `users` - Added soft delete support
 
+### Club Activity Match Tables (2026-03-03+)
+- `club_activity_match_rounds` - Match rounds with round_number, status (pending/in_progress/completed)
+- `club_activity_matches` - Match records (singles/doubles) with player IDs, court number, scores
+- `club_activity_match_standings` - Per-player standings with wins, losses, points_scored, points_against
+
 ### League Management Tables (2026-02-25+)
 - `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)
 - `league_teams` - Team enrollment with league_id, team_id, team_name, seed_position
@@ -557,11 +571,12 @@ pickleball/
 - Bookings, courts
 - Leagues (CRUD, tab-based detail view, teams, matches, standings)
 
-### Club Activities (`resources/views/clubs/activities/`) [Phase 4 Complete]
+### Club Activities (`resources/views/clubs/activities/`) [Phase 5 Complete]
 - Index: Activity listing with type badges, participant counts
 - Create/Edit: Type selector, conditional field sections, form validation
-- Show: Activity detail card, RSVP panel, competition panel (if competition)
-- Partials: 12 modular partials for type selection, RSVP, teams, schedule, standings
+- Show: Activity detail card with tabs (RSVP, Matches, Standings, Competition)
+- Partials: 12+ modular partials for type selection, RSVP, teams, schedule, standings, matches
+- Matches tab: Generate modal, custom match modal, standings display, score entry
 - See [club-activities-feature.md](./club-activities-feature.md) for detailed architecture
 
 ### Referee (`resources/views/referee/`)

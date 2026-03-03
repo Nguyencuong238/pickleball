@@ -106,6 +106,7 @@ app/Http/Controllers/
 ├── ClubActivityController.php  # Club activities CRUD
 ├── ClubActivityParticipantController.php # RSVP management
 ├── ClubCompetitionController.php # Competition scheduling & scores
+├── ClubMatchController.php      # Casual match generation & scoring
 ├── Admin/
 │   ├── DashboardController.php
 │   ├── CategoryController.php
@@ -270,12 +271,15 @@ SkillQuestion ──── SkillDomain (N:1)
 **Club System**
 ```
 Club ──┬── ClubPost (1:N) ──── ClubPostComment/Reaction/Media
-       ├── ClubActivity ──── ClubActivityParticipant (RSVP)
-       │   └── Competitions (teams, matches, standings)
+       ├── ClubActivity ──┬── ClubActivityParticipant (RSVP)
+       │                 ├── ClubActivityMatchRound (rounds)
+       │                 │   └── ClubActivityMatch (singles/doubles)
+       │                 ├── ClubActivityMatchStanding (stats)
+       │                 └── Competitions (teams, matches, standings)
        └── ClubJoinRequest (1:N)
 
 User ──┬── Club (creator)
-       └── Participations (posts, comments, reactions, activities)
+       └── Participations (posts, comments, reactions, activities, matches)
 ```
 
 ### 4. Infrastructure Layer
@@ -354,17 +358,19 @@ User ──┬── Club (creator)
 │                     Club System Tables                   │
 ├─────────────────────────────────────────────────────────┤
 │ clubs          │ Club management and configuration       │
-│ club_activities │ Club activity tracking                │
+│ club_activities │ Club activity tracking (type: one_off/recurring/competition) │
+│ club_activity_participants │ RSVP/participation tracking │
+│ club_activity_match_rounds │ Match rounds with status     │
+│ club_activity_matches │ Matches (singles/doubles)        │
+│ club_activity_match_standings │ Per-player standings      │
 │ club_join_requests │ Club join request management       │
 │ club_posts     │ Club discussion posts                   │
 │ club_post_comments │ Comments on club posts             │
 │ club_post_media  │ Media in club posts                  │
 │ club_post_reactions │ Reactions/likes on posts         │
-│ club_activities  │ Activities (type: one_off/recurring/competition) │
-│ club_activity_participants │ RSVP/participation tracking │
 │ club_competition_teams │ Teams in competitions           │
-│ club_competition_matches │ Matches with scores            │
-│ club_competition_standings │ Calculated standings         │
+│ club_competition_matches │ Competition matches with scores │
+│ club_competition_standings │ Competition standings         │
 ├─────────────────────────────────────────────────────────┤
 │                Point Earning Tables                      │
 ├─────────────────────────────────────────────────────────┤
@@ -424,6 +430,14 @@ Show page loaded → User clicks RSVP button (AJAX) → Check spots available vs
 
 ### Club Activity Competition Flow (Competition Type)
 RSVP phase complete → Management assigns RSVPd players to teams (AJAX) → Click "Tao lich thi dau" → Select format (round_robin|pool_play|single_elimination) → ClubCompetitionService generates matches grouped by round → View schedule matrix → Enter scores per match (AJAX PUT) → Recalculate standings (wins, losses, points) → Display real-time standings
+
+### Club Activity Casual Matches Flow (Matches Tab)
+Activity loaded → View existing matches tab (AJAX GET) → No matches yet? → Click "Tao tran dau" → Select format (singles_rr|rotating_doubles|fixed_doubles) → Select court count → ClubMatchService generates match rounds → View rounds matrix with player assignments → Enter scores per match (AJAX PUT) → Service recalculates standings → View real-time standings with win/loss/points
+
+### Casual Match Generation Algorithms
+1. **Singles RR (Round-Robin)**: Polygon rotation on singles players, handles odd byes
+2. **Rotating Doubles**: Dynamic partner pairing each round, avoids repeated partnerships (3+ rounds)
+3. **Fixed Doubles**: Permanent pairs play round-robin format
 
 ### Recurring Activity Generation Flow (Scheduled Command)
 Daily 06:00 → Query active recurring templates (status=upcoming, type=recurring) → For each template: iterate 7 days ahead → Check recurrence day of week match → Skip if instance already exists for target date → Create instance via ClubActivityService.createRecurringInstance() → Log output → Idempotent: safe to run multiple times

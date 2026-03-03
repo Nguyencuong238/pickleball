@@ -415,12 +415,19 @@ Create a centralized platform connecting pickleball players with courts, tournam
 
 ### Club System Entities
 - **clubs**: Club management and configuration
-- **club_activities**: Club activity tracking
+- **club_activities**: Club activity tracking (type: one_off/recurring/competition)
+- **club_activity_participants**: RSVP participants with status
+- **club_activity_match_rounds**: Match rounds with status
+- **club_activity_matches**: Individual matches (singles/doubles) with player IDs
+- **club_activity_match_standings**: Per-player standings with win/loss tracking
 - **club_join_requests**: Club join request management
 - **club_posts**: Club discussion posts
 - **club_post_comments**: Comments on club posts
 - **club_post_media**: Media in club posts
 - **club_post_reactions**: Reactions/likes on posts
+- **club_competition_teams**: Teams in competitions
+- **club_competition_matches**: Competition matches with scores
+- **club_competition_standings**: Competition standings
 
 ### Point Earning Entities
 - **point_tasks**: 16 tasks with code, points, role, category, frequency, proof_type

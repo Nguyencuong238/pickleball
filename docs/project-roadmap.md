@@ -200,6 +200,13 @@ Referee management system for tournament match officiating.
   - [x] Phase 4: Views & UI - 12 partials, type selector, RSVP panel, competition panel (Complete - Feb 27)
   - [x] Phase 5: Scheduled Command - Auto-generate recurring activity instances (Complete)
   - [x] Phase 6: Testing - Unit/integration tests for all phases (Complete - 25 tests passing)
+- [x] Club Activity Casual Matches System (Complete - Mar 3, 2026)
+  - [x] Database: 3 new tables (match_rounds, matches, standings)
+  - [x] Models: ClubActivityMatchRound, ClubActivityMatch, ClubActivityMatchStanding
+  - [x] Service: ClubMatchService with 3 match generation algorithms (singles_rr, rotating_doubles, fixed_doubles)
+  - [x] Controller: ClubMatchController with 7 AJAX endpoints
+  - [x] UI: Matches tab with generate/custom modals, standings display, score entry
+  - [x] Features: Round-robin singles, rotating partner doubles, fixed pair doubles
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -287,6 +294,7 @@ Referee management system for tournament match officiating.
 - Club system (posts, comments, reactions, activities) (Feb 2026)
 - League management with AJAX scoring and standings (Feb 25, 2026)
 - Club activity RSVP with auto-promotion, competitions (Feb 27, 2026)
+- Club activity casual matches with 3 generation algorithms (Mar 3, 2026)
 
 ### In Development
 - 🔄 Payment integration
@@ -412,6 +420,7 @@ Referee management system for tournament match officiating.
 | Booking Code System | Complete | 2026-02-07 | 100% |
 | Club Management System | Complete | 2026-02-14 | 100% |
 | League Management (Phase 4) | Complete | 2026-02-25 | 100% |
+| Club Activity Casual Matches | Complete | 2026-03-03 | 100% |
 | Payment Gateway Integration | 🔄 In Progress | 2026-03-31 | 30% |
 | Notification System Design | Planned | 2026-03-15 | 0% |
 
@@ -482,6 +491,46 @@ Referee management system for tournament match officiating.
 ---
 
 ## Change Log
+
+### Version 1.8.0 (2026-03-03)
+
+#### Major Features Added
+- **Club Activity Casual Matches:** Lightweight match system for non-competition club activities
+  - 3 match generation algorithms: Singles Round-Robin, Rotating Doubles, Fixed Doubles
+  - Automatic player pairing with duplicate prevention
+  - Multi-round tournament scheduling with court distribution
+  - Score tracking per match with automatic standings calculation
+  - Per-player statistics: matches played, wins, losses, point differential
+
+#### Technical Implementation
+- 3 new models: `ClubActivityMatchRound`, `ClubActivityMatch`, `ClubActivityMatchStanding`
+- `ClubMatchService` with match generation logic for all 3 formats
+- `ClubMatchController` with 7 AJAX endpoints:
+  - GET index - Load all rounds and matches
+  - POST generate - Generate match schedule
+  - PUT completeRound - Mark round as finished
+  - DELETE reset - Clear all matches
+  - PUT score - Save match score and recalculate standings
+  - GET standings - Get current standings
+  - POST customMatch - Create ad-hoc match
+- New Blade partials: generate modal, custom match modal, standings display
+- Matches tab added to club activity detail page
+
+#### Database Changes (3 tables)
+- `club_activity_match_rounds` - Round tracking with status
+- `club_activity_matches` - Match records (singles/doubles) with player IDs, scores
+- `club_activity_match_standings` - Per-player standings with win/loss/point tracking
+
+#### Routes
+- POST /clubs/{club}/activities/{activity}/matches/generate
+- PUT /clubs/{club}/activities/{activity}/matches/rounds/{round}/complete
+- DELETE /clubs/{club}/activities/{activity}/matches/reset
+- PUT /clubs/{club}/activities/{activity}/matches/{match}/score
+- GET /clubs/{club}/activities/{activity}/matches/standings
+- POST /clubs/{club}/activities/{activity}/matches/custom
+- GET /clubs/{club}/activities/{activity}/matches (index)
+
+---
 
 ### Version 1.7.0 (2026-02-25)
 
