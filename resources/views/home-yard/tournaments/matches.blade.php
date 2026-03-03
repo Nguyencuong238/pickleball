@@ -564,7 +564,7 @@
                                                 @endif
                                             </div>
                                             <div class="match-actions">
-                                                {{-- <button class="btn btn-primary btn-sm" onclick="openUpdateScoreModal({{ $match->tournament_id }}, {{ $match->id }})">📊 Cập nhật điểm</button> --}}
+                                                <button class="btn btn-primary btn-sm" onclick="openUpdateScoreModal({{ $match->tournament_id }}, {{ $match->id }})">📊 Cập nhật điểm</button>
                                                 <button class="btn btn-ghost btn-sm" onclick="openMatchDetailsModal({{ $match->tournament_id }}, {{ $match->id }})">👁️ Chi tiết</button>
                                             </div>
                                         </div>
