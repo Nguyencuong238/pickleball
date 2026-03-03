@@ -36,6 +36,13 @@
             @include('clubs.activities.partials._competition-panel')
         </div>
         @endif
+
+        {{-- Tab: Tran dau (non-competition casual matches) --}}
+        @if($activity->type !== 'competition' && !$activity->isRecurringTemplate())
+        <div class="tab-content" id="tab-matches" role="tabpanel">
+            @include('clubs.activities.partials._matches-panel')
+        </div>
+        @endif
     </div>
 </div>
 

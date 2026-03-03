@@ -92,6 +92,16 @@ class ClubActivity extends Model
         return $this->hasMany(ClubCompetitionStanding::class);
     }
 
+    public function matchRounds(): HasMany
+    {
+        return $this->hasMany(ClubActivityMatchRound::class);
+    }
+
+    public function matchStandings(): HasMany
+    {
+        return $this->hasMany(ClubActivityMatchStanding::class);
+    }
+
     // Scopes
     public function scopeOfType($query, string $type)
     {

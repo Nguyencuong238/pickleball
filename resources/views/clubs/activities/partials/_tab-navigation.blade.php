@@ -23,4 +23,13 @@
         Trận đấu
     </button>
     @endif
+    {{-- Matches tab for non-competition activities (hide on recurring templates) --}}
+    @if($activity->type !== 'competition' && !$activity->isRecurringTemplate())
+    <button class="tab-btn" data-tab="matches" role="tab" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+            <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+        </svg>
+        Trận đấu
+    </button>
+    @endif
 </div>
