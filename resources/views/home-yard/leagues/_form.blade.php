@@ -12,6 +12,8 @@
 @php
     $config = isset($league) ? ($league->config ?? []) : [];
     $defaultConfig = \App\Services\LeagueService::DEFAULT_CONFIG;
+    $mlpFormat = \App\Services\LeagueService::MLP_MATCH_FORMAT;
+    $currentFormat = old('competition_format', $league->competition_format ?? 'traditional');
 @endphp
 
 <div style="background: white; border-radius: 15px; padding: clamp(20px, 5vw, 30px); box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
@@ -34,6 +36,25 @@
                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
             </div>
         </div>
+
+        <!-- Câu Lạc Bộ -->
+        @if(isset($clubs) && $clubs->count() > 0)
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">
+                    <i class="fas fa-users"></i> Câu Lạc Bộ
+                </label>
+                <select name="club_id" class="form-control"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                    <option value="">-- Không chọn CLB --</option>
+                    @foreach($clubs as $club)
+                        <option value="{{ $club->id }}" {{ old('club_id', $league->club_id ?? '') == $club->id ? 'selected' : '' }}>
+                            {{ $club->name }}
+                        </option>
+                    @endforeach
+                </select>
+                <small style="color: #6b7280; font-size: 0.8rem;">Liên kết league với một câu lạc bộ (không bắt buộc)</small>
+            </div>
+        @endif
 
         <!-- Mô Tả -->
         <div style="margin-bottom: 20px;">
@@ -58,6 +79,28 @@
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Hạn Đăng Ký</label>
                 <input type="datetime-local" name="registration_deadline" class="form-control" value="{{ old('registration_deadline', isset($league) && $league->registration_deadline ? $league->registration_deadline->format('Y-m-d\TH:i') : '') }}"
                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+            </div>
+        </div>
+
+        <!-- Hình Thức Thi Đấu -->
+        <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: #f8fafc;">
+            <h3 style="color: #1e293b; font-size: 1.1rem; margin: 0 0 15px 0;">
+                <i class="fas fa-trophy"></i> Hình Thức Thi Đấu
+            </h3>
+
+            <div style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 2px solid {{ $currentFormat === 'traditional' ? '#3b82f6' : '#e2e8f0' }}; border-radius: 8px; cursor: pointer; background: {{ $currentFormat === 'traditional' ? '#eff6ff' : 'white' }};">
+                    <input type="radio" name="competition_format" value="traditional" {{ $currentFormat === 'traditional' ? 'checked' : '' }}
+                        onchange="onCompetitionFormatChange(this.value)"
+                        style="accent-color: #3b82f6;">
+                    <span style="font-weight: 600; color: #1e293b;">Traditional</span>
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 2px solid {{ $currentFormat === 'mlp' ? '#3b82f6' : '#e2e8f0' }}; border-radius: 8px; cursor: pointer; background: {{ $currentFormat === 'mlp' ? '#eff6ff' : 'white' }};">
+                    <input type="radio" name="competition_format" value="mlp" {{ $currentFormat === 'mlp' ? 'checked' : '' }}
+                        onchange="onCompetitionFormatChange(this.value)"
+                        style="accent-color: #3b82f6;">
+                    <span style="font-weight: 600; color: #1e293b;">MLP</span>
+                </label>
             </div>
         </div>
 
@@ -97,7 +140,7 @@
                 </div>
             </div>
 
-            <!-- Match Format -->
+            <!-- Nội Dung Thi Đấu (Match Format) -->
             <div>
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Nội Dung Thi Đấu</label>
                 <div id="matchFormatContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
@@ -132,31 +175,56 @@
 </div>
 
 <script>
-function addMatchFormat() {
-    const container = document.getElementById('matchFormatContainer');
-    const tag = document.createElement('div');
+var mlpPreset = @json($mlpFormat);
+
+function addMatchFormat(value) {
+    var container = document.getElementById('matchFormatContainer');
+    var tag = document.createElement('div');
     tag.className = 'format-tag';
     tag.style.cssText = 'display: inline-flex; align-items: center; gap: 6px; background: #dbeafe; color: #1e40af; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem;';
-    tag.innerHTML = `
-        <select name="config[match_format][]" style="border: none; background: transparent; color: #1e40af; font-weight: 600; font-size: 0.85rem;">
-            <option value="WD">WD (Nữ Đôi)</option>
-            <option value="MD">MD (Nam Đôi)</option>
-            <option value="MXD">MXD (Đôi Hỗn Hợp)</option>
-        </select>
-        <button type="button" onclick="this.closest('.format-tag').remove()" style="background: none; border: none; color: #1e40af; cursor: pointer; font-size: 1rem; padding: 0; line-height: 1;">&times;</button>
-    `;
+    var selected = value || 'WD';
+    tag.innerHTML =
+        '<select name="config[match_format][]" style="border: none; background: transparent; color: #1e40af; font-weight: 600; font-size: 0.85rem;">' +
+            '<option value="WD"' + (selected === 'WD' ? ' selected' : '') + '>WD (N\u1EEF \u0110\u00F4i)</option>' +
+            '<option value="MD"' + (selected === 'MD' ? ' selected' : '') + '>MD (Nam \u0110\u00F4i)</option>' +
+            '<option value="MXD"' + (selected === 'MXD' ? ' selected' : '') + '>MXD (\u0110\u00F4i H\u1ED7n H\u1EE3p)</option>' +
+        '</select>' +
+        '<button type="button" onclick="this.closest(\'.format-tag\').remove()" style="background: none; border: none; color: #1e40af; cursor: pointer; font-size: 1rem; padding: 0; line-height: 1;">&times;</button>';
     container.appendChild(tag);
+}
+
+function onCompetitionFormatChange(format) {
+    // Update radio button styling
+    document.querySelectorAll('input[name="competition_format"]').forEach(function(radio) {
+        var label = radio.closest('label');
+        if (radio.value === format) {
+            label.style.borderColor = '#3b82f6';
+            label.style.background = '#eff6ff';
+        } else {
+            label.style.borderColor = '#e2e8f0';
+            label.style.background = 'white';
+        }
+    });
+
+    if (format === 'mlp') {
+        // Clear and set MLP preset
+        var container = document.getElementById('matchFormatContainer');
+        container.innerHTML = '';
+        mlpPreset.forEach(function(val) {
+            addMatchFormat(val);
+        });
+    }
 }
 
 @if(isset($league) && $league->status === 'active')
 // Cảnh báo thay đổi cấu hình cho league đang hoạt động
 document.getElementById('leagueForm').addEventListener('submit', function(e) {
-    const configFields = document.querySelectorAll('.config-field');
-    const originalConfig = @json($config);
-    let configChanged = false;
+    var configFields = document.querySelectorAll('.config-field');
+    var originalConfig = @json($config);
+    var configChanged = false;
 
     configFields.forEach(function(field) {
-        const name = field.name.replace('config[', '').replace(']', '');
+        var name = field.name.replace('config[', '').replace(']', '');
         if (originalConfig[name] !== undefined && String(originalConfig[name]) !== String(field.value)) {
             configChanged = true;
         }

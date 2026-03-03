@@ -13,6 +13,8 @@ class LeagueRound extends Model
         'round_number',
         'name',
         'scheduled_date',
+        'scheduled_time',
+        'venue',
         'status',
     ];
 

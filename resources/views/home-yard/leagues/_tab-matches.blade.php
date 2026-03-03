@@ -1,12 +1,83 @@
+@php
+    $activeTeamsCount = $league->teams->where('status', 'active')->count();
+@endphp
+
 @if($league->rounds->count() > 0)
+    {{-- Nút Tạo Lại Lịch khi đang ở trạng thái đăng ký --}}
+    @if($league->status === 'registration' && $activeTeamsCount >= 2)
+        <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
+            <form method="POST" action="{{ route('homeyard.leagues.schedule.generate', $league) }}">
+                @csrf
+                <button type="submit" style="background: #8b5cf6; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 0.9rem;"
+                    onclick="return confirm('Tạo lại lịch thi đấu round-robin cho {{ $activeTeamsCount }} đội? Lịch hiện tại sẽ bị thay thế.')">
+                    <i class="fas fa-sync-alt"></i> Tạo Lại Lịch Thi Đấu
+                </button>
+            </form>
+        </div>
+    @endif
+
     <div style="display: flex; flex-direction: column; gap: 20px;">
         @foreach($league->rounds->sortBy('round_number') as $round)
             <div style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
-                <div style="padding: 12px 20px; background: #f8fafc; font-weight: 600; color: #1e293b; border-bottom: 1px solid #e2e8f0;">
-                    <i class="fas fa-flag"></i> Vòng {{ $round->round_number }}
-                    @if($round->name)
-                        - {{ $round->name }}
-                    @endif
+                <div style="padding: 12px 20px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+                        <div>
+                            <span style="font-weight: 600; color: #1e293b;">
+                                <i class="fas fa-flag"></i> Vòng {{ $round->round_number }}
+                                @if($round->name) - {{ $round->name }} @endif
+                            </span>
+                            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; font-size: 0.85rem; color: #6b7280;">
+                                @if($round->scheduled_date)
+                                    <span><i class="fas fa-calendar"></i> {{ $round->scheduled_date->format('d/m/Y') }}</span>
+                                @endif
+                                @if($round->scheduled_time)
+                                    <span><i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($round->scheduled_time)->format('H:i') }}</span>
+                                @endif
+                                @if($round->venue)
+                                    <span><i class="fas fa-map-marker-alt"></i> {{ $round->venue }}</span>
+                                @endif
+                            </div>
+                        </div>
+
+                        {{-- Nút chỉnh sửa thông tin vòng đấu --}}
+                        @if(in_array($league->status, ['draft', 'registration', 'active']))
+                            <button type="button" onclick="toggleRoundEdit({{ $round->id }})"
+                                style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: #475569;">
+                                <i class="fas fa-pen"></i> Sửa
+                            </button>
+                        @endif
+                    </div>
+
+                    {{-- Form chỉnh sửa vòng đấu (ẩn mặc định) --}}
+                    <div id="roundEdit{{ $round->id }}" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
+                        <form method="POST" action="{{ route('homeyard.leagues.rounds.update', [$league, $round]) }}"
+                            style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
+                            @csrf
+                            @method('PUT')
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; color: #475569; margin-bottom: 4px;">Ngày</label>
+                                <input type="date" name="scheduled_date" value="{{ $round->scheduled_date ? $round->scheduled_date->format('Y-m-d') : '' }}"
+                                    style="padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.85rem;">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.8rem; color: #475569; margin-bottom: 4px;">Giờ</label>
+                                <input type="time" name="scheduled_time" value="{{ $round->scheduled_time ? \Carbon\Carbon::parse($round->scheduled_time)->format('H:i') : '' }}"
+                                    style="padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.85rem;">
+                            </div>
+                            <div style="flex: 1; min-width: 150px;">
+                                <label style="display: block; font-size: 0.8rem; color: #475569; margin-bottom: 4px;">Địa điểm</label>
+                                <input type="text" name="venue" value="{{ $round->venue ?? '' }}" placeholder="Nhập địa điểm..."
+                                    style="width: 100%; padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 4px; font-size: 0.85rem;">
+                            </div>
+                            <button type="submit" style="background: #3b82f6; color: white; border: none; padding: 6px 14px; border-radius: 4px; font-size: 0.85rem; cursor: pointer; font-weight: 600;">
+                                <i class="fas fa-save"></i> Lưu
+                            </button>
+                            <button type="button" onclick="toggleRoundEdit({{ $round->id }})"
+                                style="background: #e2e8f0; color: #475569; border: none; padding: 6px 14px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
+                                Hủy
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 @forelse($round->matches as $match)
@@ -73,7 +144,18 @@
     <div style="text-align: center; padding: 40px 20px;">
         <i class="fas fa-calendar-alt" style="font-size: 2.5rem; color: #d1d5db; margin-bottom: 15px;"></i>
         <h4 style="color: #9ca3af; margin: 10px 0;">Chưa có lịch thi đấu</h4>
-        <p style="color: #9ca3af;">Tạo lịch thi đấu ở tab "Tổng Quan" khi đã có ít nhất 2 đội</p>
+        @if($activeTeamsCount >= 2 && in_array($league->status, ['registration', 'active']))
+            <p style="color: #6b7280; margin-bottom: 15px;">Bạn có {{ $activeTeamsCount }} đội đang hoạt động. Tạo lịch thi đấu ngay!</p>
+            <form method="POST" action="{{ route('homeyard.leagues.schedule.generate', $league) }}" style="display: inline;">
+                @csrf
+                <button type="submit" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem;"
+                    onclick="return confirm('Tạo lịch thi đấu round-robin cho {{ $activeTeamsCount }} đội?')">
+                    <i class="fas fa-calendar-plus"></i> Tạo Lịch Thi Đấu
+                </button>
+            </form>
+        @else
+            <p style="color: #9ca3af;">Cần ít nhất 2 đội và league ở trạng thái đăng ký/hoạt động để tạo lịch thi đấu</p>
+        @endif
     </div>
 @endif
 
@@ -109,6 +191,11 @@
 </div>
 
 <script>
+function toggleRoundEdit(roundId) {
+    var el = document.getElementById('roundEdit' + roundId);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
 function openScoreModal(matchId, homeTeam, awayTeam, homeScore, awayScore) {
     document.getElementById('scoreMatchId').value = matchId;
     document.getElementById('scoreHomeTeam').textContent = homeTeam;
@@ -145,7 +232,6 @@ function submitScore() {
         if (data.success) {
             toastr.success(data.message);
             closeScoreModal();
-            // Reload to reflect updated scores and standings
             window.location.reload();
         } else {
             toastr.error(data.message || 'Có lỗi xảy ra.');

@@ -3,6 +3,7 @@
     $totalMatches = $league->rounds->flatMap->matches->count();
     $completedMatches = $league->rounds->flatMap->matches->where('status', 'completed')->count();
     $activeTeamsCount = $league->teams->where('status', 'active')->count();
+    $formatLabels = ['traditional' => 'Traditional', 'mlp' => 'MLP'];
 @endphp
 
 <!-- Quick Stats -->
@@ -24,6 +25,24 @@
         <div style="color: #6b7280; font-size: 0.85rem;">Số Vòng</div>
     </div>
 </div>
+
+<!-- Thông tin CLB và Hình Thức -->
+@if($league->club || $league->competition_format)
+    <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; margin-bottom: 20px; background: #f8fafc;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px;">
+            @if($league->club)
+                <div>
+                    <strong style="color: #475569;"><i class="fas fa-users"></i> Câu lạc bộ:</strong>
+                    <span style="color: #1e293b;">{{ $league->club->name }}</span>
+                </div>
+            @endif
+            <div>
+                <strong style="color: #475569;"><i class="fas fa-trophy"></i> Hình thức:</strong>
+                <span style="color: #1e293b; font-weight: 600;">{{ $formatLabels[$league->competition_format] ?? 'Traditional' }}</span>
+            </div>
+        </div>
+    </div>
+@endif
 
 <!-- League Details -->
 @if($league->description)

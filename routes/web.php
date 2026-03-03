@@ -532,6 +532,7 @@ Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(functi
     Route::resource('leagues', HomeYardLeagueController::class);
     Route::patch('leagues/{league}/status', [HomeYardLeagueController::class, 'updateStatus'])->name('leagues.status');
     Route::post('leagues/{league}/schedule', [HomeYardLeagueController::class, 'generateSchedule'])->name('leagues.schedule.generate');
+    Route::put('leagues/{league}/rounds/{round}', [HomeYardLeagueController::class, 'updateRound'])->name('leagues.rounds.update');
 
     // League Teams
     Route::post('leagues/{league}/teams', [LeagueTeamController::class, 'store'])->name('leagues.teams.store');

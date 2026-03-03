@@ -11,11 +11,13 @@ class League extends Model
 {
     protected $fillable = [
         'user_id',
+        'club_id',
         'name',
         'slug',
         'description',
         'season_name',
         'config',
+        'competition_format',
         'status',
         'start_date',
         'end_date',
@@ -55,6 +57,11 @@ class League extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function club(): BelongsTo
+    {
+        return $this->belongsTo(Club::class);
     }
 
     public function teams(): HasMany

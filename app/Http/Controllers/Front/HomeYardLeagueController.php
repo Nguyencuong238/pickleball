@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
+use App\Models\Club;
 use App\Models\League;
+use App\Models\LeagueRound;
 use App\Services\LeagueScheduleService;
 use App\Services\LeagueService;
 use App\Services\LeagueStandingsService;
@@ -39,7 +41,9 @@ class HomeYardLeagueController extends Controller
 
     public function create()
     {
-        return view('home-yard.leagues.create');
+        $clubs = $this->getUserClubs();
+
+        return view('home-yard.leagues.create', compact('clubs'));
     }
 
     public function store(Request $request)
@@ -48,8 +52,10 @@ class HomeYardLeagueController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'season_name' => 'nullable|string|max:100',
+            'club_id' => 'nullable|exists:clubs,id',
+            'competition_format' => 'nullable|in:traditional,mlp',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after:start_date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'registration_deadline' => 'nullable|date',
             'config' => 'nullable|array',
             'config.match_format' => 'nullable|array',
@@ -71,6 +77,7 @@ class HomeYardLeagueController extends Controller
         abort_if($league->user_id !== auth()->id(), 403);
 
         $league->load([
+            'club',
             'teams.captain',
             'teams.players.user',
             'rounds.matches.homeTeam',
@@ -91,7 +98,9 @@ class HomeYardLeagueController extends Controller
     {
         abort_if($league->user_id !== auth()->id(), 403);
 
-        return view('home-yard.leagues.edit', compact('league'));
+        $clubs = $this->getUserClubs();
+
+        return view('home-yard.leagues.edit', compact('league', 'clubs'));
     }
 
     public function update(Request $request, League $league)
@@ -102,8 +111,10 @@ class HomeYardLeagueController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'season_name' => 'nullable|string|max:100',
+            'club_id' => 'nullable|exists:clubs,id',
+            'competition_format' => 'nullable|in:traditional,mlp',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after:start_date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
             'registration_deadline' => 'nullable|date',
             'config' => 'nullable|array',
             'config.match_format' => 'nullable|array',
@@ -179,5 +190,32 @@ class HomeYardLeagueController extends Controller
                 ->back()
                 ->with('error', $e->getMessage());
         }
+    }
+
+    public function updateRound(Request $request, League $league, LeagueRound $round)
+    {
+        abort_if($league->user_id !== auth()->id(), 403);
+        abort_if($round->league_id !== $league->id, 404);
+
+        $validated = $request->validate([
+            'scheduled_date' => 'nullable|date',
+            'scheduled_time' => 'nullable|date_format:H:i',
+            'venue' => 'nullable|string|max:255',
+        ]);
+
+        $round->update($validated);
+
+        return redirect()
+            ->back()
+            ->with('success', 'Cập nhật thông tin vòng đấu thành công.');
+    }
+
+    private function getUserClubs()
+    {
+        $userId = auth()->id();
+
+        return Club::whereHas('members', function ($query) use ($userId) {
+            $query->where('user_id', $userId);
+        })->select('id', 'name')->get();
     }
 }

@@ -31,6 +31,9 @@ class LeagueService
         'scoring_type' => 'best_of',
     ];
 
+    // Preset noi dung thi dau cho MLP
+    public const MLP_MATCH_FORMAT = ['MD', 'WD', 'MXD', 'MXD'];
+
     public function __construct(
         private LeagueScheduleService $scheduleService,
         private LeagueStandingsService $standingsService
@@ -51,11 +54,13 @@ class LeagueService
 
             return League::create([
                 'user_id' => $user->id,
+                'club_id' => $data['club_id'] ?? null,
                 'name' => $data['name'],
                 'slug' => $slug,
                 'description' => $data['description'] ?? null,
                 'season_name' => $data['season_name'] ?? null,
                 'config' => $config,
+                'competition_format' => $data['competition_format'] ?? 'traditional',
                 'status' => 'draft',
                 'start_date' => $data['start_date'] ?? null,
                 'end_date' => $data['end_date'] ?? null,

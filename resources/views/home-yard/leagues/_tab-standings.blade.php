@@ -8,7 +8,6 @@
                     <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #475569;">Trận</th>
                     <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #475569;">Thắng</th>
                     <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #475569;">Thua</th>
-                    <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #475569;">Hòa</th>
                     <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #475569;">GW</th>
                     <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #475569;">GL</th>
                     <th style="padding: 12px 15px; text-align: center; font-weight: 600; color: #475569;">GD</th>
@@ -31,7 +30,6 @@
                         <td style="padding: 12px 15px; text-align: center; color: #6b7280;">{{ $standing->played }}</td>
                         <td style="padding: 12px 15px; text-align: center; color: #15803d; font-weight: 600;">{{ $standing->wins }}</td>
                         <td style="padding: 12px 15px; text-align: center; color: #991b1b;">{{ $standing->losses }}</td>
-                        <td style="padding: 12px 15px; text-align: center; color: #6b7280;">{{ $standing->draws }}</td>
                         <td style="padding: 12px 15px; text-align: center; color: #6b7280;">{{ $standing->games_won }}</td>
                         <td style="padding: 12px 15px; text-align: center; color: #6b7280;">{{ $standing->games_lost }}</td>
                         <td style="padding: 12px 15px; text-align: center; color: #6b7280;">{{ $standing->games_won - $standing->games_lost }}</td>
