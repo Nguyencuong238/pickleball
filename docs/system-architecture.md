@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-02-27
+**Last Updated**: 2026-03-02
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -106,6 +106,7 @@ app/Http/Controllers/
 ├── ClubActivityController.php  # Club activities CRUD
 ├── ClubActivityParticipantController.php # RSVP management
 ├── ClubCompetitionController.php # Competition scheduling & scores
+├── ClubMatchController.php      # Casual match generation & scoring
 ├── Admin/
 │   ├── DashboardController.php
 │   ├── CategoryController.php
@@ -269,23 +270,16 @@ SkillQuestion ──── SkillDomain (N:1)
 
 **Club System**
 ```
-Club ──┬── User (creator) (N:1)
-       ├── ClubPost (1:N)
-       │   ├── ClubPostComment (1:N)
-       │   ├── ClubPostReaction (1:N)
-       │   └── ClubPostMedia (1:N)
-       ├── ClubActivity (1:N) ──── ClubActivityParticipant (1:N)
-       │   ├── ClubCompetitionTeam (1:N)
-       │   ├── ClubCompetitionMatch (1:N)
-       │   └── ClubCompetitionStanding (1:N)
+Club ──┬── ClubPost (1:N) ──── ClubPostComment/Reaction/Media
+       ├── ClubActivity ──┬── ClubActivityParticipant (RSVP)
+       │                 ├── ClubActivityMatchRound (rounds)
+       │                 │   └── ClubActivityMatch (singles/doubles)
+       │                 ├── ClubActivityMatchStanding (stats)
+       │                 └── Competitions (teams, matches, standings)
        └── ClubJoinRequest (1:N)
 
-User ──┬── Club (created) (1:N)
-       ├── ClubPost (creator) (1:N)
-       ├── ClubPostComment (1:N)
-       ├── ClubPostReaction (1:N)
-       ├── ClubJoinRequest (1:N)
-       └── ClubActivityParticipant (1:N) ──── ClubActivity
+User ──┬── Club (creator)
+       └── Participations (posts, comments, reactions, activities, matches)
 ```
 
 ### 4. Infrastructure Layer
@@ -364,17 +358,19 @@ User ──┬── Club (created) (1:N)
 │                     Club System Tables                   │
 ├─────────────────────────────────────────────────────────┤
 │ clubs          │ Club management and configuration       │
-│ club_activities │ Club activity tracking                │
+│ club_activities │ Club activity tracking (type: one_off/recurring/competition) │
+│ club_activity_participants │ RSVP/participation tracking │
+│ club_activity_match_rounds │ Match rounds with status     │
+│ club_activity_matches │ Matches (singles/doubles)        │
+│ club_activity_match_standings │ Per-player standings      │
 │ club_join_requests │ Club join request management       │
 │ club_posts     │ Club discussion posts                   │
 │ club_post_comments │ Comments on club posts             │
 │ club_post_media  │ Media in club posts                  │
 │ club_post_reactions │ Reactions/likes on posts         │
-│ club_activities  │ Activities (type: one_off/recurring/competition) │
-│ club_activity_participants │ RSVP/participation tracking │
 │ club_competition_teams │ Teams in competitions           │
-│ club_competition_matches │ Matches with scores            │
-│ club_competition_standings │ Calculated standings         │
+│ club_competition_matches │ Competition matches with scores │
+│ club_competition_standings │ Competition standings         │
 ├─────────────────────────────────────────────────────────┤
 │                Point Earning Tables                      │
 ├─────────────────────────────────────────────────────────┤
@@ -434,6 +430,14 @@ Show page loaded → User clicks RSVP button (AJAX) → Check spots available vs
 
 ### Club Activity Competition Flow (Competition Type)
 RSVP phase complete → Management assigns RSVPd players to teams (AJAX) → Click "Tao lich thi dau" → Select format (round_robin|pool_play|single_elimination) → ClubCompetitionService generates matches grouped by round → View schedule matrix → Enter scores per match (AJAX PUT) → Recalculate standings (wins, losses, points) → Display real-time standings
+
+### Club Activity Casual Matches Flow (Matches Tab)
+Activity loaded → View existing matches tab (AJAX GET) → No matches yet? → Click "Tao tran dau" → Select format (singles_rr|rotating_doubles|fixed_doubles) → Select court count → ClubMatchService generates match rounds → View rounds matrix with player assignments → Enter scores per match (AJAX PUT) → Service recalculates standings → View real-time standings with win/loss/points
+
+### Casual Match Generation Algorithms
+1. **Singles RR (Round-Robin)**: Polygon rotation on singles players, handles odd byes
+2. **Rotating Doubles**: Dynamic partner pairing each round, avoids repeated partnerships (3+ rounds)
+3. **Fixed Doubles**: Permanent pairs play round-robin format
 
 ### Recurring Activity Generation Flow (Scheduled Command)
 Daily 06:00 → Query active recurring templates (status=upcoming, type=recurring) → For each template: iterate 7 days ahead → Check recurrence day of week match → Skip if instance already exists for target date → Create instance via ClubActivityService.createRecurringInstance() → Log output → Idempotent: safe to run multiple times
@@ -755,58 +759,20 @@ User Gender Field (for skill level mapping):
 └── Defaults to 'male' for backward compatibility
 ```
 
-### Skill Quiz Configuration
+### Skill Quiz Configuration (see code-standards.md for details)
 
 ```php
-// Domain Weights (6 domains)
-Technical Skills:      weight = 1.2
-Strategy & Tactics:    weight = 1.0
-Physical Conditioning: weight = 0.9
-Mental Game:           weight = 1.0
-Experience Level:      weight = 1.1
-Game Situations:       weight = 1.0
-
-// Rating Scale (per question)
-0 = Never/Not at all
-1 = Rarely/Beginner level
-2 = Sometimes/Intermediate level
-3 = Often or Always/Advanced level
-
-// ELO Calculation
-Base ELO = 800
-Max ELO from quiz = 1400
-Formula: 800 + (percentage_score * 6)
-
-// ELO Caps
-New players (< 5 matches): 1100 max
-Experienced (5+ matches): 1200 max
-
-// Cooldown Periods
-ELO < 900: 30 days
-ELO 900-1100: 60 days
-ELO > 1100: 90 days
-
-// Anti-Fraud Thresholds
-Min completion time: 3 minutes (180 sec)
-Max completion time: 20 minutes (1200 sec)
-Max inconsistency score: 3 (cross-validation)
-
-// Gender-Aware Skill Level Mapping
-Female players: +0.5 level at same ELO
-Aligns with Vietnam tournament standards:
-- Male amateur: <4.0
-- Female amateur: <3.5
-
-ELO Thresholds:
-Male:   700→2.0, 800→2.5, 900→3.0, 1000→3.5, 1100→4.0, 1200→4.5, 1300→5.0, >=1300→5.5+
-Female: 700→2.5, 800→3.0, 900→3.5, 1000→4.0, 1100→4.5, 1200→5.0, 1300→5.5, >=1300→5.5+
+// Summary
+Base ELO = 800, Max = 1400, Caps: 1100 (new)/1200 (exp)
+Anti-fraud: 3-20 min window, max inconsistency = 3
+Gender-aware: Female +0.5 level at same ELO
+Cooldown: 30/60/90 days based on ELO tier
 ```
 
 ## Unresolved Questions
 
-1. **Queue Strategy**: Which queue driver for production (Redis, SQS)?
-2. **CDN Choice**: Which CDN for media (Cloudflare, AWS CloudFront)?
-3. **Monitoring**: Which monitoring stack (New Relic, Sentry)?
-4. **Search**: Elasticsearch vs Algolia for search functionality?
-5. **OPRS Scaling**: Caching strategy for leaderboards and level distributions?
-6. **Challenge Automation**: Integration with video analysis for automatic verification?
+1. **Queue Driver**: Redis vs SQS for production?
+2. **CDN**: Cloudflare vs AWS CloudFront for media?
+3. **Monitoring**: New Relic vs Sentry?
+4. **Search**: Elasticsearch vs Algolia?
+5. **OPRS Caching**: Leaderboard cache TTL strategy?

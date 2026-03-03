@@ -16,11 +16,22 @@ class HomeYardClubController extends Controller
      */
     public function index()
     {
+        $userId = Auth::id();
+
+        // Clubs user has joined (not as creator)
+        $joinedClubs = Club::with(['creator', 'members', 'provinces'])
+            ->whereHas('members', function ($query) use ($userId) {
+                $query->where('user_id', $userId);
+            })
+            ->where('user_id', '!=', $userId)
+            ->get();
+
+        // Clubs user created
         $clubs = Club::with(['creator', 'members', 'provinces'])
-            ->where('user_id', Auth::id())
+            ->where('user_id', $userId)
             ->paginate(15);
-        
-        return view('home-yard.clubs.index', compact('clubs'));
+
+        return view('home-yard.clubs.index', compact('clubs', 'joinedClubs'));
     }
 
     /**

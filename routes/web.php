@@ -42,6 +42,7 @@ use App\Http\Controllers\ClubController;
 use App\Http\Controllers\ClubActivityController;
 use App\Http\Controllers\ClubActivityParticipantController;
 use App\Http\Controllers\ClubCompetitionController;
+use App\Http\Controllers\ClubMatchController;
 use App\Http\Controllers\Front\ClubPostController;
 use App\Http\Controllers\Front\ClubPostReactionController;
 use App\Http\Controllers\Front\ClubPostCommentController;
@@ -320,6 +321,17 @@ Route::middleware('auth')->group(function () {
             Route::put('matches/{match}/score', [ClubCompetitionController::class, 'saveScore'])->name('save-score');
             Route::get('standings', [ClubCompetitionController::class, 'standings'])->name('standings');
             Route::get('matches', [ClubCompetitionController::class, 'matches'])->name('matches');
+        });
+
+        // Casual Matches (non-competition)
+        Route::prefix('{activity}/matches')->name('matches.')->group(function () {
+            Route::get('rounds', [ClubMatchController::class, 'index'])->name('index');
+            Route::post('generate', [ClubMatchController::class, 'generate'])->name('generate');
+            Route::put('rounds/{round}/complete', [ClubMatchController::class, 'completeRound'])->name('complete-round');
+            Route::delete('rounds', [ClubMatchController::class, 'reset'])->name('reset');
+            Route::put('{match}/score', [ClubMatchController::class, 'saveScore'])->name('save-score');
+            Route::get('standings', [ClubMatchController::class, 'standings'])->name('standings');
+            Route::post('custom', [ClubMatchController::class, 'createCustom'])->name('create-custom');
         });
     });
 

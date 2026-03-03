@@ -95,7 +95,7 @@ class ClubActivityController extends Controller
         }
 
         $activity->loadCount(['confirmedParticipants', 'waitlistedParticipants']);
-        $activity->load(['confirmedParticipants.user', 'waitlistedParticipants.user']);
+        $activity->load(['confirmedParticipants.user', 'waitlistedParticipants.user', 'creator', 'parent']);
 
         $isManagement = Auth::check() && $club->isManagement(Auth::user());
         $isMember = Auth::check() && $club->isMember(Auth::user());

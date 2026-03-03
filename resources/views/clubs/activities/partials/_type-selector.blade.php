@@ -17,18 +17,18 @@
             <div class="type-label">Lịch cố định</div>
             <div class="type-desc">Lặp lại hàng tuần</div>
         </div>
-        <div class="type-card {{ $selectedType === 'competition' ? 'active' : '' }}" data-type="competition">
+        {{-- <div class="type-card {{ $selectedType === 'competition' ? 'active' : '' }}" data-type="competition">
             <div class="type-icon">🏆</div>
             <div class="type-label">Giải đấu</div>
             <div class="type-desc">Thi đấu có xếp hạng</div>
-        </div>
+        </div> --}}
     </div>
 </div>
 
 <style>
 .type-selector {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     gap: 12px;
 }
 .type-card {
