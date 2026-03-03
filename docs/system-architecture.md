@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-03-02
+**Last Updated**: 2026-03-03
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -768,6 +768,10 @@ Anti-fraud: 3-20 min window, max inconsistency = 3
 Gender-aware: Female +0.5 level at same ELO
 Cooldown: 30/60/90 days based on ELO tier
 ```
+
+### Club Activity Casual Match System (Mar 2026)
+
+3 match algorithms: Singles Round-Robin (each player vs each), Rotating Doubles (rotating partners), Fixed Doubles (pre-defined pairs). Models: ClubActivityMatchRound, ClubActivityMatch, ClubActivityMatchStanding. Service: ClubMatchService (generation + standings). Controller: 7 AJAX endpoints. Tables: match_rounds, matches, standings.
 
 ## Unresolved Questions
 

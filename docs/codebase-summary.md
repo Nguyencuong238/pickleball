@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-03-02
+**Last Updated**: 2026-03-03
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -10,46 +10,11 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 ## Project Structure
 
-```
-pickleball/
-├── app/
-│   ├── Console/Commands/       # Artisan commands (22)
-│   ├── Exceptions/             # Exception handlers
-│   ├── Http/
-│   │   ├── Controllers/
-│   │   │   ├── Admin/          # Admin panel (23)
-│   │   │   ├── Api/            # API endpoints (22)
-│   │   │   └── Front/          # Public frontend (37)
-│   │   ├── Middleware/         # HTTP middleware
-│   │   └── Kernel.php          # HTTP kernel
-│   ├── Models/                 # Eloquent models (81)
-│   ├── Policies/               # Authorization policies (8)
-│   ├── Services/               # Business logic (17)
-│   └── Providers/              # Service providers
-├── bootstrap/                  # Framework bootstrap
-├── config/                     # Configuration files
-├── database/
-│   ├── factories/              # Model factories
-│   ├── migrations/             # Database migrations (177)
-│   └── seeders/                # Database seeders (20)
-├── docs/                       # Project documentation
-├── public/                     # Public assets
-├── resources/
-│   └── views/
-│       ├── admin/              # Admin panel views (13 subdirs)
-│       ├── auth/               # Authentication views
-│       ├── components/         # Blade components (OPRS components)
-│       ├── front/              # Public frontend views (19 subdirs)
-│       ├── home-yard/          # Stadium owner views (7 subdirs)
-│       ├── referee/            # Referee dashboard views (2 subdirs)
-│       ├── layouts/            # Layout templates (includes referee layout)
-│       └── vendor/             # Third-party views
-├── routes/
-│   ├── api.php                 # API routes (28 routes, includes 6 point earning routes)
-│   └── web.php                 # Web routes (11 admin OPRS routes)
-├── storage/                    # File storage
-└── tests/                      # Test suites
-```
+**File Counts (Current):**
+- PHP files: 292 (Controllers 92, Models 81, Services 18, Commands 22, Policies 8, Middleware 9, Events 12, Listeners 9, Observers 6, Form Requests 6)
+- Blade templates: 227 (Admin 50+, Front 60+, Home-yard 30+, Clubs 15, User 10, Auth 6, Referee 10, Components)
+- Database migrations: 181
+- Routes: ~72 (web.php 45+, api.php 27+)
 
 ## Core Technologies
 
@@ -94,90 +59,35 @@ pickleball/
 - `MatchModel` - Individual matches with referee assignment and pair support
 - `MatchEvent` - Match event records
 
-### Instructor System
-- `Instructor` - Coach profiles
-- `InstructorCertification` - Credentials
-- `InstructorExperience` - Work history
-- `InstructorLocation` - Service areas
-- `InstructorPackage` - Service offerings
-- `InstructorReview` - Student feedback
-- `InstructorSchedule` - Availability
-- `InstructorTeachingMethod` - Teaching styles
-- `InstructorFavorite` - User favorites
-- `BookingInstructor` - Coaching bookings
+**Instructor**: `Instructor`, `InstructorCertification`, `InstructorExperience`, `InstructorLocation`, `InstructorPackage`, `InstructorReview`, `InstructorSchedule`, `InstructorTeachingMethod`, `InstructorFavorite`, `BookingInstructor`
 
-### Content System
-- `News` - Articles
-- `Category` - News categories
-- `Page` - Static pages
-- `Video` - Video content
-- `VideoComment` - User comments
-- `VideoLike` - Video engagement
+**Content**: `News`, `Category`, `Page`, `Video`, `VideoComment`, `VideoLike`
 
-### Social & Engagement
-- `Social` - Social events
-- `Favorite` - User bookmarks
-- `Review` - Venue reviews
-- `Payment` - Payment records
-- `Tempo` - Temporary data
-- `Referral` - User referral tracking
+**Social**: `Social`, `Favorite`, `Review`, `Payment`, `Tempo`, `Referral`
 
-### Club System (NEW)
+### Club System (2026-02+)
 - `Club` - Club management
-- `ClubActivity` - Club activity tracking
-- `ClubActivityParticipant` - RSVP participants with status
-- `ClubActivityMatchRound` - Match rounds for casual matches
-- `ClubActivityMatch` - Individual matches (singles/doubles)
-- `ClubActivityMatchStanding` - Match standings and statistics
-- `ClubJoinRequest` - Club join request management
-- `ClubPost` - Club discussion posts
-- `ClubPostComment` - Comments on club posts
-- `ClubPostMedia` - Media in club posts
-- `ClubPostReaction` - Reactions/likes on posts
-- `ClubCompetitionTeam` - Teams in competitions
-- `ClubCompetitionMatch` - Competition matches with scores
-- `ClubCompetitionStanding` - Competition standings
+- `ClubActivity` - Activity tracking (recurring/one-off/competition types)
+- `ClubActivityParticipant` - RSVP with status & auto-promotion
+- `ClubActivityMatchRound` - Casual match rounds (singles/doubles)
+- `ClubActivityMatch` - Individual casual matches with scores
+- `ClubActivityMatchStanding` - Per-player standings & stats
+- `ClubJoinRequest` - Join request management
+- `ClubPost` - Discussion posts with media support
+- `ClubPostComment`, `ClubPostMedia`, `ClubPostReaction` - Post engagement
+- `ClubCompetitionTeam`, `ClubCompetitionMatch`, `ClubCompetitionStanding` - Competition system
 
-### OCR System (Elo-based)
-- `OcrMatch` - Ranked matches (singles/doubles)
-- `EloHistory` - Elo rating change records
-- `UserBadge` - Achievement badges
+**OCR (Elo-based)**: `OcrMatch` (singles/doubles), `EloHistory`, `UserBadge`
 
-### OPRS System
-- `ChallengeResult` - Technical skill challenge records
-- `CommunityActivity` - Community engagement activities
-- `OprsHistory` - OPRS change audit log
-- `OprVerificationRequest` - OPRS verification requests
-- `PermissionRequest` - User permission requests
-- `PosStadiumSetting` - Point of sale stadium settings
+**OPRS**: `ChallengeResult`, `CommunityActivity`, `OprsHistory`, `OprVerificationRequest`, `PermissionRequest`, `PosStadiumSetting`
 
-### Skill Quiz System
-- `SkillDomain` - 6 quiz domains with weights
-- `SkillQuestion` - 36 quiz questions with domain, scale, weight
-- `SkillQuizAttempt` - User attempts with scores, ELO, completion time, flags
-- `SkillQuizAnswer` - Individual answers with rating (0-3)
-- `Quiz` - Quiz configuration and management
+**Skill Quiz (Jan 2026)**: `SkillDomain` (6 domains), `SkillQuestion` (36 questions), `SkillQuizAttempt`, `SkillQuizAnswer`, `Quiz`
 
-### Point Earning System (New - 2026-01-14)
-- `PointTask` - 16 tasks with code, points, role, category, frequency, proof_type
-- `PointSubmission` - Proof submissions with UUID, status, proof_data, admin review
-- `UserWallet` - User point balance with add/deduct methods
-- `UserPointTransaction` - Transaction history with type, description, metadata
-- `SocialProfileVerification` - Social platform verification (Facebook, YouTube, TikTok)
-- `SpecialChallenge` - Time-limited challenges with max participants, cached counts
-- `Event` - Workshop/event system with UUID, QR code, datetime, points
-- `EventCheckin` - User event attendance records
+**Point System (Jan 2026)**: `PointTask` (16 tasks), `PointSubmission`, `UserWallet`, `UserPointTransaction`, `SocialProfileVerification`, `SpecialChallenge`, `Event`, `EventCheckin`
 
-### League Management System (NEW - 2026-02-25)
-- `League` - League configuration (name, description, sport, format, status)
-- `LeagueTeam` - Team enrollment with seed position
-- `LeagueTeamPlayer` - Player roster for each team
-- `LeagueRound` - Tournament rounds within league
-- `LeagueMatch` - Individual match records with status tracking
-- `LeagueMatchGame` - Game-by-game score breakdown for matches
-- `LeagueStanding` - Calculated standings (wins, losses, points)
+**League (Feb 2026)**: `League`, `LeagueTeam`, `LeagueTeamPlayer`, `LeagueRound`, `LeagueMatch`, `LeagueMatchGame`, `LeagueStanding`
 
-## Services Overview (17+ Services)
+## Services Overview (18 Services)
 
 ### Business Logic Services
 - `EloService` - Elo rating calculations, K-factor management, match processing
@@ -192,7 +102,7 @@ pickleball/
 - `PointSubmissionService` - Submission creation, proof validation, admin review workflow
 - `SocialVerificationService` - Social platform verification, URL uniqueness checking
 - `ClubPostMediaService` - Club post media management and processing
-- `ClubMatchService` - Casual match generation (3 algorithms), score tracking, standings
+- `ClubMatchService` - Match generation (3 algorithms: singles_rr, rotating_doubles, fixed_doubles), standings calc
 - `LeagueService` - League CRUD, team management, player assignment
 - `LeagueScheduleService` - Match schedule generation, round creation
 - `LeagueStandingsService` - Standings calculation, win/loss tracking
@@ -459,7 +369,7 @@ pickleball/
   - Toastr notifications for feedback
   - Vietnamese localization with proper diacritics
 
-## Database Migrations (160 files)
+## Database Migrations (181 files)
 
 ### Core Tables (2014-2019)
 - `users`, `password_reset_tokens`, `failed_jobs`, `personal_access_tokens`
@@ -527,10 +437,10 @@ pickleball/
 - `bookings` - Added booking_code (BK{courtId:3+}{date:YYMMDD}{seq:3}), confirmed_at, transfer_proof
 - `users` - Added soft delete support
 
-### Club Activity Match Tables (2026-03-03+)
-- `club_activity_match_rounds` - Match rounds with round_number, status (pending/in_progress/completed)
-- `club_activity_matches` - Match records (singles/doubles) with player IDs, court number, scores
-- `club_activity_match_standings` - Per-player standings with wins, losses, points_scored, points_against
+### Club Activity Casual Match Tables (2026-03-03)
+- `club_activity_match_rounds` - Round tracking (round_number, status: pending/in_progress/completed)
+- `club_activity_matches` - Match records (singles/doubles, player IDs, scores, court_number)
+- `club_activity_match_standings` - Per-player stats (wins, losses, points_for, points_against)
 
 ### League Management Tables (2026-02-25+)
 - `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)

@@ -1,8 +1,8 @@
 # Project Overview & Product Development Requirements (PDR)
 
 **Project Name**: Pickleball Platform
-**Version**: 1.7.0
-**Last Updated**: 2026-03-02
+**Version**: 1.8.0
+**Last Updated**: 2026-03-03
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -190,12 +190,22 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **Social Profile Verification**: One-time verification for Facebook, YouTube, TikTok
 - **Submission Workflow**: User submits proof → Admin reviews → Approve/Reject → Points awarded
 
-### 12. News & CMS
+### 12. Club Activity Casual Match System
+- **3 Match Generation Algorithms**:
+  - Singles Round-Robin: Each player vs each other player once
+  - Rotating Doubles: Partners rotate each round (no duplicate pairings)
+  - Fixed Doubles: Pre-defined team pairs with court/time assignment
+- **Match Management**: Round-based scheduling, score entry, auto-standings
+- **Standings Calculation**: Per-player stats (wins, losses, points_for, points_against)
+- **UI**: Modal-based match generation, custom match creation, standings display
+- **API**: 7 AJAX endpoints for matches/rounds/standings operations
+
+### 13. News & CMS
 - News articles with categories
 - Featured content
 - Static pages (About, Contact, etc.)
 
-### 13. User Authentication
+### 14. User Authentication
 - Email/password registration
 - OAuth (Google, Facebook)
 - Role-based access control

@@ -89,7 +89,7 @@
 
                     @if(in_array($league->status, ['draft', 'registration']))
                         <div style="padding: 10px 20px; border-top: 1px solid #f1f5f9;">
-                            <button onclick="openPlayerModal({{ $team->id }}, @json($team->name))" style="background: #e0f2fe; color: #0369a1; border: 1px dashed #0369a1; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                            <button onclick="openPlayerModal({{ $team->id }}, @js($team->name))" style="background: #e0f2fe; color: #0369a1; border: 1px dashed #0369a1; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
                                 <i class="fas fa-plus"></i> Thêm VĐV
                             </button>
                         </div>
