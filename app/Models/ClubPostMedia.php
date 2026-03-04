@@ -28,6 +28,15 @@ class ClubPostMedia extends Model
         'order' => 'integer',
     ];
 
+    /**
+     * The attributes that should be appended to model arrays.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'full_url',
+    ];
+
     // Relationships
     public function post(): BelongsTo
     {
@@ -46,6 +55,20 @@ class ClubPostMedia extends Model
         }
 
         return null;
+    }
+
+    /**
+     * Get full URL attribute for API responses
+     * Returns full URL using storage_url() helper for files
+     * or YouTube URL for youtube type
+     */
+    protected function fullUrl(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return new \Illuminate\Database\Eloquent\Casts\Attribute(
+            get: function () {
+                return $this->path ? storage_url($this->path) : null;
+            },
+        );
     }
 
     public function getEmbedUrlAttribute(): ?string
