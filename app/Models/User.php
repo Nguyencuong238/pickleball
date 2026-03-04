@@ -88,6 +88,15 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
+     * The attributes that should be appended to model arrays.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'avatar_url',
+    ];
+
+    /**
      * Get the user's location province
      */
     public function province()
@@ -176,6 +185,17 @@ class User extends Authenticatable implements JWTSubject
         }
 
         return \Illuminate\Support\Facades\Storage::disk(config('filesystems.default'))->url($this->avatar);
+    }
+
+    /**
+     * Get avatar URL attribute for API responses
+     * Returns full URL using storage_url() helper
+     */
+    protected function avatarUrl(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return new \Illuminate\Database\Eloquent\Casts\Attribute(
+            get: fn() => $this->avatar ? storage_url($this->avatar) : null,
+        );
     }
 
     /**

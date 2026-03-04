@@ -1,0 +1,736 @@
+{
+  "info": {
+    "name": "Pickleball Club API",
+    "description": "Club management API endpoints including activities, competitions, and posts",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Clubs",
+      "item": [
+        {
+          "name": "List Clubs (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/clubs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs"]
+            }
+          }
+        },
+        {
+          "name": "Create Club (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text",
+                "disabled": false
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pickleball Club\",\n  \"description\": \"A fun pickleball club for everyone\",\n  \"founded_date\": \"2024-01-15\",\n  \"objectives\": \"Promote pickleball and build community\",\n  \"type\": \"club\",\n  \"provinces\": [1],\n  \"members\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs"]
+            }
+          }
+        },
+        {
+          "name": "Get Club (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Club (Auth Required)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Club Name\",\n  \"description\": \"Updated description\",\n  \"founded_date\": \"2024-01-15\",\n  \"objectives\": \"Updated objectives\",\n  \"type\": \"club\",\n  \"provinces\": [1, 2],\n  \"members\": [2, 3]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Club (Auth Required)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Join Requests",
+      "item": [
+        {
+          "name": "Request to Join Club (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/request-join",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "request-join"]
+            }
+          }
+        },
+        {
+          "name": "Get Join Requests (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/join-requests",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "join-requests"]
+            }
+          }
+        },
+        {
+          "name": "Approve Join Request (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/join-requests/1/approve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "join-requests", "1", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Reject Join Request (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/join-requests/1/reject",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "join-requests", "1", "reject"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Members",
+      "item": [
+        {
+          "name": "Update Member Role (Auth Required)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2,\n  \"role\": \"admin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/members/role",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "members", "role"]
+            }
+          }
+        },
+        {
+          "name": "Remove Member (Auth Required)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/members",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "members"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activities",
+      "item": [
+        {
+          "name": "List Activities (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities?status=upcoming&sort=date_desc",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "upcoming"
+                },
+                {
+                  "key": "sort",
+                  "value": "date_desc"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Activity (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Weekly Pickleball Game\",\n  \"description\": \"Join us for a fun game\",\n  \"type\": \"one_off\",\n  \"activity_date\": \"2024-03-20T10:00\",\n  \"end_time\": \"12:00\",\n  \"location\": \"Court 1\",\n  \"max_participants\": 16,\n  \"status\": \"upcoming\",\n  \"auto_approve\": true,\n  \"min_skill_level\": 2.0,\n  \"max_skill_level\": 5.0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities"]
+            }
+          }
+        },
+        {
+          "name": "Get Activity (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Activity (Auth Required)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Activity Title\",\n  \"description\": \"Updated description\",\n  \"activity_date\": \"2024-03-20T10:00\",\n  \"end_time\": \"12:00\",\n  \"location\": \"Court 1\",\n  \"max_participants\": 16,\n  \"status\": \"upcoming\",\n  \"auto_approve\": true,\n  \"min_skill_level\": 2.0,\n  \"max_skill_level\": 5.0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Activity (Auth Required)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Activity Participants",
+      "item": [
+        {
+          "name": "Get Participants (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/participants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "participants"]
+            }
+          }
+        },
+        {
+          "name": "RSVP to Activity (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/rsvp",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "rsvp"]
+            }
+          }
+        },
+        {
+          "name": "Cancel RSVP (Auth Required)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/rsvp",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "rsvp"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Competition",
+      "item": [
+        {
+          "name": "Get Competition Teams (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/competition/teams",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "competition", "teams"]
+            }
+          }
+        },
+        {
+          "name": "Add Competition Team (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Team A\",\n  \"captain_user_id\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/competition/teams",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "competition", "teams"]
+            }
+          }
+        },
+        {
+          "name": "Remove Competition Team (Auth Required)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/competition/teams/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "competition", "teams", "1"]
+            }
+          }
+        },
+        {
+          "name": "Generate Competition Schedule (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"format\": \"round_robin\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/competition/generate-schedule",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "competition", "generate-schedule"]
+            }
+          }
+        },
+        {
+          "name": "Get Competition Standings (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/competition/standings",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "competition", "standings"]
+            }
+          }
+        },
+        {
+          "name": "Get Competition Matches (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/competition/matches",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "competition", "matches"]
+            }
+          }
+        },
+        {
+          "name": "Save Match Score (Auth Required)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"home_score\": 21,\n  \"away_score\": 18\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/activities/1/competition/matches/1/score",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "activities", "1", "competition", "matches", "1", "score"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Posts",
+      "item": [
+        {
+          "name": "List Club Posts (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/posts?page=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "posts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Post (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"<p>Great game today!</p>\",\n  \"visibility\": \"public\",\n  \"media_type\": \"none\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/posts",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "posts"]
+            }
+          }
+        },
+        {
+          "name": "Get Post (Auth Required)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/posts/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "posts", "1"]
+            }
+          }
+        },
+        {
+          "name": "Update Post (Auth Required)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"content\": \"<p>Updated post content</p>\",\n  \"visibility\": \"public\",\n  \"media_type\": \"none\",\n  \"keep_media_ids\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/posts/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "posts", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Post (Auth Required)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/posts/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "posts", "1"]
+            }
+          }
+        },
+        {
+          "name": "Toggle Pin Post (Auth Required)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/clubs/1/posts/1/pin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "clubs", "1", "posts", "1", "pin"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://pickleball.test",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

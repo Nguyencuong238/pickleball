@@ -36,6 +36,38 @@ class Club extends Model
         'updated_at' => 'datetime',
     ];
 
+    /**
+     * The attributes that should be appended to model arrays.
+     *
+     * @var array
+     */
+    protected $appends = [
+        'image_url',
+        'banner_url',
+    ];
+
+    /**
+     * Get image URL attribute for API responses
+     * Returns full URL using storage_url() helper
+     */
+    protected function imageUrl(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return new \Illuminate\Database\Eloquent\Casts\Attribute(
+            get: fn() => $this->image ? storage_url($this->image) : null,
+        );
+    }
+
+    /**
+     * Get banner URL attribute for API responses
+     * Returns full URL using storage_url() helper
+     */
+    protected function bannerUrl(): \Illuminate\Database\Eloquent\Casts\Attribute
+    {
+        return new \Illuminate\Database\Eloquent\Casts\Attribute(
+            get: fn() => $this->banner ? storage_url($this->banner) : null,
+        );
+    }
+
     // Relationships
     public function creator(): BelongsTo
     {

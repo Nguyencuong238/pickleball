@@ -25,6 +25,11 @@ use App\Http\Controllers\Api\LocationController;
 use App\Http\Controllers\Api\EventCheckinController;
 use App\Http\Controllers\Api\PointController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\ClubController;
+use App\Http\Controllers\Api\ClubActivityController;
+use App\Http\Controllers\Api\ClubActivityParticipantController;
+use App\Http\Controllers\Api\ClubCompetitionController;
+use App\Http\Controllers\Api\ClubPostController;
 
 /*
 |--------------------------------------------------------------------------
@@ -317,6 +322,70 @@ Route::prefix('points')->middleware(['auth:api', 'throttle:60,1'])->name('api.po
         ->middleware('throttle:10,1') // 10 submissions per minute (stricter)
         ->name('submit');
     Route::get('challenges', [PointController::class, 'challenges'])->name('challenges');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Club API Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('clubs')->group(function () {
+    // Public routes
+    Route::get('/', [ClubController::class, 'index']);
+    Route::get('{club}', [ClubController::class, 'show']);
+    
+    // Authenticated routes
+    Route::middleware('auth:api')->group(function () {
+        Route::post('/', [ClubController::class, 'store']);
+        Route::put('{club}', [ClubController::class, 'update']);
+        Route::delete('{club}', [ClubController::class, 'destroy']);
+        
+        // Join request routes
+        Route::post('{club}/request-join', [ClubController::class, 'requestJoin']);
+        Route::get('{club}/join-requests', [ClubController::class, 'joinRequests']);
+        Route::post('{club}/join-requests/{joinRequest}/approve', [ClubController::class, 'approveJoinRequest']);
+        Route::post('{club}/join-requests/{joinRequest}/reject', [ClubController::class, 'rejectJoinRequest']);
+        
+        // Member management routes
+        Route::put('{club}/members/role', [ClubController::class, 'updateMemberRole']);
+        Route::delete('{club}/members', [ClubController::class, 'removeMember']);
+        
+        // Activity routes
+        Route::prefix('{club}/activities')->group(function () {
+            Route::get('/', [ClubActivityController::class, 'index']);
+            Route::post('/', [ClubActivityController::class, 'store']);
+            Route::get('{activity}', [ClubActivityController::class, 'show']);
+            Route::put('{activity}', [ClubActivityController::class, 'update']);
+            Route::delete('{activity}', [ClubActivityController::class, 'destroy']);
+            
+            // Activity participants
+            Route::get('{activity}/participants', [ClubActivityParticipantController::class, 'index']);
+            Route::post('{activity}/rsvp', [ClubActivityParticipantController::class, 'store']);
+            Route::delete('{activity}/rsvp', [ClubActivityParticipantController::class, 'destroy']);
+            
+            // Competition routes
+            Route::prefix('{activity}/competition')->group(function () {
+                Route::get('teams', [ClubCompetitionController::class, 'teams']);
+                Route::post('teams', [ClubCompetitionController::class, 'addTeam']);
+                Route::delete('teams/{team}', [ClubCompetitionController::class, 'removeTeam']);
+                Route::post('generate-schedule', [ClubCompetitionController::class, 'generateSchedule']);
+                Route::put('matches/{match}/score', [ClubCompetitionController::class, 'saveScore']);
+                Route::get('standings', [ClubCompetitionController::class, 'standings']);
+                Route::get('matches', [ClubCompetitionController::class, 'matches']);
+            });
+        });
+        
+        // Posts routes
+        Route::prefix('{club}/posts')->group(function () {
+            Route::get('/', [ClubPostController::class, 'index']);
+            Route::post('/', [ClubPostController::class, 'store']);
+            Route::get('{post}', [ClubPostController::class, 'show']);
+            Route::put('{post}', [ClubPostController::class, 'update']);
+            Route::delete('{post}', [ClubPostController::class, 'destroy']);
+            Route::post('{post}/pin', [ClubPostController::class, 'togglePin']);
+        });
+    });
 });
 
 /*
