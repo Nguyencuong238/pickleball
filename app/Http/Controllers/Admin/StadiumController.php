@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Province;
 use App\Models\Stadium;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class StadiumController extends Controller
 {
