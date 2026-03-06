@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ClubActivity extends Model
 {
@@ -75,6 +76,12 @@ class ClubActivity extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_activity_id');
+    }
+
+    // Auto-generated post in club feed linked to this activity
+    public function post(): HasOne
+    {
+        return $this->hasOne(ClubPost::class);
     }
 
     public function competitionTeams(): HasMany
@@ -157,5 +164,19 @@ class ClubActivity extends Model
     public function getConfigValue(string $key, mixed $default = null): mixed
     {
         return data_get($this->competition_config, $key, $default);
+    }
+
+    /**
+     * Build HTML content for auto-generated post in club feed
+     */
+    public function buildPostContent(): string
+    {
+        $typeLabel = match ($this->type) {
+            'competition' => 'giải đấu',
+            'recurring' => 'lịch hoạt động định kỳ',
+            default => 'hoạt động',
+        };
+
+        return "<p>CLB vừa đăng {$typeLabel} mới: <strong>{$this->title}</strong></p>";
     }
 }

@@ -15,6 +15,7 @@ class ClubPost extends Model
     protected $fillable = [
         'club_id',
         'user_id',
+        'club_activity_id',
         'content',
         'visibility',
         'is_pinned',
@@ -38,6 +39,11 @@ class ClubPost extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function activity(): BelongsTo
+    {
+        return $this->belongsTo(ClubActivity::class, 'club_activity_id');
     }
 
     public function pinnedByUser(): BelongsTo

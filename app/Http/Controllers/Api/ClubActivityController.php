@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Club;
 use App\Models\ClubActivity;
+use App\Models\ClubPost;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -72,6 +73,15 @@ class ClubActivityController extends Controller
         $validated['created_by'] = Auth::id();
 
         $activity = $club->activities()->create($validated);
+
+        // Auto-create linked post in club feed
+        ClubPost::create([
+            'club_id' => $club->id,
+            'user_id' => Auth::id(),
+            'club_activity_id' => $activity->id,
+            'content' => $activity->buildPostContent(),
+            'visibility' => 'public',
+        ]);
 
         return response()->json([
             'success' => true,
@@ -142,6 +152,13 @@ class ClubActivityController extends Controller
 
         $activity->update($validated);
 
+        // Sync linked post content with updated activity
+        if ($activity->post) {
+            $activity->post->update([
+                'content' => $activity->buildPostContent(),
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'Hoạt động được cập nhật thành công!',
@@ -158,6 +175,11 @@ class ClubActivityController extends Controller
 
         if ($activity->club_id !== $club->id) {
             return response()->json(['message' => 'Không tìm thấy'], 404);
+        }
+
+        // Hard-delete linked post before activity deletion
+        if ($activity->post) {
+            $activity->post->forceDelete();
         }
 
         $activity->delete();

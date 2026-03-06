@@ -630,6 +630,7 @@ function postFeed() {
 
         // Permission helpers
         canEditPost(post) {
+            if (post.club_activity_id) return false; // Activity posts are read-only
             if (!this.currentUserId) return false;
             if (post.user_id === this.currentUserId) return true;
             const role = this.membership?.role;
@@ -637,13 +638,15 @@ function postFeed() {
         },
 
         canDeletePost(post) {
+            if (post.club_activity_id) return false; // Activity posts are read-only
             if (!this.currentUserId) return false;
             if (post.user_id === this.currentUserId) return true;
             const role = this.membership?.role;
             return role === 'creator' || role === 'admin' || role === 'moderator';
         },
 
-        canPinPost() {
+        canPinPost(post) {
+            if (post && post.club_activity_id) return false; // Activity posts are read-only
             const role = this.membership?.role;
             return role === 'creator' || role === 'admin';
         },

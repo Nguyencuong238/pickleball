@@ -28,7 +28,7 @@ class ClubPostController extends Controller
         $user = Auth::user();
 
         $query = $club->posts()
-            ->with(['author', 'media', 'reactions'])
+            ->with(['author', 'media', 'reactions', 'activity'])
             ->withCount('allComments')
             ->feed();
 

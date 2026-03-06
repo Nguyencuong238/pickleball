@@ -97,7 +97,7 @@
                                 Chỉnh sửa
                             </button>
                         </template>
-                        <template x-if="canPinPost()">
+                        <template x-if="canPinPost(post)">
                             <button class="menu-item" @click="togglePin(post); menuOpen = false">
                                 <svg viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
@@ -120,6 +120,26 @@
 
             {{-- Post content --}}
             <div class="post-content" x-html="post.content"></div>
+
+            {{-- Activity card link --}}
+            <template x-if="post.club_activity_id && post.activity">
+                <a :href="'/clubs/' + clubSlug + '/activities/' + post.activity.id"
+                   class="activity-link-card">
+                    <div class="activity-link-card__badge">
+                        <span x-text="post.activity.type === 'competition' ? 'Thi đấu' : (post.activity.type === 'recurring' ? 'Định kỳ' : 'Hoạt động')"></span>
+                    </div>
+                    <div class="activity-link-card__info">
+                        <span class="activity-link-card__title" x-text="post.activity.title"></span>
+                        <span class="activity-link-card__meta">
+                            <span x-text="formatTime(post.activity.activity_date)"></span>
+                            <template x-if="post.activity.location">
+                                <span x-text="' · ' + post.activity.location"></span>
+                            </template>
+                        </span>
+                    </div>
+                    <span class="activity-link-card__cta">Xem chi tiet &rarr;</span>
+                </a>
+            </template>
 
             {{-- Post media --}}
             <template x-if="post.media && post.media.length > 0">
