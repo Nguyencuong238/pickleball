@@ -342,6 +342,7 @@ Route::prefix('clubs')->group(function () {
         Route::delete('{club}', [ClubController::class, 'destroy']);
         
         // Join request routes
+        Route::get('{club}/join-request-status', [ClubController::class, 'joinRequestStatus']);
         Route::post('{club}/request-join', [ClubController::class, 'requestJoin']);
         Route::get('{club}/join-requests', [ClubController::class, 'joinRequests']);
         Route::post('{club}/join-requests/{joinRequest}/approve', [ClubController::class, 'approveJoinRequest']);

@@ -113,14 +113,9 @@ class ClubController extends Controller
             ->whereIn('club_members.role', ['creator', 'admin', 'moderator'])
             ->get();
 
-        $joinRequestStatus = $club->joinRequests()
-            ->where('user_id', Auth::id())
-            ->first();
-
         return response()->json([
             'data' => $club,
             'membership' => $membership,
-            'join_request_status' => $joinRequestStatus?->status,
             'can_post' => $canPost,
             'management_team' => $managementTeam
         ]);
@@ -187,6 +182,20 @@ class ClubController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Câu lạc bộ/Nhóm được xóa thành công!'
+        ]);
+    }
+
+    /**
+     * Check join request status of current user in a club
+     */
+    public function joinRequestStatus(Club $club)
+    {
+        $user = Auth::user();
+        
+        $joinRequest = $club->joinRequests()->where('user_id', $user->id)->first();
+
+        return response()->json([
+            'status' => $joinRequest->status
         ]);
     }
 
