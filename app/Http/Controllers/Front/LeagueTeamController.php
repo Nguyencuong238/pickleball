@@ -139,6 +139,25 @@ class LeagueTeamController extends Controller
         }
     }
 
+    public function updatePlayerOrder(Request $request, League $league, LeagueTeam $team)
+    {
+        abort_if($league->user_id !== auth()->id(), 403);
+        abort_if($team->league_id !== $league->id, 404);
+
+        $validated = $request->validate([
+            'player_ids' => 'required|array',
+            'player_ids.*' => 'integer|exists:league_team_players,id',
+        ]);
+
+        foreach ($validated['player_ids'] as $order => $playerId) {
+            LeagueTeamPlayer::where('id', $playerId)
+                ->where('league_team_id', $team->id)
+                ->update(['order' => $order + 1]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Cập nhật thứ tự VĐV thành công.']);
+    }
+
     public function removePlayer(Request $request, League $league, LeagueTeam $team, LeagueTeamPlayer $player)
     {
         abort_if($league->user_id !== auth()->id(), 403);

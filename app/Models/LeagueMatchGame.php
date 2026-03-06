@@ -15,6 +15,10 @@ class LeagueMatchGame extends Model
         'away_score',
         'winner_team_id',
         'status',
+        'home_player_1_id',
+        'home_player_2_id',
+        'away_player_1_id',
+        'away_player_2_id',
     ];
 
     protected $casts = [
@@ -33,5 +37,25 @@ class LeagueMatchGame extends Model
     public function winnerTeam(): BelongsTo
     {
         return $this->belongsTo(LeagueTeam::class, 'winner_team_id');
+    }
+
+    public function homePlayer1(): BelongsTo
+    {
+        return $this->belongsTo(LeagueTeamPlayer::class, 'home_player_1_id');
+    }
+
+    public function homePlayer2(): BelongsTo
+    {
+        return $this->belongsTo(LeagueTeamPlayer::class, 'home_player_2_id');
+    }
+
+    public function awayPlayer1(): BelongsTo
+    {
+        return $this->belongsTo(LeagueTeamPlayer::class, 'away_player_1_id');
+    }
+
+    public function awayPlayer2(): BelongsTo
+    {
+        return $this->belongsTo(LeagueTeamPlayer::class, 'away_player_2_id');
     }
 }

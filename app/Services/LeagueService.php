@@ -118,6 +118,9 @@ class LeagueService
 
             // Khi chuyen sang active: tao lich thi dau va khoi tao standings
             if ($newStatus === 'active') {
+                if ($league->competition_format === 'mlp') {
+                    $this->scheduleService->validateMlpTeams($league);
+                }
                 if ($league->rounds()->count() === 0) {
                     $this->scheduleService->generateRoundRobin($league);
                 }

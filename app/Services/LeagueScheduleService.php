@@ -3,7 +3,9 @@
 namespace App\Services;
 
 use App\Models\League;
+use App\Models\LeagueMatch;
 use App\Models\LeagueRound;
+use App\Models\LeagueTeamPlayer;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 
@@ -58,13 +60,16 @@ class LeagueScheduleService
                         'status' => 'scheduled',
                     ]);
 
-                    // Tao game entries theo match_format
-                    foreach ($matchFormat as $index => $gameType) {
-                        $match->games()->create([
-                            'game_number' => $index + 1,
-                            'game_type' => $gameType,
-                            'status' => 'pending',
-                        ]);
+                    if ($league->competition_format === 'mlp') {
+                        $this->generateMlpGames($match, $home, $away);
+                    } else {
+                        foreach ($matchFormat as $index => $gameType) {
+                            $match->games()->create([
+                                'game_number' => $index + 1,
+                                'game_type' => $gameType,
+                                'status' => 'pending',
+                            ]);
+                        }
                     }
                 }
 
@@ -73,6 +78,53 @@ class LeagueScheduleService
                 array_splice($teamIds, 1, 0, [$last]);
             }
         });
+    }
+
+    /**
+     * Validate MLP teams have min 4 active players each
+     */
+    public function validateMlpTeams(League $league): void
+    {
+        $teams = $league->teams()->active()->withCount([
+            'players' => fn ($q) => $q->where('status', 'active'),
+        ])->get();
+
+        foreach ($teams as $team) {
+            if ($team->players_count < 4) {
+                throw new InvalidArgumentException("Doi '{$team->name}' can toi thieu 4 VDV cho format MLP.");
+            }
+        }
+    }
+
+    /**
+     * Generate 6 MLP sub-games using C(4,2) pair combinations
+     */
+    private function generateMlpGames(LeagueMatch $match, int $homeTeamId, int $awayTeamId): void
+    {
+        $homePlayers = LeagueTeamPlayer::where('league_team_id', $homeTeamId)
+            ->where('status', 'active')
+            ->orderBy('order')->orderBy('id')
+            ->take(4)->get();
+
+        $awayPlayers = LeagueTeamPlayer::where('league_team_id', $awayTeamId)
+            ->where('status', 'active')
+            ->orderBy('order')->orderBy('id')
+            ->take(4)->get();
+
+        // C(4,2) = 6 pair combinations
+        $pairs = [[0, 1], [0, 2], [0, 3], [1, 2], [1, 3], [2, 3]];
+
+        foreach ($pairs as $index => $pair) {
+            $match->games()->create([
+                'game_number' => $index + 1,
+                'game_type' => 'DOUBLES',
+                'status' => 'pending',
+                'home_player_1_id' => $homePlayers[$pair[0]]->id,
+                'home_player_2_id' => $homePlayers[$pair[1]]->id,
+                'away_player_1_id' => $awayPlayers[$pair[0]]->id,
+                'away_player_2_id' => $awayPlayers[$pair[1]]->id,
+            ]);
+        }
     }
 
     /**

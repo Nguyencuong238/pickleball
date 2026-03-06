@@ -13,6 +13,7 @@ class LeagueTeamPlayer extends Model
         'position',
         'gender',
         'status',
+        'order',
     ];
 
     // Relationships

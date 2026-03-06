@@ -1,9 +1,10 @@
 @php
     $activeTeamsCount = $league->teams->where('status', 'active')->count();
+    $isMlp = $league->competition_format === 'mlp';
 @endphp
 
 @if($league->rounds->count() > 0)
-    {{-- Nút Tạo Lại Lịch khi đang ở trạng thái đăng ký --}}
+    {{-- Regenerate Schedule button --}}
     @if($league->status === 'registration' && $activeTeamsCount >= 2)
         <div style="margin-bottom: 15px; display: flex; justify-content: flex-end;">
             <form method="POST" action="{{ route('homeyard.leagues.schedule.generate', $league) }}">
@@ -39,7 +40,6 @@
                             </div>
                         </div>
 
-                        {{-- Nút chỉnh sửa thông tin vòng đấu --}}
                         @if(in_array($league->status, ['draft', 'registration', 'active']))
                             <button type="button" onclick="toggleRoundEdit({{ $round->id }})"
                                 style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; color: #475569;">
@@ -48,7 +48,6 @@
                         @endif
                     </div>
 
-                    {{-- Form chỉnh sửa vòng đấu (ẩn mặc định) --}}
                     <div id="roundEdit{{ $round->id }}" style="display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e2e8f0;">
                         <form method="POST" action="{{ route('homeyard.leagues.rounds.update', [$league, $round]) }}"
                             style="display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end;">
@@ -81,58 +80,97 @@
                 </div>
 
                 @forelse($round->matches as $match)
-                    <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                        <!-- Home Team -->
-                        <div style="flex: 1; min-width: 120px; text-align: right; font-weight: 500; color: #1e293b;">
-                            {{ $match->homeTeam->name ?? 'TBD' }}
+                    <div style="padding: 12px 20px; border-bottom: 1px solid #f1f5f9;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                            <!-- Home Team -->
+                            <div style="flex: 1; min-width: 120px; text-align: right; font-weight: 500; color: #1e293b;">
+                                {{ $match->homeTeam->name ?? 'TBD' }}
+                            </div>
+
+                            <!-- Score -->
+                            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                @if($match->status === 'completed')
+                                    <span style="background: #15803d; color: white; padding: 4px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem;">
+                                        {{ $match->home_score }} - {{ $match->away_score }}
+                                    </span>
+                                @elseif($match->status === 'in_progress')
+                                    <span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem;">
+                                        {{ $match->home_score ?? 0 }} - {{ $match->away_score ?? 0 }}
+                                    </span>
+                                @else
+                                    <span style="background: #e2e8f0; color: #6b7280; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 0.95rem;">
+                                        vs
+                                    </span>
+                                @endif
+                            </div>
+
+                            <!-- Away Team -->
+                            <div style="flex: 1; min-width: 120px; text-align: left; font-weight: 500; color: #1e293b;">
+                                {{ $match->awayTeam->name ?? 'TBD' }}
+                            </div>
+
+                            <!-- Match Status + Action -->
+                            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                                @switch($match->status)
+                                    @case('scheduled')
+                                        <span style="background-color: #f3f4f6; color: #4b5563; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Chưa đấu</span>
+                                        @break
+                                    @case('in_progress')
+                                        <span style="background-color: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Đang đấu</span>
+                                        @break
+                                    @case('completed')
+                                        <span style="background-color: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Hoàn thành</span>
+                                        @break
+                                    @case('cancelled')
+                                        <span style="background-color: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Đã hủy</span>
+                                        @break
+                                @endswitch
+
+                                @if(in_array($league->status, ['active']) && $match->status !== 'cancelled')
+                                    @if($isMlp)
+                                        <button onclick='openMlpScoreModal(@json($match->id), @json($match->homeTeam->name ?? "TBD"), @json($match->awayTeam->name ?? "TBD"), @json($match->games))'
+                                            style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
+                                            <i class="fas fa-edit"></i> Điểm
+                                        </button>
+                                    @else
+                                        <button onclick='openScoreModal({{ $match->id }}, @json($match->homeTeam->name ?? "TBD"), @json($match->awayTeam->name ?? "TBD"), {{ $match->home_score ?? 0 }}, {{ $match->away_score ?? 0 }})'
+                                            style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
+                                            <i class="fas fa-edit"></i> Điểm
+                                        </button>
+                                    @endif
+                                @endif
+
+                                {{-- MLP: toggle sub-game details --}}
+                                @if($isMlp && $match->games->count() > 0)
+                                    <button onclick="toggleMlpDetails({{ $match->id }})" style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; cursor: pointer; color: #475569;">
+                                        <span id="mlp-icon-{{ $match->id }}"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2,4 6,8 10,4"/></svg></span>
+                                    </button>
+                                @endif
+                            </div>
                         </div>
 
-                        <!-- Score -->
-                        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                            @if($match->status === 'completed')
-                                <span style="background: #15803d; color: white; padding: 4px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem;">
-                                    {{ $match->home_score }} - {{ $match->away_score }}
-                                </span>
-                            @elseif($match->status === 'in_progress')
-                                <span style="background: #f59e0b; color: white; padding: 4px 12px; border-radius: 6px; font-weight: 700; font-size: 0.95rem;">
-                                    {{ $match->home_score ?? 0 }} - {{ $match->away_score ?? 0 }}
-                                </span>
-                            @else
-                                <span style="background: #e2e8f0; color: #6b7280; padding: 4px 12px; border-radius: 6px; font-weight: 600; font-size: 0.95rem;">
-                                    vs
-                                </span>
-                            @endif
-                        </div>
-
-                        <!-- Away Team -->
-                        <div style="flex: 1; min-width: 120px; text-align: left; font-weight: 500; color: #1e293b;">
-                            {{ $match->awayTeam->name ?? 'TBD' }}
-                        </div>
-
-                        <!-- Match Status + Action -->
-                        <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                            @switch($match->status)
-                                @case('scheduled')
-                                    <span style="background-color: #f3f4f6; color: #4b5563; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Chưa đấu</span>
-                                    @break
-                                @case('in_progress')
-                                    <span style="background-color: #fef3c7; color: #92400e; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Đang đấu</span>
-                                    @break
-                                @case('completed')
-                                    <span style="background-color: #dcfce7; color: #15803d; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Hoàn thành</span>
-                                    @break
-                                @case('cancelled')
-                                    <span style="background-color: #fee2e2; color: #991b1b; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">Đã hủy</span>
-                                    @break
-                            @endswitch
-
-                            @if(in_array($league->status, ['active']) && $match->status !== 'cancelled')
-                                <button onclick='openScoreModal({{ $match->id }}, @json($match->homeTeam->name ?? "TBD"), @json($match->awayTeam->name ?? "TBD"), {{ $match->home_score ?? 0 }}, {{ $match->away_score ?? 0 }})'
-                                    style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
-                                    <i class="fas fa-edit"></i> Điểm
-                                </button>
-                            @endif
-                        </div>
+                        {{-- MLP: Collapsible sub-game results --}}
+                        @if($isMlp && $match->games->count() > 0)
+                            <div id="mlp-details-{{ $match->id }}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid #f1f5f9;">
+                                <div style="font-size: 0.85rem; color: #6b7280;">
+                                    @foreach($match->games->sortBy('game_number') as $game)
+                                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f8fafc; flex-wrap: wrap; gap: 4px;">
+                                            <span style="color: #9ca3af; min-width: 60px;">Game {{ $game->game_number }}</span>
+                                            <span style="flex: 1; text-align: right; color: #1e293b; font-weight: 500;">
+                                                {{ optional(optional($game->homePlayer1)->user)->name ?? '?' }} + {{ optional(optional($game->homePlayer2)->user)->name ?? '?' }}
+                                            </span>
+                                            <span style="padding: 2px 8px; border-radius: 4px; font-weight: 700; min-width: 50px; text-align: center;
+                                                {{ $game->status === 'completed' ? 'background: #f0fdf4; color: #15803d;' : 'background: #f3f4f6; color: #9ca3af;' }}">
+                                                {{ $game->status === 'completed' ? $game->home_score . ' - ' . $game->away_score : '- - -' }}
+                                            </span>
+                                            <span style="flex: 1; text-align: left; color: #1e293b; font-weight: 500;">
+                                                {{ optional(optional($game->awayPlayer1)->user)->name ?? '?' }} + {{ optional(optional($game->awayPlayer2)->user)->name ?? '?' }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @empty
                     <p style="padding: 15px 20px; color: #9ca3af; margin: 0;">Không có trận đấu trong vòng này</p>
@@ -159,7 +197,7 @@
     </div>
 @endif
 
-<!-- Score Entry Modal -->
+<!-- Traditional Score Entry Modal -->
 <div id="scoreModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center;">
     <div style="background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 450px; margin: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -190,12 +228,41 @@
     </div>
 </div>
 
+<!-- MLP Score Entry Modal -->
+<div id="mlpScoreModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; overflow-y: auto; padding: 20px 0;">
+    <div style="background: white; border-radius: 15px; padding: 30px; width: 95%; max-width: 700px; margin: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: #1e293b; margin: 0;" id="mlpModalTitle">Nhập Điểm Các Game</h3>
+            <button onclick="closeMlpScoreModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #9ca3af;">&#x2715;</button>
+        </div>
+
+        <div id="mlpGamesContainer"></div>
+
+        <!-- Running Total -->
+        <div style="display: flex; align-items: center; justify-content: center; gap: 15px; margin-top: 15px; padding-top: 15px; border-top: 2px solid #e2e8f0;">
+            <span style="font-weight: 700; color: #1e293b;">Tổng:</span>
+            <span id="mlpTotalHome" style="font-size: 1.3rem; font-weight: 700; color: #3b82f6;">0</span>
+            <span style="font-weight: 700; color: #9ca3af;">-</span>
+            <span id="mlpTotalAway" style="font-size: 1.3rem; font-weight: 700; color: #ef4444;">0</span>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+            <button type="button" onclick="closeMlpScoreModal()" style="background-color: #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Hủy</button>
+            <button type="button" onclick="submitMlpScores()" id="mlpSubmitBtn" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Lưu Tất Cả</button>
+        </div>
+    </div>
+</div>
+
 <script>
+var leagueUrl = '{{ url("homeyard/leagues/" . $league->slug) }}';
+var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
 function toggleRoundEdit(roundId) {
     var el = document.getElementById('roundEdit' + roundId);
     el.style.display = el.style.display === 'none' ? 'block' : 'none';
 }
 
+// === Traditional Score Modal ===
 function openScoreModal(matchId, homeTeam, awayTeam, homeScore, awayScore) {
     document.getElementById('scoreMatchId').value = matchId;
     document.getElementById('scoreHomeTeam').textContent = homeTeam;
@@ -218,13 +285,9 @@ function submitScore() {
     var homeScore = document.getElementById('scoreHomeInput').value;
     var awayScore = document.getElementById('scoreAwayInput').value;
 
-    fetch('{{ url("homeyard/leagues/" . $league->slug) }}/matches/' + matchId + '/score', {
+    fetch(leagueUrl + '/matches/' + matchId + '/score', {
         method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'Accept': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
         body: JSON.stringify({ home_score: parseInt(homeScore), away_score: parseInt(awayScore) })
     })
     .then(function(r) { return r.json(); })
@@ -237,8 +300,117 @@ function submitScore() {
             toastr.error(data.message || 'Có lỗi xảy ra.');
         }
     })
-    .catch(function() {
-        toastr.error('Có lỗi xảy ra.');
+    .catch(function() { toastr.error('Có lỗi xảy ra.'); });
+}
+
+// === MLP Score Modal ===
+var mlpCurrentMatchId = null;
+
+function openMlpScoreModal(matchId, homeTeam, awayTeam, games) {
+    mlpCurrentMatchId = matchId;
+    document.getElementById('mlpModalTitle').textContent = 'Nhập Điểm - ' + homeTeam + ' vs ' + awayTeam;
+    var container = document.getElementById('mlpGamesContainer');
+    container.innerHTML = '';
+
+    games.sort(function(a, b) { return a.game_number - b.game_number; });
+
+    games.forEach(function(game) {
+        var hp1 = (game.home_player1 && game.home_player1.user) ? game.home_player1.user.name : '?';
+        var hp2 = (game.home_player2 && game.home_player2.user) ? game.home_player2.user.name : '?';
+        var ap1 = (game.away_player1 && game.away_player1.user) ? game.away_player1.user.name : '?';
+        var ap2 = (game.away_player2 && game.away_player2.user) ? game.away_player2.user.name : '?';
+
+        var row = document.createElement('div');
+        row.className = 'mlp-game-row';
+        row.dataset.gameId = game.id;
+        row.dataset.matchId = matchId;
+        row.style.cssText = 'display: flex; align-items: center; gap: 8px; padding: 10px 0; border-bottom: 1px solid #f1f5f9; flex-wrap: wrap;';
+
+        row.innerHTML =
+            '<span style="color: #9ca3af; font-size: 0.8rem; min-width: 50px;">Game ' + game.game_number + '</span>' +
+            '<span style="flex: 1; text-align: right; font-size: 0.85rem; font-weight: 500; color: #1e293b; min-width: 100px;">' + hp1 + ' + ' + hp2 + '</span>' +
+            '<input type="number" class="mlp-home-score" min="0" value="' + (game.home_score || 0) + '" oninput="updateMlpTotal()" ' +
+                'style="width: 60px; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 1.1rem; font-weight: 700; text-align: center;">' +
+            '<span style="font-weight: 700; color: #9ca3af;">-</span>' +
+            '<input type="number" class="mlp-away-score" min="0" value="' + (game.away_score || 0) + '" oninput="updateMlpTotal()" ' +
+                'style="width: 60px; padding: 8px; border: 2px solid #e2e8f0; border-radius: 6px; font-size: 1.1rem; font-weight: 700; text-align: center;">' +
+            '<span style="flex: 1; text-align: left; font-size: 0.85rem; font-weight: 500; color: #1e293b; min-width: 100px;">' + ap1 + ' + ' + ap2 + '</span>';
+
+        container.appendChild(row);
     });
+
+    updateMlpTotal();
+    document.getElementById('mlpScoreModal').style.display = 'flex';
+}
+
+function closeMlpScoreModal() {
+    document.getElementById('mlpScoreModal').style.display = 'none';
+}
+
+document.getElementById('mlpScoreModal').addEventListener('click', function(e) {
+    if (e.target === this) closeMlpScoreModal();
+});
+
+function updateMlpTotal() {
+    var totalHome = 0, totalAway = 0;
+    document.querySelectorAll('.mlp-game-row').forEach(function(row) {
+        totalHome += parseInt(row.querySelector('.mlp-home-score').value) || 0;
+        totalAway += parseInt(row.querySelector('.mlp-away-score').value) || 0;
+    });
+    document.getElementById('mlpTotalHome').textContent = totalHome;
+    document.getElementById('mlpTotalAway').textContent = totalAway;
+}
+
+function submitMlpScores() {
+    var rows = document.querySelectorAll('.mlp-game-row');
+    var promises = [];
+    var btn = document.getElementById('mlpSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Đang lưu...';
+
+    rows.forEach(function(row) {
+        var gameId = row.dataset.gameId;
+        var matchId = row.dataset.matchId;
+        var home = parseInt(row.querySelector('.mlp-home-score').value) || 0;
+        var away = parseInt(row.querySelector('.mlp-away-score').value) || 0;
+
+        promises.push(
+            fetch(leagueUrl + '/matches/' + matchId + '/games/' + gameId + '/score', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                body: JSON.stringify({ home_score: home, away_score: away })
+            }).then(function(r) { return r.json(); })
+        );
+    });
+
+    Promise.all(promises).then(function(results) {
+        var allSuccess = results.every(function(r) { return r.success; });
+        if (allSuccess) {
+            toastr.success('Cập nhật điểm thành công.');
+            closeMlpScoreModal();
+            window.location.reload();
+        } else {
+            toastr.error('Có lỗi xảy ra khi lưu điểm.');
+            btn.disabled = false;
+            btn.textContent = 'Lưu Tất Cả';
+        }
+    }).catch(function() {
+        toastr.error('Có lỗi xảy ra.');
+        btn.disabled = false;
+        btn.textContent = 'Lưu Tất Cả';
+    });
+}
+
+// === MLP Sub-game Details Toggle ===
+function toggleMlpDetails(matchId) {
+    var el = document.getElementById('mlp-details-' + matchId);
+    var icon = document.getElementById('mlp-icon-' + matchId);
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+        icon.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2,8 6,4 10,8"/></svg>';
+    } else {
+        el.style.display = 'none';
+        icon.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2,4 6,8 10,4"/></svg>';
+    }
 }
 </script>

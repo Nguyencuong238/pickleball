@@ -55,15 +55,23 @@
                         <table style="width: 100%; border-collapse: collapse;">
                             <thead>
                                 <tr style="background-color: #fafafa;">
+                                    @if($league->competition_format === 'mlp')
+                                        <th style="padding: 10px 10px 10px 20px; text-align: center; font-weight: 600; color: #475569; font-size: 0.85rem; width: 40px;">#</th>
+                                    @endif
                                     <th style="padding: 10px 20px; text-align: left; font-weight: 600; color: #475569; font-size: 0.85rem;">Tên</th>
                                     <th style="padding: 10px 20px; text-align: left; font-weight: 600; color: #475569; font-size: 0.85rem;">Giới Tính</th>
                                     <th style="padding: 10px 20px; text-align: left; font-weight: 600; color: #475569; font-size: 0.85rem;">Vị Trí</th>
                                     <th style="padding: 10px 20px; text-align: center; font-weight: 600; color: #475569; font-size: 0.85rem;">Hành Động</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                @foreach($team->players as $player)
-                                    <tr style="border-top: 1px solid #f1f5f9;">
+                            <tbody id="player-list-{{ $team->id }}">
+                                @foreach($team->players->sortBy('order') as $player)
+                                    <tr style="border-top: 1px solid #f1f5f9;{{ $league->competition_format === 'mlp' ? ' cursor: grab;' : '' }}" data-player-id="{{ $player->id }}">
+                                        @if($league->competition_format === 'mlp')
+                                            <td class="drag-handle" style="padding: 10px 10px 10px 20px; text-align: center; color: #9ca3af; cursor: grab;">
+                                                <svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor"><circle cx="2" cy="2" r="1.5"/><circle cx="8" cy="2" r="1.5"/><circle cx="2" cy="8" r="1.5"/><circle cx="8" cy="8" r="1.5"/><circle cx="2" cy="14" r="1.5"/><circle cx="8" cy="14" r="1.5"/></svg>
+                                            </td>
+                                        @endif
                                         <td style="padding: 10px 20px; font-size: 0.9rem;">{{ $player->user->name ?? 'N/A' }}</td>
                                         <td style="padding: 10px 20px; font-size: 0.9rem;">{{ $player->gender === 'male' ? 'Nam' : 'Nữ' }}</td>
                                         <td style="padding: 10px 20px; font-size: 0.9rem; color: #6b7280;">{{ $player->position ?? '-' }}</td>
@@ -214,6 +222,50 @@ function closePlayerModal() {
         }
     });
 });
+
+// MLP: Drag-drop player ordering
+@if($league->competition_format === 'mlp')
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof Sortable === 'undefined') {
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js';
+        script.onload = initPlayerSortable;
+        document.head.appendChild(script);
+    } else {
+        initPlayerSortable();
+    }
+});
+
+function initPlayerSortable() {
+    @foreach($league->teams as $team)
+    (function() {
+        var el = document.getElementById('player-list-{{ $team->id }}');
+        if (!el) return;
+        new Sortable(el, {
+            animation: 150,
+            handle: '.drag-handle',
+            ghostClass: 'sortable-ghost',
+            onEnd: function() {
+                var ids = [];
+                el.querySelectorAll('tr[data-player-id]').forEach(function(row) {
+                    ids.push(parseInt(row.dataset.playerId));
+                });
+                fetch('{{ url("homeyard/leagues/" . $league->slug . "/teams/" . $team->id . "/players/order") }}', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' },
+                    body: JSON.stringify({ player_ids: ids })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) toastr.success('Thứ tự VĐV đã được cập nhật.');
+                })
+                .catch(function() { toastr.error('Lỗi cập nhật thứ tự.'); });
+            }
+        });
+    })();
+    @endforeach
+}
+@endif
 
 // User search for player
 var searchTimeout;

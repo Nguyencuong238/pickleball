@@ -851,7 +851,7 @@
 
                     <a href="{{ route('homeyard.leagues.index') }}" class="nav-item">
                         <span class="nav-icon">🏅</span>
-                        <span class="nav-text">Giải đấu League</span>
+                        <span class="nav-text">Giải đấu Round Robin</span>
                     </a>
                 </div>
 

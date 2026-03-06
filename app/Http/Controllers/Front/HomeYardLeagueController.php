@@ -82,6 +82,10 @@ class HomeYardLeagueController extends Controller
             'teams.players.user',
             'rounds.matches.homeTeam',
             'rounds.matches.awayTeam',
+            'rounds.matches.games.homePlayer1.user',
+            'rounds.matches.games.homePlayer2.user',
+            'rounds.matches.games.awayPlayer1.user',
+            'rounds.matches.games.awayPlayer2.user',
             'standings.team',
         ]);
 
@@ -179,6 +183,9 @@ class HomeYardLeagueController extends Controller
         }
 
         try {
+            if ($league->competition_format === 'mlp') {
+                $this->scheduleService->validateMlpTeams($league);
+            }
             $this->scheduleService->generateRoundRobin($league);
             $this->standingsService->initializeStandings($league);
 

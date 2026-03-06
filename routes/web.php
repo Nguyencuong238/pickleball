@@ -539,6 +539,7 @@ Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(functi
     Route::put('leagues/{league}/teams/{team}', [LeagueTeamController::class, 'update'])->name('leagues.teams.update');
     Route::delete('leagues/{league}/teams/{team}', [LeagueTeamController::class, 'destroy'])->name('leagues.teams.destroy');
     Route::post('leagues/{league}/teams/{team}/players', [LeagueTeamController::class, 'addPlayer'])->name('leagues.teams.players.store');
+    Route::put('leagues/{league}/teams/{team}/players/order', [LeagueTeamController::class, 'updatePlayerOrder'])->name('leagues.teams.players.order');
     Route::delete('leagues/{league}/teams/{team}/players/{player}', [LeagueTeamController::class, 'removePlayer'])->name('leagues.teams.players.destroy');
 
     // League Matches

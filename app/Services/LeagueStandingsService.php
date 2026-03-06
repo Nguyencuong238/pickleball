@@ -56,29 +56,52 @@ class LeagueStandingsService
 
     /**
      * Xac dinh doi thang match dua tren ket qua cac games
+     * MLP: total score across all games. Traditional: game count (best-of).
      */
     public function determineMatchWinner(LeagueMatch $match): ?LeagueTeam
     {
-        $homeGamesWon = $match->games()->where('winner_team_id', $match->home_team_id)->count();
-        $awayGamesWon = $match->games()->where('winner_team_id', $match->away_team_id)->count();
+        $league = $match->round->league;
 
-        $winnerId = null;
-        if ($homeGamesWon > $awayGamesWon) {
-            $winnerId = $match->home_team_id;
-        } elseif ($awayGamesWon > $homeGamesWon) {
-            $winnerId = $match->away_team_id;
+        if ($league->competition_format === 'mlp') {
+            // MLP: winner = team with higher total score across all games
+            $totalHome = $match->games()->sum('home_score');
+            $totalAway = $match->games()->sum('away_score');
+
+            $winnerId = null;
+            if ($totalHome > $totalAway) {
+                $winnerId = $match->home_team_id;
+            } elseif ($totalAway > $totalHome) {
+                $winnerId = $match->away_team_id;
+            }
+
+            $match->update([
+                'home_score' => $totalHome,
+                'away_score' => $totalAway,
+                'winner_team_id' => $winnerId,
+                'status' => 'completed',
+                'completed_at' => now(),
+            ]);
+        } else {
+            // Traditional: winner = team with more games won
+            $homeGamesWon = $match->games()->where('winner_team_id', $match->home_team_id)->count();
+            $awayGamesWon = $match->games()->where('winner_team_id', $match->away_team_id)->count();
+
+            $winnerId = null;
+            if ($homeGamesWon > $awayGamesWon) {
+                $winnerId = $match->home_team_id;
+            } elseif ($awayGamesWon > $homeGamesWon) {
+                $winnerId = $match->away_team_id;
+            }
+
+            $match->update([
+                'home_score' => $homeGamesWon,
+                'away_score' => $awayGamesWon,
+                'winner_team_id' => $winnerId,
+                'status' => 'completed',
+                'completed_at' => now(),
+            ]);
         }
 
-        $match->update([
-            'home_score' => $homeGamesWon,
-            'away_score' => $awayGamesWon,
-            'winner_team_id' => $winnerId,
-            'status' => 'completed',
-            'completed_at' => now(),
-        ]);
-
-        // Tinh lai standings
-        $league = $match->round->league;
         $this->recalculateStandings($league);
 
         return $winnerId ? LeagueTeam::find($winnerId) : null;

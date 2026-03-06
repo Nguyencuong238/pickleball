@@ -60,7 +60,9 @@
         <div><strong style="color: #475569;">VĐV/đội:</strong> <span style="color: #1e293b;">{{ $config['max_players_per_team'] ?? 10 }}</span></div>
         <div><strong style="color: #475569;">Điểm thắng:</strong> <span style="color: #1e293b;">{{ $config['points_for_win'] ?? 3 }}</span></div>
         <div><strong style="color: #475569;">Điểm thua:</strong> <span style="color: #1e293b;">{{ $config['points_for_loss'] ?? 0 }}</span></div>
-        @if(!empty($config['match_format']))
+        @if($league->competition_format === 'mlp')
+            <div><strong style="color: #475569;">Nội dung:</strong> <span style="color: #1e293b;">6 trận đôi vòng tròn (MLP)</span></div>
+        @elseif(!empty($config['match_format']))
             <div><strong style="color: #475569;">Nội dung:</strong> <span style="color: #1e293b;">{{ implode(', ', $config['match_format']) }}</span></div>
         @endif
     </div>
