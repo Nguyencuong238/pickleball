@@ -195,7 +195,7 @@ class ClubController extends Controller
         $joinRequest = $club->joinRequests()->where('user_id', $user->id)->first();
 
         return response()->json([
-            'status' => $joinRequest->status
+            'status' => $joinRequest?->status
         ]);
     }
 
