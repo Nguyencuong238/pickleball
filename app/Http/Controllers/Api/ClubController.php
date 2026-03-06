@@ -113,9 +113,14 @@ class ClubController extends Controller
             ->whereIn('club_members.role', ['creator', 'admin', 'moderator'])
             ->get();
 
+        $joinRequestStatus = $club->joinRequests()
+            ->where('user_id', Auth::id())
+            ->first();
+
         return response()->json([
             'data' => $club,
             'membership' => $membership,
+            'join_request_status' => $joinRequestStatus?->status,
             'can_post' => $canPost,
             'management_team' => $managementTeam
         ]);
