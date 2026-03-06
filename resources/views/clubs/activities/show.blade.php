@@ -1,6 +1,19 @@
 @extends('layouts.front')
 
-@section('title', $activity->title . ' | ' . $club->name)
+@section('seo')
+<title>{{ $activity->title }} | {{ $club->name }}</title>
+<meta name="description" content="{{ Str::limit(strip_tags($activity->description), 160) }}">
+<meta property="og:title" content="{{ $activity->title }} | {{ $club->name }}">
+<meta property="og:description" content="{{ Str::limit(strip_tags($activity->description), 160) }}">
+<meta property="og:type" content="article">
+<meta property="og:url" content="{{ route('clubs.activities.show', [$club, $activity]) }}">
+@if($club->image)
+<meta property="og:image" content="{{ storage_url($club->image) }}">
+@endif
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ $activity->title }} | {{ $club->name }}">
+<meta name="twitter:description" content="{{ Str::limit(strip_tags($activity->description), 160) }}">
+@endsection
 
 @section('content')
 @php

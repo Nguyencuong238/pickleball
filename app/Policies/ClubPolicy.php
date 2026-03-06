@@ -19,7 +19,7 @@ class ClubPolicy
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Club $club): bool
+    public function view(?User $user, Club $club): bool
     {
         return true;
     }

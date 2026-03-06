@@ -2103,6 +2103,16 @@
     flex: 1;
 }
 
+.event-title-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.event-title-link:hover .event-title {
+    color: var(--primary-color, #0d9488);
+    text-decoration: underline;
+}
+
 .event-title {
     font-size: var(--font-size-lg);
     font-weight: 700;

@@ -61,7 +61,9 @@
                         <span class="month" x-text="formatMonth(event.activity_date)"></span>
                     </div>
                     <div class="event-main-info">
-                        <h4 class="event-title" x-text="event.title"></h4>
+                        <a :href="'/clubs/{{ $club->slug }}/activities/' + event.id" class="event-title-link">
+                            <h4 class="event-title" x-text="event.title"></h4>
+                        </a>
                         <div class="event-meta">
                             <span class="event-time">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; display: inline; vertical-align: middle;">
