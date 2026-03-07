@@ -279,6 +279,60 @@
         color: inherit;
     }
 
+    /* Select2 Styling */
+    .select2-container--default .select2-selection--single {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.375rem !important;
+        height: auto !important;
+        min-height: 38px !important;
+        padding: 0.5rem 0.75rem !important;
+        background-color: white !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        padding: 0 !important;
+        line-height: 24px !important;
+        color: #1f2937 !important;
+        font-size: 1rem !important;
+    }
+
+    .select2-container--default .select2-selection--single .select2-selection__arrow {
+        right: 8px !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        height: auto !important;
+    }
+
+    .select2-container--default.select2-container--focus .select2-selection--single {
+        border-color: #3b82f6 !important;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+
+    .select2-dropdown {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .select2-container--default .select2-results__option {
+        padding: 8px 12px !important;
+        font-size: 1rem !important;
+        color: #1f2937 !important;
+    }
+
+    .select2-container--default .select2-results__option--highlighted[aria-selected] {
+        background-color: #3b82f6 !important;
+        color: white !important;
+    }
+
+    .select2-search--dropdown .select2-search__field {
+        border: 1px solid #d1d5db !important;
+        border-radius: 0.375rem !important;
+        padding: 0.5rem 0.75rem !important;
+        font-size: 1rem !important;
+    }
+
     .tournament-card input[type="checkbox"] {
         position: absolute;
         top: 1rem;
@@ -707,8 +761,12 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label">Địa điểm *</label>
-                        <input type="text" class="form-input" name="location"
-                            placeholder="VD: Sân Pickleball Thảo Điền">
+                        <select class="form-control" id="createModal_stadium" name="stadium_id" required>
+                            <option value="">-- Chọn Sân --</option>
+                            @foreach ($stadiums as $stadium)
+                                <option value="{{ $stadium->id }}">{{ $stadium->name }}</option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="grid grid-2">
                          <div class="form-group">
@@ -1181,7 +1239,7 @@
         function openCreateModal() {
             document.getElementById('createModal').classList.add('show');
             
-            // Initialize Select2 for tournament categories
+            // Initialize Select2 for tournament categories and stadium
             setTimeout(() => {
                 const categorySelect = document.getElementById('createModal_categories');
                 if (categorySelect && !$(categorySelect).data('select2')) {
@@ -1191,6 +1249,17 @@
                         width: '100%',
                         language: 'vi',
                         closeOnSelect: false,
+                        dropdownParent: document.getElementById('createModal')
+                    });
+                }
+                
+                const stadiumSelect = document.getElementById('createModal_stadium');
+                if (stadiumSelect && !$(stadiumSelect).data('select2')) {
+                    $(stadiumSelect).select2({
+                        placeholder: 'Tìm kiếm sân...',
+                        allowClear: true,
+                        width: '100%',
+                        language: 'vi',
                         dropdownParent: document.getElementById('createModal')
                     });
                 }
@@ -1204,7 +1273,6 @@
                 document.getElementById('tournamentForm').reset();
             }, 500);
         }
-
 
         // Initialize
         initializeFilters();
@@ -1268,7 +1336,7 @@
                      modal.innerHTML = data.html;
                      modal.classList.add('show');
                      
-                     // Initialize Select2 for tournament categories after modal loaded
+                     // Initialize Select2 for tournament categories and stadium after modal loaded
                      setTimeout(() => {
                          const categorySelect = document.getElementById('editTournament_categories');
                          if (categorySelect) {
@@ -1278,6 +1346,17 @@
                                  width: '100%',
                                  language: 'vi',
                                  closeOnSelect: false,
+                                 dropdownParent: modal
+                             });
+                         }
+                         
+                         const stadiumSelect = document.getElementById('editModal_stadium');
+                         if (stadiumSelect) {
+                             $(stadiumSelect).select2({
+                                 placeholder: 'Tìm kiếm sân...',
+                                 allowClear: true,
+                                 width: '100%',
+                                 language: 'vi',
                                  dropdownParent: modal
                              });
                          }

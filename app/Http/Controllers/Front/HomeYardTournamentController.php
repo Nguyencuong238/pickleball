@@ -70,7 +70,9 @@ class HomeYardTournamentController extends Controller
                 ->count(),
         ];
 
-        return view('home-yard.tournaments.tournaments', compact('tournaments', 'stats'));
+        $stadiums = Stadium::where('status', 'active')->orderBy('name')->get();
+
+        return view('home-yard.tournaments.tournaments', compact('tournaments', 'stats', 'stadiums'));
     }
 
 
@@ -81,7 +83,7 @@ class HomeYardTournamentController extends Controller
             'description' => 'nullable|string',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
-            'location' => 'nullable|string|max:255',
+            'stadium_id' => 'nullable|exists:stadiums,id',
             'max_participants' => 'nullable|integer|min:1',
             'price' => 'nullable|numeric|min:0',
             'rules' => 'nullable|string',
@@ -101,7 +103,7 @@ class HomeYardTournamentController extends Controller
             'description',
             'start_date',
             'end_date',
-            'location',
+            'stadium_id',
             'max_participants',
             'price',
             'rules',
@@ -167,13 +169,15 @@ class HomeYardTournamentController extends Controller
     public function edit(Tournament $tournament)
     {
         $this->authorize('update', $tournament);
+        $stadiums = Stadium::where('status', 'active')->orderBy('name')->get();
+        
         // Return JSON for AJAX requests
         if (request()->ajax()) {
             return response()->json([
-                'html' => view('home-yard.tournaments.__editTournament', compact('tournament'))->render()
+                'html' => view('home-yard.tournaments.__editTournament', compact('tournament', 'stadiums'))->render()
             ]);
         }
-        return view('home-yard.tournaments.edit', compact('tournament'));
+        return view('home-yard.tournaments.edit', compact('tournament', 'stadiums'));
     }
 
     public function update(Request $request, Tournament $tournament)
@@ -186,7 +190,7 @@ class HomeYardTournamentController extends Controller
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
             'registration_deadline' => 'nullable|date_format:Y-m-d\TH:i',
-            'location' => 'nullable|string|max:255',
+            'stadium_id' => 'nullable|exists:stadiums,id',
             'max_participants' => 'nullable|integer|min:1',
             'price' => 'nullable|numeric|min:0',
             'prizes' => 'nullable|numeric|min:0',
@@ -209,7 +213,7 @@ class HomeYardTournamentController extends Controller
             'start_date',
             'end_date',
             'registration_deadline',
-            'location',
+            'stadium_id',
             'max_participants',
             'price',
             'prizes',

@@ -28,9 +28,16 @@
                 </div>
             </div>
             <div class="form-group">
-                <label class="form-label">Địa điểm</label>
-                <input type="text" class="form-input" name="location" placeholder="VD: Sân Pickleball Thảo Điền"
-                    value="{{ $tournament->location }}">
+                <label class="form-label">Địa điểm *</label>
+                <select class="form-control" id="editModal_stadium" name="stadium_id" required>
+                    <option value="">-- Chọn Sân --</option>
+                    @foreach ($stadiums as $stadium)
+                        <option value="{{ $stadium->id }}" 
+                            {{ $tournament->stadium_id == $stadium->id ? 'selected' : '' }}>
+                            {{ $stadium->name }}
+                        </option>
+                    @endforeach
+                </select>
             </div>
             <div class="grid grid-2">
                 <div class="form-group">
