@@ -104,6 +104,8 @@
 </div>
 
 <script>
+window.storageUrl = '{{ Storage::disk(config("filesystems.default"))->url("") }}';
+
 function switchTab(tabName, btn) {
     document.querySelectorAll('.league-tab').forEach(function(b) { b.classList.remove('active'); });
     document.querySelectorAll('.league-tab-content').forEach(function(content) { content.classList.remove('active'); });

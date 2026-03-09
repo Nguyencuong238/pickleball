@@ -125,7 +125,7 @@ function renderRegistrations(registrations) {
         // Payment proof
         if (reg.payment_proof) {
             body.innerHTML += '<div style="margin-bottom:15px;"><strong style="font-size:0.85rem; color:#475569;">Ảnh chuyển khoản:</strong><br>' +
-                '<a href="/storage/' + reg.payment_proof + '" target="_blank"><img src="/storage/' + reg.payment_proof + '" style="max-width:200px; max-height:150px; border-radius:8px; margin-top:8px; border:1px solid #e2e8f0; cursor:pointer;"></a></div>';
+                '<a href="' + window.storageUrl + reg.payment_proof + '" target="_blank"><img src="' + window.storageUrl + reg.payment_proof + '" style="max-width:200px; max-height:150px; border-radius:8px; margin-top:8px; border:1px solid #e2e8f0; cursor:pointer;"></a></div>';
         }
 
         // Players table

@@ -83,7 +83,7 @@ class LeagueRegistrationController extends Controller
 
         // Upload payment proof
         $paymentProofPath = $request->file('payment_proof')
-            ->store('league-registrations', 'public');
+            ->store('league-registrations', config('filesystems.default'));
 
         // Xử lý upload ảnh VĐV
         $players = [];
@@ -91,7 +91,7 @@ class LeagueRegistrationController extends Controller
             $photoPath = null;
             if ($request->hasFile("players.{$i}.photo")) {
                 $photoPath = $request->file("players.{$i}.photo")
-                    ->store('league-registrations/players', 'public');
+                    ->store('league-registrations/players', config('filesystems.default'));
             }
             $players[] = array_merge($playerData, ['photo' => $photoPath]);
         }
