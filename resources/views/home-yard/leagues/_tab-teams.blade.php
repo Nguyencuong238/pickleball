@@ -171,7 +171,7 @@
                 @csrf
                 <div style="margin-bottom: 15px;">
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Tìm Người Dùng *</label>
-                    <input type="text" id="playerSearchInput" placeholder="Nhập tên hoặc email..." autocomplete="off"
+                    <input type="text" id="playerSearchInput" placeholder="Nhập số điện thoại..." autocomplete="off" inputmode="tel"
                         style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
                     <div id="playerSearchResults" style="border: 1px solid #e2e8f0; border-radius: 6px; max-height: 200px; overflow-y: auto; display: none; margin-top: 4px;"></div>
                     <input type="hidden" name="user_id" id="selectedUserId" required>
@@ -395,26 +395,26 @@ function initPlayerSortable() {
 }
 @endif
 
-// User search for player
+// User search by phone for player
 var searchTimeout;
 document.getElementById('playerSearchInput').addEventListener('input', function() {
-    var query = this.value.trim();
+    var phone = this.value.trim().replace(/[^\d+]/g, '');
     clearTimeout(searchTimeout);
-    if (query.length < 2) {
+    if (phone.length < 9) {
         document.getElementById('playerSearchResults').style.display = 'none';
+        document.getElementById('selectedUserId').value = '';
         return;
     }
     searchTimeout = setTimeout(function() {
-        fetch('{{ route("ocr.search-users") }}?q=' + encodeURIComponent(query), {
+        fetch('{{ route("homeyard.leagues.teams.search-user", $league) }}?phone=' + encodeURIComponent(phone), {
             headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
         })
         .then(function(r) { return r.json(); })
-        .then(function(data) {
+        .then(function(users) {
             var results = document.getElementById('playerSearchResults');
             results.innerHTML = '';
-            var users = data.data || data;
             if (users.length === 0) {
-                results.innerHTML = '<div style="padding: 10px; color: #9ca3af;">Không tìm thấy</div>';
+                results.innerHTML = '<div style="padding: 10px; color: #9ca3af;">Không tìm thấy người dùng với SĐT này</div>';
             } else {
                 users.forEach(function(user) {
                     var div = document.createElement('div');
@@ -423,14 +423,14 @@ document.getElementById('playerSearchInput').addEventListener('input', function(
                     strong.textContent = user.name;
                     var span = document.createElement('span');
                     span.style.cssText = 'color: #6b7280; font-size: 0.85rem; margin-left: 6px;';
-                    span.textContent = user.email || '';
+                    span.textContent = user.phone || '';
                     div.appendChild(strong);
                     div.appendChild(span);
                     div.onmouseover = function() { this.style.background = '#f0f9ff'; };
                     div.onmouseout = function() { this.style.background = 'none'; };
                     div.onclick = function() {
                         document.getElementById('selectedUserId').value = user.id;
-                        document.getElementById('playerSearchInput').value = user.name;
+                        document.getElementById('playerSearchInput').value = user.name + ' (' + (user.phone || '') + ')';
                         results.style.display = 'none';
                     };
                     results.appendChild(div);

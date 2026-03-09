@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\League;
 use App\Models\LeagueTeam;
 use App\Models\LeagueTeamPlayer;
+use App\Models\User;
 use App\Services\LeagueService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
@@ -106,6 +108,26 @@ class LeagueTeamController extends Controller
             }
             return redirect()->back()->with('error', $e->getMessage());
         }
+    }
+
+    public function searchUserByPhone(Request $request, League $league): JsonResponse
+    {
+        abort_if($league->user_id !== auth()->id(), 403);
+
+        $phone = $request->query('phone', '');
+
+        if (strlen($phone) < 9) {
+            return response()->json([]);
+        }
+
+        // Normalize: remove spaces, dashes, leading +84 or 84
+        $normalized = preg_replace('/[\s\-]/', '', $phone);
+        $normalized = preg_replace('/^(\+?84)/', '0', $normalized);
+
+        $user = User::where('phone', $normalized)
+            ->first(['id', 'name', 'email', 'phone']);
+
+        return response()->json($user ? [$user] : []);
     }
 
     public function addPlayer(Request $request, League $league, LeagueTeam $team)
