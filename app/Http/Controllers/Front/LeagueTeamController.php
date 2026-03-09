@@ -45,7 +45,7 @@ class LeagueTeamController extends Controller
                 ]);
             }
 
-            return redirect()->back()->with('success', 'Thêm đội thành công.');
+            return redirect()->to(route('homeyard.leagues.show', $league) . '#teams')->with('success', 'Thêm đội thành công.');
         } catch (InvalidArgumentException $e) {
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
@@ -84,7 +84,7 @@ class LeagueTeamController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Cập nhật đội thành công.');
+        return redirect()->to(route('homeyard.leagues.show', $league) . '#teams')->with('success', 'Cập nhật đội thành công.');
     }
 
     public function destroy(Request $request, League $league, LeagueTeam $team)
@@ -122,6 +122,11 @@ class LeagueTeamController extends Controller
         try {
             $player = $this->leagueService->addPlayer($team, $validated);
 
+            // Tự set captain nếu đội chưa có
+            if (!$team->captain_user_id) {
+                $team->update(['captain_user_id' => $validated['user_id']]);
+            }
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
@@ -130,7 +135,7 @@ class LeagueTeamController extends Controller
                 ]);
             }
 
-            return redirect()->back()->with('success', 'Thêm người chơi thành công.');
+            return redirect()->to(route('homeyard.leagues.show', $league) . '#teams')->with('success', 'Thêm người chơi thành công.');
         } catch (InvalidArgumentException $e) {
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
@@ -170,6 +175,6 @@ class LeagueTeamController extends Controller
             return response()->json(['success' => true, 'message' => 'Xóa người chơi thành công.']);
         }
 
-        return redirect()->back()->with('success', 'Xóa người chơi thành công.');
+        return redirect()->to(route('homeyard.leagues.show', $league) . '#teams')->with('success', 'Xóa người chơi thành công.');
     }
 }

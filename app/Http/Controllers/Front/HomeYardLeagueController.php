@@ -65,6 +65,8 @@ class HomeYardLeagueController extends Controller
             'config.max_players_per_team' => "nullable|integer|min:{$minPlayers}|max:20",
             'config.points_for_win' => 'nullable|integer|min:0',
             'config.points_for_loss' => 'nullable|integer|min:0',
+            'required_players_per_registration' => 'nullable|integer|in:1,2,4',
+            'registration_fee' => 'nullable|numeric|min:0',
         ], [
             'config.max_players_per_team.min' => "Thể thức MLP yêu cầu tối thiểu {$minPlayers} VĐV/đội.",
         ]);
@@ -99,7 +101,10 @@ class HomeYardLeagueController extends Controller
             $league->standings->sortBy('rank')->values()
         );
 
-        return view('home-yard.leagues.show', compact('league'));
+        $pendingRegistrationCount = $league->registrations()
+            ->where('status', 'pending')->count();
+
+        return view('home-yard.leagues.show', compact('league', 'pendingRegistrationCount'));
     }
 
     public function edit(League $league)
@@ -132,6 +137,8 @@ class HomeYardLeagueController extends Controller
             'config.max_players_per_team' => "nullable|integer|min:{$minPlayers}|max:20",
             'config.points_for_win' => 'nullable|integer|min:0',
             'config.points_for_loss' => 'nullable|integer|min:0',
+            'required_players_per_registration' => 'nullable|integer|in:1,2,4',
+            'registration_fee' => 'nullable|numeric|min:0',
         ], [
             'config.max_players_per_team.min' => "Thể thức MLP yêu cầu tối thiểu {$minPlayers} VĐV/đội.",
         ]);
@@ -198,7 +205,7 @@ class HomeYardLeagueController extends Controller
             $this->standingsService->initializeStandings($league);
 
             return redirect()
-                ->back()
+                ->to(route('homeyard.leagues.show', $league) . '#schedule')
                 ->with('success', 'Tạo lịch thi đấu thành công.');
         } catch (InvalidArgumentException $e) {
             return redirect()
