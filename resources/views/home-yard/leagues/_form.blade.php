@@ -119,9 +119,12 @@
                 </div>
                 <div>
                     <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Số VĐV/Đội Tối Đa</label>
-                    <input type="number" name="config[max_players_per_team]" class="form-control config-field" min="2" max="20"
+                    <input type="number" name="config[max_players_per_team]" id="maxPlayersPerTeam" class="form-control config-field" min="{{ $currentFormat === 'mlp' ? '4' : '2' }}" max="20"
                         value="{{ old('config.max_players_per_team', $config['max_players_per_team'] ?? $defaultConfig['max_players_per_team']) }}"
                         style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                    <small id="mlpMinPlayersHint" style="color: #d97706; font-size: 0.8rem; {{ $currentFormat === 'mlp' ? '' : 'display: none;' }}">
+                        <i class="fas fa-exclamation-triangle"></i> MLP yêu cầu tối thiểu 4 VĐV/đội
+                    </small>
                 </div>
             </div>
 
@@ -140,8 +143,8 @@
                 </div>
             </div>
 
-            <!-- Nội Dung Thi Đấu (Match Format) -->
-            <div>
+            <!-- Nội Dung Thi Đấu (Match Format) - Chỉ hiển thị cho Traditional -->
+            <div id="matchFormatSection" style="{{ $currentFormat === 'mlp' ? 'display: none;' : '' }}">
                 <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Nội Dung Thi Đấu</label>
                 <div id="matchFormatContainer" style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px;">
                     @php
@@ -161,6 +164,26 @@
                 <button type="button" onclick="addMatchFormat()" style="background: #e0f2fe; color: #0369a1; border: 1px dashed #0369a1; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
                     <i class="fas fa-plus"></i> Thêm Nội Dung
                 </button>
+            </div>
+
+            <!-- Thông tin MLP Format - Chỉ hiển thị khi chọn MLP -->
+            <div id="mlpFormatInfo" style="{{ $currentFormat === 'mlp' ? '' : 'display: none;' }}">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Nội Dung Thi Đấu</label>
+                <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px 16px;">
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <i class="fas fa-info-circle" style="color: #3b82f6; margin-top: 2px;"></i>
+                        <div>
+                            <p style="margin: 0 0 6px 0; font-weight: 600; color: #1e40af;">Thể thức MLP (Major League Pickleball)</p>
+                            <p style="margin: 0; color: #1e40af; font-size: 0.9rem;">
+                                Mỗi trận đấu gồm <strong>6 game đôi</strong> được tạo tự động từ <strong>4 VĐV hàng đầu</strong> của mỗi đội.
+                                Mỗi VĐV sẽ lần lượt bắt cặp với 3 đồng đội còn lại, tạo thành 6 cặp đôi khác nhau.
+                            </p>
+                            <p style="margin: 8px 0 0 0; color: #3b82f6; font-size: 0.8rem;">
+                                <i class="fas fa-exclamation-triangle"></i> Yêu cầu tối thiểu 4 VĐV đang hoạt động trong mỗi đội.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -206,13 +229,28 @@ function onCompetitionFormatChange(format) {
         }
     });
 
+    var matchFormatSection = document.getElementById('matchFormatSection');
+    var mlpFormatInfo = document.getElementById('mlpFormatInfo');
+    var maxPlayersInput = document.getElementById('maxPlayersPerTeam');
+    var mlpMinHint = document.getElementById('mlpMinPlayersHint');
+
     if (format === 'mlp') {
-        // Clear and set MLP preset
-        var container = document.getElementById('matchFormatContainer');
-        container.innerHTML = '';
-        mlpPreset.forEach(function(val) {
-            addMatchFormat(val);
-        });
+        // Ẩn phần chọn nội dung thi đấu, hiển thị thông tin MLP
+        matchFormatSection.style.display = 'none';
+        mlpFormatInfo.style.display = '';
+        // Cập nhật min VĐV/đội = 4
+        maxPlayersInput.min = 4;
+        if (parseInt(maxPlayersInput.value) < 4) {
+            maxPlayersInput.value = 4;
+        }
+        mlpMinHint.style.display = '';
+    } else {
+        // Hiển thị lại phần chọn nội dung thi đấu
+        matchFormatSection.style.display = '';
+        mlpFormatInfo.style.display = 'none';
+        // Reset min VĐV/đội = 2
+        maxPlayersInput.min = 2;
+        mlpMinHint.style.display = 'none';
     }
 }
 

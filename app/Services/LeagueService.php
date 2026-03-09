@@ -52,6 +52,12 @@ class LeagueService
 
             $config = array_merge(self::DEFAULT_CONFIG, $data['config'] ?? []);
 
+            // MLP: luôn dùng preset cố định, bỏ qua match_format từ form
+            $competitionFormat = $data['competition_format'] ?? 'traditional';
+            if ($competitionFormat === 'mlp') {
+                $config['match_format'] = self::MLP_MATCH_FORMAT;
+            }
+
             return League::create([
                 'user_id' => $user->id,
                 'club_id' => $data['club_id'] ?? null,

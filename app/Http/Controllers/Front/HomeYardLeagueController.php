@@ -48,6 +48,8 @@ class HomeYardLeagueController extends Controller
 
     public function store(Request $request)
     {
+        $minPlayers = $request->input('competition_format') === 'mlp' ? 4 : 2;
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -60,9 +62,11 @@ class HomeYardLeagueController extends Controller
             'config' => 'nullable|array',
             'config.match_format' => 'nullable|array',
             'config.max_teams' => 'nullable|integer|min:2|max:32',
-            'config.max_players_per_team' => 'nullable|integer|min:2|max:20',
+            'config.max_players_per_team' => "nullable|integer|min:{$minPlayers}|max:20",
             'config.points_for_win' => 'nullable|integer|min:0',
             'config.points_for_loss' => 'nullable|integer|min:0',
+        ], [
+            'config.max_players_per_team.min' => "Thể thức MLP yêu cầu tối thiểu {$minPlayers} VĐV/đội.",
         ]);
 
         $league = $this->leagueService->createLeague(auth()->user(), $validated);
@@ -111,6 +115,8 @@ class HomeYardLeagueController extends Controller
     {
         abort_if($league->user_id !== auth()->id(), 403);
 
+        $minPlayers = ($request->input('competition_format') ?? $league->competition_format) === 'mlp' ? 4 : 2;
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -123,9 +129,11 @@ class HomeYardLeagueController extends Controller
             'config' => 'nullable|array',
             'config.match_format' => 'nullable|array',
             'config.max_teams' => 'nullable|integer|min:2|max:32',
-            'config.max_players_per_team' => 'nullable|integer|min:2|max:20',
+            'config.max_players_per_team' => "nullable|integer|min:{$minPlayers}|max:20",
             'config.points_for_win' => 'nullable|integer|min:0',
             'config.points_for_loss' => 'nullable|integer|min:0',
+        ], [
+            'config.max_players_per_team.min' => "Thể thức MLP yêu cầu tối thiểu {$minPlayers} VĐV/đội.",
         ]);
 
         $this->leagueService->updateLeague($league, $validated);
