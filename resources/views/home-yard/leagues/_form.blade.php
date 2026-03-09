@@ -82,6 +82,28 @@
             </div>
         </div>
 
+        <!-- Đăng Ký VĐV -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Số VĐV/Đăng Ký</label>
+                <select name="required_players_per_registration" class="form-control"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                    @php $reqPlayers = old('required_players_per_registration', $league->required_players_per_registration ?? 1); @endphp
+                    <option value="1" {{ $reqPlayers == 1 ? 'selected' : '' }}>1 (Cá nhân)</option>
+                    <option value="2" {{ $reqPlayers == 2 ? 'selected' : '' }}>2 (Đôi)</option>
+                    <option value="4" {{ $reqPlayers == 4 ? 'selected' : '' }}>4 (Nhóm 4)</option>
+                </select>
+                <small style="color: #6b7280; font-size: 0.8rem;">Số VĐV bắt buộc trong mỗi lần đăng ký</small>
+            </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Phí Đăng Ký (VNĐ)</label>
+                <input type="number" name="registration_fee" class="form-control" min="0" step="1000" placeholder="VD: 500000"
+                    value="{{ old('registration_fee', $league->registration_fee ?? '') }}"
+                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                <small style="color: #6b7280; font-size: 0.8rem;">Để trống nếu miễn phí</small>
+            </div>
+        </div>
+
         <!-- Hình Thức Thi Đấu -->
         <div style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; margin-bottom: 20px; background: #f8fafc;">
             <h3 style="color: #1e293b; font-size: 1.1rem; margin: 0 0 15px 0;">

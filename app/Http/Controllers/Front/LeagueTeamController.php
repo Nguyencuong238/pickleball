@@ -6,15 +6,20 @@ use App\Http\Controllers\Controller;
 use App\Models\League;
 use App\Models\LeagueTeam;
 use App\Models\LeagueTeamPlayer;
+use App\Models\User;
+use App\Services\LeagueAutoTeamService;
 use App\Services\LeagueService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 
 class LeagueTeamController extends Controller
 {
-    public function __construct(private LeagueService $leagueService)
-    {
+    public function __construct(
+        private LeagueService $leagueService,
+        private LeagueAutoTeamService $autoTeamService,
+    ) {
         $this->middleware(['auth']);
     }
 
@@ -45,7 +50,7 @@ class LeagueTeamController extends Controller
                 ]);
             }
 
-            return redirect()->back()->with('success', 'Thêm đội thành công.');
+            return redirect()->to(route('homeyard.leagues.show', $league) . '#teams')->with('success', 'Thêm đội thành công.');
         } catch (InvalidArgumentException $e) {
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
@@ -84,7 +89,7 @@ class LeagueTeamController extends Controller
             ]);
         }
 
-        return redirect()->back()->with('success', 'Cập nhật đội thành công.');
+        return redirect()->to(route('homeyard.leagues.show', $league) . '#teams')->with('success', 'Cập nhật đội thành công.');
     }
 
     public function destroy(Request $request, League $league, LeagueTeam $team)
@@ -108,6 +113,54 @@ class LeagueTeamController extends Controller
         }
     }
 
+    public function autoGenerate(Request $request, League $league): JsonResponse
+    {
+        abort_if($league->user_id !== auth()->id(), 403);
+
+        $validated = $request->validate([
+            'mode' => 'required|in:skill_ranked,random',
+            'players_per_team' => 'required|integer|min:2|max:10',
+        ]);
+
+        try {
+            $teams = $this->autoTeamService->autoGenerateTeams(
+                $league,
+                $validated['mode'],
+                $validated['players_per_team']
+            );
+
+            $totalPlayers = count($teams) * $validated['players_per_team'];
+
+            return response()->json([
+                'success' => true,
+                'message' => "Đã tạo " . count($teams) . " đội từ {$totalPlayers} VĐV.",
+                'teams_created' => count($teams),
+            ]);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
+        }
+    }
+
+    public function searchUserByPhone(Request $request, League $league): JsonResponse
+    {
+        abort_if($league->user_id !== auth()->id(), 403);
+
+        $phone = $request->query('phone', '');
+
+        if (strlen($phone) < 9) {
+            return response()->json([]);
+        }
+
+        // Normalize: remove spaces, dashes, leading +84 or 84
+        $normalized = preg_replace('/[\s\-]/', '', $phone);
+        $normalized = preg_replace('/^(\+?84)/', '0', $normalized);
+
+        $user = User::where('phone', $normalized)
+            ->first(['id', 'name', 'email', 'phone']);
+
+        return response()->json($user ? [$user] : []);
+    }
+
     public function addPlayer(Request $request, League $league, LeagueTeam $team)
     {
         abort_if($league->user_id !== auth()->id(), 403);
@@ -122,6 +175,11 @@ class LeagueTeamController extends Controller
         try {
             $player = $this->leagueService->addPlayer($team, $validated);
 
+            // Tự set captain nếu đội chưa có
+            if (!$team->captain_user_id) {
+                $team->update(['captain_user_id' => $validated['user_id']]);
+            }
+
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
@@ -130,7 +188,7 @@ class LeagueTeamController extends Controller
                 ]);
             }
 
-            return redirect()->back()->with('success', 'Thêm người chơi thành công.');
+            return redirect()->to(route('homeyard.leagues.show', $league) . '#teams')->with('success', 'Thêm người chơi thành công.');
         } catch (InvalidArgumentException $e) {
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
@@ -170,6 +228,6 @@ class LeagueTeamController extends Controller
             return response()->json(['success' => true, 'message' => 'Xóa người chơi thành công.']);
         }
 
-        return redirect()->back()->with('success', 'Xóa người chơi thành công.');
+        return redirect()->to(route('homeyard.leagues.show', $league) . '#teams')->with('success', 'Xóa người chơi thành công.');
     }
 }

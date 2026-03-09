@@ -23,6 +23,8 @@ class League extends Model
         'end_date',
         'registration_deadline',
         'logo',
+        'required_players_per_registration',
+        'registration_fee',
     ];
 
     protected $casts = [
@@ -30,6 +32,7 @@ class League extends Model
         'start_date' => 'date',
         'end_date' => 'date',
         'registration_deadline' => 'datetime',
+        'registration_fee' => 'decimal:0',
     ];
 
     public function getRouteKeyName(): string
@@ -77,6 +80,11 @@ class League extends Model
     public function standings(): HasMany
     {
         return $this->hasMany(LeagueStanding::class);
+    }
+
+    public function registrations(): HasMany
+    {
+        return $this->hasMany(LeagueRegistration::class);
     }
 
     // Scopes

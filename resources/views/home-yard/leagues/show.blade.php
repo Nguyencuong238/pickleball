@@ -61,6 +61,12 @@
         <!-- Tab Navigation -->
         <div style="background: white; border-radius: 15px 15px 0 0; box-shadow: 0 2px 10px rgba(0,0,0,0.06); display: flex; overflow-x: auto; border-bottom: 2px solid #e2e8f0;">
             <button class="league-tab active" onclick="switchTab('overview', this)"><i class="fas fa-info-circle"></i> Tổng Quan</button>
+            <button class="league-tab" onclick="switchTab('registrations', this)">
+                <i class="fas fa-clipboard-list"></i> Vận Động Viên
+                @if($pendingRegistrationCount > 0)
+                    <span style="background:#ef4444;color:white;border-radius:50%;padding:2px 6px;font-size:0.7rem;margin-left:4px;">{{ $pendingRegistrationCount }}</span>
+                @endif
+            </button>
             <button class="league-tab" onclick="switchTab('teams', this)"><i class="fas fa-users"></i> Đội ({{ $league->teams->count() }})</button>
             <button class="league-tab" onclick="switchTab('schedule', this)"><i class="fas fa-calendar-alt"></i> Lịch Thi Đấu</button>
             <button class="league-tab" onclick="switchTab('standings', this)"><i class="fas fa-list-ol"></i> Bảng Xếp Hạng</button>
@@ -72,6 +78,11 @@
             <!-- Overview Tab -->
             <div id="tab-overview" class="league-tab-content active">
                 @include('home-yard.leagues._tab-overview')
+            </div>
+
+            <!-- Registrations Tab -->
+            <div id="tab-registrations" class="league-tab-content">
+                @include('home-yard.leagues._tab-registrations')
             </div>
 
             <!-- Teams Tab -->
@@ -93,12 +104,19 @@
 </div>
 
 <script>
+window.storageUrl = '{{ Storage::disk(config("filesystems.default"))->url("") }}';
+
 function switchTab(tabName, btn) {
     document.querySelectorAll('.league-tab').forEach(function(b) { b.classList.remove('active'); });
     document.querySelectorAll('.league-tab-content').forEach(function(content) { content.classList.remove('active'); });
 
     document.getElementById('tab-' + tabName).classList.add('active');
     btn.classList.add('active');
+
+    // Lazy-load registrations on first view
+    if (tabName === 'registrations' && typeof loadRegistrationsIfNeeded === 'function') {
+        loadRegistrationsIfNeeded();
+    }
 
     // Update URL hash
     window.location.hash = tabName;
@@ -109,13 +127,16 @@ document.addEventListener('DOMContentLoaded', function() {
     var hash = window.location.hash.replace('#', '');
     if (hash && document.getElementById('tab-' + hash)) {
         var tabs = document.querySelectorAll('.league-tab');
-        var tabNames = ['overview', 'teams', 'schedule', 'standings'];
+        var tabNames = ['overview', 'registrations', 'teams', 'schedule', 'standings'];
         var index = tabNames.indexOf(hash);
         if (index !== -1) {
             document.querySelectorAll('.league-tab').forEach(function(btn) { btn.classList.remove('active'); });
             document.querySelectorAll('.league-tab-content').forEach(function(content) { content.classList.remove('active'); });
             tabs[index].classList.add('active');
             document.getElementById('tab-' + hash).classList.add('active');
+            if (hash === 'registrations' && typeof loadRegistrationsIfNeeded === 'function') {
+                loadRegistrationsIfNeeded();
+            }
         }
     }
 });

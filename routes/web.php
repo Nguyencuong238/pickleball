@@ -53,6 +53,7 @@ use App\Http\Controllers\Front\UserPointController;
 use App\Http\Controllers\Front\HomeYardLeagueController;
 use App\Http\Controllers\Front\LeagueTeamController;
 use App\Http\Controllers\Front\LeagueMatchController;
+use App\Http\Controllers\Front\LeagueRegistrationController;
 use App\Http\Controllers\Admin\LeagueController as AdminLeagueController;
 
 /*
@@ -381,6 +382,14 @@ Route::middleware('web')->group(function () {
     Route::get('/api/instructors/{instructor}/is-favorited', [FavoriteController::class, 'isInstructorFavorited'])->name('instructors.is-favorited');
 });
 
+// League Registration (public, no auth)
+Route::get('leagues/{league}/register', [LeagueRegistrationController::class, 'showForm'])
+    ->name('leagues.register')
+    ->middleware('throttle:30,1');
+Route::post('leagues/{league}/register', [LeagueRegistrationController::class, 'store'])
+    ->name('leagues.register.store')
+    ->middleware('throttle:5,1');
+
 // HomeYard Routes
 Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(function () { //exclude middleware: 'role:home_yard'
     Route::resource('clubs', HomeYardClubController::class)->only(['index', 'create', 'store', 'edit', 'update', 'destroy']);
@@ -535,12 +544,21 @@ Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(functi
     Route::put('leagues/{league}/rounds/{round}', [HomeYardLeagueController::class, 'updateRound'])->name('leagues.rounds.update');
 
     // League Teams
+    Route::post('leagues/{league}/teams/auto-generate', [LeagueTeamController::class, 'autoGenerate'])->name('leagues.teams.auto-generate');
     Route::post('leagues/{league}/teams', [LeagueTeamController::class, 'store'])->name('leagues.teams.store');
     Route::put('leagues/{league}/teams/{team}', [LeagueTeamController::class, 'update'])->name('leagues.teams.update');
     Route::delete('leagues/{league}/teams/{team}', [LeagueTeamController::class, 'destroy'])->name('leagues.teams.destroy');
+    Route::get('leagues/{league}/teams/search-user', [LeagueTeamController::class, 'searchUserByPhone'])->name('leagues.teams.search-user');
     Route::post('leagues/{league}/teams/{team}/players', [LeagueTeamController::class, 'addPlayer'])->name('leagues.teams.players.store');
     Route::put('leagues/{league}/teams/{team}/players/order', [LeagueTeamController::class, 'updatePlayerOrder'])->name('leagues.teams.players.order');
     Route::delete('leagues/{league}/teams/{team}/players/{player}', [LeagueTeamController::class, 'removePlayer'])->name('leagues.teams.players.destroy');
+
+    // League Registrations (admin)
+    Route::get('leagues/{league}/registrations', [LeagueRegistrationController::class, 'listRegistrations'])->name('leagues.registrations.index');
+    Route::put('leagues/{league}/registrations/{registration}/approve', [LeagueRegistrationController::class, 'approve'])->name('leagues.registrations.approve');
+    Route::put('leagues/{league}/registrations/{registration}/reject', [LeagueRegistrationController::class, 'reject'])->name('leagues.registrations.reject');
+    Route::get('leagues/{league}/registrations/pool', [LeagueRegistrationController::class, 'pool'])->name('leagues.registrations.pool');
+    Route::post('leagues/{league}/teams/{team}/add-group/{registration}', [LeagueRegistrationController::class, 'addGroup'])->name('leagues.teams.addGroup');
 
     // League Matches
     Route::get('leagues/{league}/matches', [LeagueMatchController::class, 'index'])->name('leagues.matches.index');

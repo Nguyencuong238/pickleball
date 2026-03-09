@@ -1,8 +1,11 @@
 <!-- Add Team Button -->
 @if(in_array($league->status, ['draft', 'registration']))
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; gap: 10px;">
+        <button onclick="openAutoGenerateModal()" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg> Tự động xếp đội
+        </button>
         <button onclick="openTeamModal()" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
-            <i class="fas fa-plus"></i> Thêm Đội
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Thêm Đội
         </button>
     </div>
 @endif
@@ -41,11 +44,11 @@
                             <form method="POST" action="{{ route('homeyard.leagues.teams.destroy', [$league, $team]) }}" style="display: inline;" onclick="event.stopPropagation();">
                                 @csrf @method('DELETE')
                                 <button type="submit" style="background: #fee2e2; color: #991b1b; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer;" onclick="return confirm('Xóa đội này?')">
-                                    <i class="fas fa-trash"></i>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
                                 </button>
                             </form>
                         @endif
-                        <i class="fas fa-chevron-down" id="team-icon-{{ $team->id }}" style="color: #9ca3af; transition: transform 0.2s;"></i>
+                        <svg id="team-icon-{{ $team->id }}" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
                     </div>
                 </div>
 
@@ -80,7 +83,7 @@
                                                 <form method="POST" action="{{ route('homeyard.leagues.teams.players.destroy', [$league, $team, $player]) }}" style="display: inline;">
                                                     @csrf @method('DELETE')
                                                     <button type="submit" style="background: #fee2e2; color: #991b1b; border: none; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;" onclick="return confirm('Xóa VĐV này khỏi đội?')">
-                                                        <i class="fas fa-times"></i>
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                                                     </button>
                                                 </form>
                                             @else
@@ -98,7 +101,7 @@
                     @if(in_array($league->status, ['draft', 'registration']))
                         <div style="padding: 10px 20px; border-top: 1px solid #f1f5f9;">
                             <button onclick="openPlayerModal({{ $team->id }}, @js($team->name))" style="background: #e0f2fe; color: #0369a1; border: 1px dashed #0369a1; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
-                                <i class="fas fa-plus"></i> Thêm VĐV
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Thêm VĐV
                             </button>
                         </div>
                     @endif
@@ -108,7 +111,7 @@
     </div>
 @else
     <div style="text-align: center; padding: 40px 20px;">
-        <i class="fas fa-users" style="font-size: 2.5rem; color: #d1d5db; margin-bottom: 15px;"></i>
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#d1d5db" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 15px;"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
         <h4 style="color: #9ca3af; margin: 10px 0;">Chưa có đội nào</h4>
         @if(in_array($league->status, ['draft', 'registration']))
             <p style="color: #9ca3af;">Bấm "Thêm Đội" để bắt đầu thêm đội vào league</p>
@@ -141,43 +144,107 @@
     </div>
 </div>
 
-<!-- Add Player Modal -->
+<!-- Add Player Modal (2 tabs: Pool + Search) -->
 <div id="playerModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center;">
-    <div style="background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; margin: auto;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div style="background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 550px; margin: auto; max-height: 80vh; overflow-y: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <h3 style="color: #1e293b; margin: 0;">Thêm VĐV vào <span id="playerModalTeamName"></span></h3>
             <button onclick="closePlayerModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #9ca3af;">&#x2715;</button>
         </div>
-        <form id="playerForm" method="POST" action="">
-            @csrf
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Tìm Người Dùng *</label>
-                <input type="text" id="playerSearchInput" placeholder="Nhập tên hoặc email..." autocomplete="off"
-                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
-                <div id="playerSearchResults" style="border: 1px solid #e2e8f0; border-radius: 6px; max-height: 200px; overflow-y: auto; display: none; margin-top: 4px;"></div>
-                <input type="hidden" name="user_id" id="selectedUserId" required>
+
+        <!-- Tab Buttons -->
+        <div style="display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
+            <button class="player-modal-tab active" id="pmTabPool" onclick="switchPlayerTab('pool', this)" style="padding:10px 20px; border:none; background:none; color:var(--primary-color); font-weight:600; cursor:pointer; border-bottom:2px solid var(--primary-color); margin-bottom:-2px; font-size:0.9rem;">VĐV đã duyệt</button>
+            <button class="player-modal-tab" id="pmTabSearch" onclick="switchPlayerTab('search', this)" style="padding:10px 20px; border:none; background:none; color:#6b7280; font-weight:600; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-2px; font-size:0.9rem;">Tìm user</button>
+        </div>
+
+        <!-- Tab 1: Pool -->
+        <div id="player-tab-pool">
+            <div id="poolLoading" style="text-align:center; padding:20px; color:#9ca3af;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="animation: spin 1s linear infinite; display:inline-block; vertical-align:middle;"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Đang tải...</div>
+            <div id="poolList"></div>
+            <div id="poolEmpty" style="display:none; text-align:center; padding:20px; color:#9ca3af;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:8px; display:block; margin-left:auto; margin-right:auto;"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg>
+                Không có VĐV nào 
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                <div>
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Giới Tính *</label>
-                    <select name="gender" required style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
-                        <option value="male">Nam</option>
-                        <option value="female">Nữ</option>
-                    </select>
+        </div>
+
+        <!-- Tab 2: Search (existing form) -->
+        <div id="player-tab-search" style="display:none;">
+            <form id="playerForm" method="POST" action="">
+                @csrf
+                <div style="margin-bottom: 15px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Tìm Người Dùng *</label>
+                    <input type="text" id="playerSearchInput" placeholder="Nhập số điện thoại..." autocomplete="off" inputmode="tel"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
+                    <div id="playerSearchResults" style="border: 1px solid #e2e8f0; border-radius: 6px; max-height: 200px; overflow-y: auto; display: none; margin-top: 4px;"></div>
+                    <input type="hidden" name="user_id" id="selectedUserId" required>
                 </div>
-                <div>
-                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Vị Trí</label>
-                    <input type="text" name="position" placeholder="VD: Công, Thủ" style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Giới Tính *</label>
+                        <select name="gender" required style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
+                            <option value="male">Nam</option>
+                            <option value="female">Nữ</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Vị Trí</label>
+                        <input type="text" name="position" placeholder="VD: Công, Thủ" style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
+                    </div>
                 </div>
-            </div>
-            <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                <button type="button" onclick="closePlayerModal()" style="background-color: #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Hủy</button>
-                <button type="submit" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Thêm VĐV</button>
-            </div>
-        </form>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button type="button" onclick="closePlayerModal()" style="background-color: #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Hủy</button>
+                    <button type="submit" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Thêm VĐV</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
+<!-- Auto Generate Teams Modal -->
+<div id="autoGenerateModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; margin: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: #1e293b; margin: 0;">Tự động xếp đội</h3>
+            <button onclick="closeAutoGenerateModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #9ca3af;">&#x2715;</button>
+        </div>
+
+        <div id="autoGenPoolInfo" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.9rem; color: #1e40af;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span id="autoGenPoolCount">Đang tải...</span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Số VĐV / đội *</label>
+            <input type="number" id="autoGenPlayersPerTeam" value="{{ $league->competition_format === 'mlp' ? 4 : 2 }}" min="2" max="10" style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1e293b;">Chế độ xếp cặp *</label>
+            <label style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 2px solid #2563eb; border-radius: 8px; cursor: pointer; margin-bottom: 8px; background: #eff6ff;">
+                <input type="radio" name="auto_gen_mode" value="skill_ranked" checked style="margin-top: 3px;">
+                <div>
+                    <div style="font-weight: 600; color: #1e293b;">Phân hạng theo trình</div>
+                    <div style="font-size: 0.85rem; color: #6b7280;">Trình A ghép với trình B để cân bằng sức mạnh</div>
+                </div>
+            </label>
+            <label style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                <input type="radio" name="auto_gen_mode" value="random" style="margin-top: 3px;">
+                <div>
+                    <div style="font-weight: 600; color: #1e293b;">Ngẫu nhiên</div>
+                    <div style="font-size: 0.85rem; color: #6b7280;">Xếp cặp ngẫu nhiên từ danh sách VĐV</div>
+                </div>
+            </label>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="closeAutoGenerateModal()" style="background-color: #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Hủy</button>
+            <button type="button" id="autoGenSubmitBtn" onclick="submitAutoGenerate()" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Tạo đội tự động</button>
+        </div>
+    </div>
+</div>
+
+<style>@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style>
 <script>
 function toggleTeamRoster(teamId) {
     var roster = document.getElementById('team-roster-' + teamId);
@@ -200,12 +267,31 @@ function closeTeamModal() {
     modal.style.display = 'none';
 }
 
+var currentTeamId = null;
+var poolUrl = '{{ url("homeyard/leagues/" . $league->slug . "/registrations/pool") }}';
+var addGroupBaseUrl = '{{ url("homeyard/leagues/" . $league->slug) }}/teams/__TEAM_ID__/add-group/__REG_ID__';
+var poolCsrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
+function switchPlayerTab(tab, btn) {
+    document.getElementById('player-tab-pool').style.display = tab === 'pool' ? 'block' : 'none';
+    document.getElementById('player-tab-search').style.display = tab === 'search' ? 'block' : 'none';
+    var poolBtn = document.getElementById('pmTabPool');
+    var searchBtn = document.getElementById('pmTabSearch');
+    poolBtn.style.color = tab === 'pool' ? 'var(--primary-color)' : '#6b7280';
+    poolBtn.style.borderBottomColor = tab === 'pool' ? 'var(--primary-color)' : 'transparent';
+    searchBtn.style.color = tab === 'search' ? 'var(--primary-color)' : '#6b7280';
+    searchBtn.style.borderBottomColor = tab === 'search' ? 'var(--primary-color)' : 'transparent';
+}
+
 function openPlayerModal(teamId, teamName) {
+    currentTeamId = teamId;
     document.getElementById('playerModalTeamName').textContent = teamName;
     document.getElementById('playerForm').action = '{{ url("homeyard/leagues/" . $league->slug) }}/teams/' + teamId + '/players';
     document.getElementById('selectedUserId').value = '';
     document.getElementById('playerSearchInput').value = '';
     document.getElementById('playerSearchResults').style.display = 'none';
+    switchPlayerTab('pool');
+    fetchPool();
     var modal = document.getElementById('playerModal');
     modal.style.display = 'flex';
 }
@@ -214,8 +300,192 @@ function closePlayerModal() {
     modal.style.display = 'none';
 }
 
+function fetchPool() {
+    document.getElementById('poolLoading').style.display = 'block';
+    document.getElementById('poolList').innerHTML = '';
+    document.getElementById('poolEmpty').style.display = 'none';
+
+    fetch(poolUrl, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': poolCsrfToken } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        document.getElementById('poolLoading').style.display = 'none';
+        if (!data || data.length === 0) {
+            document.getElementById('poolEmpty').style.display = 'block';
+            return;
+        }
+        renderPoolGroups(data);
+    })
+    .catch(function() {
+        document.getElementById('poolLoading').style.display = 'none';
+        document.getElementById('poolList').innerHTML = '<p style="color:#ef4444; text-align:center;">Lỗi tải pool</p>';
+    });
+}
+
+function renderPoolGroups(groups) {
+    var container = document.getElementById('poolList');
+    container.innerHTML = '';
+    groups.forEach(function(group) {
+        var card = document.createElement('div');
+        card.style.cssText = 'border:1px solid #e2e8f0; border-radius:8px; margin-bottom:10px; overflow:hidden;';
+
+        var header = document.createElement('div');
+        header.style.cssText = 'padding:10px 14px; background:#f0fdf4; display:flex; justify-content:space-between; align-items:center;';
+        var headerLabel = document.createElement('span');
+        headerLabel.style.cssText = 'font-weight:600; color:#15803d; font-size:0.85rem;';
+        headerLabel.textContent = 'Nhóm #' + group.id + ' - ' + group.players.length + ' VĐV';
+        header.appendChild(headerLabel);
+
+        if (group.players.length > 1) {
+            var addGroupBtn = document.createElement('button');
+            addGroupBtn.style.cssText = 'padding:4px 12px; background:#22c55e; color:white; border:none; border-radius:6px; cursor:pointer; font-size:0.8rem; font-weight:600;';
+            addGroupBtn.textContent = 'Thêm cả nhóm';
+            addGroupBtn.onclick = (function(gid) { return function() { addGroupToTeam(gid); }; })(group.id);
+            header.appendChild(addGroupBtn);
+        }
+        card.appendChild(header);
+
+        group.players.forEach(function(p) {
+            var row = document.createElement('div');
+            row.style.cssText = 'padding:8px 14px; border-top:1px solid #f1f5f9; display:flex; justify-content:space-between; align-items:center; font-size:0.85rem;';
+            var info = document.createElement('span');
+            info.style.color = '#475569';
+            info.textContent = p.name + ' - ' + p.phone + ' - ' + (p.gender === 'male' ? 'Nam' : 'Nữ');
+            var addBtn = document.createElement('button');
+            addBtn.style.cssText = 'padding:3px 10px; background:#e0f2fe; color:#0369a1; border:1px solid #0369a1; border-radius:4px; cursor:pointer; font-size:0.8rem;';
+            addBtn.textContent = 'Thêm';
+            addBtn.onclick = (function(uid, g) { return function() { addPlayerFromPool(uid, g); }; })(p.user_id, p.gender);
+            row.appendChild(info);
+            row.appendChild(addBtn);
+            card.appendChild(row);
+        });
+        container.appendChild(card);
+    });
+}
+
+function addGroupToTeam(registrationId) {
+    var url = addGroupBaseUrl.replace('__TEAM_ID__', currentTeamId).replace('__REG_ID__', registrationId);
+    fetch(url, { method: 'POST', headers: { 'X-CSRF-TOKEN': poolCsrfToken, 'Accept': 'application/json' } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) { toastr.success(data.message); fetchPool(); setTimeout(function() { location.reload(); }, 500); }
+        else { toastr.error(data.message || 'Có lỗi xảy ra.'); }
+    })
+    .catch(function() { toastr.error('Lỗi kết nối.'); });
+}
+
+function addPlayerFromPool(userId, gender) {
+    var url = '{{ url("homeyard/leagues/" . $league->slug) }}/teams/' + currentTeamId + '/players';
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': poolCsrfToken, 'Accept': 'application/json' },
+        body: JSON.stringify({ user_id: userId, gender: gender })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) { toastr.success(data.message); fetchPool(); setTimeout(function() { location.reload(); }, 500); }
+        else { toastr.error(data.message || 'Có lỗi xảy ra.'); }
+    })
+    .catch(function() { toastr.error('Lỗi kết nối.'); });
+}
+
+// Auto Generate Teams
+var autoGenUrl = '{{ route("homeyard.leagues.teams.auto-generate", $league) }}';
+var autoGenPoolCount = 0;
+
+function openAutoGenerateModal() {
+    document.getElementById('autoGenerateModal').style.display = 'flex';
+    document.getElementById('autoGenPoolCount').textContent = 'Đang tải...';
+    // Fetch pool count
+    fetch(poolUrl, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': poolCsrfToken } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var total = 0;
+        if (data && data.length > 0) {
+            data.forEach(function(group) { total += group.players.length; });
+        }
+        autoGenPoolCount = total;
+        document.getElementById('autoGenPoolCount').textContent = 'Có ' + total + ' VĐV chưa xếp đội';
+        if (total === 0) {
+            document.getElementById('autoGenSubmitBtn').disabled = true;
+            document.getElementById('autoGenSubmitBtn').style.opacity = '0.5';
+        } else {
+            document.getElementById('autoGenSubmitBtn').disabled = false;
+            document.getElementById('autoGenSubmitBtn').style.opacity = '1';
+        }
+    })
+    .catch(function() {
+        document.getElementById('autoGenPoolCount').textContent = 'Lỗi khi tải thông tin VĐV';
+    });
+}
+
+function closeAutoGenerateModal() {
+    document.getElementById('autoGenerateModal').style.display = 'none';
+}
+
+function submitAutoGenerate() {
+    var mode = document.querySelector('input[name="auto_gen_mode"]:checked').value;
+    var playersPerTeam = parseInt(document.getElementById('autoGenPlayersPerTeam').value);
+
+    if (autoGenPoolCount < playersPerTeam) {
+        toastr.error('Không đủ VĐV để tạo đội. Cần ít nhất ' + playersPerTeam + ' VĐV.');
+        return;
+    }
+
+    var numTeams = Math.floor(autoGenPoolCount / playersPerTeam);
+    var usedPlayers = numTeams * playersPerTeam;
+    var leftover = autoGenPoolCount - usedPlayers;
+
+    var confirmMsg = 'Sẽ tạo ' + numTeams + ' đội từ ' + usedPlayers + ' VĐV.';
+    if (leftover > 0) {
+        confirmMsg += '\n' + leftover + ' VĐV sẽ không được xếp đội (thiếu người).';
+    }
+    confirmMsg += '\nTiếp tục?';
+
+    if (!confirm(confirmMsg)) return;
+
+    var btn = document.getElementById('autoGenSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Đang tạo...';
+
+    fetch(autoGenUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': poolCsrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ mode: mode, players_per_team: playersPerTeam })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            toastr.success(data.message);
+            setTimeout(function() { location.reload(); }, 500);
+        } else {
+            toastr.error(data.message || 'Có lỗi xảy ra.');
+            btn.disabled = false;
+            btn.textContent = 'Tạo đội tự động';
+        }
+    })
+    .catch(function() {
+        toastr.error('Lỗi kết nối.');
+        btn.disabled = false;
+        btn.textContent = 'Tạo đội tự động';
+    });
+}
+
+// Radio button styling
+document.querySelectorAll('input[name="auto_gen_mode"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('input[name="auto_gen_mode"]').forEach(function(r) {
+            r.closest('label').style.borderColor = r.checked ? '#2563eb' : '#e2e8f0';
+            r.closest('label').style.background = r.checked ? '#eff6ff' : 'white';
+        });
+    });
+});
+
 // Close modals on backdrop click
-['teamModal', 'playerModal'].forEach(function(id) {
+['teamModal', 'playerModal', 'autoGenerateModal'].forEach(function(id) {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) {
             this.style.display = 'none';
@@ -267,26 +537,26 @@ function initPlayerSortable() {
 }
 @endif
 
-// User search for player
+// User search by phone for player
 var searchTimeout;
 document.getElementById('playerSearchInput').addEventListener('input', function() {
-    var query = this.value.trim();
+    var phone = this.value.trim().replace(/[^\d+]/g, '');
     clearTimeout(searchTimeout);
-    if (query.length < 2) {
+    if (phone.length < 9) {
         document.getElementById('playerSearchResults').style.display = 'none';
+        document.getElementById('selectedUserId').value = '';
         return;
     }
     searchTimeout = setTimeout(function() {
-        fetch('{{ route("ocr.search-users") }}?q=' + encodeURIComponent(query), {
+        fetch('{{ route("homeyard.leagues.teams.search-user", $league) }}?phone=' + encodeURIComponent(phone), {
             headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content }
         })
         .then(function(r) { return r.json(); })
-        .then(function(data) {
+        .then(function(users) {
             var results = document.getElementById('playerSearchResults');
             results.innerHTML = '';
-            var users = data.data || data;
             if (users.length === 0) {
-                results.innerHTML = '<div style="padding: 10px; color: #9ca3af;">Không tìm thấy</div>';
+                results.innerHTML = '<div style="padding: 10px; color: #9ca3af;">Không tìm thấy người dùng với SĐT này</div>';
             } else {
                 users.forEach(function(user) {
                     var div = document.createElement('div');
@@ -295,14 +565,14 @@ document.getElementById('playerSearchInput').addEventListener('input', function(
                     strong.textContent = user.name;
                     var span = document.createElement('span');
                     span.style.cssText = 'color: #6b7280; font-size: 0.85rem; margin-left: 6px;';
-                    span.textContent = user.email || '';
+                    span.textContent = user.phone || '';
                     div.appendChild(strong);
                     div.appendChild(span);
                     div.onmouseover = function() { this.style.background = '#f0f9ff'; };
                     div.onmouseout = function() { this.style.background = 'none'; };
                     div.onclick = function() {
                         document.getElementById('selectedUserId').value = user.id;
-                        document.getElementById('playerSearchInput').value = user.name;
+                        document.getElementById('playerSearchInput').value = user.name + ' (' + (user.phone || '') + ')';
                         results.style.display = 'none';
                     };
                     results.appendChild(div);
