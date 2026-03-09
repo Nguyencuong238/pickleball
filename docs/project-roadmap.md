@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-03-03
-**Current Version:** 1.8.0
+**Last Updated:** 2026-03-09
+**Current Version:** 1.9.0
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -207,6 +207,16 @@ Referee management system for tournament match officiating.
   - [x] Controller: ClubMatchController with 7 AJAX endpoints
   - [x] UI: Matches tab with generate/custom modals, standings display, score entry
   - [x] Features: Round-robin singles, rotating partner doubles, fixed pair doubles
+- [x] MLP League Format with 6 Sub-Game Doubles Pairing (Mar 9, 2026)
+  - [x] League association with clubs
+  - [x] MLP format integration with 6 sub-game structure
+  - [x] Round editing capabilities for format management
+  - [x] Full game-by-game tracking and standings
+- [x] Club Management API (Mar 9, 2026)
+  - [x] Full CRUD for club activities, competitions, posts via API
+  - [x] join_request_status on club show endpoint
+  - [x] Auto-create club post when activity created
+  - [x] Activity detail page with tab-based UI redesign
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -282,8 +292,8 @@ Referee management system for tournament match officiating.
 - ✅ News & CMS
 - ✅ OCR Ranking System
 
-### Recent Additions (Dec 2025 - Feb 2026)
-- OCR Elo system with Elo history and badges (Dec 2)
+### Recent Additions (Dec 2025 - Mar 2026)
+- OCR Elo system with Elo history and badges (Dec 2, 2025)
 - OPRS multi-component rating with challenges & community (Dec 5)
 - User profile management with avatar and location (Dec 7)
 - Referee system with match officiating (Dec 9)
@@ -295,9 +305,19 @@ Referee management system for tournament match officiating.
 - League management with AJAX scoring and standings (Feb 25, 2026)
 - Club activity RSVP with auto-promotion, competitions (Feb 27, 2026)
 - Club activity casual matches with 3 generation algorithms (Mar 3, 2026)
+- MLP league format with 6 sub-game doubles pairing (Mar 9, 2026)
+- Club management API with auto-post creation (Mar 9, 2026)
+
+### v1.9.0 Changelog (2026-03-09)
+- **New**: MLP league format with 6 sub-game doubles pairing structure
+- **New**: Club management API for activities, competitions, posts
+- **New**: Auto-create club post when activity is created
+- **Enhancement**: Added join_request_status to club show endpoint
+- **Enhancement**: Activity detail page redesigned with modern tab-based UI
+- **Enhancement**: Round editing in league management
 
 ### In Development
-- 🔄 Payment integration
+- 🔄 Payment integration (MoMo, VNPay, ZaloPay research)
 - 🔄 Notification system
 - 🔄 Analytics dashboard
 

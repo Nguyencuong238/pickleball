@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-03-03
+**Last Updated**: 2026-03-09
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -11,9 +11,9 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 ## Project Structure
 
 **File Counts (Current):**
-- PHP files: 292 (Controllers 92, Models 81, Services 18, Commands 22, Policies 8, Middleware 9, Events 12, Listeners 9, Observers 6, Form Requests 6)
+- PHP files: 292+ (Controllers 91+, Models 85+, Services 18, Commands 22, Policies 8, Middleware 9, Events 12, Listeners 9, Observers 6, Form Requests 6)
 - Blade templates: 227 (Admin 50+, Front 60+, Home-yard 30+, Clubs 15, User 10, Auth 6, Referee 10, Components)
-- Database migrations: 181
+- Database migrations: 184
 - Routes: ~72 (web.php 45+, api.php 27+)
 
 ## Core Technologies
@@ -35,7 +35,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - **Vite**: 5.0+ (Asset bundling)
 - **Axios**: 1.6+ (HTTP client)
 
-## Models Overview (81 Models)
+## Models Overview (85+ Models)
 
 ### User & Auth
 - `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data (avatar, location, province, gender), referee fields
@@ -87,6 +87,8 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League (Feb 2026)**: `League`, `LeagueTeam`, `LeagueTeamPlayer`, `LeagueRound`, `LeagueMatch`, `LeagueMatchGame`, `LeagueStanding`
 
+**MLP League Format (Mar 2026)**: 6 sub-game doubles pairing support with enhanced round editing
+
 ## Services Overview (18 Services)
 
 ### Business Logic Services
@@ -106,10 +108,11 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - `LeagueService` - League CRUD, team management, player assignment
 - `LeagueScheduleService` - Match schedule generation, round creation
 - `LeagueStandingsService` - Standings calculation, win/loss tracking
+- `ClubActivityService` - Club activity lifecycle, RSVP, waitlist management
 
 ## Controllers Overview
 
-### Admin Controllers (23)
+### Admin Controllers (24)
 | Controller | Purpose |
 |------------|---------|
 | `DashboardController` | Admin dashboard |
@@ -131,12 +134,12 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `PointTaskController` | Point task CRUD, activate/deactivate |
 | `PointSubmissionController` | Submission review, approve/reject |
 | `SpecialChallengeController` | Special challenge management |
-| `EventController` | Event creation, QR management |
-| `WalletController` | User wallet management, manual adjustments |
-| `PointReportController` | Point earning analytics and reports |
+| `PermissionRequestController` | Permission request management |
 | `LeagueController` | League admin viewing and reporting |
+| `UserImportController` | Bulk user import |
+| `QuizController` | Quiz management |
 
-### API Controllers (24)
+### API Controllers (28+)
 | Controller | Purpose |
 |------------|---------|
 | `MediaUploadController` | Media file uploads |
@@ -147,18 +150,23 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `OprsController` | OPRS API (profile, breakdown, history, leaderboard) |
 | `OprsLeaderboardController` | OPRS leaderboard with level filtering |
 | `MatchmakingController` | Opponent suggestions based on OPRS |
-| `RefereeApiController` | Referee API (dashboard, matches, start, score update) |
-| `RefereePublicController` | Public referee directory and profiles |
+| `RefereeController` | Referee API (dashboard, matches, start, score update) |
+| `RefereeProfileController` | Referee profile and public directory |
 | `SkillQuizController` | API quiz endpoints (domains, questions, submit) |
 | `PointController` | Point earning API (tasks, balance, history, submissions, challenges) |
 | `WalletController` | Wallet API (balance, transactions, formatted display) |
 | `PointSubmissionController` | Submission API (create, list, filter by status) |
 | `SpecialChallengeController` | Active challenges API |
-| `EventController` | Event list, details, check-in API |
-| `SocialVerificationController` | Social verification status and URLs |
-| (Plus 7 more API controllers for bookings, courts, etc.) |
+| `EventCheckinController` | Event check-in API |
+| `SocialController` | Social verification status and URLs |
+| `ClubController` | Club CRUD, join requests, member management |
+| `ClubActivityController` | Club activities API |
+| `ClubActivityParticipantController` | Activity RSVP and participation |
+| `ClubCompetitionController` | Club competitions API |
+| `ClubPostController` | Club posts and engagement API |
+| (Plus controllers for bookings, auth, leagues, etc.) |
 
-### Front Controllers (32+)
+### Front Controllers (35+)
 | Controller | Purpose |
 |------------|---------|
 | `HomeController` | Homepage, listings, booking |
@@ -168,7 +176,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `HomeYardStadiumController` | Stadium owner CRUD |
 | `HomeYardTournamentController` | Tournament + referee management, match-level referee assignment |
 | `HomeYardClubController` | HomeYard club management and activities |
-| `HomeYardLeagueController` | League CRUD, status updates, schedule generation |
+| `HomeYardLeagueController` | League CRUD, status updates, schedule generation, round editing |
 | `LeagueTeamController` | Team and player roster management |
 | `LeagueMatchController` | Match listing and score entry |
 | `ClubMatchController` | Casual match generation, scoring, standings (7 AJAX endpoints) |
@@ -197,6 +205,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `ClubPostController` | Club post CRUD operations |
 | `ClubPostCommentController` | Club post comments |
 | `ClubPostReactionController` | Club post reactions/likes |
+| `ClubActivityController` | Club activity CRUD and management |
 
 ### Root Controllers (5)
 | Controller | Purpose |
@@ -333,7 +342,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - OAuth users can set initial password
 - Province relationship for location data
 
-### 9. League Management System (NEW)
+### 9. League Management System (Complete)
 - **League Creation & Management:**
   - CRUD operations for leagues (create, read, update, delete)
   - League status tracking (draft, active, completed)
@@ -352,6 +361,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
   - Automatic round and match generation
   - Schedule generation based on league format
   - Round-robin or bracket scheduling
+  - Round editing and modification
 - **Score Tracking:**
   - Game-by-game score entry
   - Match result recording
@@ -369,7 +379,13 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
   - Toastr notifications for feedback
   - Vietnamese localization with proper diacritics
 
-## Database Migrations (181 files)
+### 10. MLP League Format (NEW - Mar 2026)
+- 6 sub-game doubles pairing format
+- League association with clubs
+- Enhanced round editing for format support
+- Full game-by-game tracking
+
+## Database Migrations (184 files)
 
 ### Core Tables (2014-2019)
 - `users`, `password_reset_tokens`, `failed_jobs`, `personal_access_tokens`
@@ -441,6 +457,11 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - `club_activity_match_rounds` - Round tracking (round_number, status: pending/in_progress/completed)
 - `club_activity_matches` - Match records (singles/doubles, player IDs, scores, court_number)
 - `club_activity_match_standings` - Per-player stats (wins, losses, points_for, points_against)
+
+### Club Management API Tables (2026-03-09)
+- Auto-create club post when activity is created
+- Club show endpoint with join_request_status
+- Full CRUD API for club activities, competitions, posts
 
 ### League Management Tables (2026-02-25+)
 - `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)
@@ -714,4 +735,4 @@ The skill quiz system implements gender-differentiated skill level mapping align
 
 ## Unresolved Questions
 
-None. Codebase structure documented with OPRS, Referee, Gender-Aware Skill Level, Club Management, and League Management systems.
+None. Codebase structure documented with OPRS, Referee, Gender-Aware Skill Level, Club Management, League Management, MLP Format, and Club Management API.

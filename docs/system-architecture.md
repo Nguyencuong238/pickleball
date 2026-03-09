@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-03-03
+**Last Updated**: 2026-03-09
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -508,12 +508,32 @@ Admin: Admin login → Check role 'admin' → Create admin session
 │   └── matchmaking             # Opponent suggestions
 ├── referees                    # Public: List active referees
 ├── referees/{referee}          # Public: Referee profile with stats
-└── referee/                    # Protected (auth:api + referee role)
-    ├── dashboard               # Dashboard stats + upcoming matches
-    ├── matches                 # List assigned matches (filterable)
-    ├── matches/{match}         # Match detail
-    ├── matches/{match}/start   # Start match
-    └── matches/{match}/score   # Update match scores
+├── referee/                    # Protected (auth:api + referee role)
+│   ├── dashboard               # Dashboard stats + upcoming matches
+│   ├── matches                 # List assigned matches (filterable)
+│   ├── matches/{match}         # Match detail
+│   ├── matches/{match}/start   # Start match
+│   └── matches/{match}/score   # Update match scores
+├── skill-quiz/
+│   ├── domains                 # Get all 6 skill domains
+│   ├── questions               # Get 36 quiz questions
+│   └── submit                  # Submit quiz answers
+├── points/
+│   ├── tasks                   # Get available tasks with eligibility
+│   ├── balance                 # Get wallet balance
+│   ├── history                 # Get transaction history
+│   ├── submissions             # Get/create submissions
+│   └── challenges              # Get active special challenges
+├── clubs/
+│   ├── {club}/show             # Club details with join_request_status
+│   ├── activities              # Club activities CRUD
+│   ├── competitions            # Club competitions CRUD
+│   └── posts                   # Club posts CRUD
+└── leagues/
+    ├── {league}                # League detail with MLP format
+    ├── {league}/teams          # Team roster management
+    ├── {league}/matches        # Match listing and scoring
+    └── {league}/standings      # Real-time standings
 ```
 
 ### Response Format
@@ -777,6 +797,4 @@ Cooldown: 30/60/90 days based on ELO tier
 
 1. **Queue Driver**: Redis vs SQS for production?
 2. **CDN**: Cloudflare vs AWS CloudFront for media?
-3. **Monitoring**: New Relic vs Sentry?
-4. **Search**: Elasticsearch vs Algolia?
-5. **OPRS Caching**: Leaderboard cache TTL strategy?
+3. **Monitoring/Search**: New Relic vs Sentry? Elasticsearch vs Algolia?

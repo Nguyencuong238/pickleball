@@ -1,8 +1,8 @@
 # Project Overview & Product Development Requirements (PDR)
 
 **Project Name**: Pickleball Platform
-**Version**: 1.8.0
-**Last Updated**: 2026-03-03
+**Version**: 1.9.0
+**Last Updated**: 2026-03-09
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -200,7 +200,16 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **UI**: Modal-based match generation, custom match creation, standings display
 - **API**: 7 AJAX endpoints for matches/rounds/standings operations
 
-### 13. News & CMS
+### 13. League Management (MLP Format) [NEW]
+- MLP league format with 6 sub-game doubles pairing
+- League creation and status tracking
+- Team management and roster assignment
+- Match round generation and scheduling
+- Game-by-game score tracking
+- Automatic standings calculation
+- Player assignment interface
+
+### 14. News & CMS
 - News articles with categories
 - Featured content
 - Static pages (About, Contact, etc.)
@@ -306,6 +315,16 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Special challenges with time limits and participant caps
 - Event check-in system with QR code validation
 - Automated point awarding for system-triggered tasks
+
+**FR12: League Management System (MLP Format)**
+- MLP league format with 6 sub-game doubles pairing
+- League CRUD operations with status tracking
+- Team and player roster management
+- Match round generation and scheduling
+- Game-by-game score entry with auto winner calculation
+- Standings calculation and real-time updates
+- User search interface for player assignment
+- Round editing and modification capabilities
 
 ### Non-Functional Requirements
 
@@ -492,7 +511,7 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - [x] OPRS multi-component rating system
 - [x] Challenge and community activity systems
 
-### Phase 2: Enhanced Features (In Progress - 70%)
+### Phase 2: Enhanced Features (Complete - 100%)
 - [x] User profile management with avatar upload
 - [x] Referee system with match officiating
 - [x] Doubles pair selection for tournament categories
@@ -503,11 +522,12 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - [x] Club system with posts, comments, reactions
 - [x] Booking code generation and confirmation tracking
 - [x] Transfer proof system for booking transfers
+- [x] League management with MLP format (260309)
+- [x] Club management API endpoints
 - [ ] Online payment integration
 - [ ] Real-time notifications for match invites and activities
 - [ ] Mobile app with OPRS integration
 - [ ] Advanced analytics dashboard
-- [ ] OCR/OPRS season/league system
 
 ### Phase 3: Expansion (Planned)
 - [ ] Multi-region support
