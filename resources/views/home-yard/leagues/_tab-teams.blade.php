@@ -1,6 +1,9 @@
 <!-- Add Team Button -->
 @if(in_array($league->status, ['draft', 'registration']))
-    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px; gap: 10px;">
+        <button onclick="openAutoGenerateModal()" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg> Tự động xếp đội
+        </button>
         <button onclick="openTeamModal()" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Thêm Đội
         </button>
@@ -198,6 +201,49 @@
     </div>
 </div>
 
+<!-- Auto Generate Teams Modal -->
+<div id="autoGenerateModal" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 15px; padding: 30px; width: 90%; max-width: 500px; margin: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: #1e293b; margin: 0;">Tự động xếp đội</h3>
+            <button onclick="closeAutoGenerateModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #9ca3af;">&#x2715;</button>
+        </div>
+
+        <div id="autoGenPoolInfo" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 0.9rem; color: #1e40af;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:inline-block; vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+            <span id="autoGenPoolCount">Đang tải...</span>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Số VĐV / đội *</label>
+            <input type="number" id="autoGenPlayersPerTeam" value="{{ $league->competition_format === 'mlp' ? 4 : 2 }}" min="2" max="10" style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; box-sizing: border-box;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 10px; font-weight: 600; color: #1e293b;">Chế độ xếp cặp *</label>
+            <label style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 2px solid #2563eb; border-radius: 8px; cursor: pointer; margin-bottom: 8px; background: #eff6ff;">
+                <input type="radio" name="auto_gen_mode" value="skill_ranked" checked style="margin-top: 3px;">
+                <div>
+                    <div style="font-weight: 600; color: #1e293b;">Phân hạng theo trình</div>
+                    <div style="font-size: 0.85rem; color: #6b7280;">Trình A ghép với trình B để cân bằng sức mạnh</div>
+                </div>
+            </label>
+            <label style="display: flex; align-items: flex-start; gap: 10px; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; cursor: pointer;">
+                <input type="radio" name="auto_gen_mode" value="random" style="margin-top: 3px;">
+                <div>
+                    <div style="font-weight: 600; color: #1e293b;">Ngẫu nhiên</div>
+                    <div style="font-size: 0.85rem; color: #6b7280;">Xếp cặp ngẫu nhiên từ danh sách VĐV</div>
+                </div>
+            </label>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button type="button" onclick="closeAutoGenerateModal()" style="background-color: #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Hủy</button>
+            <button type="button" id="autoGenSubmitBtn" onclick="submitAutoGenerate()" style="background: #2563eb; color: white; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">Tạo đội tự động</button>
+        </div>
+    </div>
+</div>
+
 <style>@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }</style>
 <script>
 function toggleTeamRoster(teamId) {
@@ -342,8 +388,104 @@ function addPlayerFromPool(userId, gender) {
     .catch(function() { toastr.error('Lỗi kết nối.'); });
 }
 
+// Auto Generate Teams
+var autoGenUrl = '{{ route("homeyard.leagues.teams.auto-generate", $league) }}';
+var autoGenPoolCount = 0;
+
+function openAutoGenerateModal() {
+    document.getElementById('autoGenerateModal').style.display = 'flex';
+    document.getElementById('autoGenPoolCount').textContent = 'Đang tải...';
+    // Fetch pool count
+    fetch(poolUrl, { headers: { 'Accept': 'application/json', 'X-CSRF-TOKEN': poolCsrfToken } })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        var total = 0;
+        if (data && data.length > 0) {
+            data.forEach(function(group) { total += group.players.length; });
+        }
+        autoGenPoolCount = total;
+        document.getElementById('autoGenPoolCount').textContent = 'Có ' + total + ' VĐV chưa xếp đội';
+        if (total === 0) {
+            document.getElementById('autoGenSubmitBtn').disabled = true;
+            document.getElementById('autoGenSubmitBtn').style.opacity = '0.5';
+        } else {
+            document.getElementById('autoGenSubmitBtn').disabled = false;
+            document.getElementById('autoGenSubmitBtn').style.opacity = '1';
+        }
+    })
+    .catch(function() {
+        document.getElementById('autoGenPoolCount').textContent = 'Lỗi khi tải thông tin VĐV';
+    });
+}
+
+function closeAutoGenerateModal() {
+    document.getElementById('autoGenerateModal').style.display = 'none';
+}
+
+function submitAutoGenerate() {
+    var mode = document.querySelector('input[name="auto_gen_mode"]:checked').value;
+    var playersPerTeam = parseInt(document.getElementById('autoGenPlayersPerTeam').value);
+
+    if (autoGenPoolCount < playersPerTeam) {
+        toastr.error('Không đủ VĐV để tạo đội. Cần ít nhất ' + playersPerTeam + ' VĐV.');
+        return;
+    }
+
+    var numTeams = Math.floor(autoGenPoolCount / playersPerTeam);
+    var usedPlayers = numTeams * playersPerTeam;
+    var leftover = autoGenPoolCount - usedPlayers;
+
+    var confirmMsg = 'Sẽ tạo ' + numTeams + ' đội từ ' + usedPlayers + ' VĐV.';
+    if (leftover > 0) {
+        confirmMsg += '\n' + leftover + ' VĐV sẽ không được xếp đội (thiếu người).';
+    }
+    confirmMsg += '\nTiếp tục?';
+
+    if (!confirm(confirmMsg)) return;
+
+    var btn = document.getElementById('autoGenSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Đang tạo...';
+
+    fetch(autoGenUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': poolCsrfToken,
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ mode: mode, players_per_team: playersPerTeam })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            toastr.success(data.message);
+            setTimeout(function() { location.reload(); }, 500);
+        } else {
+            toastr.error(data.message || 'Có lỗi xảy ra.');
+            btn.disabled = false;
+            btn.textContent = 'Tạo đội tự động';
+        }
+    })
+    .catch(function() {
+        toastr.error('Lỗi kết nối.');
+        btn.disabled = false;
+        btn.textContent = 'Tạo đội tự động';
+    });
+}
+
+// Radio button styling
+document.querySelectorAll('input[name="auto_gen_mode"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('input[name="auto_gen_mode"]').forEach(function(r) {
+            r.closest('label').style.borderColor = r.checked ? '#2563eb' : '#e2e8f0';
+            r.closest('label').style.background = r.checked ? '#eff6ff' : 'white';
+        });
+    });
+});
+
 // Close modals on backdrop click
-['teamModal', 'playerModal'].forEach(function(id) {
+['teamModal', 'playerModal', 'autoGenerateModal'].forEach(function(id) {
     document.getElementById(id).addEventListener('click', function(e) {
         if (e.target === this) {
             this.style.display = 'none';

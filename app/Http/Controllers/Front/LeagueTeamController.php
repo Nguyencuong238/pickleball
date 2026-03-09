@@ -7,6 +7,7 @@ use App\Models\League;
 use App\Models\LeagueTeam;
 use App\Models\LeagueTeamPlayer;
 use App\Models\User;
+use App\Services\LeagueAutoTeamService;
 use App\Services\LeagueService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,8 +16,10 @@ use InvalidArgumentException;
 
 class LeagueTeamController extends Controller
 {
-    public function __construct(private LeagueService $leagueService)
-    {
+    public function __construct(
+        private LeagueService $leagueService,
+        private LeagueAutoTeamService $autoTeamService,
+    ) {
         $this->middleware(['auth']);
     }
 
@@ -107,6 +110,34 @@ class LeagueTeamController extends Controller
                 return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
             }
             return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function autoGenerate(Request $request, League $league): JsonResponse
+    {
+        abort_if($league->user_id !== auth()->id(), 403);
+
+        $validated = $request->validate([
+            'mode' => 'required|in:skill_ranked,random',
+            'players_per_team' => 'required|integer|min:2|max:10',
+        ]);
+
+        try {
+            $teams = $this->autoTeamService->autoGenerateTeams(
+                $league,
+                $validated['mode'],
+                $validated['players_per_team']
+            );
+
+            $totalPlayers = count($teams) * $validated['players_per_team'];
+
+            return response()->json([
+                'success' => true,
+                'message' => "Đã tạo " . count($teams) . " đội từ {$totalPlayers} VĐV.",
+                'teams_created' => count($teams),
+            ]);
+        } catch (InvalidArgumentException $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
     }
 
