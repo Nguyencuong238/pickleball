@@ -41,9 +41,7 @@ function shareActivity() {
         url: window.location.href.split('#')[0]
     };
 
-    if (navigator.share) {
-        navigator.share(shareData).catch(function() {});
-    } else if (navigator.clipboard && navigator.clipboard.writeText) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(shareData.url).then(function() {
             showToast('Đã sao chép liên kết!');
         });
