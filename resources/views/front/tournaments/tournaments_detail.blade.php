@@ -7,7 +7,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
 @section('seo')
     <title>{{ $tournament->name }} - Giải Đấu | OnePickleball</title>
     <meta name="description" content="{{ substr($tournament->description, 0, 160) ?: $tournament->name . ' - Giải đấu Pickleball chuyên nghiệp. Đăng ký tham gia ngay trên OnePickleball.' }}">
-    <meta name="keywords" content="giải đấu {{ $tournament->name }}, pickleball, {{ $tournament->location }}, đăng ký giải đấu">
+    <meta name="keywords" content="giải đấu {{ $tournament->name }}, pickleball, {{ $tournament->stadium?->name }}, đăng ký giải đấu">
     <meta name="robots" content="index, follow">
     <link rel="canonical" href="{{ route('tournaments-detail', $tournament->slug) }}">
     <meta property="og:type" content="website">
@@ -19,7 +19,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
     <meta property="og:locale" content="vi_VN">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ $tournament->name }} - Giải Đấu Pickleball">
-    <meta name="twitter:description" content="Tham gia giải đấu {{ $tournament->name }} - {{ $tournament->location }}">
+    <meta name="twitter:description" content="Tham gia giải đấu {{ $tournament->name }} - {{ $tournament->stadium?->name }}">
     <meta name="twitter:image" content="{{ $bannerImage }}">
 @endsection
 
@@ -132,7 +132,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                             <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
                             <circle cx="12" cy="10" r="3" />
                         </svg>
-                        <span>{{ $tournament->location }}</span>
+                        <span>{{ $tournament->stadium?->name ?? 'N/A' }}</span>
                     </div>
                     <div class="hero-meta-item">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

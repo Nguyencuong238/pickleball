@@ -113,12 +113,12 @@
                             {{-- <p class="tournament-description">{{ Str::limit($tournament->description, 100) }}</p> --}}
                             <div class="tournament-meta">
                                 <div class="meta-item">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                        <circle cx="12" cy="10" r="3" />
-                                    </svg>
-                                    <span>{{ $tournament->location ?? 'Địa điểm TBD' }}</span>
-                                </div>
+                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                         <circle cx="12" cy="10" r="3" />
+                                     </svg>
+                                     <span>{{ $tournament->stadium?->name ?? 'Sân TBD' }}</span>
+                                 </div>
                                 <div class="meta-item">
                                     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
