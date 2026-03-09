@@ -1,6 +1,28 @@
 @extends('layouts.front')
 
-@section('title', 'Đăng ký - ' . $league->name)
+@php
+$leagueImage = $league->logo ? asset('storage/' . $league->logo) : asset('assets/images/logo.png');
+$leagueDescription = $league->description ? Str::limit(strip_tags($league->description), 160) : 'Đăng ký tham gia ' . $league->name . ' trên OnePickleball';
+@endphp
+
+@section('seo')
+    <title>Đăng ký {{ $league->name }} - OnePickleball</title>
+    <meta name="description" content="{{ $leagueDescription }}">
+    <meta name="keywords" content="{{ $league->name }}, pickleball, đăng ký{{ $league->season_name ? ', ' . $league->season_name : '' }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ route('leagues.register', $league) }}">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $league->name }}">
+    <meta property="og:description" content="{{ $leagueDescription }}">
+    <meta property="og:image" content="{{ $leagueImage }}">
+    <meta property="og:url" content="{{ route('leagues.register', $league) }}">
+    <meta property="og:site_name" content="OnePickleball">
+    <meta property="og:locale" content="vi_VN">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $league->name }}">
+    <meta name="twitter:description" content="{{ $leagueDescription }}">
+    <meta name="twitter:image" content="{{ $leagueImage }}">
+@endsection
 
 @section('content')
 <style>
@@ -20,7 +42,7 @@
 </style>
 
 <!-- Header -->
-<div class="reg-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 60px 20px; text-align: center;">
+<div class="reg-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 100px 20px; text-align: center;">
     <div style="max-width: 700px; margin: 0 auto;">
         @if($league->logo)
             <img src="{{ asset('storage/' . $league->logo) }}" alt="{{ $league->name }}" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin-bottom: 15px; border: 3px solid rgba(255,255,255,0.3);">
@@ -33,7 +55,7 @@
             @if($league->registration_fee)
                 <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; color: white;">
                     <div style="font-size: 0.75rem; opacity: 0.8;">Phí đăng ký</div>
-                    <div style="font-weight: 700;">{{ number_format($league->registration_fee) }}đ</div>
+                    <div style="font-weight: 700; color: red;">{{ number_format($league->registration_fee) }}đ</div>
                 </div>
             @endif
             @if($league->registration_deadline)
@@ -100,7 +122,7 @@
                         <div style="display: flex; align-items: center; margin-bottom: 18px;">
                             <span class="player-number">VĐV {{ $i + 1 }}</span>
                             @if($i === 0)
-                                <span class="captain-badge">[CROWN] Đội trưởng</span>
+                                <span class="captain-badge">Đội trưởng</span>
                             @endif
                         </div>
 
