@@ -2406,6 +2406,279 @@ class HomeYardTournamentController extends Controller
     }
 
     /**
+     * Generate knockout bracket matches automatically
+     */
+    public function generateKnockoutBracket(Request $request, $tournament_id)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:tournament_categories,id',
+            'round_id' => 'required|exists:rounds,id'
+        ]);
+
+        $tournament = Tournament::where('id', $tournament_id)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $categoryId = $request->category_id;
+        $baseRoundId = $request->round_id;
+        $baseRound = Round::findOrFail($baseRoundId);
+
+        // Fetch all groups for this category
+        $groups = Group::where('tournament_id', $tournament->id)
+            ->where('category_id', $categoryId)
+            ->get();
+
+        if ($groups->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Không tìm thấy bảng đấu nào cho nội dung này.']);
+        }
+
+        $advancingAthletes = [];
+        foreach ($groups as $group) {
+            $standings = GroupStanding::where('group_id', $group->id)
+                ->orderBy('points', 'desc')
+                ->orderBy('sets_differential', 'desc')
+                ->orderBy('games_differential', 'desc')
+                ->take($group->advancing_count)
+                ->get();
+
+            $rank = 1;
+            foreach ($standings as $standing) {
+                // Mark as advanced
+                $standing->update(['is_advanced' => true]);
+
+                $advancingAthletes[] = [
+                    'athlete_id' => $standing->athlete_id,
+                    'group_rank' => $rank,
+                    'points' => $standing->points,
+                    'sets_diff' => $standing->sets_differential,
+                    'games_diff' => $standing->games_differential
+                ];
+                $rank++;
+            }
+        }
+
+        if (empty($advancingAthletes)) {
+            return response()->json(['success' => false, 'message' => 'Không có vận động viên nào lọt vào vòng này.']);
+        }
+
+        // Sort all advancing athletes to assign overall seeds
+        usort($advancingAthletes, function($a, $b) {
+            if ($a['group_rank'] != $b['group_rank']) return $a['group_rank'] <=> $b['group_rank']; // 1st places first
+            if ($a['points'] != $b['points']) return $b['points'] <=> $a['points'];
+            if ($a['sets_diff'] != $b['sets_diff']) return $b['sets_diff'] <=> $a['sets_diff'];
+            if ($a['games_diff'] != $b['games_diff']) return $b['games_diff'] <=> $a['games_diff'];
+            return 0;
+        });
+
+        $numPlayers = count($advancingAthletes);
+        $power = 1;
+        while ($power < $numPlayers) {
+            $power *= 2;
+        }
+
+        $seeds = [];
+        for ($i = 0; $i < $power; $i++) {
+            $seeds[$i + 1] = isset($advancingAthletes[$i]) ? $advancingAthletes[$i]['athlete_id'] : null;
+        }
+
+        $pairs = $this->generateBracketSeeding($power);
+        $roundMatches = [];
+        $matchPos = 1;
+
+        foreach ($pairs as $pair) {
+            $athlete1_id = $seeds[$pair[0]];
+            $athlete2_id = $seeds[$pair[1]];
+            
+            $winner_id = null;
+            if (!$athlete1_id && $athlete2_id) $winner_id = $athlete2_id;
+            elseif ($athlete1_id && !$athlete2_id) $winner_id = $athlete1_id;
+
+            $match = MatchModel::create([
+                'tournament_id' => $tournament->id,
+                'category_id' => $categoryId,
+                'round_id' => $baseRound->id,
+                'match_number' => 'KO' . $matchPos,
+                'athlete1_id' => $athlete1_id,
+                'athlete2_id' => $athlete2_id,
+                'status' => ($athlete1_id && $athlete2_id) ? 'scheduled' : 'completed',
+                'winner_id' => $winner_id,
+                'bracket_position' => $matchPos,
+            ]);
+            $roundMatches[] = $match;
+            $matchPos++;
+        }
+
+        $currentRoundMatches = $roundMatches;
+        $currentRoundNum = 1;
+        $allGeneratedMatches = $roundMatches;
+
+        while (count($currentRoundMatches) > 1) {
+            $nextRoundMatches = [];
+            $numMatches = count($currentRoundMatches) / 2;
+            
+            $nextRoundName = 'Vòng tiếp theo';
+            $roundType = 'knockout';
+            if ($numMatches == 1) {
+                $nextRoundName = 'Chung kết';
+                $roundType = 'final';
+            } elseif ($numMatches == 2) {
+                $nextRoundName = 'Bán kết';
+                $roundType = 'semifinal';
+            } elseif ($numMatches == 4) {
+                $nextRoundName = 'Tứ kết';
+                $roundType = 'quarterfinal';
+            } else {
+                $nextRoundName = 'Vòng loại ' . ($numMatches * 2);
+            }
+            
+            $newRound = Round::create([
+                'tournament_id' => $tournament->id,
+                'category_id' => $categoryId,
+                'round_name' => $nextRoundName,
+                'round_number' => $baseRound->round_number + $currentRoundNum,
+                'round_type' => $roundType,
+                'start_date' => $baseRound->start_date,
+                'start_time' => $baseRound->start_time,
+            ]);
+            
+            for ($i = 0; $i < $numMatches; $i++) {
+                $match = MatchModel::create([
+                    'tournament_id' => $tournament->id,
+                    'category_id' => $categoryId,
+                    'round_id' => $newRound->id,
+                    'match_number' => 'KO_R' . ($currentRoundNum+1) . '_' . ($i+1),
+                    'status' => 'pending',
+                    'bracket_position' => $i + 1,
+                ]);
+                $nextRoundMatches[] = $match;
+                $allGeneratedMatches[] = $match;
+                
+                $prevMatch1 = $currentRoundMatches[$i * 2];
+                $prevMatch2 = $currentRoundMatches[$i * 2 + 1];
+                
+                $prevMatch1->update([
+                    'next_match_id' => $match->id,
+                    'winner_advances_to' => 'athlete1'
+                ]);
+                
+                $prevMatch2->update([
+                    'next_match_id' => $match->id,
+                    'winner_advances_to' => 'athlete2'
+                ]);
+                
+                if ($prevMatch1->winner_id) {
+                    $match->update(['athlete1_id' => $prevMatch1->winner_id]);
+                }
+                if ($prevMatch2->winner_id) {
+                    $match->update(['athlete2_id' => $prevMatch2->winner_id]);
+                }
+                
+                if ($match->athlete1_id && $match->athlete2_id) {
+                    $match->update(['status' => 'scheduled']);
+                }
+            }
+            
+            $currentRoundMatches = $nextRoundMatches;
+            $currentRoundNum++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã tạo nhánh thi đấu thành công.'
+        ]);
+    }
+
+    /**
+     * Get knockout bracket data for visualization
+     */
+    public function getBracketData($tournament_id, Request $request)
+    {
+        $request->validate([
+            'category_id' => 'required|exists:tournament_categories,id',
+            'round_id' => 'required|exists:rounds,id'
+        ]);
+
+        $tournament = Tournament::findOrFail($tournament_id);
+        
+        // Find the base round and all subsequent knockout rounds for this category
+        $baseRound = Round::findOrFail($request->round_id);
+        $knockoutRounds = Round::where('tournament_id', $tournament->id)
+            ->where('category_id', $request->category_id)
+            ->whereIn('round_type', ['knockout', 'quarterfinal', 'semifinal', 'final'])
+            ->where('round_number', '>=', $baseRound->round_number)
+            ->orderBy('round_number', 'asc')
+            ->get();
+
+        $roundIds = $knockoutRounds->pluck('id')->toArray();
+
+        // Fetch matches for these rounds
+        $matches = MatchModel::where('tournament_id', $tournament->id)
+            ->whereIn('round_id', $roundIds)
+            ->with(['athlete1.user', 'athlete2.user', 'round'])
+            ->orderBy('round_id', 'asc')
+            ->orderBy('bracket_position', 'asc')
+            ->get();
+
+        // Organize matches by round
+        $bracketByRound = [];
+        foreach ($knockoutRounds as $round) {
+            $roundMatches = $matches->where('round_id', $round->id)->values();
+            if ($roundMatches->count() > 0 || $round->round_type === 'final') {
+                $bracketByRound[] = [
+                    'round_id' => $round->id,
+                    'round_name' => $round->round_name,
+                    'matches' => $roundMatches->map(function($m) {
+                        return [
+                            'id' => $m->id,
+                            'match_number' => $m->match_number,
+                            'bracket_position' => $m->bracket_position,
+                            'next_match_id' => $m->next_match_id,
+                            'athlete1' => $m->athlete1 ? [
+                                'id' => $m->athlete1->id,
+                                'name' => $m->athlete1->athlete_name,
+                            ] : null,
+                            'athlete2' => $m->athlete2 ? [
+                                'id' => $m->athlete2->id,
+                                'name' => $m->athlete2->athlete_name,
+                            ] : null,
+                            'athlete1_score' => $m->athlete1_score,
+                            'athlete2_score' => $m->athlete2_score,
+                            'winner_id' => $m->winner_id,
+                            'status' => $m->status
+                        ];
+                    })
+                ];
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'bracket' => $bracketByRound
+        ]);
+    }
+
+    private function generateBracketSeeding($numPlayers) {
+        $bracket = [1];
+        $currentPower = 1;
+        while ($currentPower < $numPlayers) {
+            $newBracket = [];
+            $sum = $currentPower * 2 + 1;
+            foreach ($bracket as $seed) {
+                $newBracket[] = $seed;
+                $newBracket[] = $sum - $seed;
+            }
+            $bracket = $newBracket;
+            $currentPower *= 2;
+        }
+        
+        $pairs = [];
+        for ($i = 0; $i < count($bracket); $i += 2) {
+            $pairs[] = [$bracket[$i], $bracket[$i+1]];
+        }
+        return $pairs;
+    }
+
+    /**
      * Lấy danh sách VĐV đã chia theo bảng
      */
     private function getGroupedAthletes($groups)
@@ -3673,6 +3946,11 @@ class HomeYardTournamentController extends Controller
             $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
         }
 
+        // Tự động đẩy người thắng lên trận tiếp theo đối với nhánh loại trực tiếp
+        if ($match->next_match_id && $match->winner_id) {
+            $this->advanceWinnerToNextMatch($match);
+        }
+
         // Cập nhật thống kê vào bảng tournament_athlete
         $this->updateTournamentAthleteStats($match, $setsWonAthlete1, $setsWonAthlete2);
 
@@ -3680,6 +3958,25 @@ class HomeYardTournamentController extends Controller
         // Kiểm tra nếu giải đấu có bật OCR (is_ocr = 1)
         if ($match->tournament && $match->tournament->is_ocr && $match->winner_id) {
             $this->processOcrMatch($match, $setsWonAthlete1, $setsWonAthlete2);
+        }
+    }
+
+    private function advanceWinnerToNextMatch(MatchModel $match)
+    {
+        $nextMatch = MatchModel::find($match->next_match_id);
+        if ($nextMatch) {
+            if ($match->winner_advances_to === 'athlete1') {
+                $nextMatch->athlete1_id = $match->winner_id;
+            } elseif ($match->winner_advances_to === 'athlete2') {
+                $nextMatch->athlete2_id = $match->winner_id;
+            }
+            
+            // If both athletes are now set, change status to scheduled
+            if ($nextMatch->athlete1_id && $nextMatch->athlete2_id) {
+                $nextMatch->status = 'scheduled';
+            }
+            
+            $nextMatch->save();
         }
     }
 

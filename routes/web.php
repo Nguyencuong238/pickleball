@@ -465,6 +465,10 @@ Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(functi
     Route::put('tournaments/{tournament_id}/groups/{group_id}', [GroupController::class, 'update'])->name('tournaments.groups.update');
     Route::delete('tournaments/{tournament_id}/groups/{group_id}', [GroupController::class, 'destroy'])->name('tournaments.groups.destroy');
 
+    // Knockout Bracket Generation & Data
+    Route::post('tournaments/{tournament_id}/generate-knockout', [HomeYardTournamentController::class, 'generateKnockoutBracket'])->name('tournaments.generate-knockout');
+    Route::get('tournaments/{tournament_id}/get-bracket-data', [HomeYardTournamentController::class, 'getBracketData'])->name('tournaments.get-bracket-data');
+
     // Tournament Courts
     Route::post('tournaments/{tournament_id}/courts/save', [HomeYardTournamentController::class, 'saveCourts'])->name('tournaments.courts.save');
 

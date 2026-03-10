@@ -512,6 +512,57 @@
                         @endif
                     </div>
                 </div>
+
+                <!-- KNOCKOUT GENERATION CARD -->
+                <div class="card fade-in" style="margin-top: 20px;">
+                    <div class="card-header">
+                        <h3 class="card-title">🏆 Tạo nhánh thi đấu (Knockout)</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info mb-3">
+                            💡 Sau khi các trận vòng bảng kết thúc, tự động bốc thăm cắp nhánh loại trực tiếp cho các VĐV lọt vào vòng trong. (VD: 1st Bảng A vs 2nd Bảng B)
+                        </div>
+                        
+                        <div class="grid grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Chọn nội dung thi đấu *</label>
+                                <select id="koCategorySelect" class="form-select">
+                                    <option value="">-- Chọn nội dung --</option>
+                                    @if ($tournament && $tournament->categories)
+                                        @foreach ($tournament->categories as $category)
+                                            <option value="{{ $category->id }}">{{ $category->category_name }}</option>
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Chọn vòng đấu (Loại trực tiếp) *</label>
+                                <select id="koRoundSelect" class="form-select">
+                                    <option value="">-- Chọn vòng đấu --</option>
+                                    @if ($tournament && $tournament->rounds)
+                                        @foreach ($tournament->rounds as $round)
+                                            @if(in_array($round->round_type, ['knockout', 'quarterfinal', 'semifinal', 'final']))
+                                                <option value="{{ $round->id }}">{{ $round->round_name }}</option>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <button id="generateKnockoutBtn" class="btn btn-success">🏆 Tạo nhánh loại trực tiếp</button>
+                        </div>
+
+                        <!-- Bracket Visualizer -->
+                        <h4 style="margin: 2rem 0 1rem 0; font-weight: 700;">Sơ đồ nhánh đấu</h4>
+                        <div id="bracketVisualizer" style="overflow-x: auto; background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #e5e7eb; display: none;">
+                            <div class="bracket-container">
+                                <!-- Bracket will be rendered here by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- TAB 4: QUẢN LÝ VĐV -->
@@ -1259,6 +1310,136 @@
     </style>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const generateKoBtn = document.getElementById('generateKnockoutBtn');
+            if(generateKoBtn) {
+                generateKoBtn.addEventListener('click', function() {
+                    const categoryId = document.getElementById('koCategorySelect').value;
+                    const roundId = document.getElementById('koRoundSelect').value;
+                    
+                    if (!categoryId || !roundId) {
+                        alert('Vui lòng chọn cả Nội dung thi đấu và Vòng đấu!');
+                        return;
+                    }
+
+                    if (!confirm('Hành động này sẽ tạo các vòng đấu loại trực tiếp tự động dựa trên xếp hạng hiện tại của các bảng. Bạn có chắc chắn?')) return;
+
+                    const btn = this;
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '⏳ Đang xử lý...';
+                    btn.disabled = true;
+
+                    fetch(`/homeyard/tournaments/{{ $tournament->id }}/generate-knockout`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: JSON.stringify({ category_id: categoryId, round_id: roundId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert(data.message);
+                            location.reload(); 
+                        } else {
+                            alert('Lỗi: ' + data.message);
+                            btn.innerHTML = originalText;
+                            btn.disabled = false;
+                        }
+                    })
+                    .catch(error => {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        alert('Có lỗi xảy ra, vui lòng kiểm tra console log.');
+                        console.error('Lỗi khi tạo nhánh đấu:', error);
+                    });
+                });
+            }
+
+            const koCategorySelect = document.getElementById('koCategorySelect');
+            const koRoundSelect = document.getElementById('koRoundSelect');
+            if(koCategorySelect && koRoundSelect) {
+                koCategorySelect.addEventListener('change', loadBracketVisualizer);
+                koRoundSelect.addEventListener('change', loadBracketVisualizer);
+            }
+
+            function loadBracketVisualizer() {
+                const categoryId = koCategorySelect.value;
+                const roundId = koRoundSelect.value;
+                const container = document.getElementById('bracketVisualizer');
+                
+                if (!categoryId || !roundId) {
+                    container.style.display = 'none';
+                    return;
+                }
+
+                fetch(`/homeyard/tournaments/{{ $tournament->id }}/get-bracket-data?category_id=${categoryId}&round_id=${roundId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.bracket && data.bracket.length > 0) {
+                        renderBracket(data.bracket, container);
+                        container.style.display = 'block';
+                    } else {
+                        container.style.display = 'none';
+                    }
+                })
+                .catch(err => console.error('Error loading bracket:', err));
+            }
+
+            function renderBracket(roundsData, containerElement) {
+                const innerContainer = containerElement.querySelector('.bracket-container');
+                innerContainer.innerHTML = '';
+                
+                // Construct Grid
+                const grid = document.createElement('div');
+                grid.className = 'bracket-grid';
+                grid.style.gridTemplateColumns = `repeat(${roundsData.length}, 1fr)`;
+                
+                roundsData.forEach((round, index) => {
+                    const column = document.createElement('div');
+                    column.className = 'bracket-column';
+                    
+                    const title = document.createElement('div');
+                    title.className = 'round-title';
+                    title.innerText = round.round_name;
+                    column.appendChild(title);
+                    
+                    round.matches.forEach(match => {
+                        const matchEl = document.createElement('div');
+                        matchEl.className = 'bracket-match';
+                        
+                        // Default names
+                        let p1Name = match.athlete1 ? match.athlete1.name : 'TBD';
+                        let p2Name = match.athlete2 ? match.athlete2.name : 'TBD';
+                        
+                        let p1Class = 'bracket-player';
+                        let p2Class = 'bracket-player';
+                        
+                        if (match.winner_id) {
+                            if (match.athlete1 && match.winner_id === match.athlete1.id) p1Class += ' winner';
+                            if (match.athlete2 && match.winner_id === match.athlete2.id) p2Class += ' winner';
+                        }
+                        
+                        matchEl.innerHTML = `
+                            <div class="${p1Class}">
+                                <div class="player-name">${p1Name}</div>
+                                <div class="player-score">${match.athlete1_score || '-'}</div>
+                            </div>
+                            <div class="${p2Class}">
+                                <div class="player-name">${p2Name}</div>
+                                <div class="player-score">${match.athlete2_score || '-'}</div>
+                            </div>
+                        `;
+                        column.appendChild(matchEl);
+                    });
+                    
+                    grid.appendChild(column);
+                });
+                
+                innerContainer.appendChild(grid);
+            }
+        });
         // Save and restore active tab
         function showConfigTab(tabName) {
             // Save tab TRƯỚC
