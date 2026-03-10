@@ -58,8 +58,8 @@
                     <form class="auth-form" method="POST" action="{{ route('login.submit') }}">
                         @csrf
                         <div class="form-group">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-input" name="email" placeholder="Nhập email" value="{{ old('email') }}" required>
+                            <label class="form-label">Email hoặc Số điện thoại</label>
+                            <input type="text" class="form-input" name="email" placeholder="Nhập email hoặc số điện thoại" value="{{ old('email') }}" required>
                             @error('email')
                                 <span class="text-danger" style="color: #dc3545; font-size: 12px; margin-top: 5px; display: block;">{{ $message }}</span>
                             @enderror
