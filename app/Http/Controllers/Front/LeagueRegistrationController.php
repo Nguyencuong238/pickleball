@@ -50,7 +50,7 @@ class LeagueRegistrationController extends Controller
             'players.*.birthday' => 'nullable|date',
             'players.*.photo' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'players.*.message' => 'nullable|string|max:500',
-            'payment_proof' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'payment_proof' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
         ]);
 
         // Chuẩn hóa + kiểm tra trùng phone trong cùng submission
@@ -81,9 +81,12 @@ class LeagueRegistrationController extends Controller
             }
         }
 
-        // Upload payment proof
-        $paymentProofPath = $request->file('payment_proof')
-            ->store('league-registrations', config('filesystems.default'));
+        // Upload payment proof if provided
+        $paymentProofPath = null;
+        if ($request->hasFile('payment_proof')) {
+            $paymentProofPath = $request->file('payment_proof')
+                ->store('league-registrations', config('filesystems.default'));
+        }
 
         // Xử lý upload ảnh VĐV
         $players = [];

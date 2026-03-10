@@ -176,10 +176,20 @@ $leagueDescription = $league->description ? Str::limit(strip_tags($league->descr
 
                 <!-- Payment Proof -->
                 <div class="reg-card">
+
+                    @if($league->qr_code_image)
+                        <div style="margin-bottom: 20px; text-align: center; background: #f8fafc; padding: 15px; border-radius: 8px;">
+                            <p style="margin: 0 0 10px; font-weight: 600; color: #1e293b;">Quét mã QR để thanh toán:</p>
+                            <img src="{{ Storage::url($league->qr_code_image) }}" alt="QR Code" style="max-height: 250px; border-radius: 8px; border: 1px solid #e2e8f0; max-width: 100%;margin: 0 auto;">
+                            @if($league->registration_fee)
+                                <p style="margin: 10px 0 0; font-weight: 600;">Số tiền: <span style="color: red;">{{ number_format($league->registration_fee) }}đ</span></p>
+                            @endif
+                        </div>
+                    @endif
                     <h3 style="margin: 0 0 15px; color: #1e293b; font-size: 1rem;">
-                        <i class="fas fa-receipt"></i> Ảnh chuyển khoản *
+                        <i class="fas fa-receipt"></i> Ảnh chuyển khoản
                     </h3>
-                    <input type="file" name="payment_proof" class="reg-input" accept="image/*" required id="paymentProofInput">
+                    <input type="file" name="payment_proof" class="reg-input" accept="image/*" id="paymentProofInput">
                     <img id="paymentPreview" style="display:none; max-width:100%; margin-top:15px; border-radius:8px; border:1px solid #e2e8f0;">
                     <p style="color: #9ca3af; font-size: 0.8rem; margin: 10px 0 0;">Chấp nhận ảnh JPG, PNG. Tối đa 5MB.</p>
                 </div>

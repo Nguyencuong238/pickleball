@@ -102,6 +102,17 @@
                     style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
                 <small style="color: #6b7280; font-size: 0.8rem;">Để trống nếu miễn phí</small>
             </div>
+            <div>
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Mã QR Thanh Toán *</label>
+                @if(isset($league) && $league->qr_code_image)
+                    <div style="margin-bottom: 10px;">
+                        <img src="{{ Storage::url($league->qr_code_image) }}" alt="QR Code" style="max-height: 100px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    </div>
+                @endif
+                <input type="file" name="qr_code_image" class="form-control" accept="image/*" 
+                    style="width: 100%; padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; background: white;">
+                <small style="color: #6b7280; font-size: 0.8rem;">Tải lên ảnh mã QR nhận tiền chuyển khoản</small>
+            </div>
         </div>
 
         <!-- Hình Thức Thi Đấu -->
