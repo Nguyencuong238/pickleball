@@ -212,11 +212,20 @@ Referee management system for tournament match officiating.
   - [x] MLP format integration with 6 sub-game structure
   - [x] Round editing capabilities for format management
   - [x] Full game-by-game tracking and standings
+  - [x] Player pair support in match games (home_player_1/2_id, away_player_1/2_id)
 - [x] Club Management API (Mar 9, 2026)
   - [x] Full CRUD for club activities, competitions, posts via API
   - [x] join_request_status on club show endpoint
   - [x] Auto-create club post when activity created
   - [x] Activity detail page with tab-based UI redesign
+- [x] League Registration System (Mar 9, 2026)
+  - [x] User self-registration with phone number normalization
+  - [x] Payment proof upload and admin verification
+  - [x] Admin approval workflow
+  - [x] Auto team generation (skill-ranked snake-draft mode)
+  - [x] Auto team generation (random pairing mode)
+  - [x] Race-condition safe with DB::transaction + lockForUpdate
+  - [x] LeagueRegistrationService with full workflow
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -307,14 +316,23 @@ Referee management system for tournament match officiating.
 - Club activity casual matches with 3 generation algorithms (Mar 3, 2026)
 - MLP league format with 6 sub-game doubles pairing (Mar 9, 2026)
 - Club management API with auto-post creation (Mar 9, 2026)
+- League registration system with payment proof and auto team generation (Mar 9, 2026)
+- LeagueAutoTeamService with skill-ranked snake-draft and random modes (Mar 9, 2026)
+- Pessimistic locking for race-condition safe team generation (Mar 9, 2026)
 
 ### v1.9.0 Changelog (2026-03-09)
-- **New**: MLP league format with 6 sub-game doubles pairing structure
-- **New**: Club management API for activities, competitions, posts
+- **New**: MLP league format with 6 sub-game doubles pairing structure (player pair support)
+- **New**: Club management API for activities, competitions, posts with full CRUD
+- **New**: League registration system with payment proof upload and admin approval
+- **New**: Auto team generation (skill-ranked snake-draft and random pairing modes)
+- **New**: LeagueAutoTeamService with race-condition safe DB operations
+- **New**: LeagueRegistrationService for registration workflow management
 - **New**: Auto-create club post when activity is created
 - **Enhancement**: Added join_request_status to club show endpoint
 - **Enhancement**: Activity detail page redesigned with modern tab-based UI
 - **Enhancement**: Round editing in league management
+- **Enhancement**: Phone number normalization in registration flow
+- **Security**: Pessimistic locking (lockForUpdate) for team generation consistency
 
 ### In Development
 - 🔄 Payment integration (MoMo, VNPay, ZaloPay research)
@@ -458,9 +476,11 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 
 ## Change Log (Compact)
 
+**v1.9.0 (2026-03-09)** - League Registration: payment proof, phone normalization, admin approval, auto team generation (skill-ranked/random), race-condition safe, LeagueAutoTeamService, LeagueRegistrationService, 2 new tables
+
 **v1.8.0 (2026-03-03)** - Club Activity Casual Matches: 3 algorithms (singles_rr, rotating_doubles, fixed_doubles), per-player standings, 7 AJAX endpoints, 3 new tables
 
-**v1.7.0 (2026-02-25)** - League Management: CRUD, tab-based UI, team/player roster, auto-schedule, AJAX scoring, standings calc, 7 tables
+**v1.7.0 (2026-02-25)** - League Management: CRUD, tab-based UI, team/player roster, auto-schedule, AJAX scoring, standings calc, MLP format, 7 tables
 
 **v1.6.0 (2026-01-14)** - Point Earning: 16 tasks, wallet, submissions w/ image/link/QR, social verification, special challenges, events w/ QR check-in, 8 models
 

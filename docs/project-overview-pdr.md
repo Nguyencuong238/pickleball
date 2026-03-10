@@ -200,21 +200,33 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **UI**: Modal-based match generation, custom match creation, standings display
 - **API**: 7 AJAX endpoints for matches/rounds/standings operations
 
-### 13. League Management (MLP Format) [NEW]
+### 13. League Management (MLP Format) [NEW - Mar 2026]
 - MLP league format with 6 sub-game doubles pairing
 - League creation and status tracking
 - Team management and roster assignment
 - Match round generation and scheduling
-- Game-by-game score tracking
+- Game-by-game score tracking with player pair support
 - Automatic standings calculation
-- Player assignment interface
+- Player assignment interface with user search
+- Round editing and modification capabilities
+- League association with clubs
 
-### 14. News & CMS
+### 14. League Registration System [NEW - Mar 2026]
+- User self-registration with phone number normalization
+- Payment proof upload for verification
+- Admin approval workflow for league registration
+- Auto team generation with two modes:
+  - **Skill-Ranked (Snake-Draft)**: Fair distribution based on ELO
+  - **Random Pairing**: Equal random team assignment
+- Race-condition safe with DB::transaction + lockForUpdate
+- Email notification on registration status changes
+
+### 15. News & CMS
 - News articles with categories
 - Featured content
 - Static pages (About, Contact, etc.)
 
-### 14. User Authentication
+### 16. User Authentication
 - Email/password registration
 - OAuth (Google, Facebook)
 - Role-based access control
@@ -319,12 +331,22 @@ Create a centralized platform connecting pickleball players with courts, tournam
 **FR12: League Management System (MLP Format)**
 - MLP league format with 6 sub-game doubles pairing
 - League CRUD operations with status tracking
-- Team and player roster management
+- Team and player roster management with player pair support
 - Match round generation and scheduling
 - Game-by-game score entry with auto winner calculation
 - Standings calculation and real-time updates
 - User search interface for player assignment
 - Round editing and modification capabilities
+- League-club association for organization
+
+**FR13: League Registration System**
+- User self-registration with phone number normalization
+- Payment proof upload with admin verification
+- Admin approval workflow for registration acceptance
+- Auto team generation with skill-ranked (snake-draft) mode
+- Auto team generation with random pairing mode
+- Race-condition safe DB operations with pessimistic locking
+- Email notifications for registration status changes
 
 ### Non-Functional Requirements
 
@@ -467,6 +489,19 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **special_challenges**: Time-limited challenges with max participants
 - **events**: Workshop/event system with QR check-in
 - **event_checkins**: User event attendance records
+
+### League Management Entities (2026-02-25+)
+- **leagues**: League configuration (name, description, sport, format, status, stadium_id, created_by)
+- **league_teams**: Team enrollment with league_id, team_id, team_name, seed_position
+- **league_team_players**: Player roster with team_id, player_id, player_name
+- **league_rounds**: Tournament rounds with league_id, round_number, is_finished
+- **league_matches**: Match records with league_id, round_id, team_1_id, team_2_id, status
+- **league_match_games**: Game-by-game scores with match_id, game_number, team_1_score, team_2_score, winner_id, MLP player pair support (home_player_1/2_id, away_player_1/2_id)
+- **league_standings**: Calculated standings with league_id, team_id, wins, losses, points
+
+### League Registration Entities (2026-03-09)
+- **league_registrations**: Registration records with league_id, user_id, phone (normalized), payment_proof, status (pending/approved/rejected), approved_by, approved_at
+- **league_registration_players**: Player roster assignments from registration with league_registration_id, player_id
 
 ## Success Metrics
 

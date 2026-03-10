@@ -11,10 +11,10 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 ## Project Structure
 
 **File Counts (Current):**
-- PHP files: 292+ (Controllers 91+, Models 85+, Services 18, Commands 22, Policies 8, Middleware 9, Events 12, Listeners 9, Observers 6, Form Requests 6)
-- Blade templates: 227 (Admin 50+, Front 60+, Home-yard 30+, Clubs 15, User 10, Auth 6, Referee 10, Components)
-- Database migrations: 184
-- Routes: ~72 (web.php 45+, api.php 27+)
+- PHP files: 321+ (Controllers 98, Models 85+, Services 20, Commands 22+, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
+- Blade templates: 229 (Admin 50+, Front 60+, Home-yard 30+, Clubs 15, User 10, Auth 6, Referee 10, Components)
+- Database migrations: 188
+- Routes: ~75 (web.php 48+, api.php 27+)
 
 ## Core Technologies
 
@@ -85,11 +85,13 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **Point System (Jan 2026)**: `PointTask` (16 tasks), `PointSubmission`, `UserWallet`, `UserPointTransaction`, `SocialProfileVerification`, `SpecialChallenge`, `Event`, `EventCheckin`
 
-**League (Feb 2026)**: `League`, `LeagueTeam`, `LeagueTeamPlayer`, `LeagueRound`, `LeagueMatch`, `LeagueMatchGame`, `LeagueStanding`
+**League (Feb 2026)**: `League`, `LeagueTeam`, `LeagueTeamPlayer`, `LeagueRound`, `LeagueMatch`, `LeagueMatchGame`, `LeagueStanding`, `LeagueRegistration`, `LeagueRegistrationPlayer`
 
-**MLP League Format (Mar 2026)**: 6 sub-game doubles pairing support with enhanced round editing
+**MLP League Format (Mar 2026)**: 6 sub-game doubles pairing support with enhanced round editing, player pair assignment (home_player_1/2_id, away_player_1/2_id)
 
-## Services Overview (18 Services)
+**League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
+
+## Services Overview (20 Services)
 
 ### Business Logic Services
 - `EloService` - Elo rating calculations, K-factor management, match processing
@@ -105,14 +107,16 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - `SocialVerificationService` - Social platform verification, URL uniqueness checking
 - `ClubPostMediaService` - Club post media management and processing
 - `ClubMatchService` - Match generation (3 algorithms: singles_rr, rotating_doubles, fixed_doubles), standings calc
+- `ClubActivityService` - Club activity lifecycle, RSVP, waitlist management
 - `LeagueService` - League CRUD, team management, player assignment
 - `LeagueScheduleService` - Match schedule generation, round creation
 - `LeagueStandingsService` - Standings calculation, win/loss tracking
-- `ClubActivityService` - Club activity lifecycle, RSVP, waitlist management
+- `LeagueAutoTeamService` - Auto team generation with skill-ranked (snake-draft) and random modes (race-condition safe)
+- `LeagueRegistrationService` - Registration workflow, payment verification, team auto-generation
 
 ## Controllers Overview
 
-### Admin Controllers (24)
+### Admin Controllers (21)
 | Controller | Purpose |
 |------------|---------|
 | `DashboardController` | Admin dashboard |
@@ -139,7 +143,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `UserImportController` | Bulk user import |
 | `QuizController` | Quiz management |
 
-### API Controllers (28+)
+### API Controllers (32+)
 | Controller | Purpose |
 |------------|---------|
 | `MediaUploadController` | Media file uploads |
@@ -166,7 +170,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `ClubPostController` | Club posts and engagement API |
 | (Plus controllers for bookings, auth, leagues, etc.) |
 
-### Front Controllers (35+)
+### Front Controllers (34+)
 | Controller | Purpose |
 |------------|---------|
 | `HomeController` | Homepage, listings, booking |
@@ -199,21 +203,25 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `PointController` | Point earning frontend (tasks, wallet, submissions) |
 | `PointSubmissionController` | Submission form, history, status tracking |
 | `SpecialChallengeController` | Challenge listing, details, participation |
-| `EventController` | Event listing, registration, QR check-in |
 | `WalletController` | Wallet dashboard, transaction history |
-| `SocialVerificationController` | Social verification flow |
 | `ClubPostController` | Club post CRUD operations |
 | `ClubPostCommentController` | Club post comments |
 | `ClubPostReactionController` | Club post reactions/likes |
 | `ClubActivityController` | Club activity CRUD and management |
 
-### Root Controllers (5)
+### Root Controllers (11)
 | Controller | Purpose |
 |------------|---------|
 | `AuthController` | Authentication (login, register, OAuth) |
 | `FavoriteController` | Favorites toggle |
 | `ReviewController` | Stadium reviews |
 | `SocialController` | Social events |
+| `ClubActivityController` | Club activities CRUD |
+| `ClubActivityParticipantController` | RSVP management |
+| `ClubCompetitionController` | Competition scheduling & scores |
+| `ClubMatchController` | Casual match generation & scoring |
+| `WalletController` | Wallet dashboard API |
+| `DebugController` | Development debugging utilities |
 | `Controller` | Base controller |
 
 ## Routes Summary
@@ -463,6 +471,10 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - Club show endpoint with join_request_status
 - Full CRUD API for club activities, competitions, posts
 
+### League Registration Tables (2026-03-09)
+- `league_registrations` - Registration records with league_id, user_id, phone (normalized), payment_proof, status, approved_by, approved_at
+- `league_registration_players` - Player roster from registration with league_registration_id, player_id
+
 ### League Management Tables (2026-02-25+)
 - `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)
 - `league_teams` - Team enrollment with league_id, team_id, team_name, seed_position
@@ -500,7 +512,8 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - Dashboard, stadiums
 - Tournaments, athletes (includes referee assignment)
 - Bookings, courts
-- Leagues (CRUD, tab-based detail view, teams, matches, standings)
+- Leagues (CRUD, tab-based detail view, teams, matches, standings, MLP format support)
+- League Registration (form, admin approval, auto team generation)
 
 ### Club Activities (`resources/views/clubs/activities/`) [Phase 5 Complete]
 - Index: Activity listing with type badges, participant counts
@@ -549,11 +562,8 @@ php artisan db:seed --class=SkillQuestionSeeder
 
 ## Test Factories (2026-02-27)
 
-### Club Activity Factories
-- `ClubFactory` - Creates clubs with creator relationship
-- `ClubActivityFactory` - Creates activities (recurring/one-off/competition types)
-- `ClubActivityParticipantFactory` - Creates RSVP participants with status
-- `ClubCompetitionTeamFactory` - Creates competition teams
+### Club Activity Factories (in tests/)
+- Club, ClubActivity, ClubActivityParticipant, ClubCompetitionTeam factories
 
 ### Test Coverage (25 tests, all passing)
 - **ClubActivityServiceTest** (6 tests) - RSVP confirmation, waitlist, promotion, skill validation, duplicates, instance creation

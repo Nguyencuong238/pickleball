@@ -765,36 +765,14 @@ hotfix/auth-redirect-loop
 
 If exceeding: extract to services, split controllers, or use Blade components.
 
+## Race-Condition Safe Service Pattern
+
+For atomic sequences (e.g., team generation), use `lockForUpdate()` within `DB::transaction()`. See `LeagueAutoTeamService` and `BookingService` for examples.
+
 ## Documentation Standards
 
-### PHPDoc Comments
-
-Document public methods:
-
-```php
-/**
- * Calculate available time slots for a court on a specific date.
- *
- * @param Court $court The court to check
- * @param string $date Date in Y-m-d format
- * @return Collection Available time slots
- */
-public function getAvailableSlots(Court $court, string $date): Collection
-{
-    // Implementation
-}
-```
-
-### Inline Comments
-
-Use sparingly for complex logic: `// Price with weekend surcharge (20%)`
+Document public methods with PHPDoc (`@param`, `@return`). Use inline comments sparingly for complex logic only.
 
 ## Related Documentation
 
-- [Project Overview PDR](./project-overview-pdr.md)
-- [Codebase Summary](./codebase-summary.md)
-- [System Architecture](./system-architecture.md)
-
-## Unresolved Questions
-
-None. Standards are well-defined.
+- [Project Overview PDR](./project-overview-pdr.md) | [Codebase Summary](./codebase-summary.md) | [System Architecture](./system-architecture.md)

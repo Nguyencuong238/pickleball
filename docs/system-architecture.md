@@ -387,6 +387,21 @@ User ──┬── Club (creator)
 ├─────────────────────────────────────────────────────────┤
 │ bookings       │ Added booking_code, confirmed_at,      │
 │                │ transfer_proof for booking management   │
+├─────────────────────────────────────────────────────────┤
+│               League Management Tables                   │
+├─────────────────────────────────────────────────────────┤
+│ leagues        │ League configuration and management     │
+│ league_teams   │ Team enrollment with seed position     │
+│ league_team_players │ Player roster assignment          │
+│ league_rounds  │ Tournament rounds with status           │
+│ league_matches │ Match records per round                │
+│ league_match_games │ Game-by-game scores (MLP format)  │
+│ league_standings │ Team standings calculation           │
+├─────────────────────────────────────────────────────────┤
+│             League Registration Tables                  │
+├─────────────────────────────────────────────────────────┤
+│ league_registrations │ User registrations w/ approval  │
+│ league_registration_players │ Player assignments       │
 └─────────────────────────────────────────────────────────┘
 ```
 
@@ -438,6 +453,9 @@ Activity loaded → View existing matches tab (AJAX GET) → No matches yet? →
 1. **Singles RR (Round-Robin)**: Polygon rotation on singles players, handles odd byes
 2. **Rotating Doubles**: Dynamic partner pairing each round, avoids repeated partnerships (3+ rounds)
 3. **Fixed Doubles**: Permanent pairs play round-robin format
+
+### League Registration Flow
+User register → Validate phone (normalize) → Upload payment proof → Admin review → Approve/Reject → If approved: LeagueAutoTeamService generates teams (skill-ranked or random) → Create LeagueTeams + LeagueTeamPlayers → Email notification → Ready for league matches
 
 ### Recurring Activity Generation Flow (Scheduled Command)
 Daily 06:00 → Query active recurring templates (status=upcoming, type=recurring) → For each template: iterate 7 days ahead → Check recurrence day of week match → Skip if instance already exists for target date → Create instance via ClubActivityService.createRecurringInstance() → Log output → Idempotent: safe to run multiple times
@@ -754,47 +772,26 @@ User Model Fields:
 └── opr_level           (determined by OprsService)
 
 OprsHistory Record:
-├── user_id
-├── elo_score           (snapshot)
-├── challenge_score     (snapshot)
-├── community_score     (snapshot)
-├── total_oprs          (calculated)
-├── opr_level           (determined)
-├── change_reason       (enum)
-└── metadata            (JSON - references)
+├── user_id, elo_score, challenge_score, community_score (snapshots)
+├── total_oprs (calculated), opr_level (determined)
+└── change_reason (enum), metadata (JSON)
 
 SkillQuizAttempt Record:
-├── user_id
-├── total_score         (raw score)
-├── max_possible_score  (for percentage)
-├── elo_assigned        (calculated ELO)
-├── completion_time     (seconds)
-├── is_flagged          (fraud detection)
-├── flag_reason         (if flagged)
-├── started_at          (timestamp)
-└── completed_at        (timestamp)
+├── user_id, total_score, max_possible_score, elo_assigned
+├── completion_time, is_flagged, flag_reason
+└── started_at, completed_at
 
-User Gender Field (for skill level mapping):
-├── gender              (enum: 'male', 'female', nullable)
-└── Defaults to 'male' for backward compatibility
+User Gender: enum('male','female', nullable), defaults 'male'
 ```
 
-### Skill Quiz Configuration (see code-standards.md for details)
+### Skill Quiz Config
 
-```php
-// Summary
-Base ELO = 800, Max = 1400, Caps: 1100 (new)/1200 (exp)
-Anti-fraud: 3-20 min window, max inconsistency = 3
-Gender-aware: Female +0.5 level at same ELO
-Cooldown: 30/60/90 days based on ELO tier
-```
+See `code-standards.md`. Base ELO=800, Max=1400, anti-fraud, gender-aware, 30-90 day cooldowns.
 
-### Club Activity Casual Match System (Mar 2026)
+### Club Activity Match System (Mar 2026)
 
-3 match algorithms: Singles Round-Robin (each player vs each), Rotating Doubles (rotating partners), Fixed Doubles (pre-defined pairs). Models: ClubActivityMatchRound, ClubActivityMatch, ClubActivityMatchStanding. Service: ClubMatchService (generation + standings). Controller: 7 AJAX endpoints. Tables: match_rounds, matches, standings.
+3 algorithms: Singles RR, Rotating Doubles, Fixed Doubles. Service: ClubMatchService. 7 AJAX endpoints.
 
 ## Unresolved Questions
 
-1. **Queue Driver**: Redis vs SQS for production?
-2. **CDN**: Cloudflare vs AWS CloudFront for media?
-3. **Monitoring/Search**: New Relic vs Sentry? Elasticsearch vs Algolia?
+1. **Queue Driver**: Redis vs SQS? | 2. **CDN**: Cloudflare vs CloudFront? | 3. **Monitoring**: New Relic vs Sentry?
