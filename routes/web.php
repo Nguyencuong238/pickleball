@@ -383,6 +383,7 @@ Route::middleware('web')->group(function () {
 });
 
 // League Registration (public, no auth)
+Route::get('leagues', [LeagueRegistrationController::class, 'index'])->name('leagues.index');
 Route::get('leagues/{league}/register', [LeagueRegistrationController::class, 'showForm'])
     ->name('leagues.register')
     ->middleware('throttle:30,1');

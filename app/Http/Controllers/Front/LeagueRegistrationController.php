@@ -18,6 +18,50 @@ class LeagueRegistrationController extends Controller
 
     // === Public routes (no auth) ===
 
+    public function index(Request $request)
+    {
+        // Only show active leagues (registration, active, completed)
+        $query = League::whereIn('status', ['registration', 'active', 'completed']);
+
+        // Search filter
+        if ($request->has('search') && $request->search) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Status filter
+        if ($request->has('statuses') && is_array($request->statuses) && count($request->statuses) > 0) {
+            $query->whereIn('status', $request->statuses);
+        }
+
+        // Location filter (assuming league has a location or via club, since tournament has location, but league might not have a direct location field. Let's check League model. League has no location field, only club_id. Let's skip location filter for now or filter by club location if needed. Let's just keep search and status for now).
+
+        // Default ordering
+        $query->orderBy('start_date', 'asc');
+
+        $leagues = $query->paginate(9);
+        
+        // Calculate statistics
+        $activeLeagues = League::whereIn('status', ['registration', 'active'])->count();
+        $totalLeagues = League::whereIn('status', ['registration', 'active', 'completed'])->count();
+        
+        $statusOpen = League::where('status', 'registration')->count();
+        $statusOngoing = League::where('status', 'active')->count();
+        $statusCompleted = League::where('status', 'completed')->count();
+
+        // Pass filters back to view
+        $filters = $request->only(['search', 'statuses']);
+
+        return view('front.leagues.index', compact(
+            'leagues',
+            'activeLeagues',
+            'totalLeagues',
+            'statusOpen',
+            'statusOngoing',
+            'statusCompleted',
+            'filters'
+        ));
+    }
+
     public function showForm(League $league)
     {
         $closed = false;
