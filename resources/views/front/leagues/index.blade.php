@@ -205,7 +205,7 @@
                                 <a href="{{ route('leagues.register', $league->slug) }}" class="tournament-link">
                                     <div class="tournament-image">
                                         @php
-                                            $imageUrl = $league->logo ? asset('storage/' . $league->logo) : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 250%22%3E%3Cdefs%3E%3ClinearGradient id=%22t' .
+                                            $imageUrl = $league->logo ? \Storage::url($league->logo) : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 250%22%3E%3Cdefs%3E%3ClinearGradient id=%22t' .
                                                     $league->id .
                                                     '%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 style=%22stop-color:%2300D9B5;stop-opacity:1%22 /%3E%3Cstop offset=%22100%25%22 style=%22stop-color:%230099CC;stop-opacity:1%22 /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill=%22url(%23t' .
                                                     $league->id .
