@@ -16,62 +16,64 @@
     <form method="POST" action="{{ route('leagues.register.store', $league) }}" enctype="multipart/form-data" id="registrationForm">
         @csrf
 
-        @for($i = 0; $i < $league->required_players_per_registration; $i++)
-            <div class="reg-card">
-                <div style="display: flex; align-items: center; margin-bottom: 18px;">
-                    <span class="player-number">VĐV {{ $i + 1 }}</span>
-                    @if($i === 0)
-                        <span class="captain-badge">Đội trưởng</span>
-                    @endif
-                </div>
+        <div class="{{ $league->required_players_per_registration > 1 ? 'players-grid' : '' }}">
+            @for($i = 0; $i < $league->required_players_per_registration; $i++)
+                <div class="reg-card">
+                    <div style="display: flex; align-items: center; margin-bottom: 18px;">
+                        <span class="player-number">VĐV {{ $i + 1 }}</span>
+                        @if($i === 0)
+                            <span class="captain-badge">Đội trưởng</span>
+                        @endif
+                    </div>
 
-                <div class="reg-row">
-                    <div class="reg-field">
-                        <label class="reg-label">Số điện thoại *</label>
-                        <input type="tel" name="players[{{ $i }}][phone]" class="reg-input" required placeholder="0901234567" value="{{ old("players.{$i}.phone") }}">
+                    <div class="reg-row">
+                        <div class="reg-field">
+                            <label class="reg-label">Số điện thoại *</label>
+                            <input type="tel" name="players[{{ $i }}][phone]" class="reg-input" required placeholder="0901234567" value="{{ old("players.{$i}.phone") }}">
+                        </div>
+                        <div class="reg-field">
+                            <label class="reg-label">Họ và tên *</label>
+                            <input type="text" name="players[{{ $i }}][name]" class="reg-input" required placeholder="Nguyễn Văn A" value="{{ old("players.{$i}.name") }}">
+                        </div>
                     </div>
-                    <div class="reg-field">
-                        <label class="reg-label">Họ và tên *</label>
-                        <input type="text" name="players[{{ $i }}][name]" class="reg-input" required placeholder="Nguyễn Văn A" value="{{ old("players.{$i}.name") }}">
-                    </div>
-                </div>
 
-                <div class="reg-row">
-                    <div class="reg-field">
-                        <label class="reg-label">Giới tính *</label>
-                        <select name="players[{{ $i }}][gender]" class="reg-input" required>
-                            <option value="male" {{ old("players.{$i}.gender") === 'female' ? '' : 'selected' }}>Nam</option>
-                            <option value="female" {{ old("players.{$i}.gender") === 'female' ? 'selected' : '' }}>Nữ</option>
-                        </select>
+                    <div class="reg-row">
+                        <div class="reg-field">
+                            <label class="reg-label">Giới tính *</label>
+                            <select name="players[{{ $i }}][gender]" class="reg-input" required>
+                                <option value="male" {{ old("players.{$i}.gender") === 'female' ? '' : 'selected' }}>Nam</option>
+                                <option value="female" {{ old("players.{$i}.gender") === 'female' ? 'selected' : '' }}>Nữ</option>
+                            </select>
+                        </div>
+                        <div class="reg-field">
+                            <label class="reg-label">Điểm trình</label>
+                            <input type="text" name="players[{{ $i }}][skill_level]" class="reg-input" placeholder="VD: 3.5, 4.0" value="{{ old("players.{$i}.skill_level") }}">
+                        </div>
                     </div>
-                    <div class="reg-field">
-                        <label class="reg-label">Điểm trình</label>
-                        <input type="text" name="players[{{ $i }}][skill_level]" class="reg-input" placeholder="VD: 3.5, 4.0" value="{{ old("players.{$i}.skill_level") }}">
-                    </div>
-                </div>
 
-                <div class="reg-row">
-                    <div class="reg-field">
-                        <label class="reg-label">Tỉnh/Thành</label>
-                        <input type="text" name="players[{{ $i }}][province]" class="reg-input" placeholder="VD: TP.HCM, Hà Nội" value="{{ old("players.{$i}.province") }}">
+                    <div class="reg-row">
+                        <div class="reg-field">
+                            <label class="reg-label">Tỉnh/Thành</label>
+                            <input type="text" name="players[{{ $i }}][province]" class="reg-input" placeholder="VD: TP.HCM, Hà Nội" value="{{ old("players.{$i}.province") }}">
+                        </div>
+                        <div class="reg-field">
+                            <label class="reg-label">Ngày sinh</label>
+                            <input type="date" name="players[{{ $i }}][birthday]" class="reg-input" value="{{ old("players.{$i}.birthday") }}">
+                        </div>
                     </div>
+
                     <div class="reg-field">
-                        <label class="reg-label">Ngày sinh</label>
-                        <input type="date" name="players[{{ $i }}][birthday]" class="reg-input" value="{{ old("players.{$i}.birthday") }}">
+                        <label class="reg-label">Ảnh VĐV</label>
+                        <input type="file" name="players[{{ $i }}][photo]" class="reg-input" accept="image/*">
+                    </div>
+
+                    <div class="reg-field" style="margin-bottom: 0;">
+                        <label class="reg-label">Lời nhắn</label>
+                        <textarea name="players[{{ $i }}][message]" class="reg-input" rows="2" maxlength="500" placeholder="Lời nhắn cho ban tổ chức...">{{ old("players.{$i}.message") }}</textarea>
                     </div>
                 </div>
-
-                <div class="reg-field">
-                    <label class="reg-label">Ảnh VĐV</label>
-                    <input type="file" name="players[{{ $i }}][photo]" class="reg-input" accept="image/*">
-                </div>
-
-                <div class="reg-field" style="margin-bottom: 0;">
-                    <label class="reg-label">Lời nhắn</label>
-                    <textarea name="players[{{ $i }}][message]" class="reg-input" rows="2" maxlength="500" placeholder="Lời nhắn cho ban tổ chức...">{{ old("players.{$i}.message") }}</textarea>
-                </div>
-            </div>
-        @endfor
+            @endfor
+        </div>
 
         <!-- Payment Proof -->
         <div class="reg-card">
@@ -80,7 +82,12 @@
                     <p style="margin: 0 0 10px; font-weight: 600; color: #1e293b;">Quét mã QR để thanh toán:</p>
                     <img src="{{ Storage::url($league->qr_code_image) }}" alt="QR Code" style="max-height: 250px; border-radius: 8px; border: 1px solid #e2e8f0; max-width: 100%;margin: 0 auto;">
                     @if($league->registration_fee)
-                        <p style="margin: 10px 0 0; font-weight: 600;">Số tiền: <span style="color: red;">{{ number_format($league->registration_fee) }}đ</span></p>
+                        @php $totalFee = $league->registration_fee * $league->required_players_per_registration; @endphp
+                        <p style="margin: 10px 0 0; font-weight: 600;">Số tiền: <span style="color: red;">{{ number_format($totalFee) }}đ</span>
+                            @if($league->required_players_per_registration > 1)
+                                <span style="font-size: 0.8rem; color: #6b7280; font-weight: 400;">({{ number_format($league->registration_fee) }}đ x {{ $league->required_players_per_registration }} VĐV)</span>
+                            @endif
+                        </p>
                     @endif
                 </div>
             @endif

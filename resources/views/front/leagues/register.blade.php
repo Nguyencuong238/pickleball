@@ -26,10 +26,12 @@ $leagueDescription = $league->description ? Str::limit(strip_tags($league->descr
 
 @section('content')
 <style>
+    .reg-header { margin-top: 75px; padding-top: 20px; }
     @media (min-width: 768px) {
         .reg-header { margin-top: 80px; }
     }
-    .reg-container { max-width: 700px; margin: 0 auto; padding: 30px 20px; }
+    .reg-container { max-width: 700px; margin: 0 auto; padding: 30px 0; }
+    .reg-container.reg-container--wide { max-width: 1100px; }
     .reg-card { background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; }
     .reg-label { display: block; margin-bottom: 6px; font-weight: 600; color: #1e293b; font-size: 0.9rem; }
     .reg-input { width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 0.95rem; box-sizing: border-box; transition: border-color 0.2s; }
@@ -38,10 +40,14 @@ $leagueDescription = $league->description ? Str::limit(strip_tags($league->descr
     .reg-field { margin-bottom: 15px; }
     .player-number { background: var(--primary-color); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
     .captain-badge { background: #f59e0b; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-left: 8px; }
-    @media (max-width: 600px) { .reg-row { grid-template-columns: 1fr; } }
+    .players-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .players-grid .reg-card { margin-bottom: 0; }
+    .players-grid .reg-row { grid-template-columns: 1fr; }
+    @media (max-width: 768px) { .players-grid { grid-template-columns: 1fr; } .players-grid .reg-card { margin-bottom: 0; } .players-grid .reg-row { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 600px) { .reg-row { grid-template-columns: 1fr; } .players-grid .reg-row { grid-template-columns: 1fr; } }
 
     /* Tab styles */
-    .league-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 24px; gap: 0}
+    .league-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 24px; gap: 0; overflow-x: auto; overflow-y: hidden; }
     .league-tab { padding: 12px 20px; font-weight: 600; font-size: 0.95rem; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: color 0.2s, border-color 0.2s; background: none; border-top: none; border-left: none; border-right: none; }
     .league-tab:hover { color: #1e293b; }
     .league-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
@@ -50,40 +56,42 @@ $leagueDescription = $league->description ? Str::limit(strip_tags($league->descr
 </style>
 
 <!-- Header -->
-<div class="reg-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 100px 20px; text-align: center;">
-    <div style="max-width: 700px; margin: 0 auto;">
+<div class="reg-header" style="background: #f9fafb; border-bottom: 1px solid #e2e8f0; padding: 50px 20px 30px 20px;">
+    <div style="max-width: {{ $league->required_players_per_registration > 1 ? '1100px' : '700px' }}; margin: 0 auto; display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
         @if($league->logo)
-            <img src="{{ asset('storage/' . $league->logo) }}" alt="{{ $league->name }}" style="width: 80px; height: 80px; border-radius: 12px; object-fit: cover; margin-bottom: 15px; border: 3px solid rgba(255,255,255,0.3);">
+            <img src="{{ Storage::url($league->logo) }}" alt="{{ $league->name }}" style="width: 72px; height: 72px; border-radius: 12px; object-fit: cover; border: 2px solid #e2e8f0; flex-shrink: 0;">
         @endif
-        <h1 style="color: white; font-size: clamp(1.5rem, 5vw, 2rem); font-weight: 700; margin: 0 0 10px;">{{ $league->name }}</h1>
-        @if($league->season_name)
-            <p style="color: rgba(255,255,255,0.9); margin: 0 0 15px; font-size: 1rem;">{{ $league->season_name }}</p>
-        @endif
-        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+        <div style="flex: 1; min-width: 200px;">
+            <h1 style="color: #1e293b; font-size: 1.4rem; font-weight: 700; margin: 0 0 4px;">{{ $league->name }}</h1>
+            @if($league->season_name)
+                <p style="color: #6b7280; margin: 0; font-size: 0.9rem;">{{ $league->season_name }}</p>
+            @endif
+        </div>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap;">
             @if($league->registration_fee)
-                <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; color: white;">
-                    <div style="font-size: 0.75rem; opacity: 0.8;">Phí đăng ký</div>
-                    <div style="font-weight: 700; color: red;">{{ number_format($league->registration_fee) }}đ</div>
+                <div style="background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #6b7280;">Phí{{ $league->required_players_per_registration > 1 ? '/VĐV' : '' }}</div>
+                    <div style="font-weight: 700; color: #dc2626; font-size: 0.95rem;">{{ number_format($league->registration_fee) }}đ</div>
                 </div>
             @endif
             @if($league->registration_deadline)
-                <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; color: white;">
-                    <div style="font-size: 0.75rem; opacity: 0.8;">Hạn đăng ký</div>
-                    <div style="font-weight: 700;">{{ $league->registration_deadline->format('d/m/Y H:i') }}</div>
+                <div style="background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #6b7280;">Hạn đăng ký</div>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">{{ $league->registration_deadline->format('d/m/Y') }}</div>
                 </div>
             @endif
             @if($league->required_players_per_registration > 1)
-                <div style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; color: white;">
-                    <div style="font-size: 0.75rem; opacity: 0.8;">Số VĐV/nhóm</div>
-                    <div style="font-weight: 700;">{{ $league->required_players_per_registration }} người</div>
+                <div style="background: white; padding: 8px 14px; border-radius: 8px; border: 1px solid #e2e8f0; text-align: center;">
+                    <div style="font-size: 0.7rem; color: #6b7280;">VĐV/nhóm</div>
+                    <div style="font-weight: 700; color: #1e293b; font-size: 0.95rem;">{{ $league->required_players_per_registration }} người</div>
                 </div>
             @endif
         </div>
     </div>
 </div>
 
-<div style="background: #f9fafb; padding: 30px 20px; min-height: 50vh;">
-    <div class="reg-container">
+<div style="background: #f9fafb; min-height: 50vh;">
+    <div class="reg-container {{ $league->required_players_per_registration > 1 ? 'reg-container--wide' : '' }}">
 
         @if(session('success'))
             <div style="background: #dcfce7; border: 1px solid #86efac; color: #15803d; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center;">
