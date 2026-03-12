@@ -37,6 +37,19 @@
             </div>
         </div>
 
+        <!-- Logo League -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Logo League</label>
+            @if(isset($league) && $league->logo)
+                <div style="margin-bottom: 10px;">
+                    <img src="{{ Storage::url($league->logo) }}" alt="Logo League" style="max-height: 100px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                </div>
+            @endif
+            <input type="file" name="logo" class="form-control" accept="image/*"
+                style="width: 100%; padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; background: white;">
+            <small style="color: #6b7280; font-size: 0.8rem;">Tải lên logo cho giải đấu (không bắt buộc)</small>
+        </div>
+
         <!-- Câu Lạc Bộ -->
         @if(isset($clubs) && $clubs->count() > 0)
             <div style="margin-bottom: 20px;">

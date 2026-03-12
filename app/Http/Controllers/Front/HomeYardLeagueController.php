@@ -68,6 +68,7 @@ class HomeYardLeagueController extends Controller
             'required_players_per_registration' => 'nullable|integer|in:1,2,4',
             'registration_fee' => 'nullable|numeric|min:0',
             'qr_code_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'config.max_players_per_team.min' => "Thể thức MLP yêu cầu tối thiểu {$minPlayers} VĐV/đội.",
         ]);
@@ -75,6 +76,11 @@ class HomeYardLeagueController extends Controller
         if ($request->hasFile('qr_code_image')) {
             $imagePath = $request->file('qr_code_image')->store('leagues/qr_codes', config('filesystems.default'));
             $validated['qr_code_image'] = $imagePath;
+        }
+
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('leagues/logos', config('filesystems.default'));
+            $validated['logo'] = $logoPath;
         }
 
         $league = $this->leagueService->createLeague(auth()->user(), $validated);
@@ -146,6 +152,7 @@ class HomeYardLeagueController extends Controller
             'required_players_per_registration' => 'nullable|integer|in:1,2,4',
             'registration_fee' => 'nullable|numeric|min:0',
             'qr_code_image' => ($league->qr_code_image ? 'nullable' : 'required') . '|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'config.max_players_per_team.min' => "Thể thức MLP yêu cầu tối thiểu {$minPlayers} VĐV/đội.",
         ]);
@@ -153,6 +160,11 @@ class HomeYardLeagueController extends Controller
         if ($request->hasFile('qr_code_image')) {
             $imagePath = $request->file('qr_code_image')->store('leagues/qr_codes', config('filesystems.default'));
             $validated['qr_code_image'] = $imagePath;
+        }
+
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('leagues/logos', config('filesystems.default'));
+            $validated['logo'] = $logoPath;
         }
 
         $this->leagueService->updateLeague($league, $validated);
