@@ -72,6 +72,16 @@ class LeagueRegistrationController extends Controller
             $closed = true;
         }
 
+        $league->load([
+            'rounds.matches.homeTeam',
+            'rounds.matches.awayTeam',
+            'rounds.matches.games.homePlayer1.user',
+            'rounds.matches.games.homePlayer2.user',
+            'rounds.matches.games.awayPlayer1.user',
+            'rounds.matches.games.awayPlayer2.user',
+            'standings.team',
+        ]);
+
         return view('front.leagues.register', compact('league', 'closed'));
     }
 

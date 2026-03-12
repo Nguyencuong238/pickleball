@@ -39,6 +39,14 @@ $leagueDescription = $league->description ? Str::limit(strip_tags($league->descr
     .player-number { background: var(--primary-color); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
     .captain-badge { background: #f59e0b; color: white; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-left: 8px; }
     @media (max-width: 600px) { .reg-row { grid-template-columns: 1fr; } }
+
+    /* Tab styles */
+    .league-tabs { display: flex; border-bottom: 2px solid #e2e8f0; margin-bottom: 24px; gap: 0}
+    .league-tab { padding: 12px 20px; font-weight: 600; font-size: 0.95rem; color: #6b7280; cursor: pointer; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: color 0.2s, border-color 0.2s; background: none; border-top: none; border-left: none; border-right: none; }
+    .league-tab:hover { color: #1e293b; }
+    .league-tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+    .league-tab-panel { display: none; }
+    .league-tab-panel.active { display: block; }
 </style>
 
 <!-- Header -->
@@ -100,109 +108,65 @@ $leagueDescription = $league->description ? Str::limit(strip_tags($league->descr
             </div>
         @endif
 
-        @if($closed)
-            <div style="background: white; border-radius: 12px; padding: 40px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06);">
-                <i class="fas fa-lock" style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px;"></i>
-                <h3 style="color: #6b7280; margin: 0 0 10px;">Đăng ký đã đóng</h3>
-                <p style="color: #9ca3af; margin: 0;">Giải đấu hiện không nhận đăng ký mới.</p>
-            </div>
-        @else
-            @if($league->description)
-                <div class="reg-card">
-                    <h3 style="margin: 0 0 10px; color: #1e293b; font-size: 1rem;">Thông tin giải đấu</h3>
-                    <p style="color: #6b7280; margin: 0; line-height: 1.6;">{{ $league->description }}</p>
-                </div>
-            @endif
+        <!-- Tab Navigation -->
+        <div class="league-tabs">
+            <button class="league-tab active" data-tab="info" type="button">
+                <i class="fas fa-info-circle"></i> Thông tin & Đăng ký
+            </button>
+            <button class="league-tab" data-tab="schedule" type="button">
+                <i class="fas fa-calendar-alt"></i> Lịch thi đấu
+            </button>
+            <button class="league-tab" data-tab="standings" type="button">
+                <i class="fas fa-trophy"></i> Bảng xếp hạng
+            </button>
+        </div>
 
-            <form method="POST" action="{{ route('leagues.register.store', $league) }}" enctype="multipart/form-data" id="registrationForm">
-                @csrf
+        <!-- Tab Panels -->
+        <div id="tab-info" class="league-tab-panel active">
+            @include('front.leagues._tab-info-register')
+        </div>
 
-                @for($i = 0; $i < $league->required_players_per_registration; $i++)
-                    <div class="reg-card">
-                        <div style="display: flex; align-items: center; margin-bottom: 18px;">
-                            <span class="player-number">VĐV {{ $i + 1 }}</span>
-                            @if($i === 0)
-                                <span class="captain-badge">Đội trưởng</span>
-                            @endif
-                        </div>
+        <div id="tab-schedule" class="league-tab-panel">
+            @include('front.leagues._tab-schedule')
+        </div>
 
-                        <div class="reg-row">
-                            <div class="reg-field">
-                                <label class="reg-label">Số điện thoại *</label>
-                                <input type="tel" name="players[{{ $i }}][phone]" class="reg-input" required placeholder="0901234567" value="{{ old("players.{$i}.phone") }}">
-                            </div>
-                            <div class="reg-field">
-                                <label class="reg-label">Họ và tên *</label>
-                                <input type="text" name="players[{{ $i }}][name]" class="reg-input" required placeholder="Nguyễn Văn A" value="{{ old("players.{$i}.name") }}">
-                            </div>
-                        </div>
+        <div id="tab-standings" class="league-tab-panel">
+            @include('front.leagues._tab-standings')
+        </div>
 
-                        <div class="reg-row">
-                            <div class="reg-field">
-                                <label class="reg-label">Giới tính *</label>
-                                <select name="players[{{ $i }}][gender]" class="reg-input" required>
-                                    <option value="male" {{ old("players.{$i}.gender") === 'female' ? '' : 'selected' }}>Nam</option>
-                                    <option value="female" {{ old("players.{$i}.gender") === 'female' ? 'selected' : '' }}>Nữ</option>
-                                </select>
-                            </div>
-                            <div class="reg-field">
-                                <label class="reg-label">Điểm trình</label>
-                                <input type="text" name="players[{{ $i }}][skill_level]" class="reg-input" placeholder="VD: 3.5, 4.0" value="{{ old("players.{$i}.skill_level") }}">
-                            </div>
-                        </div>
-
-                        <div class="reg-row">
-                            <div class="reg-field">
-                                <label class="reg-label">Tỉnh/Thành</label>
-                                <input type="text" name="players[{{ $i }}][province]" class="reg-input" placeholder="VD: TP.HCM, Hà Nội" value="{{ old("players.{$i}.province") }}">
-                            </div>
-                            <div class="reg-field">
-                                <label class="reg-label">Ngày sinh</label>
-                                <input type="date" name="players[{{ $i }}][birthday]" class="reg-input" value="{{ old("players.{$i}.birthday") }}">
-                            </div>
-                        </div>
-
-                        <div class="reg-field">
-                            <label class="reg-label">Ảnh VĐV</label>
-                            <input type="file" name="players[{{ $i }}][photo]" class="reg-input" accept="image/*">
-                        </div>
-
-                        <div class="reg-field" style="margin-bottom: 0;">
-                            <label class="reg-label">Lời nhắn</label>
-                            <textarea name="players[{{ $i }}][message]" class="reg-input" rows="2" maxlength="500" placeholder="Lời nhắn cho ban tổ chức...">{{ old("players.{$i}.message") }}</textarea>
-                        </div>
-                    </div>
-                @endfor
-
-                <!-- Payment Proof -->
-                <div class="reg-card">
-
-                    @if($league->qr_code_image)
-                        <div style="margin-bottom: 20px; text-align: center; background: #f8fafc; padding: 15px; border-radius: 8px;">
-                            <p style="margin: 0 0 10px; font-weight: 600; color: #1e293b;">Quét mã QR để thanh toán:</p>
-                            <img src="{{ Storage::url($league->qr_code_image) }}" alt="QR Code" style="max-height: 250px; border-radius: 8px; border: 1px solid #e2e8f0; max-width: 100%;margin: 0 auto;">
-                            @if($league->registration_fee)
-                                <p style="margin: 10px 0 0; font-weight: 600;">Số tiền: <span style="color: red;">{{ number_format($league->registration_fee) }}đ</span></p>
-                            @endif
-                        </div>
-                    @endif
-                    <h3 style="margin: 0 0 15px; color: #1e293b; font-size: 1rem;">
-                        <i class="fas fa-receipt"></i> Ảnh chuyển khoản
-                    </h3>
-                    <input type="file" name="payment_proof" class="reg-input" accept="image/*" id="paymentProofInput">
-                    <img id="paymentPreview" style="display:none; max-width:100%; margin-top:15px; border-radius:8px; border:1px solid #e2e8f0;">
-                    <p style="color: #9ca3af; font-size: 0.8rem; margin: 10px 0 0;">Chấp nhận ảnh JPG, PNG. Tối đa 5MB.</p>
-                </div>
-
-                <button type="submit" id="submitBtn" style="width: 100%; padding: 14px; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border: none; border-radius: 10px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: opacity 0.2s;">
-                    Gửi đăng ký
-                </button>
-            </form>
-        @endif
     </div>
 </div>
 
 <script>
+// Tab switching with hash persistence
+(function() {
+    var tabs = document.querySelectorAll('.league-tab');
+    var panels = document.querySelectorAll('.league-tab-panel');
+
+    function activateTab(tabName) {
+        tabs.forEach(function(t) {
+            t.classList.toggle('active', t.dataset.tab === tabName);
+        });
+        panels.forEach(function(p) {
+            p.classList.toggle('active', p.id === 'tab-' + tabName);
+        });
+    }
+
+    tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+            var name = this.dataset.tab;
+            activateTab(name);
+            history.replaceState(null, '', '#' + name);
+        });
+    });
+
+    // Read hash on load
+    var hash = window.location.hash.replace('#', '');
+    if (['info', 'schedule', 'standings'].indexOf(hash) !== -1) {
+        activateTab(hash);
+    }
+})();
+
 // Payment proof preview
 document.getElementById('paymentProofInput')?.addEventListener('change', function() {
     var preview = document.getElementById('paymentPreview');
@@ -225,5 +189,19 @@ document.getElementById('registrationForm')?.addEventListener('submit', function
     btn.textContent = 'Đang gửi...';
     btn.style.opacity = '0.6';
 });
+
+// MLP sub-game toggle (public view)
+function toggleMlpPublicDetails(matchId) {
+    var el = document.getElementById('mlp-pub-details-' + matchId);
+    var icon = document.getElementById('mlp-pub-icon-' + matchId);
+    if (!el || !icon) return;
+    if (el.style.display === 'none') {
+        el.style.display = 'block';
+        icon.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2,8 6,4 10,8"/></svg>';
+    } else {
+        el.style.display = 'none';
+        icon.innerHTML = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="2,4 6,8 10,4"/></svg>';
+    }
+}
 </script>
 @endsection
