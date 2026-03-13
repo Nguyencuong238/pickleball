@@ -33,11 +33,14 @@
 
             {{-- Phone --}}
             <div class="td-form-group">
-                <label class="td-label">Số điện thoại</label>
+                <label class="td-label">Số điện thoại <span style="color:#ef4444">*</span></label>
                 <input type="text"
                        class="td-input"
+                       :class="{ 'is-invalid': formErrors.phone }"
                        x-model="form.phone"
-                       placeholder="0901234567">
+                       placeholder="0901234567"
+                       required>
+                <span class="td-error" x-show="formErrors.phone" x-text="formErrors.phone && formErrors.phone[0]"></span>
             </div>
 
             {{-- Category --}}

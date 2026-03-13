@@ -175,7 +175,7 @@ function tournamentAthletes(config) {
                 const body = {
                     athlete_name: this.form.athlete_name,
                     email: this.form.email,
-                    phone: this.form.phone || null,
+                    phone: this.form.phone,
                     category_id: parseInt(this.form.category_id),
                     partner_id: this.form.partner_id ? parseInt(this.form.partner_id) : null,
                 };

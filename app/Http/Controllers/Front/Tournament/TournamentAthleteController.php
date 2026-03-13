@@ -85,22 +85,36 @@ class TournamentAthleteController extends Controller
         $validated = $request->validate([
             'athlete_name' => 'required|string|max:100',
             'email'        => 'required|email|max:100',
-            'phone'        => 'nullable|string|max:20',
+            'phone'        => 'required|string|max:20',
             'category_id'  => 'required|integer|exists:tournament_categories,id',
             'partner_id'   => 'nullable|integer|exists:tournament_athletes,id',
         ]);
+
+        $athleteUser = \App\Models\User::where('phone', $validated['phone'])->first()
+            ?? \App\Models\User::where('email', $validated['email'])->first();
+
+        if (!$athleteUser) {
+            $athleteUser = \App\Models\User::create([
+                'name'     => $validated['athlete_name'],
+                'email'    => $validated['email'],
+                'phone'    => $validated['phone'],
+                'password' => bcrypt(\Illuminate\Support\Str::random(16)),
+            ]);
+        }
+        $userId = $athleteUser->id;
 
         $category = TournamentCategory::where('id', $validated['category_id'])
             ->where('tournament_id', $tournament->id)
             ->firstOrFail();
 
-        $athlete = DB::transaction(function () use ($validated, $tournament, $category) {
+        $athlete = DB::transaction(function () use ($validated, $tournament, $category, $userId) {
             $athlete = TournamentAthlete::create([
                 'tournament_id'  => $tournament->id,
                 'category_id'    => $category->id,
                 'athlete_name'   => $validated['athlete_name'],
                 'email'          => $validated['email'],
-                'phone'          => $validated['phone'] ?? null,
+                'phone'          => $validated['phone'],
+                'user_id'        => $userId,
                 'status'         => 'pending',
                 'payment_status' => 'unpaid',
             ]);
