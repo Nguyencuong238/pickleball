@@ -23,6 +23,13 @@ class TournamentCrudService
             'price'                 => 'nullable|numeric|min:0',
             'status'                => 'required|boolean',
             'banner'                => 'nullable|image|max:5120',
+            'club_id'               => 'nullable|integer|exists:clubs,id',
+            'rules'                 => 'nullable|string',
+            'prizes'                => 'nullable|numeric|min:0',
+            'organizer_email'       => 'nullable|email|max:255',
+            'organizer_hotline'     => 'nullable|string|max:50',
+            'registration_benefits' => 'nullable|string',
+            'social_information'    => 'nullable|string',
             'categories'                        => 'nullable|array',
             'categories.*.id'                   => 'nullable|integer',
             'categories.*.category_name'        => 'required|string|max:255',
@@ -46,6 +53,13 @@ class TournamentCrudService
             'max_participants'      => $validated['max_participants'],
             'price'                 => $validated['price'] ?? 0,
             'status'                => $validated['status'],
+            'club_id'               => $validated['club_id'] ?? null,
+            'rules'                 => $validated['rules'] ?? null,
+            'prizes'                => $validated['prizes'] ?? 0,
+            'organizer_email'       => $validated['organizer_email'] ?? null,
+            'organizer_hotline'     => $validated['organizer_hotline'] ?? null,
+            'registration_benefits' => $validated['registration_benefits'] ?? null,
+            'social_information'    => $validated['social_information'] ?? null,
         ];
     }
 

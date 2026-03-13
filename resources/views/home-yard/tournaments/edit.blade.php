@@ -43,7 +43,7 @@
         @csrf
         @method('PUT')
 
-        {{-- Basic info --}}
+        {{-- Thong tin co ban --}}
         <div class="td-form-section">
             <div class="td-section-title">Thông tin cơ bản</div>
             <div class="td-form-grid-2">
@@ -57,6 +57,18 @@
                     <select name="status" class="td-select">
                         <option value="1" {{ old('status', $tournament->status ? '1' : '0') == '1' ? 'selected' : '' }}>Hoạt động</option>
                         <option value="0" {{ old('status', $tournament->status ? '1' : '0') == '0' ? 'selected' : '' }}>Không hoạt động</option>
+                    </select>
+                </div>
+                <div class="td-form-group">
+                    <label class="td-label">Câu lạc bộ</label>
+                    <select name="club_id" class="td-select">
+                        <option value="">-- Không thuộc CLB nào --</option>
+                        @foreach($clubs as $club)
+                            <option value="{{ $club->id }}"
+                                {{ old('club_id', $tournament->club_id) == $club->id ? 'selected' : '' }}>
+                                {{ $club->name }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="td-form-group">
@@ -86,7 +98,7 @@
             </div>
         </div>
 
-        {{-- Format & registration --}}
+        {{-- Hình thức & đăng ký --}}
         <div class="td-form-section">
             <div class="td-section-title">Hình thức &amp; đăng ký</div>
             <div class="td-form-grid-2">
@@ -124,13 +136,52 @@
                     <input type="number" name="price" class="td-input"
                            value="{{ old('price', $tournament->price) }}" min="0" step="1000">
                 </div>
+                <div class="td-form-group">
+                    <label class="td-label">Giải thưởng (VNĐ)</label>
+                    <input type="number" name="prizes" class="td-input"
+                           value="{{ old('prizes', $tournament->prizes) }}" min="0" step="1000">
+                </div>
             </div>
         </div>
 
-        {{-- Categories --}}
+        {{-- Luật thi đấu & quyền lợi --}}
+        <div class="td-form-section">
+            <div class="td-section-title">Luật thi đấu &amp; quyền lợi</div>
+            <div class="td-form-group">
+                <label class="td-label">Luật thi đấu</label>
+                <textarea name="rules" class="td-textarea" rows="4">{{ old('rules', $tournament->rules) }}</textarea>
+            </div>
+            <div class="td-form-group">
+                <label class="td-label">Quyền lợi đăng ký</label>
+                <textarea name="registration_benefits" class="td-textarea" rows="3">{{ old('registration_benefits', $tournament->registration_benefits) }}</textarea>
+            </div>
+        </div>
+
+        {{-- Thông tin liên hệ --}}
+        <div class="td-form-section">
+            <div class="td-section-title">Thông tin liên hệ</div>
+            <div class="td-form-grid-2">
+                <div class="td-form-group">
+                    <label class="td-label">Email tổ chức</label>
+                    <input type="email" name="organizer_email" class="td-input"
+                           value="{{ old('organizer_email', $tournament->organizer_email) }}">
+                </div>
+                <div class="td-form-group">
+                    <label class="td-label">Hotline tổ chức</label>
+                    <input type="tel" name="organizer_hotline" class="td-input"
+                           value="{{ old('organizer_hotline', $tournament->organizer_hotline) }}">
+                </div>
+            </div>
+            <div class="td-form-group">
+                <label class="td-label">Thông tin mạng xã hội</label>
+                <textarea name="social_information" class="td-textarea" rows="2">{{ old('social_information', $tournament->social_information) }}</textarea>
+            </div>
+        </div>
+
+        {{-- Hạng mục thi đấu --}}
         @include('home-yard.tournaments.partials._category-editor')
 
-        {{-- Banner --}}
+        {{-- Ảnh bìa --}}
         <div class="td-form-section">
             <div class="td-section-title">Ảnh bìa</div>
             @if($tournament->getFirstMediaUrl('banner'))

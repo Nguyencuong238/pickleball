@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front\Tournament;
 
 use App\Http\Controllers\Controller;
+use App\Models\Club;
 use App\Models\Tournament;
 use App\Services\Tournament\TournamentCrudService;
 use Illuminate\Http\Request;
@@ -37,7 +38,9 @@ class TournamentController extends Controller
 
     public function create()
     {
-        return view('home-yard.tournaments.create');
+        $clubs = $this->getUserClubs();
+
+        return view('home-yard.tournaments.create', compact('clubs'));
     }
 
     public function store(Request $request)
@@ -82,7 +85,9 @@ class TournamentController extends Controller
 
         $tournament->load('categories');
 
-        return view('home-yard.tournaments.edit', compact('tournament'));
+        $clubs = $this->getUserClubs();
+
+        return view('home-yard.tournaments.edit', compact('tournament', 'clubs'));
     }
 
     public function update(Request $request, Tournament $tournament)
@@ -117,6 +122,14 @@ class TournamentController extends Controller
         return redirect()
             ->route('tournament-manage.tournaments.index')
             ->with('success', 'Giải đấu đã được xóa.');
+    }
+
+    private function getUserClubs()
+    {
+        return Club::where('user_id', auth()->id())
+            ->orWhereHas('members', fn ($q) => $q->where('user_id', auth()->id()))
+            ->orderBy('name')
+            ->get();
     }
 
     private function authorizeOwner(Tournament $tournament): void
