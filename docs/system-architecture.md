@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-03-09
+**Last Updated**: 2026-03-13
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -141,11 +141,13 @@ app/Http/Controllers/
     │   ├── TournamentGroupController.php      # Groups
     │   ├── TournamentMatchController.php      # Matches & scoring
     │   ├── TournamentRankingController.php    # Rankings
+    │   ├── TournamentBracketController.php    # Knockout brackets
     │   ├── DrawAuthorizationTrait.php
     │   ├── MatchListFormatterTrait.php
     │   ├── MatchScheduleTrait.php
     │   ├── MatchScoreTrait.php
-    │   └── TournamentAthleteStatusTrait.php
+    │   ├── TournamentAthleteStatusTrait.php
+    │   └── BracketAdvancementTrait.php
     ├── AthleteManagementController.php
     ├── TournamentRegistrationController.php
     ├── CategoryController.php
@@ -473,6 +475,9 @@ User register → Validate phone (normalize) → Upload payment proof → Admin 
 ### Recurring Activity Generation Flow (Scheduled Command)
 Daily 06:00 → Query active recurring templates (status=upcoming, type=recurring) → For each template: iterate 7 days ahead → Check recurrence day of week match → Skip if instance already exists for target date → Create instance via ClubActivityService.createRecurringInstance() → Log output → Idempotent: safe to run multiple times
 
+### Knockout Bracket Flow
+Tournament admin requests bracket → TournamentBracketController.generate() → KnockoutBracketService seeds athletes per BracketSeedingHelper → KnockoutMatchBuilder creates bracket rounds → First round matches from seeded athletes → Subsequent rounds populated as winners advance via BracketAdvancementTrait → Admin enters match scores → Winners auto-advance to next round → Optional third-place match if enable_third_place=true → Bracket data formatted by KnockoutBracketQuery
+
 ### Authentication Flow
 Standard: Login form → Validate credentials → Create session
 OAuth: Redirect to provider → Callback → Find/Create user
@@ -565,6 +570,15 @@ Admin: Admin login → Check role 'admin' → Create admin session
     ├── {league}/teams          # Team roster management
     ├── {league}/matches        # Match listing and scoring
     └── {league}/standings      # Real-time standings
+```
+
+### Knockout Bracket Routes (Web)
+
+```
+/tournament-manage/{tournament}/bracket              GET  # Bracket display
+/tournament-manage/{tournament}/bracket/data         GET  # Bracket data (JSON)
+/tournament-manage/{tournament}/bracket/generate     POST # Generate bracket
+/tournament-manage/{tournament}/bracket/swap         POST # Swap bracket placement
 ```
 
 ### Response Format

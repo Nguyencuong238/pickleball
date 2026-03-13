@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-03-09
+**Last Updated**: 2026-03-13
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -530,6 +530,9 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - `league_match_games` - Game-by-game scores with match_id, game_number, team_1_score, team_2_score, winner_id
 - `league_standings` - Calculated standings with league_id, team_id, wins, losses, points
 
+### Knockout Bracket Tables (2026-03-13)
+- `tournaments` - Added enable_third_place boolean for third-place match generation
+
 ## View Structure
 
 ### Admin (`resources/views/admin/`)
@@ -561,7 +564,8 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 #### Tournament Rewrite Views (New - Mar 2026)
 - `dashboard.blade.php` - Main tournament dashboard with sidebar
 - `draw.blade.php` - Draw/seeding management page
-- Partials: `_sidebar.blade.php`, `_overview.blade.php`, `_athletes.blade.php`, `_athletes-modal.blade.php`, `_athletes-mobile-cards.blade.php`, `_draw.blade.php`, `_draw-seeding.blade.php`, `_draw-manual.blade.php`, `_draw-results.blade.php`, `_matches.blade.php`, `_matches-row.blade.php`, `_matches-empty-generate.blade.php`, `_rankings.blade.php`, `_rankings-group-table.blade.php`, `_category-editor.blade.php`, `_mobile-tabs.blade.php`
+- `bracket.blade.php` - Single elimination knockout bracket display
+- Partials: `_sidebar.blade.php`, `_overview.blade.php`, `_athletes.blade.php`, `_athletes-modal.blade.php`, `_athletes-mobile-cards.blade.php`, `_draw.blade.php`, `_draw-seeding.blade.php`, `_draw-manual.blade.php`, `_draw-results.blade.php`, `_matches.blade.php`, `_matches-row.blade.php`, `_matches-empty-generate.blade.php`, `_rankings.blade.php`, `_rankings-group-table.blade.php`, `_category-editor.blade.php`, `_mobile-tabs.blade.php`, `_bracket-tree.blade.php`, `_bracket-match.blade.php`
 
 #### Other Home Yard Views
 - Tournaments (legacy views being replaced)
@@ -678,10 +682,10 @@ php artisan db:seed --class=SkillQuestionSeeder
 ## Frontend Assets (Tournament Rewrite - Mar 2026)
 
 ### JavaScript Modules (`public/assets/js/`)
-8 Alpine.js modules: `tournament-dashboard.js`, `tournament-athletes.js`, `tournament-draw.js`, `tournament-draw-group-setup-mixin.js`, `tournament-draw-manual-sortable-mixin.js`, `tournament-draw-reset-mixin.js`, `tournament-matches.js`, `tournament-matches-api.js`, `tournament-matches-schedule-mixin.js`, `tournament-rankings.js`
+12 Alpine.js modules: `tournament-dashboard.js`, `tournament-athletes.js`, `tournament-draw.js`, `tournament-draw-group-setup-mixin.js`, `tournament-draw-manual-sortable-mixin.js`, `tournament-draw-reset-mixin.js`, `tournament-matches.js`, `tournament-matches-api.js`, `tournament-matches-schedule-mixin.js`, `tournament-rankings.js`, `bracket-manager.js`, `bracket-data-fetcher.js`, `bracket-score-entry.js`, `bracket-swap-editor.js`
 
 ### CSS Stylesheets (`public/assets/css/tournament-dashboard/`)
-11 files: Layout (sidebar), Components (cards, forms, buttons, alerts), Feature-specific (athletes, draw, matches, rankings). Responsive design with mobile support.
+12 files: Layout (sidebar), Components (cards, forms, buttons, alerts), Feature-specific (athletes, draw, matches, rankings, bracket-tree). Responsive design with mobile support.
 
 ## Authentication Flow
 

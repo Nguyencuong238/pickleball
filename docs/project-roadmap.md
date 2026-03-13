@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-03-09
-**Current Version:** 1.9.0
+**Last Updated:** 2026-03-13
+**Current Version:** 1.11.0
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -184,6 +184,17 @@ Referee management system for tournament match officiating.
   - [x] 20+ Blade partials for component modularity
   - [x] 8 JavaScript modules with mixin composition
   - [x] 11 CSS stylesheets for responsive design
+- [x] **Single Elimination Knockout Bracket System (Mar 13, 2026)** NEW
+  - [x] Bracket generation with seeding algorithms
+  - [x] Winner advancement logic (BracketAdvancementTrait)
+  - [x] Optional third-place match support (enable_third_place)
+  - [x] Bracket visualization with tree layout
+  - [x] Bracket match score entry and progression
+  - [x] Bracket placement swap functionality
+  - [x] 4 services (KnockoutBracketService, BracketSeedingHelper, KnockoutMatchBuilder, KnockoutBracketQuery)
+  - [x] 4 JavaScript modules (bracket-manager, bracket-data-fetcher, bracket-score-entry, bracket-swap-editor)
+  - [x] Bracket tree CSS styling
+  - [x] 4 bracket routes (index, data, generate, swap)
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -417,6 +428,8 @@ Referee management system for tournament match officiating.
 | Club Management System | Complete | 2026-02-14 | 100% |
 | League Management (Phase 4) | Complete | 2026-02-25 | 100% |
 | Club Activity Casual Matches | Complete | 2026-03-03 | 100% |
+| Tournament Management Rewrite | Complete | 2026-03-13 | 100% |
+| Knockout Bracket System | Complete | 2026-03-13 | 100% |
 | Payment Gateway Integration | 🔄 In Progress | 2026-03-31 | 30% |
 | Notification System Design | Planned | 2026-03-15 | 0% |
 
@@ -433,6 +446,8 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 ---
 
 ## Change Log (Compact)
+
+**v1.11.0 (2026-03-13)** - Knockout Bracket System: Single elimination bracket, seeding helpers, match advancement, optional third-place, 4 services, 4 JS modules, bracket CSS, 4 routes, enable_third_place migration
 
 **v1.10.0 (2026-03-13)** - Tournament Management Rewrite: 7 controllers, 6 services, 6 traits, Alpine.js dashboard, draw/seeding, athletes, matches, rankings, 20+ partials, 8 JS modules, 11 CSS files, mixin composition pattern
 
