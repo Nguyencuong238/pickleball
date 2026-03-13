@@ -1278,6 +1278,11 @@ console.log(href, currentPath, href.split('/').pop())
         setActiveNavItem();
     </script>
 
+    <!-- SortableJS (drag-and-drop) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- Alpine.js (after jQuery, before Toastr) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
+
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>

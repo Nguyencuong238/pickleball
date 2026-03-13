@@ -1,0 +1,146 @@
+/* Tournament Dashboard - Form Inputs & Category Rows */
+
+.td-form-section {
+    background: #fff;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.td-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.td-form-group { margin-bottom: 14px; }
+
+.td-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.td-input,
+.td-select,
+.td-textarea {
+    width: 100%;
+    padding: 9px 12px;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 7px;
+    font-size: 0.9rem;
+    color: #1e293b;
+    background: #fff;
+    transition: border-color 0.15s ease;
+    font-family: inherit;
+}
+
+.td-input:focus,
+.td-select:focus,
+.td-textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(0,217,181,0.12);
+}
+
+.td-form-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+}
+
+/* Category inline rows */
+.td-category-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+    align-items: start;
+    padding: 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border: 1.5px solid #e2e8f0;
+}
+
+.td-category-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.td-remove-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: #fee2e2;
+    color: #991b1b;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    margin-top: 22px;
+}
+
+.td-add-category-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1.5px dashed #86efac;
+    border-radius: 7px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+
+.td-add-category-btn:hover { background: #dcfce7; }
+
+/* Image upload */
+.td-upload-area {
+    border: 2px dashed #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.td-upload-area:hover {
+    border-color: var(--primary-color);
+    background: rgba(0,217,181,0.04);
+}
+
+.td-img-preview {
+    max-width: 200px;
+    max-height: 140px;
+    border-radius: 8px;
+    object-fit: cover;
+    margin-top: 10px;
+}
+
+@media (min-width: 768px) {
+    .td-form-grid-2     { grid-template-columns: 1fr 1fr; }
+    .td-category-fields { grid-template-columns: 2fr 1fr 1fr; }
+}
+
+@media (min-width: 1024px) {
+    .td-category-fields { grid-template-columns: 2fr 1fr 1fr 1fr; }
+}

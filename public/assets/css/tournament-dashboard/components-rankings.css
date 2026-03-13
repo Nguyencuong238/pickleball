@@ -1,0 +1,98 @@
+/* Tournament Dashboard - Rankings: controls, tabs, toggle, header */
+
+/* Category tabs */
+.rk-category-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 0;
+}
+
+.rk-category-tab {
+    padding: 7px 14px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.rk-category-tab:hover { border-color: var(--primary-color); color: var(--primary-color); }
+.rk-category-tab.active { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+
+/* View toggle */
+.rk-view-toggle {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 3px;
+}
+
+.rk-view-btn {
+    padding: 5px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.rk-view-btn.active {
+    background: #fff;
+    color: #1e293b;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Last updated indicator */
+.rk-last-updated {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Group block */
+.rk-group-block { margin-bottom: 20px; }
+
+.rk-group-title {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #475569;
+    padding: 8px 0 10px;
+    border-bottom: 2px solid #e2e8f0;
+    margin-bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rk-group-title .advancing-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    background: rgba(0,217,181,0.12);
+    color: var(--primary-color);
+    padding: 2px 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(0,217,181,0.3);
+}
+
+/* Empty state */
+.rk-empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: #94a3b8;
+    font-size: 0.85rem;
+}
+
+@media (max-width: 768px) {
+    .rk-category-tabs { gap: 6px; }
+    .rk-category-tab { padding: 5px 10px; font-size: 0.78rem; }
+}

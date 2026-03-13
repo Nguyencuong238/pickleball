@@ -567,6 +567,49 @@ Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(functi
     Route::put('leagues/{league}/matches/{match}/games/{game}/score', [LeagueMatchController::class, 'updateGameScore'])->name('leagues.matches.games.score');
 });
 
+// Tournament Management Routes (new rewrite - Alpine.js)
+Route::middleware(['auth'])->prefix('tournament-manage')->name('tournament-manage.')->group(function () {
+    // CRUD giải đấu
+    Route::resource('tournaments', \App\Http\Controllers\Front\Tournament\TournamentController::class);
+
+    // Vận động viên
+    Route::get('{tournament}/athletes', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'index'])->name('athletes.index');
+    Route::post('{tournament}/athletes', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'store'])->name('athletes.store');
+    Route::put('{tournament}/athletes/{athlete}', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'update'])->name('athletes.update');
+    Route::delete('{tournament}/athletes/{athlete}', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'destroy'])->name('athletes.destroy');
+    Route::patch('{tournament}/athletes/{athlete}/status', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'updateStatus'])->name('athletes.updateStatus');
+    Route::post('{tournament}/athletes/{athlete}/approve', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'approve'])->name('athletes.approve');
+    Route::post('{tournament}/athletes/{athlete}/reject', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'reject'])->name('athletes.reject');
+    Route::get('{tournament}/athletes/by-status', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'listByStatus'])->name('athletes.byStatus');
+    Route::post('{tournament}/athletes/bulk-approve', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'bulkApprove'])->name('athletes.bulkApprove');
+
+    // Cấu hình bảng đấu
+    Route::get('{tournament}/groups', [\App\Http\Controllers\Front\Tournament\TournamentGroupController::class, 'index'])->name('groups.index');
+    Route::post('{tournament}/groups/setup', [\App\Http\Controllers\Front\Tournament\TournamentGroupController::class, 'setup'])->name('groups.setup');
+
+    // Bốc thăm / chia bảng
+    Route::get('{tournament}/draw', [\App\Http\Controllers\Front\Tournament\TournamentDrawController::class, 'index'])->name('draw.index');
+    Route::post('{tournament}/draw', [\App\Http\Controllers\Front\Tournament\TournamentDrawController::class, 'draw'])->name('draw.execute');
+    Route::get('{tournament}/draw/results', [\App\Http\Controllers\Front\Tournament\TournamentDrawController::class, 'getResults'])->name('draw.results');
+    Route::post('{tournament}/draw/reset', [\App\Http\Controllers\Front\Tournament\TournamentDrawController::class, 'reset'])->name('draw.reset');
+    Route::get('{tournament}/draw/manual', [\App\Http\Controllers\Front\Tournament\TournamentManualDrawController::class, 'getManualDraw'])->name('draw.manual');
+    Route::post('{tournament}/draw/manual', [\App\Http\Controllers\Front\Tournament\TournamentManualDrawController::class, 'saveManualDraw'])->name('draw.manualSave');
+
+    // Trận đấu & tỉ số
+    Route::get('{tournament}/matches', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'index'])->name('matches.index');
+    Route::post('{tournament}/matches', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'store'])->name('matches.store');
+    Route::get('{tournament}/matches/{match}', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'show'])->name('matches.show');
+    Route::put('{tournament}/matches/{match}/score', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'updateScore'])->name('matches.updateScore');
+    Route::delete('{tournament}/matches/{match}', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'destroy'])->name('matches.destroy');
+    Route::patch('{tournament}/matches/{match}/schedule', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'updateSchedule'])->name('matches.updateSchedule');
+    Route::post('{tournament}/matches/groups', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'createForGroups'])->name('matches.createForGroups');
+
+    // Xếp hạng & bảng điểm
+    Route::get('{tournament}/rankings', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'index'])->name('rankings.index');
+    Route::get('{tournament}/rankings/category/{categoryId}', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'getCategoryRankings'])->name('rankings.category');
+    Route::get('{tournament}/rankings/category/{categoryId}/groups', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'getCategoryGroups'])->name('rankings.categoryGroups');
+});
+
 // Referee Routes
 Route::middleware(['auth', 'role:referee'])->prefix('referee')->name('referee.')->group(function () {
     Route::get('dashboard', [RefereeController::class, 'dashboard'])->name('dashboard');

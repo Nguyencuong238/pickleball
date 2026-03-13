@@ -1,0 +1,75 @@
+/* Tournament Dashboard - Rankings: rank badges, advancing states, legend */
+
+/* Rank cell */
+.rk-rank-cell {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.rk-rank-num {
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.rk-rank-num.rank-1 { background: #fef3c7; color: #92400e; }
+.rk-rank-num.rank-2 { background: #e2e8f0; color: #374151; }
+.rk-rank-num.rank-3 { background: #fde8d8; color: #9a3412; }
+
+/* Advance indicator dot */
+.rk-advance-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--primary-color);
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+/* Advancing rows */
+.rk-standings-table tbody tr.advancing { background: rgba(0,217,181,0.07); }
+.rk-standings-table tbody tr.advancing:hover { background: rgba(0,217,181,0.13); }
+
+/* Advancement dashed separator */
+.rk-standings-table tbody tr.advance-separator td {
+    border-bottom: 2px dashed var(--primary-color);
+    padding-bottom: 0;
+}
+
+/* Legend */
+.rk-legend {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 10px 0 0;
+    font-size: 0.75rem;
+    color: #64748b;
+    border-top: 1px solid #f1f5f9;
+    margin-top: 8px;
+}
+
+.rk-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.rk-legend-advancing {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: rgba(0,217,181,0.2);
+    border: 1px solid rgba(0,217,181,0.4);
+    flex-shrink: 0;
+}
