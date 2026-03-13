@@ -837,7 +837,7 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Quản Lý Giải Đâu</div>
 
-                    <a href="{{ route('homeyard.tournaments.index') }}" class="nav-item">
+                    <a href="{{ route('tournament-manage.tournaments.index') }}" class="nav-item">
                         <span class="nav-icon">🏆</span>
                         <span class="nav-text">Giải đấu</span>
                         {{-- <span class="nav-badge">{{ $tournamentsCount ?? 0 }}</span> --}}
