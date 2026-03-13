@@ -604,6 +604,12 @@ Route::middleware(['auth'])->prefix('tournament-manage')->name('tournament-manag
     Route::patch('{tournament}/matches/{match}/schedule', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'updateSchedule'])->name('matches.updateSchedule');
     Route::post('{tournament}/matches/groups', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'createForGroups'])->name('matches.createForGroups');
 
+    // Bracket knockout
+    Route::get('{tournament}/bracket', [\App\Http\Controllers\Front\Tournament\TournamentBracketController::class, 'index'])->name('bracket.index');
+    Route::get('{tournament}/bracket/data', [\App\Http\Controllers\Front\Tournament\TournamentBracketController::class, 'getData'])->name('bracket.data');
+    Route::post('{tournament}/bracket/generate', [\App\Http\Controllers\Front\Tournament\TournamentBracketController::class, 'generate'])->name('bracket.generate');
+    Route::post('{tournament}/bracket/swap', [\App\Http\Controllers\Front\Tournament\TournamentBracketController::class, 'swap'])->name('bracket.swap');
+
     // Xếp hạng & bảng điểm
     Route::get('{tournament}/rankings', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'index'])->name('rankings.index');
     Route::get('{tournament}/rankings/category/{categoryId}', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'getCategoryRankings'])->name('rankings.category');

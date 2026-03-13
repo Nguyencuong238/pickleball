@@ -95,7 +95,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-## Services Overview (24 Services)
+## Services Overview (30 Services)
 
 ### Business Logic Services
 - `EloService` - Elo rating calculations, K-factor management, match processing
@@ -126,6 +126,12 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - `DrawAssignmentHelper` - Group assignment helpers for draw logic
 - `MatchCreationHelper` - Match generation helpers for bracket/round-robin
 - `RankingQueryHelper` - Ranking query helpers for standings display
+
+### Knockout Bracket Services (New - Mar 2026)
+- `KnockoutBracketService` - Bracket generation, match advancement, winner progression
+- `BracketSeedingHelper` - Seeding algorithms for bracket placement
+- `KnockoutMatchBuilder` - Match creation for bracket rounds
+- `KnockoutBracketQuery` - Bracket data retrieval and structure queries
 
 ## Controllers Overview
 
@@ -208,6 +214,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `Tournament/TournamentGroupController` | Groups (index, setup) |
 | `Tournament/TournamentMatchController` | Matches & scoring (index, store, show, updateScore, destroy, updateSchedule, createForGroups) |
 | `Tournament/TournamentRankingController` | Rankings (index, getCategoryRankings, getCategoryGroups) |
+| `Tournament/TournamentBracketController` | Knockout brackets (index, getData, generate, swap) |
 
 #### Traits (Supporting Tournament Controllers)
 | Trait | Purpose |
@@ -217,6 +224,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `MatchScheduleTrait` | Schedule match operations |
 | `MatchScoreTrait` | Score entry and validation |
 | `TournamentAthleteStatusTrait` | Athlete status management |
+| `BracketAdvancementTrait` | Winner advancement in knockout brackets |
 | Additional Traits | Supporting reusable functionality |
 
 #### Other Front Controllers

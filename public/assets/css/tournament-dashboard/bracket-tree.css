@@ -1,0 +1,165 @@
+/* Tournament Dashboard - Bracket Tree */
+
+/* Horizontal bracket layout */
+.bracket-container {
+    display: flex;
+    gap: 48px;
+    overflow-x: auto;
+    padding: 24px 8px;
+    align-items: flex-start;
+}
+
+/* Single round column */
+.bracket-round {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    flex-shrink: 0;
+    min-width: 180px;
+}
+
+.bracket-round-header {
+    text-align: center;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #94a3b8;
+    margin-bottom: 12px;
+}
+
+/* Matches wrapper for connector positioning */
+.bracket-round-matches {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+}
+
+/* Individual match card */
+.bracket-match {
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    background: #fff;
+    position: relative;
+    margin: 8px 0;
+    overflow: hidden;
+}
+
+/* Horizontal connector line going right from match */
+.bracket-match::after {
+    content: '';
+    position: absolute;
+    right: -49px;
+    top: 50%;
+    width: 49px;
+    height: 1px;
+    background: #cbd5e1;
+    pointer-events: none;
+}
+
+/* Last round: no connector needed */
+.bracket-round:last-child .bracket-match::after {
+    display: none;
+}
+
+/* Athlete slot row */
+.bracket-slot {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #334155;
+    min-height: 36px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bracket-slot:first-child {
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Winner highlight */
+.bracket-slot--winner {
+    background: #e0f2fe;
+    font-weight: 700;
+    color: #0369a1;
+}
+
+/* Bye match: dimmed */
+.bracket-match--bye {
+    opacity: 0.5;
+}
+
+/* Live match: amber border */
+.bracket-match--live {
+    border-color: #f59e0b;
+}
+
+/* LIVE badge */
+.bracket-match-status {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: #f59e0b;
+    border-radius: 4px;
+    padding: 1px 5px;
+    line-height: 1.4;
+    pointer-events: none;
+}
+
+/* Mobile round navigation bar */
+.bracket-mobile-nav {
+    display: none;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Swap editing states */
+.bracket-slot--swappable {
+    cursor: pointer;
+    transition: background 0.15s, border-left 0.15s;
+}
+.bracket-slot--swappable:hover {
+    background: #f0f9ff;
+    border-left: 3px solid #0369a1;
+}
+.bracket-slot--selected {
+    background: #dbeafe;
+    border-left: 3px solid #2563eb;
+    font-weight: 600;
+}
+
+/* Mobile: show only active round */
+@media (max-width: 768px) {
+    .bracket-mobile-nav {
+        display: flex;
+    }
+
+    .bracket-container {
+        gap: 0;
+        padding: 8px 0;
+    }
+
+    .bracket-round {
+        display: none;
+        min-width: 100%;
+    }
+
+    .bracket-round.bracket-round-active {
+        display: flex;
+    }
+
+    .bracket-match::after {
+        display: none;
+    }
+}

@@ -88,6 +88,49 @@ trait MatchScoreTrait
 
             $match->refresh();
 
+            // Tự động chuyển người thắng vào vòng tiếp theo (knockout bracket)
+            if ($match->bracket_position && $match->status === 'completed' && $match->winner_id) {
+                if (method_exists($this, 'handleBracketAdvancement')) {
+                    $this->handleBracketAdvancement($match);
+                }
+            }
+
+            // Tự động tạo bracket khi vòng bảng hoàn thành
+            if ($match->group_id && $match->status === 'completed') {
+                try {
+                    $bracketService = app(\App\Services\Tournament\KnockoutBracketService::class);
+                    $categoryId = $match->category_id;
+                    $tournamentId = $match->tournament_id;
+
+                    if ($bracketService->checkCategoryCompletion($tournamentId, $categoryId)
+                        && !$bracketService->isBracketGenerated($tournamentId, $categoryId)) {
+
+                        $tournament = $match->tournament;
+
+                        // Đánh dấu nội dung sẵn sàng tạo bracket
+                        $bracketData = $tournament->bracket_data ?? [];
+                        $bracketData["category_{$categoryId}_ready"] = true;
+                        $tournament->update(['bracket_data' => $bracketData]);
+
+                        // Tự động tạo bracket nếu cài đặt cho phép
+                        if ($tournament->auto_bracket_generation) {
+                            $bracketService->generateBracket(
+                                $tournament,
+                                $categoryId,
+                                (bool) $tournament->enable_third_place
+                            );
+                            $bracketData["category_{$categoryId}_generated"] = true;
+                            $tournament->update([
+                                'bracket_data' => $bracketData,
+                                'tournament_stage' => 'finals',
+                            ]);
+                        }
+                    }
+                } catch (\Exception $e) {
+                    Log::warning('Kiểm tra tự động tạo bracket thất bại: ' . $e->getMessage());
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Cập nhật tỉ số thành công',

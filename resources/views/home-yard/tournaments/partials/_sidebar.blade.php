@@ -19,6 +19,16 @@
     $progressPct = (int) round($progress / count($steps) * 100);
 
     $currentRoute = request()->route()->getName();
+
+    $bracketReadyCount = 0;
+    $bData = $tournament->bracket_data ?? [];
+    foreach ($tournament->categories as $cat) {
+        $key = "category_{$cat->id}_ready";
+        $genKey = "category_{$cat->id}_generated";
+        if (($bData[$key] ?? false) && !($bData[$genKey] ?? false)) {
+            $bracketReadyCount++;
+        }
+    }
 @endphp
 
 <aside class="td-sidebar">
@@ -67,6 +77,17 @@
             @if($matchTotal > 0)
                 <span class="td-nav-badge {{ $matchDone === $matchTotal ? 'done' : '' }}">
                     {{ $matchDone }}/{{ $matchTotal }}
+                </span>
+            @endif
+        </a>
+
+        <a href="{{ route('tournament-manage.bracket.index', $tournament) }}"
+           class="td-nav-item {{ str_contains($currentRoute, 'bracket') ? 'active' : '' }}">
+            <span class="td-nav-icon">&#9663;</span>
+            <span class="td-nav-label">Bracket</span>
+            @if($bracketReadyCount > 0)
+                <span style="background:#ef4444;color:#fff;font-size:0.7rem;padding:1px 6px;border-radius:10px;margin-left:4px;">
+                    {{ $bracketReadyCount }}
                 </span>
             @endif
         </a>

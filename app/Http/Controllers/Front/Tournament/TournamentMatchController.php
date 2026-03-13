@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Front\Tournament;
 
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Front\Tournament\Traits\BracketAdvancementTrait;
 use App\Http\Controllers\Front\Tournament\Traits\MatchListFormatterTrait;
 use App\Http\Controllers\Front\Tournament\Traits\MatchScheduleTrait;
 use App\Http\Controllers\Front\Tournament\Traits\MatchScoreTrait;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 
 class TournamentMatchController extends Controller
 {
-    use MatchScoreTrait, MatchListFormatterTrait, MatchScheduleTrait;
+    use MatchScoreTrait, MatchListFormatterTrait, MatchScheduleTrait, BracketAdvancementTrait;
 
     public function __construct(
         private TournamentMatchService $matchService,
