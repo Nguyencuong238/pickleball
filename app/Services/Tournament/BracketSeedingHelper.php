@@ -135,7 +135,7 @@ class BracketSeedingHelper
      */
     private function buildKnockoutRoundName(int $roundFromFinal, int $totalRounds): string
     {
-        $matchesInRound = (int) pow(2, $roundFromFinal);
+        $matchesInRound = (int) \pow(2, $roundFromFinal);
 
         return "Vòng 1/{$matchesInRound}";
     }
@@ -149,12 +149,14 @@ class BracketSeedingHelper
     private function buildSeedPositions(int $bracketSize): array
     {
         $positions = [1];
+        $size = 1;
 
-        while (count($positions) < $bracketSize) {
+        while ($size < $bracketSize) {
+            $size *= 2;
             $next = [];
             foreach ($positions as $pos) {
                 $next[] = $pos;
-                $next[] = $bracketSize + 1 - $pos;
+                $next[] = $size + 1 - $pos;
             }
             $positions = $next;
         }

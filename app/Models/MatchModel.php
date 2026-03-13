@@ -341,13 +341,13 @@ class MatchModel extends Model
 
             'athlete1' => [
                 'id' => $this->athlete1_id,
-                'name' => $this->athlete1->athlete_name ?? 'TBD',
+                'name' => $this->athlete1->athlete_name ?? 'Chưa xác định',
                 'partnerName' => $isDoubles ? ($this->athlete1?->partner?->athlete_name ?? null) : null,
                 'pairName' => $isDoubles ? ($this->athlete1?->pair_name ?? $this->athlete1_name) : $this->athlete1_name,
             ],
             'athlete2' => [
                 'id' => $this->athlete2_id,
-                'name' => $this->athlete2->athlete_name ?? 'TBD',
+                'name' => $this->athlete2->athlete_name ?? 'Chưa xác định',
                 'partnerName' => $isDoubles ? ($this->athlete2?->partner?->athlete_name ?? null) : null,
                 'pairName' => $isDoubles ? ($this->athlete2?->pair_name ?? $this->athlete2_name) : $this->athlete2_name,
             ],

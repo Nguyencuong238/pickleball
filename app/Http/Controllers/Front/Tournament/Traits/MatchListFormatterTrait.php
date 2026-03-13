@@ -18,7 +18,7 @@ trait MatchListFormatterTrait
         $status     = $request->query('status');
 
         $query = MatchModel::where('tournament_id', $tournament->id)
-            ->with(['athlete1', 'athlete2', 'group', 'category']);
+            ->with(['athlete1', 'athlete2', 'group', 'category', 'round']);
 
         if ($categoryId) {
             $query->where('category_id', $categoryId);
@@ -32,7 +32,16 @@ trait MatchListFormatterTrait
         $grouped = [];
         foreach ($matches as $match) {
             $catId = $match->category_id;
-            $grpId = $match->group_id ?? 0;
+
+            // Bracket matches have no group_id; bucket them by round to show round names.
+            // Group-stage matches use group_id as the bucket key (prefixed to avoid collision).
+            if ($match->group_id) {
+                $bucketKey  = 'g_' . $match->group_id;
+                $bucketName = $match->group->group_name ?? 'Vòng bảng';
+            } else {
+                $bucketKey  = 'r_' . ($match->round_id ?? 0);
+                $bucketName = $match->round->round_name ?? 'Vòng loại trực tiếp';
+            }
 
             $grouped[$catId] ??= [
                 'category_id'   => $catId,
@@ -40,19 +49,19 @@ trait MatchListFormatterTrait
                 'groups'        => [],
             ];
 
-            $grouped[$catId]['groups'][$grpId] ??= [
-                'group_id'   => $grpId,
-                'group_name' => $match->group->group_name ?? 'Bảng chung',
+            $grouped[$catId]['groups'][$bucketKey] ??= [
+                'group_id'   => $bucketKey,
+                'group_name' => $bucketName,
                 'matches'    => [],
             ];
 
-            $grouped[$catId]['groups'][$grpId]['matches'][] = [
+            $grouped[$catId]['groups'][$bucketKey]['matches'][] = [
                 'id'             => $match->id,
                 'match_number'   => $match->match_number,
                 'athlete1_id'    => $match->athlete1_id,
-                'athlete1_name'  => $match->athlete1_name ?? ($match->athlete1->athlete_name ?? 'TBD'),
+                'athlete1_name'  => $match->athlete1_name ?? ($match->athlete1->athlete_name ?? 'Chưa xác định'),
                 'athlete2_id'    => $match->athlete2_id,
-                'athlete2_name'  => $match->athlete2_name ?? ($match->athlete2->athlete_name ?? 'TBD'),
+                'athlete2_name'  => $match->athlete2_name ?? ($match->athlete2->athlete_name ?? 'Chưa xác định'),
                 'athlete1_score' => $match->athlete1_score,
                 'athlete2_score' => $match->athlete2_score,
                 'winner_id'      => $match->winner_id,

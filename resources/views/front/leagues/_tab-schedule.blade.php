@@ -29,7 +29,7 @@
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                             <!-- Đội nhà -->
                             <div style="flex: 1; min-width: 120px; text-align: right; font-weight: 500; color: #1e293b;">
-                                {{ $match->homeTeam->name ?? 'TBD' }}
+                                {{ $match->homeTeam->name ?? 'Chưa xác định' }}
                             </div>
 
                             <!-- Tỉ số -->
@@ -51,7 +51,7 @@
 
                             <!-- Đội khách -->
                             <div style="flex: 1; min-width: 120px; text-align: left; font-weight: 500; color: #1e293b;">
-                                {{ $match->awayTeam->name ?? 'TBD' }}
+                                {{ $match->awayTeam->name ?? 'Chưa xác định' }}
                             </div>
 
                             <!-- Trạng thái -->

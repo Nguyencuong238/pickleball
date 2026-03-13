@@ -339,7 +339,7 @@
                                             <br><span class="category-name">{{ $match->category->name }}</span>
                                         @endif
                                     </td>
-                                    <td>{{ $match->athlete1_name ?? 'TBD' }} vs {{ $match->athlete2_name ?? 'TBD' }}</td>
+                                    <td>{{ $match->athlete1_name ?? 'Chưa xác định' }} vs {{ $match->athlete2_name ?? 'Chưa xác định' }}</td>
                                     <td class="match-score">{{ $match->final_score ?? '-' }}</td>
                                 </tr>
                             @endforeach

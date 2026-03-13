@@ -11,6 +11,7 @@ function bracketManager(config) {
         dataUrl:          config.dataUrl,
         generateUrl:      config.generateUrl,
         categories:       config.categories || [],
+        bracketData:      config.bracketData || {},
         csrf:             config.csrf,
 
         // State

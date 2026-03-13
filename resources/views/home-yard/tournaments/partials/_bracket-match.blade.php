@@ -20,7 +20,7 @@
          @click="selectSlot(match.id, 'athlete1', match.athlete1 ? match.athlete1.name : '', match.athlete1 ? match.athlete1.id : null)">
         <span x-text="match.athlete1
             ? (match.athlete1.partner_name ? match.athlete1.name + ' / ' + match.athlete1.partner_name : match.athlete1.name)
-            : 'TBD'">
+            : 'Chưa xác định'">
         </span>
         <span x-show="match.athlete1_score !== null && match.athlete1_score !== undefined"
               style="font-weight:700;min-width:18px;text-align:right;"
@@ -37,7 +37,7 @@
          @click="selectSlot(match.id, 'athlete2', match.athlete2 ? match.athlete2.name : '', match.athlete2 ? match.athlete2.id : null)">
         <span x-text="match.athlete2
             ? (match.athlete2.partner_name ? match.athlete2.name + ' / ' + match.athlete2.partner_name : match.athlete2.name)
-            : 'TBD'">
+            : 'Chưa xác định'">
         </span>
         <span x-show="match.athlete2_score !== null && match.athlete2_score !== undefined"
               style="font-weight:700;min-width:18px;text-align:right;"
@@ -45,12 +45,12 @@
     </div>
 
     {{-- Nút nhập tỉ số --}}
-    <template x-if="match.status === 'scheduled' && match.athlete1 && match.athlete2">
+    <template x-if="(match.status === 'scheduled' || match.status === 'completed' || match.status === 'in_progress') && match.athlete1 && match.athlete2">
         <div style="padding:4px 8px;text-align:center;border-top:1px solid #f1f5f9;">
             <button class="bracket-score-btn"
                     @click="openScore(match.id)"
                     style="font-size:0.75rem;color:#0369a1;cursor:pointer;background:none;border:none;">
-                Nhập tỉ số
+                <span x-text="match.status === 'completed' ? 'S\u1EEDa t\u1EC9 s\u1ED1' : 'Nh\u1EADp t\u1EC9 s\u1ED1'"></span>
             </button>
         </div>
     </template>

@@ -29,7 +29,7 @@ class KnockoutBracketService
 
         $bracketSize = $this->seedingHelper->calculateBracketSize(count($seeded));
         $slots       = $this->seedingHelper->arrangeSeedsIntoBracket($seeded, $bracketSize);
-        $totalRounds = (int) log2($bracketSize);
+        $totalRounds = (int) \round(\log($bracketSize, 2));
 
         DB::transaction(function () use ($tournament, $categoryId, $slots, $totalRounds, $enableThirdPlace) {
             $this->clearExistingBracket($tournament->id, $categoryId);
@@ -72,7 +72,7 @@ class KnockoutBracketService
         for ($roundFromFinal = $totalRounds - 1; $roundFromFinal >= 0; $roundFromFinal--) {
             $roundType   = $this->seedingHelper->getRoundType($roundFromFinal, $totalRounds);
             $roundName   = $this->seedingHelper->getRoundName($roundType, $roundFromFinal, $totalRounds);
-            $matchCount  = (int) pow(2, $roundFromFinal);
+            $matchCount  = (int) \pow(2, $roundFromFinal);
             $roundNumber = $totalRounds - $roundFromFinal;
 
             $rounds[$roundFromFinal] = Round::create([
@@ -81,6 +81,7 @@ class KnockoutBracketService
                 'round_name'        => $roundName,
                 'round_number'      => $roundNumber,
                 'round_type'        => $roundType,
+                'start_date'        => $tournament->start_date,
                 'status'            => 'pending',
                 'total_matches'     => $matchCount,
                 'completed_matches' => 0,
@@ -101,6 +102,7 @@ class KnockoutBracketService
             'round_name'        => 'Tranh hạng ba',
             'round_number'      => 99,
             'round_type'        => 'bronze',
+            'start_date'        => $tournament->start_date,
             'status'            => 'pending',
             'total_matches'     => 1,
             'completed_matches' => 0,
@@ -112,6 +114,7 @@ class KnockoutBracketService
             'round_id'         => $bronzeRound->id,
             'match_number'     => 0,
             'bracket_position' => 0,
+            'match_date'       => $tournament->start_date,
             'athlete1_id'      => null,
             'athlete2_id'      => null,
             'status'           => 'scheduled',

@@ -120,7 +120,7 @@
                 currentRound = m.round_number;
                 html += '<div class="match-round">Vòng ' + esc(String(currentRound)) + '</div>';
             }
-            var homeName = esc(m.home_team ? m.home_team.name : 'TBD');
+            var homeName = esc(m.home_team ? m.home_team.name : 'Chưa xác định');
             var awayName = esc(m.away_team ? m.away_team.name : 'BYE');
             html += '<div class="match-item">';
             html += '<span class="match-teams">' + homeName + ' vs ' + awayName + '</span>';

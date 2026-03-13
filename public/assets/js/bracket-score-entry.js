@@ -7,7 +7,25 @@ function bracketScoreEntryMixin() {
     return {
         openScore(matchId) {
             this.scoreMatchId = matchId;
-            this.scoreSets = [{ s1: 0, s2: 0 }];
+            // Load existing scores if match has set_scores
+            const match = this.findMatch(matchId);
+            if (match && match.set_scores && match.set_scores.length > 0) {
+                this.scoreSets = match.set_scores.map(function(s) {
+                    return { s1: s.athlete1_score || 0, s2: s.athlete2_score || 0 };
+                });
+            } else {
+                this.scoreSets = [{ s1: 0, s2: 0 }];
+            }
+        },
+
+        findMatch(matchId) {
+            for (var i = 0; i < this.rounds.length; i++) {
+                var matches = this.rounds[i].matches || [];
+                for (var j = 0; j < matches.length; j++) {
+                    if (matches[j].id === matchId) return matches[j];
+                }
+            }
+            return null;
         },
 
         addSet() {

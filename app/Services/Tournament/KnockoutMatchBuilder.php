@@ -25,16 +25,16 @@ class KnockoutMatchBuilder
     ): void {
         // Bản đồ bracket_position => MatchModel ID
         $positionToMatchId = [];
-        $totalPositions = (int) pow(2, $totalRounds + 1) - 1;
+        $totalPositions = (int) \pow(2, $totalRounds + 1) - 1;
 
         for ($position = 1; $position <= $totalPositions; $position++) {
-            $depth = (int) floor(log2($position));
+            $depth = (int) \floor(\log($position, 2));
 
             if ($depth >= $totalRounds) {
                 continue;
             }
 
-            $roundFromFinal = $totalRounds - 1 - $depth;
+            $roundFromFinal = $depth;
             $round          = $rounds[$roundFromFinal] ?? null;
 
             if (!$round) {
@@ -54,6 +54,7 @@ class KnockoutMatchBuilder
                 'round_id'         => $round->id,
                 'match_number'     => $position,
                 'bracket_position' => $position,
+                'match_date'       => $tournament->start_date,
                 'athlete1_id'      => $athlete1Id,
                 'athlete2_id'      => $athlete2Id,
                 'status'           => 'scheduled',
@@ -104,7 +105,7 @@ class KnockoutMatchBuilder
         }
 
         $athlete = TournamentAthlete::find($winnerId);
-        $name    = $athlete?->athlete_name ?? 'TBD';
+        $name    = $athlete?->athlete_name ?? 'Chưa xác định';
 
         if ($nextMatch->athlete1_id === null) {
             $nextMatch->update(['athlete1_id' => $winnerId, 'athlete1_name' => $name]);
@@ -130,12 +131,11 @@ class KnockoutMatchBuilder
             return [null, null];
         }
 
-        $slotIndex = $position - (int) pow(2, $depth);
-        $pairIndex = (int) floor($slotIndex / 2);
+        $slotIndex = $position - (int) \pow(2, $depth);
 
         return [
-            $slots[$pairIndex * 2] ?? null,
-            $slots[$pairIndex * 2 + 1] ?? null,
+            $slots[$slotIndex * 2] ?? null,
+            $slots[$slotIndex * 2 + 1] ?? null,
         ];
     }
 }

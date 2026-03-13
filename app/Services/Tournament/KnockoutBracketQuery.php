@@ -85,6 +85,7 @@ class KnockoutBracketQuery
             'winner_id'        => $match->winner_id,
             'athlete1_score'   => $match->athlete1_score,
             'athlete2_score'   => $match->athlete2_score,
+            'set_scores'       => $match->set_scores,
         ];
     }
 
