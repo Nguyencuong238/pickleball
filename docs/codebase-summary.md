@@ -11,10 +11,14 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 ## Project Structure
 
 **File Counts (Current):**
-- PHP files: 321+ (Controllers 98, Models 85+, Services 20, Commands 22+, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
-- Blade templates: 229 (Admin 50+, Front 60+, Home-yard 30+, Clubs 15, User 10, Auth 6, Referee 10, Components)
-- Database migrations: 188
-- Routes: ~75 (web.php 48+, api.php 27+)
+- PHP files: 335+ (Controllers 105+, Models 85+, Services 24, Commands 22+, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
+  - Front/Tournament/: 7 controllers + 6 traits (new rewrite)
+- Blade templates: 252+ (Admin 50+, Front 60+, Home-yard 50+, Clubs 15, User 10, Auth 6, Referee 10)
+  - home-yard/tournaments/: dashboard + 20+ partials (new rewrite)
+- JS modules: 8 files (Alpine.js components for tournament dashboard)
+- CSS stylesheets: 11 files (tournament-dashboard components)
+- Database migrations: 190+
+- Routes: ~80 (web.php 55+, api.php 27+)
 
 ## Core Technologies
 
@@ -91,7 +95,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-## Services Overview (20 Services)
+## Services Overview (24 Services)
 
 ### Business Logic Services
 - `EloService` - Elo rating calculations, K-factor management, match processing
@@ -113,6 +117,15 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - `LeagueStandingsService` - Standings calculation, win/loss tracking
 - `LeagueAutoTeamService` - Auto team generation with skill-ranked (snake-draft) and random modes (race-condition safe)
 - `LeagueRegistrationService` - Registration workflow, payment verification, team auto-generation
+
+### Tournament Rewrite Services (New - Mar 2026)
+- `TournamentCrudService` - Tournament CRUD, category configuration, basic lifecycle
+- `TournamentDrawService` - Draw/seeding logic, group assignment, auto-draw algorithms
+- `TournamentMatchService` - Match management, creation, scoring, status transitions
+- `TournamentStandingService` - Standing calculation, ranking by points/wins
+- `DrawAssignmentHelper` - Group assignment helpers for draw logic
+- `MatchCreationHelper` - Match generation helpers for bracket/round-robin
+- `RankingQueryHelper` - Ranking query helpers for standings display
 
 ## Controllers Overview
 
@@ -170,7 +183,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `ClubPostController` | Club posts and engagement API |
 | (Plus controllers for bookings, auth, leagues, etc.) |
 
-### Front Controllers (34+)
+### Front Controllers (41+)
 | Controller | Purpose |
 |------------|---------|
 | `HomeController` | Homepage, listings, booking |
@@ -178,12 +191,37 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 | `ProfileController` | Profile management (edit, avatar, email, password) |
 | `BookingHistoryController` | Booking history and cancellation |
 | `HomeYardStadiumController` | Stadium owner CRUD |
-| `HomeYardTournamentController` | Tournament + referee management, match-level referee assignment |
+| `HomeYardTournamentController` | Legacy tournament management (deprecated by rewrite) |
 | `HomeYardClubController` | HomeYard club management and activities |
 | `HomeYardLeagueController` | League CRUD, status updates, schedule generation, round editing |
 | `LeagueTeamController` | Team and player roster management |
 | `LeagueMatchController` | Match listing and score entry |
 | `ClubMatchController` | Casual match generation, scoring, standings (7 AJAX endpoints) |
+
+#### Tournament Rewrite Controllers (New - Mar 2026)
+| Controller | Purpose |
+|------------|---------|
+| `Tournament/TournamentController` | CRUD (index, create, store, edit, update, destroy, show) |
+| `Tournament/TournamentAthleteController` | Athletes (index, store, update, destroy, updateStatus, approve, reject, listByStatus, bulkApprove) |
+| `Tournament/TournamentDrawController` | Draw/seeding (index, draw, getResults, reset) |
+| `Tournament/TournamentManualDrawController` | Manual draw (getManualDraw, saveManualDraw) |
+| `Tournament/TournamentGroupController` | Groups (index, setup) |
+| `Tournament/TournamentMatchController` | Matches & scoring (index, store, show, updateScore, destroy, updateSchedule, createForGroups) |
+| `Tournament/TournamentRankingController` | Rankings (index, getCategoryRankings, getCategoryGroups) |
+
+#### Traits (Supporting Tournament Controllers)
+| Trait | Purpose |
+|-------|---------|
+| `DrawAuthorizationTrait` | Authorization for draw operations |
+| `MatchListFormatterTrait` | Format match data for display |
+| `MatchScheduleTrait` | Schedule match operations |
+| `MatchScoreTrait` | Score entry and validation |
+| `TournamentAthleteStatusTrait` | Athlete status management |
+| Additional Traits | Supporting reusable functionality |
+
+#### Other Front Controllers
+| Controller | Purpose |
+|------------|---------|
 | `AthleteManagementController` | Athlete operations |
 | `TournamentRegistrationController` | Registration flow |
 | `CategoryController` | Tournament categories |
@@ -510,8 +548,16 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 ### Home Yard (`resources/views/home-yard/`)
 - Dashboard, stadiums
-- Tournaments, athletes (includes referee assignment)
 - Bookings, courts
+
+#### Tournament Rewrite Views (New - Mar 2026)
+- `dashboard.blade.php` - Main tournament dashboard with sidebar
+- `draw.blade.php` - Draw/seeding management page
+- Partials: `_sidebar.blade.php`, `_overview.blade.php`, `_athletes.blade.php`, `_athletes-modal.blade.php`, `_athletes-mobile-cards.blade.php`, `_draw.blade.php`, `_draw-seeding.blade.php`, `_draw-manual.blade.php`, `_draw-results.blade.php`, `_matches.blade.php`, `_matches-row.blade.php`, `_matches-empty-generate.blade.php`, `_rankings.blade.php`, `_rankings-group-table.blade.php`, `_category-editor.blade.php`, `_mobile-tabs.blade.php`
+
+#### Other Home Yard Views
+- Tournaments (legacy views being replaced)
+- Athletes, matches, rankings (legacy views)
 - Leagues (CRUD, tab-based detail view, teams, matches, standings, MLP format support)
 - League Registration (form, admin approval, auto team generation)
 
@@ -620,6 +666,14 @@ php artisan db:seed --class=SkillQuestionSeeder
 - `/api/points/history` - Get transaction history
 - `/api/points/submissions` - Get/create submissions
 - `/api/points/challenges` - Get active special challenges
+
+## Frontend Assets (Tournament Rewrite - Mar 2026)
+
+### JavaScript Modules (`public/assets/js/`)
+8 Alpine.js modules: `tournament-dashboard.js`, `tournament-athletes.js`, `tournament-draw.js`, `tournament-draw-group-setup-mixin.js`, `tournament-draw-manual-sortable-mixin.js`, `tournament-draw-reset-mixin.js`, `tournament-matches.js`, `tournament-matches-api.js`, `tournament-matches-schedule-mixin.js`, `tournament-rankings.js`
+
+### CSS Stylesheets (`public/assets/css/tournament-dashboard/`)
+11 files: Layout (sidebar), Components (cards, forms, buttons, alerts), Feature-specific (athletes, draw, matches, rankings). Responsive design with mobile support.
 
 ## Authentication Flow
 
@@ -737,12 +791,4 @@ The skill quiz system implements gender-differentiated skill level mapping align
 
 ## Related Documentation
 
-- [Project Overview PDR](./project-overview-pdr.md)
-- [Code Standards](./code-standards.md)
-- [System Architecture](./system-architecture.md)
-- [Project Roadmap](./project-roadmap.md)
-- [Referee API Documentation](./api-referee.md)
-
-## Unresolved Questions
-
-None. Codebase structure documented with OPRS, Referee, Gender-Aware Skill Level, Club Management, League Management, MLP Format, and Club Management API.
+- [Project Overview PDR](./project-overview-pdr.md) | [Code Standards](./code-standards.md) | [System Architecture](./system-architecture.md) | [Roadmap](./project-roadmap.md) | [Referee API](./api-referee.md)

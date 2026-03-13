@@ -70,15 +70,19 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Transfer proof system for booking transfers
 - Reviews and ratings
 
-### 2. Tournament System
+### 2. Tournament System (Rewritten - Mar 2026)
 - Tournament creation and configuration
 - Category management (skill levels, age groups, singles/doubles)
 - Athlete registration with partner selection for doubles categories
 - Partner linking system for doubles pairs with draw_order for tournament draws
 - Round and group management
 - Match scheduling with pair support
-- Match results and rankings
-- Excel export for athletes and rankings
+- Match results and rankings with Excel export
+- **NEW (Mar 2026)**: Modular Alpine.js dashboard with sidebar navigation
+- **NEW (Mar 2026)**: Draw/seeding with auto-assign and manual modes
+- **NEW (Mar 2026)**: Group setup and management UI
+- **NEW (Mar 2026)**: Real-time match tracking and score entry
+- **NEW (Mar 2026)**: Category-based rankings and statistics
 
 ### 3. Instructor Platform
 - Instructor profiles with certifications

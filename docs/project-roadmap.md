@@ -152,80 +152,38 @@ Referee management system for tournament match officiating.
 
 ---
 
-### Phase 3: Enhanced Features (COMPLETED - 2026-02-27)
+### Phase 3: Enhanced Features (COMPLETED - 2026-03-13)
 **Status:** ✅ Complete
 **Progress:** 100%
 
-#### Completed Features
+#### Completed Features (Abbreviated)
 - [x] User profile management with avatar upload (Dec 7)
-- [x] Email and password update functionality (Dec 7)
 - [x] Referee system with match officiating (Dec 9)
 - [x] Doubles pair selection for tournament categories (Dec 18)
 - [x] Skill assessment quiz system (Jan 3, 2026)
 - [x] Gender-aware skill level mapping (Jan 15, 2026)
 - [x] Point earning system with 16 tasks (Jan 14, 2026)
-  - [x] 4 role-based task categories (user, home_yard, referee, expert_host)
-  - [x] Wallet system with transaction history
-  - [x] Social platform verification (Facebook, YouTube, TikTok)
-  - [x] Special challenges with time limits
-  - [x] Event check-in system with QR codes
-  - [x] Admin approval workflow for submissions
-  - [x] 3 proof types: Image, Link, QR Code
 - [x] Booking code system and history (Feb 7, 2026)
-  - [x] Booking code generation: BK{courtId:3+}{date:YYMMDD}{seq:3}
-  - [x] Booking confirmation tracking (confirmed_at)
-  - [x] Transfer proof system for booking transfers
-  - [x] Booking history and cancellation management
 - [x] Club system with posts, comments, reactions (Feb 2026)
-  - [x] Club creation and management
-  - [x] Club posts with media support
-  - [x] Comments and reactions on posts
-  - [x] Club activity tracking
-- [x] League Management System - Phase 4 (Feb 25, 2026)
-  - [x] 10 Blade views for league CRUD operations
-  - [x] Tab system for league overview, teams, schedule, standings
-  - [x] URL hash persistence for navigation
-  - [x] Team management with player roster
-  - [x] Match scheduling with AJAX score entry
-  - [x] League standings calculation and display
-  - [x] User search for player management
-  - [x] XSS prevention: @json() escaping, textContent DOM manipulation
-  - [x] Vanilla JS modals and fetch() API integration
-  - [x] Toastr notifications for user feedback
-  - [x] Vietnamese UI text with diacritics
-- [x] Club Activities ReClub-Style Upgrade (Complete - Feb 27, 2026)
-  - [x] Phase 1: Database migrations - Activity types, participants, competition tables (Complete)
-  - [x] Phase 2: Models & Services - ClubActivity, Participant, Competition models + services (Complete)
-  - [x] Phase 3: Controllers & Routes - RSVP, competition, participant management endpoints (Complete)
-  - [x] Phase 4: Views & UI - 12 partials, type selector, RSVP panel, competition panel (Complete - Feb 27)
-  - [x] Phase 5: Scheduled Command - Auto-generate recurring activity instances (Complete)
-  - [x] Phase 6: Testing - Unit/integration tests for all phases (Complete - 25 tests passing)
-- [x] Club Activity Casual Matches System (Complete - Mar 3, 2026)
-  - [x] Database: 3 new tables (match_rounds, matches, standings)
-  - [x] Models: ClubActivityMatchRound, ClubActivityMatch, ClubActivityMatchStanding
-  - [x] Service: ClubMatchService with 3 match generation algorithms (singles_rr, rotating_doubles, fixed_doubles)
-  - [x] Controller: ClubMatchController with 7 AJAX endpoints
-  - [x] UI: Matches tab with generate/custom modals, standings display, score entry
-  - [x] Features: Round-robin singles, rotating partner doubles, fixed pair doubles
+- [x] League Management System (Feb 25, 2026)
+- [x] Club Activities ReClub-Style Upgrade (Feb 27, 2026)
+- [x] Club Activity Casual Matches System (Mar 3, 2026)
 - [x] MLP League Format with 6 Sub-Game Doubles Pairing (Mar 9, 2026)
-  - [x] League association with clubs
-  - [x] MLP format integration with 6 sub-game structure
-  - [x] Round editing capabilities for format management
-  - [x] Full game-by-game tracking and standings
-  - [x] Player pair support in match games (home_player_1/2_id, away_player_1/2_id)
 - [x] Club Management API (Mar 9, 2026)
-  - [x] Full CRUD for club activities, competitions, posts via API
-  - [x] join_request_status on club show endpoint
-  - [x] Auto-create club post when activity created
-  - [x] Activity detail page with tab-based UI redesign
 - [x] League Registration System (Mar 9, 2026)
-  - [x] User self-registration with phone number normalization
-  - [x] Payment proof upload and admin verification
-  - [x] Admin approval workflow
-  - [x] Auto team generation (skill-ranked snake-draft mode)
-  - [x] Auto team generation (random pairing mode)
-  - [x] Race-condition safe with DB::transaction + lockForUpdate
-  - [x] LeagueRegistrationService with full workflow
+- [x] **Tournament Management Rewrite - Phase 1 (Mar 13, 2026)** NEW
+  - [x] Modular controller architecture (7 controllers + 6 traits)
+  - [x] Service layer refactoring (6 services + 3 helpers)
+  - [x] Alpine.js dashboard with responsive UI
+  - [x] Dashboard sidebar with navigation
+  - [x] Athletes management (CRUD, status, approval)
+  - [x] Draw/seeding (auto-assign, manual mode, SortableJS integration)
+  - [x] Group setup and management
+  - [x] Match management and scoring
+  - [x] Rankings and statistics display
+  - [x] 20+ Blade partials for component modularity
+  - [x] 8 JavaScript modules with mixin composition
+  - [x] 11 CSS stylesheets for responsive design
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -475,6 +433,8 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 ---
 
 ## Change Log (Compact)
+
+**v1.10.0 (2026-03-13)** - Tournament Management Rewrite: 7 controllers, 6 services, 6 traits, Alpine.js dashboard, draw/seeding, athletes, matches, rankings, 20+ partials, 8 JS modules, 11 CSS files, mixin composition pattern
 
 **v1.9.0 (2026-03-09)** - League Registration: payment proof, phone normalization, admin approval, auto team generation (skill-ranked/random), race-condition safe, LeagueAutoTeamService, LeagueRegistrationService, 2 new tables
 

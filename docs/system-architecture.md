@@ -131,8 +131,21 @@ app/Http/Controllers/
     ├── HomeController.php              # Main frontend
     ├── DashboardController.php         # User dashboard
     ├── HomeYardStadiumController.php
-    ├── HomeYardTournamentController.php  # Includes referee assignment
     ├── HomeYardLeagueController.php    # League management
+    ├── HomeYardTournamentController.php  # Legacy (deprecated)
+    ├── Tournament/
+    │   ├── TournamentController.php           # CRUD
+    │   ├── TournamentAthleteController.php    # Athletes management
+    │   ├── TournamentDrawController.php       # Draw/seeding
+    │   ├── TournamentManualDrawController.php # Manual draw
+    │   ├── TournamentGroupController.php      # Groups
+    │   ├── TournamentMatchController.php      # Matches & scoring
+    │   ├── TournamentRankingController.php    # Rankings
+    │   ├── DrawAuthorizationTrait.php
+    │   ├── MatchListFormatterTrait.php
+    │   ├── MatchScheduleTrait.php
+    │   ├── MatchScoreTrait.php
+    │   └── TournamentAthleteStatusTrait.php
     ├── AthleteManagementController.php
     ├── TournamentRegistrationController.php
     ├── CategoryController.php
@@ -631,26 +644,8 @@ Admin: Admin login → Check role 'admin' → Create admin session
 
 ## Monitoring & Logging
 
-### Log Channels
-
-```php
-// config/logging.php
-'channels' => [
-    'daily' => [
-        'driver' => 'daily',
-        'path' => storage_path('logs/laravel.log'),
-        'days' => 14,
-    ],
-]
-```
-
-### Key Metrics
-
-- Request latency
-- Error rates
-- Database query time
-- Memory usage
-- Booking success rate
+**Log Channels:** Daily logs (config/logging.php)
+**Key Metrics:** Request latency, error rates, query time, memory usage, booking success rate
 
 ## Future Architecture Considerations
 
@@ -785,13 +780,13 @@ User Gender: enum('male','female', nullable), defaults 'male'
 ```
 
 ### Skill Quiz Config
-
 See `code-standards.md`. Base ELO=800, Max=1400, anti-fraud, gender-aware, 30-90 day cooldowns.
 
 ### Club Activity Match System (Mar 2026)
-
 3 algorithms: Singles RR, Rotating Doubles, Fixed Doubles. Service: ClubMatchService. 7 AJAX endpoints.
 
-## Unresolved Questions
+### Tournament Rewrite Architecture (Mar 2026)
+**Pattern:** Controller → Service → Model | **Frontend:** Alpine.js mixins | **Route:** tournament-manage | **Assets:** 8 JS + 11 CSS files
 
-1. **Queue Driver**: Redis vs SQS? | 2. **CDN**: Cloudflare vs CloudFront? | 3. **Monitoring**: New Relic vs Sentry?
+## Unresolved Questions
+1. Queue Driver (Redis vs SQS)? | 2. CDN (Cloudflare vs CloudFront)? | 3. Monitoring (New Relic vs Sentry)?
