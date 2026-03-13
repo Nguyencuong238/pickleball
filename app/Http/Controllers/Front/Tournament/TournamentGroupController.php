@@ -70,7 +70,7 @@ class TournamentGroupController extends Controller
                 Group::create([
                     'tournament_id'        => $tournament->id,
                     'category_id'          => $categoryId,
-                    'group_name'           => 'Bang ' . $label,
+                    'group_name'           => 'Bảng ' . $label,
                     'group_code'           => $label,
                     'max_participants'     => $maxParticipants,
                     'current_participants' => 0,
