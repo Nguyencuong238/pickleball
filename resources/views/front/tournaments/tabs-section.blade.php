@@ -423,7 +423,7 @@
     /* Group grid */
     .front-schedule-group-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 16px;
     }
 
@@ -487,11 +487,8 @@
 
     .front-schedule-athlete-name {
         color: #374151;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 130px;
-        display: block;
+        font-size: 0.78rem;
+        word-break: break-word;
     }
 
     .front-schedule-match-scores {
@@ -563,10 +560,9 @@
     }
 
     .col-name {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
         color: #1f2937;
+        font-size: 0.8rem;
+        word-break: break-word;
     }
 
     .col-stat {
@@ -591,7 +587,7 @@
 
     .front-schedule-summary-row {
         display: grid;
-        grid-template-columns: 30px 120px 1fr 36px 36px;
+        grid-template-columns: 30px minmax(120px, auto) 1fr 36px 36px;
         align-items: center;
         padding: 8px 12px;
         border-bottom: 1px solid #f3f4f6;
@@ -606,9 +602,8 @@
     .front-schedule-summary-name {
         color: #1f2937;
         font-weight: 500;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        font-size: 0.82rem;
+        word-break: break-word;
     }
 
     .front-schedule-summary-bar-wrap {
@@ -1121,7 +1116,7 @@
                                                     @foreach ($group->standings as $standing)
                                                         <div class="front-schedule-standings-row {{ $standing->is_advanced ? 'advanced' : '' }}">
                                                             <span class="col-rank">{{ $standing->rank_position }}</span>
-                                                            <span class="col-name">{{ $standing->athlete?->athlete_name ?? '--' }}</span>
+                                                            <span class="col-name">{{ $cat->isDoubles() ? ($standing->athlete?->pair_name ?? '--') : ($standing->athlete?->athlete_name ?? '--') }}</span>
                                                             <span class="col-stat won">{{ $standing->matches_won }}</span>
                                                             <span class="col-stat lost">{{ $standing->matches_lost }}</span>
                                                         </div>
@@ -1145,7 +1140,7 @@
                                         @foreach ($allStandings as $standing)
                                             <div class="front-schedule-summary-row">
                                                 <span class="front-schedule-summary-rank">{{ $loop->iteration }}</span>
-                                                <span class="front-schedule-summary-name">{{ $standing->athlete?->athlete_name ?? '--' }}</span>
+                                                <span class="front-schedule-summary-name">{{ $cat->isDoubles() ? ($standing->athlete?->pair_name ?? '--') : ($standing->athlete?->athlete_name ?? '--') }}</span>
                                                 <div class="front-schedule-summary-bar-wrap">
                                                     @php
                                                         $total = $standing->matches_won + $standing->matches_lost;

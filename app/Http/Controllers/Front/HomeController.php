@@ -629,7 +629,7 @@ class HomeController extends Controller
         $tournament->load([
             'categories.groups.matches' => fn($q) => $q->orderBy('match_number'),
             'categories.groups.standings' => fn($q) => $q->orderBy('rank_position'),
-            'categories.groups.standings.athlete',
+            'categories.groups.standings.athlete.partner',
         ]);
 
         $bracketRounds = Round::where('tournament_id', $tournament->id)
