@@ -385,6 +385,393 @@
             gap: 15px;
         }
     }
+
+    /* ===== Front Schedule Tab ===== */
+    .front-schedule-cat-tabs {
+        display: flex;
+        gap: 8px;
+        padding: 0 0 16px;
+        flex-wrap: wrap;
+    }
+
+    .front-schedule-cat-tab {
+        padding: 8px 18px;
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background: #fff;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: #6b7280;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .front-schedule-cat-tab.active {
+        background: var(--primary-color, #00d9b5);
+        color: #fff;
+        border-color: var(--primary-color, #00d9b5);
+    }
+
+    .front-schedule-cat-content {
+        display: none;
+    }
+
+    .front-schedule-cat-content.active {
+        display: block;
+    }
+
+    /* Group grid */
+    .front-schedule-group-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+    }
+
+    .front-schedule-group-card {
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .front-schedule-group-header {
+        background: #2d3748;
+        color: #fff;
+        padding: 10px 14px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-align: center;
+    }
+
+    /* Match rows */
+    .front-schedule-match-list {
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .front-schedule-match-row {
+        display: grid;
+        grid-template-columns: 70px 1fr 50px;
+        align-items: center;
+        padding: 6px 10px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.8rem;
+        min-height: 52px;
+    }
+
+    .front-schedule-match-row:last-child {
+        border-bottom: none;
+    }
+
+    .front-schedule-match-info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .front-schedule-match-time {
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 0.82rem;
+    }
+
+    .front-schedule-match-code {
+        font-size: 0.7rem;
+        color: #9ca3af;
+    }
+
+    .front-schedule-match-athletes {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .front-schedule-athlete-name {
+        color: #374151;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 130px;
+        display: block;
+    }
+
+    .front-schedule-match-scores {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .front-schedule-score {
+        font-weight: 700;
+        font-size: 0.82rem;
+        color: #9ca3af;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    .front-schedule-score.won {
+        color: #10b981;
+    }
+
+    .front-schedule-score.lost {
+        color: #ef4444;
+    }
+
+    .front-schedule-empty-msg {
+        padding: 12px;
+        text-align: center;
+        color: #9ca3af;
+        font-size: 0.82rem;
+    }
+
+    /* Standings per group */
+    .front-schedule-standings {
+        padding: 0;
+    }
+
+    .front-schedule-standings-header,
+    .front-schedule-standings-row {
+        display: grid;
+        grid-template-columns: 30px 1fr 36px 36px;
+        padding: 6px 10px;
+        font-size: 0.8rem;
+        align-items: center;
+    }
+
+    .front-schedule-standings-header {
+        background: #f9fafb;
+        font-weight: 700;
+        color: #6b7280;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .front-schedule-standings-row {
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .front-schedule-standings-row.advanced {
+        background: rgba(16, 185, 129, 0.06);
+    }
+
+    .front-schedule-standings-row:last-child {
+        border-bottom: none;
+    }
+
+    .col-rank {
+        font-weight: 700;
+        color: #6b7280;
+    }
+
+    .col-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #1f2937;
+    }
+
+    .col-stat {
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .col-stat.won {
+        color: #10b981;
+    }
+
+    .col-stat.lost {
+        color: #ef4444;
+    }
+
+    /* Summary table */
+    .front-schedule-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .front-schedule-summary-row {
+        display: grid;
+        grid-template-columns: 30px 120px 1fr 36px 36px;
+        align-items: center;
+        padding: 8px 12px;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 0.85rem;
+    }
+
+    .front-schedule-summary-rank {
+        color: #9ca3af;
+        font-weight: 600;
+    }
+
+    .front-schedule-summary-name {
+        color: #1f2937;
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .front-schedule-summary-bar-wrap {
+        height: 8px;
+        background: #f3f4f6;
+        border-radius: 4px;
+        overflow: hidden;
+        margin: 0 12px;
+    }
+
+    .front-schedule-summary-bar {
+        height: 100%;
+        background: var(--primary-color, #00d9b5);
+        border-radius: 4px;
+        min-width: 2px;
+    }
+
+    /* ===== Knockout Bracket ===== */
+    .front-bracket-container {
+        display: flex;
+        gap: 0;
+        overflow-x: auto;
+        padding: 16px 0;
+        align-items: flex-start;
+    }
+
+    .front-bracket-round {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        flex-shrink: 0;
+        min-width: 200px;
+        padding: 0 24px;
+    }
+
+    .front-bracket-round-header {
+        text-align: center;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #6b7280;
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        background: #f9fafb;
+        border-radius: 6px;
+    }
+
+    .front-bracket-round-count {
+        font-weight: 400;
+        color: #9ca3af;
+    }
+
+    .front-bracket-round-matches {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+    }
+
+    .front-bracket-match {
+        border: 1px solid #e5e7eb;
+        border-radius: 6px;
+        background: #fff;
+        position: relative;
+        margin: 8px 0;
+        overflow: hidden;
+    }
+
+    .front-bracket-match::after {
+        content: '';
+        position: absolute;
+        right: -25px;
+        top: 50%;
+        width: 25px;
+        height: 1px;
+        background: #cbd5e1;
+        pointer-events: none;
+    }
+
+    .front-bracket-round:last-child .front-bracket-match::after {
+        display: none;
+    }
+
+    .front-bracket-match--done {
+        border-color: #d1d5db;
+    }
+
+    .front-bracket-match--live {
+        border-color: #f59e0b;
+    }
+
+    .front-bracket-match-live {
+        position: absolute;
+        top: 3px;
+        right: 3px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        color: #fff;
+        background: #f59e0b;
+        border-radius: 3px;
+        padding: 1px 5px;
+        z-index: 1;
+    }
+
+    .front-bracket-slot {
+        padding: 7px 10px;
+        font-size: 0.82rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #374151;
+        min-height: 32px;
+    }
+
+    .front-bracket-slot:first-child {
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .front-bracket-slot--winner {
+        background: #ecfdf5;
+        font-weight: 700;
+        color: #065f46;
+    }
+
+    .front-bracket-slot-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 140px;
+    }
+
+    .front-bracket-slot-score {
+        font-weight: 700;
+        min-width: 20px;
+        text-align: center;
+    }
+
+    /* ===== Responsive ===== */
+    @media (max-width: 1200px) {
+        .front-schedule-group-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .front-schedule-group-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .front-schedule-summary-row {
+            grid-template-columns: 24px 90px 1fr 30px 30px;
+        }
+
+        .front-bracket-round {
+            min-width: 170px;
+            padding: 0 16px;
+        }
+
+        .front-bracket-match::after {
+            display: none;
+        }
+    }
 </style>
 
 <div class="detail-main">
@@ -656,32 +1043,172 @@
 
         <!-- Schedule Tab -->
         <div class="tab-pane" id="schedule">
-            <div class="content-card">
-                <h2 class="content-title">Lịch thi đấu chi tiết</h2>
-                @if ($tournament->competition_schedule)
+            @php
+                $hasScheduleData = $tournament->categories->contains(fn($c) => $c->groups->isNotEmpty());
+                $hasBracketData = isset($bracketRounds) && $bracketRounds->isNotEmpty();
+            @endphp
+
+            @if ($hasScheduleData || $hasBracketData)
+                {{-- Category tabs --}}
+                @if ($tournament->categories->count() > 1)
+                    <div class="front-schedule-cat-tabs">
+                        @foreach ($tournament->categories as $catIdx => $cat)
+                            <button class="front-schedule-cat-tab {{ $catIdx === 0 ? 'active' : '' }}"
+                                    data-schedule-cat="{{ $cat->id }}">
+                                {{ $cat->category_name }}
+                            </button>
+                        @endforeach
+                    </div>
+                @endif
+
+                @foreach ($tournament->categories as $catIdx => $cat)
+                    <div class="front-schedule-cat-content {{ $catIdx === 0 ? 'active' : '' }}"
+                         id="schedule-cat-{{ $cat->id }}">
+
+                        {{-- Group stage --}}
+                        @if ($cat->groups->isNotEmpty())
+                            <div class="content-card">
+                                <h2 class="content-title">Vòng bảng</h2>
+                                <div class="front-schedule-group-grid">
+                                    @foreach ($cat->groups as $group)
+                                        <div class="front-schedule-group-card">
+                                            <div class="front-schedule-group-header">
+                                                {{ $group->group_name }}
+                                            </div>
+                                            {{-- Match rows --}}
+                                            <div class="front-schedule-match-list">
+                                                @forelse ($group->matches as $match)
+                                                    <div class="front-schedule-match-row">
+                                                        <div class="front-schedule-match-info">
+                                                            <span class="front-schedule-match-time">{{ $match->match_time ? \Carbon\Carbon::parse($match->match_time)->format('H:i') : '--:--' }}</span>
+                                                            <span class="front-schedule-match-code">{{ $group->group_code }}-#{{ $match->match_number }}</span>
+                                                        </div>
+                                                        <div class="front-schedule-match-athletes">
+                                                            <div class="front-schedule-match-athlete">
+                                                                <span class="front-schedule-athlete-name">{{ $match->athlete1_name ?: 'Chưa xác định' }}</span>
+                                                            </div>
+                                                            <div class="front-schedule-match-athlete">
+                                                                <span class="front-schedule-athlete-name">{{ $match->athlete2_name ?: 'Chưa xác định' }}</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="front-schedule-match-scores">
+                                                            @if ($match->status === 'completed' || $match->status === 'in_progress')
+                                                                @php
+                                                                    $s1 = $match->athlete1_score ?? 0;
+                                                                    $s2 = $match->athlete2_score ?? 0;
+                                                                @endphp
+                                                                <span class="front-schedule-score {{ $s1 > $s2 ? 'won' : ($s1 < $s2 ? 'lost' : '') }}">{{ $s1 }}</span>
+                                                                <span class="front-schedule-score {{ $s2 > $s1 ? 'won' : ($s2 < $s1 ? 'lost' : '') }}">{{ $s2 }}</span>
+                                                            @else
+                                                                <span class="front-schedule-score">-</span>
+                                                                <span class="front-schedule-score">-</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @empty
+                                                    <div class="front-schedule-empty-msg">Chưa có trận đấu</div>
+                                                @endforelse
+                                            </div>
+                                            {{-- Standings --}}
+                                            @if ($group->standings->isNotEmpty())
+                                                <div class="front-schedule-standings">
+                                                    <div class="front-schedule-standings-header">
+                                                        <span class="col-rank">#</span>
+                                                        <span class="col-name">{{ $group->group_name }}</span>
+                                                        <span class="col-stat">W</span>
+                                                        <span class="col-stat">L</span>
+                                                    </div>
+                                                    @foreach ($group->standings as $standing)
+                                                        <div class="front-schedule-standings-row {{ $standing->is_advanced ? 'advanced' : '' }}">
+                                                            <span class="col-rank">{{ $standing->rank_position }}</span>
+                                                            <span class="col-name">{{ $standing->athlete?->athlete_name ?? '--' }}</span>
+                                                            <span class="col-stat won">{{ $standing->matches_won }}</span>
+                                                            <span class="col-stat lost">{{ $standing->matches_lost }}</span>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            {{-- Summary standings --}}
+                            @php
+                                $allStandings = $cat->groups->flatMap(fn($g) => $g->standings)
+                                    ->sortByDesc('matches_won');
+                            @endphp
+                            @if ($allStandings->isNotEmpty())
+                                <div class="content-card">
+                                    <h2 class="content-title">Tổng kết</h2>
+                                    <div class="front-schedule-summary">
+                                        @foreach ($allStandings as $standing)
+                                            <div class="front-schedule-summary-row">
+                                                <span class="front-schedule-summary-rank">{{ $loop->iteration }}</span>
+                                                <span class="front-schedule-summary-name">{{ $standing->athlete?->athlete_name ?? '--' }}</span>
+                                                <div class="front-schedule-summary-bar-wrap">
+                                                    @php
+                                                        $total = $standing->matches_won + $standing->matches_lost;
+                                                        $pct = $total > 0 ? round(($standing->matches_won / $total) * 100) : 0;
+                                                    @endphp
+                                                    <div class="front-schedule-summary-bar" style="width: {{ $pct }}%;"></div>
+                                                </div>
+                                                <span class="col-stat won">{{ $standing->matches_won }}</span>
+                                                <span class="col-stat lost">{{ $standing->matches_lost }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        @endif
+
+                        {{-- Knockout bracket --}}
+                        @php $catBracketRounds = isset($bracketRounds) ? ($bracketRounds[$cat->id] ?? collect()) : collect(); @endphp
+                        @if ($catBracketRounds->isNotEmpty())
+                            <div class="content-card">
+                                <h2 class="content-title">Vòng đấu loại trực tiếp</h2>
+                                <div class="front-bracket-container">
+                                    @foreach ($catBracketRounds as $round)
+                                        <div class="front-bracket-round">
+                                            <div class="front-bracket-round-header">
+                                                {{ $round->round_name }}
+                                                <span class="front-bracket-round-count">({{ $round->completed_matches ?? 0 }}/{{ $round->total_matches ?? 0 }})</span>
+                                            </div>
+                                            <div class="front-bracket-round-matches">
+                                                @foreach ($round->matches as $match)
+                                                    @include('front.tournaments.partials._front-bracket-match', ['match' => $match])
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            @elseif ($tournament->competition_schedule)
+                {{-- Fallback: text-based schedule --}}
+                <div class="content-card">
+                    <h2 class="content-title">Lịch thi đấu chi tiết</h2>
                     @php $scheduleLines = array_filter(array_map('trim', explode("\n", $tournament->competition_schedule))); @endphp
                     <div style="display: flex; flex-direction: column; gap: 24px;">
                         @foreach ($scheduleLines as $scheduleLine)
-                            @if (preg_match('/^Ngày\s+\d+/i', $scheduleLine))
-                                <div
-                                    style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 1.1rem;">
-                                    {{ $scheduleLine }}</div>
-                            @elseif(preg_match('/^Sáng|^Chiều|^Tối/i', $scheduleLine))
-                                <div
-                                    style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 10px 14px; border-radius: 6px; font-weight: 500; font-size: 0.95rem;">
+                            @if (preg_match('/^Ngay\s+\d+/i', $scheduleLine))
+                                <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 12px 16px; border-radius: 8px; font-weight: 600; font-size: 1.1rem;">
                                     {{ $scheduleLine }}</div>
                             @else
-                                <div
-                                    style="background: #f9fafb; border-left: 4px solid var(--primary-color); padding: 12px 16px; border-radius: 4px;">
+                                <div style="background: #f9fafb; border-left: 4px solid var(--primary-color); padding: 12px 16px; border-radius: 4px;">
                                     <p style="margin: 0; color: #1f2937; font-size: 0.95rem;">{{ $scheduleLine }}</p>
                                 </div>
                             @endif
                         @endforeach
                     </div>
-                @else
-                    <div class="empty-state">Lịch thi đấu sẽ được cập nhật sau khi đóng đăng ký (30/11/2025)</div>
-                @endif
-            </div>
+                </div>
+            @else
+                <div class="content-card">
+                    <div class="empty-state">Lịch thi đấu sẽ được cập nhật sau khi đóng đăng ký</div>
+                </div>
+            @endif
         </div>
 
         <!-- Results Tab -->
@@ -801,6 +1328,7 @@
 </div>
 
 <script>
+    // Main tab navigation
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const tabId = btn.dataset.tab;
@@ -808,6 +1336,18 @@
             document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Schedule category tabs
+    document.querySelectorAll('.front-schedule-cat-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const catId = btn.dataset.scheduleCat;
+            document.querySelectorAll('.front-schedule-cat-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.front-schedule-cat-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            const target = document.getElementById('schedule-cat-' + catId);
+            if (target) target.classList.add('active');
         });
     });
 </script>

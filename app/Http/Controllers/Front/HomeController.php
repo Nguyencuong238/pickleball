@@ -15,6 +15,7 @@ use App\Models\Stadium;
 use App\Models\Tournament;
 use App\Models\User;
 use App\Models\Video;
+use App\Models\Round;
 use App\Models\SpecialChallenge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -625,16 +626,31 @@ class HomeController extends Controller
     
     public function tournamentsDetail(Tournament $tournament)
     {
-        $tournament->load('categories');
+        $tournament->load([
+            'categories.groups.matches' => fn($q) => $q->orderBy('match_number'),
+            'categories.groups.standings' => fn($q) => $q->orderBy('rank_position'),
+            'categories.groups.standings.athlete',
+        ]);
 
-        $registered = DB::table('tournament_athletes')
-        ->where('tournament_id', $tournament->id)
-        ->where('user_id', auth()->id())
-        ->exists();
-        
+        $bracketRounds = Round::where('tournament_id', $tournament->id)
+            ->where('round_type', '!=', 'group_stage')
+            ->with(['matches' => fn($q) => $q->orderBy('bracket_position')])
+            ->orderBy('category_id')
+            ->orderBy('round_number')
+            ->get()
+            ->groupBy('category_id');
+
+        $registered = auth()->check()
+            ? DB::table('tournament_athletes')
+                ->where('tournament_id', $tournament->id)
+                ->where('user_id', auth()->id())
+                ->exists()
+            : false;
+
         return view('front.tournaments.tournaments_detail', [
             'tournament' => $tournament,
             'registered' => $registered,
+            'bracketRounds' => $bracketRounds,
         ]);
     }
 
