@@ -48,6 +48,10 @@ class KnockoutMatchBuilder
                 $position, $depth, $totalRounds, $slots
             );
 
+            // Resolve athlete names (pair_name for doubles)
+            $athlete1Name = $athlete1Id ? (TournamentAthlete::find($athlete1Id)?->pair_name) : null;
+            $athlete2Name = $athlete2Id ? (TournamentAthlete::find($athlete2Id)?->pair_name) : null;
+
             $match = MatchModel::create([
                 'tournament_id'    => $tournament->id,
                 'category_id'      => $categoryId,
@@ -56,7 +60,9 @@ class KnockoutMatchBuilder
                 'bracket_position' => $position,
                 'match_date'       => $tournament->start_date,
                 'athlete1_id'      => $athlete1Id,
+                'athlete1_name'    => $athlete1Name,
                 'athlete2_id'      => $athlete2Id,
+                'athlete2_name'    => $athlete2Name,
                 'status'           => 'scheduled',
                 'next_match_id'    => $nextMatchId,
             ]);
@@ -105,7 +111,7 @@ class KnockoutMatchBuilder
         }
 
         $athlete = TournamentAthlete::find($winnerId);
-        $name    = $athlete?->athlete_name ?? 'Chưa xác định';
+        $name    = $athlete?->pair_name ?? 'Chưa xác định';
 
         if ($nextMatch->athlete1_id === null) {
             $nextMatch->update(['athlete1_id' => $winnerId, 'athlete1_name' => $name]);

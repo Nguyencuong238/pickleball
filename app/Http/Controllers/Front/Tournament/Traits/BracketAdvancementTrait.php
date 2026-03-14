@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Front\Tournament\Traits;
 
 use App\Models\MatchModel;
 use App\Models\Round;
+use App\Models\TournamentAthlete;
 use App\Services\Tournament\KnockoutBracketService;
 
 trait BracketAdvancementTrait
@@ -83,10 +84,12 @@ trait BracketAdvancementTrait
             return;
         }
 
+        $loserName = TournamentAthlete::find($loserId)?->pair_name ?? 'Chưa xác định';
+
         if (!$bronzeMatch->athlete1_id) {
-            $bronzeMatch->update(['athlete1_id' => $loserId]);
+            $bronzeMatch->update(['athlete1_id' => $loserId, 'athlete1_name' => $loserName]);
         } elseif (!$bronzeMatch->athlete2_id) {
-            $bronzeMatch->update(['athlete2_id' => $loserId]);
+            $bronzeMatch->update(['athlete2_id' => $loserId, 'athlete2_name' => $loserName]);
         }
     }
 }

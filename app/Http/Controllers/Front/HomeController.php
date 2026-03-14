@@ -634,7 +634,8 @@ class HomeController extends Controller
 
         $bracketRounds = Round::where('tournament_id', $tournament->id)
             ->where('round_type', '!=', 'group_stage')
-            ->with(['matches' => fn($q) => $q->orderBy('bracket_position')])
+            ->with(['matches' => fn($q) => $q->orderBy('bracket_position')
+                ->with(['athlete1.partner', 'athlete2.partner'])])
             ->orderBy('category_id')
             ->orderBy('round_number')
             ->get()

@@ -13,8 +13,8 @@
     tournamentSlug: '{{ $tournament->slug }}',
     dataUrl:        '{{ $dataUrl }}',
     generateUrl:    '{{ $generateUrl }}',
-    categories:     {{ json_encode($categories) }},
-    bracketData:    @json($bracketData),
+    categories:     {{ Js::from($categories) }},
+    bracketData:    {{ Js::from($bracketData) }},
     csrf:           document.querySelector('meta[name=csrf-token]').content,
 })" x-init="init()" @keydown.escape.window="clearSwap()">
 

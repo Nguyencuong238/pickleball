@@ -1125,7 +1125,15 @@
                                                 @endforelse
                                             </div>
                                             {{-- Standings --}}
-                                            @if ($group->standings->isNotEmpty())
+                                            @php
+                                                // For doubles: filter out partner duplicates (keep athlete where id < partner_id)
+                                                $filteredStandings = $cat->isDoubles()
+                                                    ? $group->standings->filter(fn($s) => !$s->athlete?->partner_id || $s->athlete->id < $s->athlete->partner_id)
+                                                    : $group->standings;
+                                                // Re-rank after filtering
+                                                $filteredStandings = $filteredStandings->values();
+                                            @endphp
+                                            @if ($filteredStandings->isNotEmpty())
                                                 <div class="front-schedule-standings">
                                                     <div class="front-schedule-standings-header">
                                                         <span class="col-rank">#</span>
@@ -1133,9 +1141,9 @@
                                                         <span class="col-stat">W</span>
                                                         <span class="col-stat">L</span>
                                                     </div>
-                                                    @foreach ($group->standings as $standing)
+                                                    @foreach ($filteredStandings as $standing)
                                                         <div class="front-schedule-standings-row {{ $standing->is_advanced ? 'advanced' : '' }}">
-                                                            <span class="col-rank">{{ $standing->rank_position }}</span>
+                                                            <span class="col-rank">{{ $loop->iteration }}</span>
                                                             <span class="col-name">{{ $cat->isDoubles() ? ($standing->athlete?->pair_name ?? '--') : ($standing->athlete?->athlete_name ?? '--') }}</span>
                                                             <span class="col-stat won">{{ $standing->matches_won }}</span>
                                                             <span class="col-stat lost">{{ $standing->matches_lost }}</span>
@@ -1150,8 +1158,12 @@
 
                             {{-- Summary standings --}}
                             @php
-                                $allStandings = $cat->groups->flatMap(fn($g) => $g->standings)
-                                    ->sortByDesc('matches_won');
+                                $allStandings = $cat->groups->flatMap(fn($g) => $g->standings);
+                                // For doubles: filter out partner duplicates
+                                if ($cat->isDoubles()) {
+                                    $allStandings = $allStandings->filter(fn($s) => !$s->athlete?->partner_id || $s->athlete->id < $s->athlete->partner_id);
+                                }
+                                $allStandings = $allStandings->sortByDesc('matches_won')->values();
                             @endphp
                             @if ($allStandings->isNotEmpty())
                                 <div class="content-card">
