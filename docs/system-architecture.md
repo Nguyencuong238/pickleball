@@ -76,7 +76,7 @@ The Pickleball Platform follows Laravel's Model-View-Controller (MVC) architectu
 #### Public Frontend (`resources/views/front/`)
 - Homepage with featured content
 - Court/stadium listing and detail
-- Tournament listing and registration
+- Tournament listing and detail with tab-based schedule (group stage, standings, knockout bracket)
 - Instructor profiles
 - News and static pages
 
@@ -755,19 +755,8 @@ OPRS = (0.7 × Elo) + (0.2 × Challenge) + (0.1 × Community)
 4.5 (Pro)               1600-1849
 5.0+ (Elite)            1850+
 
-// Challenge Types
-- serve_accuracy: 50 points (70% threshold)
-- volley_control: 60 points (75% threshold)
-- dink_precision: 55 points (70% threshold)
-- footwork_drill: 45 points (65% threshold)
-- monthly_test: 200 points (80% threshold, 1/month)
-
-// Community Activities
-- check_in: 10 points (daily per stadium)
-- event_participation: 50 points (per event)
-- player_referral: 100 points (per referral)
-- weekly_matches: 30 points (5+ matches/week)
-- monthly_challenge: 150 points (1/month)
+// Challenge Types: serve_accuracy (50pts, 70%), volley_control (60pts, 75%), dink_precision (55pts, 70%), footwork_drill (45pts, 65%), monthly_test (200pts, 80%, 1/month)
+// Community Activities: check_in (10pts daily), event_participation (50pts), player_referral (100pts), weekly_matches (30pts, 5+/week), monthly_challenge (150pts)
 ```
 
 ### OPRS Data Dependencies

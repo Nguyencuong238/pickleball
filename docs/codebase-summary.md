@@ -562,10 +562,10 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - Bookings, courts
 
 #### Tournament Rewrite Views (New - Mar 2026)
-- `dashboard.blade.php` - Main tournament dashboard with sidebar
-- `draw.blade.php` - Draw/seeding management page
-- `bracket.blade.php` - Single elimination knockout bracket display
-- Partials: `_sidebar.blade.php`, `_overview.blade.php`, `_athletes.blade.php`, `_athletes-modal.blade.php`, `_athletes-mobile-cards.blade.php`, `_draw.blade.php`, `_draw-seeding.blade.php`, `_draw-manual.blade.php`, `_draw-results.blade.php`, `_matches.blade.php`, `_matches-row.blade.php`, `_matches-empty-generate.blade.php`, `_rankings.blade.php`, `_rankings-group-table.blade.php`, `_category-editor.blade.php`, `_mobile-tabs.blade.php`, `_bracket-tree.blade.php`, `_bracket-match.blade.php`
+- `dashboard.blade.php`, `draw.blade.php`, `bracket.blade.php` - Admin dashboard, draw/seeding, bracket display
+- `tournaments_detail.blade.php`, `tabs-section.blade.php` - Public tournament detail with tabs (schedule/standings/bracket)
+- Partials (20+): `_sidebar.blade.php`, `_overview.blade.php`, `_athletes*.blade.php`, `_draw*.blade.php`, `_matches*.blade.php`, `_rankings*.blade.php`, `_bracket*.blade.php`, `_mobile-tabs.blade.php`
+- Front-end Partials: `_front-bracket-match.blade.php` - Read-only bracket match card (See [tournament-views-structure.md](./tournament-views-structure.md))
 
 #### Other Home Yard Views
 - Tournaments (legacy views being replaced)
@@ -785,22 +785,15 @@ The skill quiz system implements gender-differentiated skill level mapping align
 
 ### Implementation
 - `User.gender` - enum('male', 'female'), nullable
-- `SkillQuizService.eloToSkillLevel($elo, $gender)` - Gender-aware mapping
-- `SkillQuizService.getSkillLevelName($level, $locale)` - Localized names
+- `SkillQuizService.eloToSkillLevel($elo, $gender)` - Gender-aware mapping with localized names
 - Constants: `ELO_THRESHOLDS_MALE`, `ELO_THRESHOLDS_FEMALE`, `SKILL_LEVEL_NAMES`
-
 ### ELO Mapping
 | ELO | Male | Female | VN Male | VN Female |
 |-----|------|--------|---------|-----------|
 | <700 | 2.0 | 2.5 | Moi choi | Tap su |
-| 700-799 | 2.5 | 3.0 | Tap su | So cap |
-| 800-899 | 3.0 | 3.5 | So cap | Trung cap |
-| 900-999 | 3.5 | 4.0 | Trung cap | Cao cap |
-| 1000-1099 | 4.0 | 4.5 | Cao cap | Ban chuyen |
-| 1100-1199 | 4.5 | 5.0 | Ban chuyen | Chuyen nghiep |
-| 1200-1299 | 5.0 | 5.5 | Chuyen nghiep | Dinh cao |
+| 700-899 | 2.5-3.0 | 3.0-3.5 | Tap su-So cap | So cap-Trung cap |
+| 900-1099 | 3.5-4.0 | 4.0-4.5 | Trung cap-Cao cap | Cao cap-Ban chuyen |
+| 1100-1299 | 4.5-5.0 | 5.0-5.5 | Ban chuyen-Chuyen nghiep | Chuyen nghiep-Dinh cao |
 | >=1300 | 5.5+ | 5.5+ | Dinh cao | Dinh cao |
-
-## Related Documentation
-
-- [Project Overview PDR](./project-overview-pdr.md) | [Code Standards](./code-standards.md) | [System Architecture](./system-architecture.md) | [Roadmap](./project-roadmap.md) | [Referee API](./api-referee.md)
+## Related Docs
+[PDR](./project-overview-pdr.md) | [Code Standards](./code-standards.md) | [Architecture](./system-architecture.md) | [Tournament Views](./tournament-views-structure.md) | [Roadmap](./project-roadmap.md) | [Referee API](./api-referee.md)

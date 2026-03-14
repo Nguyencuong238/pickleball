@@ -450,7 +450,7 @@
 
     .front-schedule-match-row {
         display: grid;
-        grid-template-columns: 70px 1fr 50px;
+        grid-template-columns: 70px 1fr auto;
         align-items: center;
         padding: 6px 10px;
         border-bottom: 1px solid #f3f4f6;
@@ -493,9 +493,16 @@
 
     .front-schedule-match-scores {
         display: flex;
+        gap: 4px;
+        align-items: center;
+    }
+
+    .front-schedule-set-col {
+        display: flex;
         flex-direction: column;
         align-items: center;
         gap: 2px;
+        min-width: 24px;
     }
 
     .front-schedule-score {
@@ -504,6 +511,7 @@
         color: #9ca3af;
         min-width: 20px;
         text-align: center;
+        line-height: 1.4;
     }
 
     .front-schedule-score.won {
@@ -1087,16 +1095,28 @@
                                                             </div>
                                                         </div>
                                                         <div class="front-schedule-match-scores">
-                                                            @if ($match->status === 'completed' || $match->status === 'in_progress')
-                                                                @php
-                                                                    $s1 = $match->athlete1_score ?? 0;
-                                                                    $s2 = $match->athlete2_score ?? 0;
-                                                                @endphp
-                                                                <span class="front-schedule-score {{ $s1 > $s2 ? 'won' : ($s1 < $s2 ? 'lost' : '') }}">{{ $s1 }}</span>
-                                                                <span class="front-schedule-score {{ $s2 > $s1 ? 'won' : ($s2 < $s1 ? 'lost' : '') }}">{{ $s2 }}</span>
+                                                            @if (($match->status === 'completed' || $match->status === 'in_progress') && !empty($match->set_scores))
+                                                                @foreach ($match->set_scores as $set)
+                                                                    @php
+                                                                        $sv1 = $set['athlete1_score'] ?? $set['athlete1'] ?? $set['s1'] ?? 0;
+                                                                        $sv2 = $set['athlete2_score'] ?? $set['athlete2'] ?? $set['s2'] ?? 0;
+                                                                    @endphp
+                                                                    <div class="front-schedule-set-col">
+                                                                        <span class="front-schedule-score {{ $sv1 > $sv2 ? 'won' : ($sv1 < $sv2 ? 'lost' : '') }}">{{ $sv1 }}</span>
+                                                                        <span class="front-schedule-score {{ $sv2 > $sv1 ? 'won' : ($sv2 < $sv1 ? 'lost' : '') }}">{{ $sv2 }}</span>
+                                                                    </div>
+                                                                @endforeach
+                                                            @elseif ($match->status === 'completed' || $match->status === 'in_progress')
+                                                                <div class="front-schedule-set-col">
+                                                                    @php $s1 = $match->athlete1_score ?? 0; $s2 = $match->athlete2_score ?? 0; @endphp
+                                                                    <span class="front-schedule-score {{ $s1 > $s2 ? 'won' : ($s1 < $s2 ? 'lost' : '') }}">{{ $s1 }}</span>
+                                                                    <span class="front-schedule-score {{ $s2 > $s1 ? 'won' : ($s2 < $s1 ? 'lost' : '') }}">{{ $s2 }}</span>
+                                                                </div>
                                                             @else
-                                                                <span class="front-schedule-score">-</span>
-                                                                <span class="front-schedule-score">-</span>
+                                                                <div class="front-schedule-set-col">
+                                                                    <span class="front-schedule-score">-</span>
+                                                                    <span class="front-schedule-score">-</span>
+                                                                </div>
                                                             @endif
                                                         </div>
                                                     </div>
