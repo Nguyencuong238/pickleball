@@ -1233,7 +1233,7 @@
             <div class="content-card">
                 <h2 class="content-title">Danh sách vận động viên</h2>
                 @php
-                    $athletes = $tournament->athletes()->get();
+                    $athletes = $tournament->athletes()->with('user')->get();
                     $athleteCount = $athletes->count();
                     $remaining = $tournament->max_participants - $athleteCount;
                 @endphp
@@ -1254,8 +1254,8 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Tên VĐV</th>
-                                    <th>Email</th>
                                     <th>Điện thoại</th>
+                                    <th>Điểm trình độ</th>
                                     <th>Trạng thái</th>
                                 </tr>
                             </thead>
@@ -1264,8 +1264,8 @@
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $athlete->athlete_name }}</td>
-                                        <td>{{ $athlete->email }}</td>
-                                        <td>{{ $athlete->phone }}</td>
+                                        <td>{{ $athlete->phone ? 'xxxx' . substr($athlete->phone, -4) : '--' }}</td>
+                                        <td>{{ $athlete->user->opr_level ?? '--' }}</td>
                                         <td>
                                             <span
                                                 class="status-badge @if ($athlete->status == 1) status-confirmed @else status-pending @endif">
