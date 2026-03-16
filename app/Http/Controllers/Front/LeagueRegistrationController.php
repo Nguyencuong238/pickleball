@@ -73,6 +73,7 @@ class LeagueRegistrationController extends Controller
         }
 
         $league->load([
+            'club',
             'rounds.matches.homeTeam',
             'rounds.matches.awayTeam',
             'rounds.matches.games.homePlayer1.user',

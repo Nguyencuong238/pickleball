@@ -1,4 +1,77 @@
 {{-- Tab 1: Thông tin & Đăng ký --}}
+<div class="reg-card" style="padding: 0; overflow: hidden;">
+    <div style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 14px 20px;">
+        <h3 style="margin: 0; color: #fff; font-size: 1rem; font-weight: 600;">
+            Thông tin giải đấu
+        </h3>
+    </div>
+    <div style="padding: 16px 20px;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="background: #f8fafc; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500;">Hạn đăng ký</div>
+                    <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {{ $league->registration_deadline ? $league->registration_deadline->format('d/m/Y H:i') : 'Chưa cập nhật' }}
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f8fafc; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500;">Ngày bắt đầu</div>
+                    <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600;">
+                        {{ $league->start_date ? $league->start_date->format('d/m/Y') : 'Chưa cập nhật' }}
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f8fafc; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500;">Ngày kết thúc</div>
+                    <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600;">
+                        {{ $league->end_date ? $league->end_date->format('d/m/Y') : 'Chưa cập nhật' }}
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f8fafc; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500;">Sân thi đấu</div>
+                    <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        {{ $league->club->name ?? 'Chưa cập nhật' }}
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f8fafc; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500;">Số đội tối đa</div>
+                    <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600;">
+                        {{ $league->config['max_teams'] ?? 16 }}
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f8fafc; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500;">Số VĐV mỗi đội</div>
+                    <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600;">
+                        {{ $league->config['max_players_per_team'] ?? 'Chưa cập nhật' }}
+                    </div>
+                </div>
+            </div>
+            <div style="background: #f8fafc; border-radius: 8px; padding: 10px 12px; display: flex; align-items: center; gap: 10px; grid-column: span 2;">
+                <div style="min-width: 0;">
+                    <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500;">Hình thức thi đấu</div>
+                    <div style="font-size: 0.85rem; color: #1e293b; font-weight: 600;">
+                        {{ $league->competition_format === 'mlp' ? 'MLP' : 'Truyền thống' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        @if($league->description)
+            <div style="margin-top: 12px; background: #f8fafc; border-radius: 8px; padding: 12px 14px; border-left: 3px solid var(--primary-color, #14b8a6);">
+                <div style="font-size: 0.7rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; font-weight: 500; margin-bottom: 4px;">Mô tả</div>
+                <p style="color: #475569; margin: 0; line-height: 1.6; font-size: 0.85rem;">{{ $league->description }}</p>
+            </div>
+        @endif
+    </div>
+</div>
 @if($closed)
     <div style="background: white; border-radius: 12px; padding: 40px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.06);">
         <i class="fas fa-lock" style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px;"></i>
@@ -6,12 +79,7 @@
         <p style="color: #9ca3af; margin: 0;">Giải đấu hiện không nhận đăng ký mới.</p>
     </div>
 @else
-    @if($league->description)
-        <div class="reg-card">
-            <h3 style="margin: 0 0 10px; color: #1e293b; font-size: 1rem;">Thông tin giải đấu</h3>
-            <p style="color: #6b7280; margin: 0; line-height: 1.6;">{{ $league->description }}</p>
-        </div>
-    @endif
+
 
     <form method="POST" action="{{ route('leagues.register.store', $league) }}" enctype="multipart/form-data" id="registrationForm">
         @csrf
