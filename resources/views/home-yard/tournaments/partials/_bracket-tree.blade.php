@@ -115,7 +115,7 @@
                     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                         <label style="display:flex;align-items:center;gap:6px;font-size:0.85rem;color:#475569;cursor:pointer;">
                             <input type="checkbox" x-model="enableThirdPlace">
-                            Trận tranh hạng ba
+                           Tạo trận tranh hạng ba
                         </label>
                         <button class="td-btn td-btn-primary"
                                 @click="generateBracket()"
