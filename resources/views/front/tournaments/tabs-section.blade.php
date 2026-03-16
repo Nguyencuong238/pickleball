@@ -537,7 +537,7 @@
     .front-schedule-standings-header,
     .front-schedule-standings-row {
         display: grid;
-        grid-template-columns: 30px 1fr 36px 36px;
+        grid-template-columns: 30px 1fr 36px 36px 36px;
         padding: 6px 10px;
         font-size: 0.8rem;
         align-items: center;
@@ -595,7 +595,7 @@
 
     .front-schedule-summary-row {
         display: grid;
-        grid-template-columns: 30px minmax(120px, auto) 1fr 36px 36px;
+        grid-template-columns: 30px minmax(120px, auto) 1fr 36px 36px 36px;
         align-items: center;
         padding: 8px 12px;
         border-bottom: 1px solid #f3f4f6;
@@ -763,7 +763,7 @@
         }
 
         .front-schedule-summary-row {
-            grid-template-columns: 24px 90px 1fr 30px 30px;
+            grid-template-columns: 24px 90px 1fr 30px 30px 30px;
         }
 
         .front-bracket-round {
@@ -1130,13 +1130,16 @@
                                                         <span class="col-name">{{ $group->group_name }}</span>
                                                         <span class="col-stat">W</span>
                                                         <span class="col-stat">L</span>
+                                                        <span class="col-stat">+/-</span>
                                                     </div>
                                                     @foreach ($filteredStandings as $standing)
+                                                        @php $diff = $standing->matches_won - $standing->matches_lost; @endphp
                                                         <div class="front-schedule-standings-row {{ $standing->is_advanced ? 'advanced' : '' }}">
                                                             <span class="col-rank">{{ $loop->iteration }}</span>
                                                             <span class="col-name">{{ $cat->isDoubles() ? ($standing->athlete?->pair_name ?? '--') : ($standing->athlete?->athlete_name ?? '--') }}</span>
                                                             <span class="col-stat won">{{ $standing->matches_won }}</span>
                                                             <span class="col-stat lost">{{ $standing->matches_lost }}</span>
+                                                            <span class="col-stat" style="color: {{ $diff > 0 ? '#10b981' : ($diff < 0 ? '#ef4444' : '#9ca3af') }}">{{ $diff > 0 ? '+' : '' }}{{ $diff }}</span>
                                                         </div>
                                                     @endforeach
                                                 </div>
@@ -1172,6 +1175,8 @@
                                                 </div>
                                                 <span class="col-stat won">{{ $standing->matches_won }}</span>
                                                 <span class="col-stat lost">{{ $standing->matches_lost }}</span>
+                                                @php $diff = $standing->matches_won - $standing->matches_lost; @endphp
+                                                <span class="col-stat" style="color: {{ $diff > 0 ? '#10b981' : ($diff < 0 ? '#ef4444' : '#9ca3af') }}">{{ $diff > 0 ? '+' : '' }}{{ $diff }}</span>
                                             </div>
                                         @endforeach
                                     </div>
