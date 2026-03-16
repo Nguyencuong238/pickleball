@@ -156,9 +156,55 @@ class TournamentAthleteController extends Controller
             'athlete_name' => 'required|string|max:100',
             'email'        => 'required|email|max:100',
             'phone'        => 'nullable|string|max:20',
+            'category_id'  => 'required|integer|exists:tournament_categories,id',
+            'partner_id'   => 'nullable|integer|exists:tournament_athletes,id',
         ]);
 
-        $athlete->update($validated);
+        $category = TournamentCategory::where('id', $validated['category_id'])
+            ->where('tournament_id', $tournament->id)
+            ->firstOrFail();
+
+        DB::transaction(function () use ($athlete, $validated, $category) {
+            $oldPartnerId = $athlete->partner_id;
+            $newPartnerId = $validated['partner_id'] ?? null;
+            $isDoubles = $category->isDoubles();
+
+            $athlete->update([
+                'athlete_name' => $validated['athlete_name'],
+                'email'        => $validated['email'],
+                'phone'        => $validated['phone'],
+                'category_id'  => $category->id,
+            ]);
+
+            // Unlink old partner if partner changed or category no longer doubles
+            if ($oldPartnerId && ($oldPartnerId !== $newPartnerId || !$isDoubles)) {
+                TournamentAthlete::where('id', $oldPartnerId)
+                    ->update(['partner_id' => null]);
+                $athlete->partner_id = null;
+                $athlete->save();
+            }
+
+            // Link new partner if doubles category and partner provided
+            if ($isDoubles && $newPartnerId && $newPartnerId !== $oldPartnerId) {
+                $partner = TournamentAthlete::where('id', $newPartnerId)
+                    ->where('tournament_id', $athlete->tournament_id)
+                    ->where('category_id', $category->id)
+                    ->first();
+
+                if ($partner) {
+                    // Unlink new partner's old partner if any
+                    if ($partner->partner_id && $partner->partner_id !== $athlete->id) {
+                        TournamentAthlete::where('id', $partner->partner_id)
+                            ->update(['partner_id' => null]);
+                    }
+                    $athlete->partner_id = $partner->id;
+                    $athlete->save();
+                    $partner->partner_id = $athlete->id;
+                    $partner->save();
+                }
+            }
+        });
+
         $athlete->load(['category', 'partner']);
 
         return response()->json([
