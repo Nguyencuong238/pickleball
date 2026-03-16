@@ -796,16 +796,6 @@
                 </svg>
                 <span>Lịch thi đấu</span>
             </button>
-            <button class="tab-btn" data-tab="results">
-                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="16" y1="13" x2="8" y2="13" />
-                    <line x1="16" y1="17" x2="8" y2="17" />
-                    <polyline points="10 9 9 9 8 9" />
-                </svg>
-                <span>Kết quả</span>
-            </button>
             <button class="tab-btn" data-tab="participants">
                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -1236,32 +1226,6 @@
                     <div class="empty-state">Lịch thi đấu sẽ được cập nhật sau khi đóng đăng ký</div>
                 </div>
             @endif
-        </div>
-
-        <!-- Results Tab -->
-        <div class="tab-pane" id="results">
-            <div class="content-card">
-                <h2 class="content-title">Kết quả thi đấu</h2>
-                @if ($tournament->results)
-                    @php $lines = array_filter(array_map('trim', explode("\n", $tournament->results))); @endphp
-                    <div style="display: flex; flex-direction: column; gap: 12px;">
-                        @foreach ($lines as $line)
-                            @if (preg_match('/^Ngày\s+\d+/i', $line))
-                                <div
-                                    style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; padding: 12px 16px; border-radius: 8px; font-weight: 600;">
-                                    {{ $line }}</div>
-                            @else
-                                <div
-                                    style="background: #f9fafb; border-left: 4px solid var(--primary-color); padding: 12px 16px; border-radius: 4px;">
-                                    <p style="margin: 0; color: #1f2937; font-weight: 500;">{{ $line }}</p>
-                                </div>
-                            @endif
-                        @endforeach
-                    </div>
-                @else
-                    <div class="empty-state">Kết quả sẽ được cập nhật trong quá trình diễn ra giải đấu</div>
-                @endif
-            </div>
         </div>
 
         <!-- Participants Tab -->
