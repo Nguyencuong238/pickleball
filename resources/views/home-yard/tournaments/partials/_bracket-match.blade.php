@@ -14,7 +14,7 @@
     <div class="bracket-slot"
          :class="{
              'bracket-slot--winner':   match.winner_id && match.athlete1 && match.winner_id === match.athlete1.id,
-             'bracket-slot--swappable': editMode && match.status === 'scheduled' && match.athlete1,
+             'bracket-slot--swappable': editMode && match.status === 'scheduled',
              'bracket-slot--selected':  swapState.active && swapState.matchId1 === match.id && swapState.slot1 === 'athlete1'
          }"
          @click="selectSlot(match.id, 'athlete1', match.athlete1 ? match.athlete1.name : '', match.athlete1 ? match.athlete1.id : null)">
@@ -31,7 +31,7 @@
     <div class="bracket-slot"
          :class="{
              'bracket-slot--winner':   match.winner_id && match.athlete2 && match.winner_id === match.athlete2.id,
-             'bracket-slot--swappable': editMode && match.status === 'scheduled' && match.athlete2,
+             'bracket-slot--swappable': editMode && match.status === 'scheduled',
              'bracket-slot--selected':  swapState.active && swapState.matchId1 === match.id && swapState.slot1 === 'athlete2'
          }"
          @click="selectSlot(match.id, 'athlete2', match.athlete2 ? match.athlete2.name : '', match.athlete2 ? match.athlete2.id : null)">

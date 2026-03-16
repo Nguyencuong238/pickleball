@@ -11,7 +11,7 @@ function bracketSwapEditorMixin() {
         },
 
         selectSlot(matchId, slot, athleteName, athleteId) {
-            if (!this.editMode || !athleteId) return;
+            if (!this.editMode) return;
             var match = this.findMatch(matchId);
             if (!match || match.status !== 'scheduled') return;
 
@@ -30,7 +30,9 @@ function bracketSwapEditorMixin() {
         },
 
         async confirmSwap() {
-            var msg = 'Đổi vị trí ' + this.swapState.name1 + ' và ' + this.swapState.name2 + '?';
+            var name1 = this.swapState.name1 || 'Ch\u01B0a x\u00E1c \u0111\u1ECBnh';
+            var name2 = this.swapState.name2 || 'Ch\u01B0a x\u00E1c \u0111\u1ECBnh';
+            var msg = '\u0110\u1ED5i v\u1ECB tr\u00ED ' + name1 + ' v\u00E0 ' + name2 + '?';
             if (!confirm(msg)) { this.clearSwap(); return; }
 
             try {
