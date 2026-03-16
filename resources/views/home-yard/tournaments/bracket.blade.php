@@ -18,6 +18,6 @@
 <script src="{{ asset('assets/js/tournament-dashboard.js') }}"></script>
 <script src="{{ asset('assets/js/bracket-data-fetcher.js') }}"></script>
 <script src="{{ asset('assets/js/bracket-score-entry.js') }}"></script>
-<script src="{{ asset('assets/js/bracket-swap-editor.js') }}?v=1"></script>
+<script src="{{ asset('assets/js/bracket-swap-editor.js') }}?v=1.1"></script>
 <script src="{{ asset('assets/js/bracket-manager.js') }}"></script>
 @endsection
