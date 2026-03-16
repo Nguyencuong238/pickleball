@@ -13,7 +13,9 @@ function bracketSwapEditorMixin() {
         selectSlot(matchId, slot, athleteName, athleteId) {
             if (!this.editMode) return;
             var match = this.findMatch(matchId);
-            if (!match || match.status !== 'scheduled') return;
+            if (!match) return;
+            var isBye = match.status === 'completed' && (!match.athlete1 || !match.athlete2);
+            if (match.status !== 'scheduled' && !isBye) return;
 
             if (!this.swapState.active) {
                 this.swapState = { active: true, matchId1: matchId, slot1: slot, name1: athleteName, matchId2: null, slot2: null, name2: '' };

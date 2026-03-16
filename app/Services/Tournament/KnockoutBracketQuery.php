@@ -50,8 +50,14 @@ class KnockoutBracketQuery
         $match1 = MatchModel::findOrFail($matchId1);
         $match2 = MatchModel::findOrFail($matchId2);
 
-        if ($match1->status !== 'scheduled' || $match2->status !== 'scheduled') {
-            throw new InvalidArgumentException('Chỉ có thể hoán đổi VĐV trong các trận chưa diễn ra.');
+        $canSwap = function (MatchModel $m): bool {
+            if ($m->status === 'scheduled') return true;
+            return $m->status === 'completed'
+                && ($m->athlete1_id === null || $m->athlete2_id === null);
+        };
+
+        if (!$canSwap($match1) || !$canSwap($match2)) {
+            throw new InvalidArgumentException('Chỉ có thể hoán đổi VĐV trong các trận chưa diễn ra hoặc trận bye.');
         }
 
         $allowed = ['athlete1_id', 'athlete2_id'];
@@ -65,8 +71,13 @@ class KnockoutBracketQuery
         $val1 = $match1->{$col1};
         $val2 = $match2->{$col2};
 
-        $match1->update([$col1 => $val2]);
-        $match2->update([$col2 => $val1]);
+        $nameCol1 = $slot1 . '_name';
+        $nameCol2 = $slot2 . '_name';
+        $name1 = $match1->{$nameCol1};
+        $name2 = $match2->{$nameCol2};
+
+        $match1->update([$col1 => $val2, $nameCol1 => $name2]);
+        $match2->update([$col2 => $val1, $nameCol2 => $name1]);
     }
 
     /**

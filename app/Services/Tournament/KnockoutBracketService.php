@@ -127,7 +127,55 @@ class KnockoutBracketService
      */
     public function swapAthletes(int $matchId1, string $slot1, int $matchId2, string $slot2): void
     {
-        $this->bracketQuery->swapAthletes($matchId1, $slot1, $matchId2, $slot2);
+        DB::transaction(function () use ($matchId1, $slot1, $matchId2, $slot2) {
+            $this->bracketQuery->swapAthletes($matchId1, $slot1, $matchId2, $slot2);
+
+            $this->reEvaluateMatch(MatchModel::findOrFail($matchId1));
+            if ($matchId1 !== $matchId2) {
+                $this->reEvaluateMatch(MatchModel::findOrFail($matchId2));
+            }
+        });
+    }
+
+    /**
+     * Sau swap, đánh giá lại trạng thái bye của trận đấu.
+     * - Xóa winner cũ khỏi trận kế tiếp
+     * - Nếu 1 VĐV + 1 null -> handleBye (tự động hoàn thành)
+     * - Nếu 2 VĐV hoặc 0 VĐV -> scheduled, xóa winner
+     */
+    private function reEvaluateMatch(MatchModel $match): void
+    {
+        $oldWinner = $match->winner_id;
+
+        if ($oldWinner && $match->next_match_id) {
+            $this->removeAdvancedAthlete($match->next_match_id, $oldWinner);
+        }
+
+        $match->refresh();
+
+        if ($match->athlete1_id && $match->athlete2_id) {
+            $match->update(['status' => 'scheduled', 'winner_id' => null]);
+        } elseif ($match->athlete1_id || $match->athlete2_id) {
+            $match->update(['status' => 'scheduled', 'winner_id' => null]);
+            $this->matchBuilder->handleBye($match->fresh());
+        } else {
+            $match->update(['status' => 'scheduled', 'winner_id' => null]);
+        }
+    }
+
+    /**
+     * Xóa VĐV đã được advance lên trận kế tiếp (khi bye cũ không còn hợp lệ).
+     */
+    private function removeAdvancedAthlete(int $nextMatchId, int $athleteId): void
+    {
+        $next = MatchModel::find($nextMatchId);
+        if (!$next) return;
+
+        if ($next->athlete1_id === $athleteId) {
+            $next->update(['athlete1_id' => null, 'athlete1_name' => null]);
+        } elseif ($next->athlete2_id === $athleteId) {
+            $next->update(['athlete2_id' => null, 'athlete2_name' => null]);
+        }
     }
 
     /**
