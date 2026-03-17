@@ -2,6 +2,8 @@
 
 namespace App\Services\Tournament;
 
+use App\Models\Group;
+use App\Models\GroupStanding;
 use App\Models\MatchModel;
 use App\Models\Round;
 use App\Models\TournamentAthlete;
@@ -92,9 +94,15 @@ class KnockoutBracketQuery
         $categoryId = $match->category_id;
         $tournamentId = $match->tournament_id;
 
+        // Get advanced athlete IDs from group_standings (is_advanced lives there, not on tournament_athletes)
+        $advancedAthleteIds = GroupStanding::whereHas('group', function ($q) use ($tournamentId, $categoryId) {
+            $q->where('tournament_id', $tournamentId)->where('category_id', $categoryId);
+        })->where('is_advanced', true)->pluck('athlete_id');
+
         $basePool = TournamentAthlete::where('tournament_id', $tournamentId)
             ->where('category_id', $categoryId)
-            ->where('is_advanced', true)
+            ->whereIn('id', $advancedAthleteIds)
+            ->with('partner')
             ->get();
 
         $bracketRoundTypes = ['knockout', 'quarterfinal', 'semifinal', 'final'];
