@@ -25,15 +25,15 @@ function bracketMatchEditorMixin() {
             this.editEligibleAthletes = [];
 
             var match = this.findMatch(matchId);
-            if (match) {
-                this.editForm = {
-                    athlete1_id: match.athlete1 ? String(match.athlete1.id) : '',
-                    athlete2_id: match.athlete2 ? String(match.athlete2.id) : '',
-                    match_time: match.match_time || '',
-                    best_of: match.best_of ? String(match.best_of) : '',
-                    notes: match.notes || '',
-                };
-            }
+
+            // Reset form with non-athlete fields first
+            this.editForm = {
+                athlete1_id: '',
+                athlete2_id: '',
+                match_time: match ? (match.match_time || '') : '',
+                best_of: match && match.best_of ? String(match.best_of) : '',
+                notes: match ? (match.notes || '') : '',
+            };
 
             try {
                 var url = this.dataUrl.replace('/data', '/eligible-athletes') + '?match_id=' + matchId;
@@ -68,6 +68,16 @@ function bracketMatchEditorMixin() {
                 console.error('Failed to load eligible athletes', e);
             } finally {
                 this.editLoading = false;
+                // Set athlete IDs after loading=false so options exist when x-model binds
+                var self = this;
+                this.$nextTick(function() {
+                    if (match && match.athlete1) {
+                        self.editForm.athlete1_id = String(match.athlete1.id);
+                    }
+                    if (match && match.athlete2) {
+                        self.editForm.athlete2_id = String(match.athlete2.id);
+                    }
+                });
             }
         },
 
