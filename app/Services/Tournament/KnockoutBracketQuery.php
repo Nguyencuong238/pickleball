@@ -5,6 +5,7 @@ namespace App\Services\Tournament;
 use App\Models\MatchModel;
 use App\Models\Round;
 use App\Models\TournamentAthlete;
+use Carbon\Carbon;
 use InvalidArgumentException;
 
 class KnockoutBracketQuery
@@ -81,6 +82,144 @@ class KnockoutBracketQuery
     }
 
     /**
+     * Lấy danh sách VDV hợp lệ cho một trận đấu bracket.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getEligibleAthletes(MatchModel $match): array
+    {
+        $round = $match->round;
+        $categoryId = $match->category_id;
+        $tournamentId = $match->tournament_id;
+
+        $basePool = TournamentAthlete::where('tournament_id', $tournamentId)
+            ->where('category_id', $categoryId)
+            ->where('is_advanced', true)
+            ->get();
+
+        $bracketRoundTypes = ['knockout', 'quarterfinal', 'semifinal', 'final'];
+
+        $firstBracketRound = Round::where('tournament_id', $tournamentId)
+            ->where('category_id', $categoryId)
+            ->whereIn('round_type', $bracketRoundTypes)
+            ->orderBy('round_number')
+            ->first();
+
+        $currentRoundNumber = $round->round_number;
+
+        if ($firstBracketRound && $currentRoundNumber === $firstBracketRound->round_number) {
+            $eligible = $basePool;
+        } else {
+            $previousRounds = Round::where('tournament_id', $tournamentId)
+                ->where('category_id', $categoryId)
+                ->whereIn('round_type', $bracketRoundTypes)
+                ->where('round_number', '<', $currentRoundNumber)
+                ->pluck('id');
+
+            $winnerIds = MatchModel::whereIn('round_id', $previousRounds)
+                ->whereNotNull('winner_id')
+                ->pluck('winner_id')
+                ->unique();
+
+            $eligible = $basePool->whereIn('id', $winnerIds);
+        }
+
+        $usedInRound = MatchModel::where('round_id', $round->id)
+            ->where('id', '!=', $match->id)
+            ->get()
+            ->flatMap(fn ($m) => [$m->athlete1_id, $m->athlete2_id])
+            ->filter()
+            ->unique();
+
+        return $eligible->whereNotIn('id', $usedInRound)
+            ->map(fn ($a) => [
+                'id'           => $a->id,
+                'name'         => $a->athlete_name,
+                'partner_name' => $a->partner?->athlete_name,
+                'pair_name'    => $a->pair_name,
+                'seed'         => $a->seed_number,
+            ])
+            ->values()
+            ->toArray();
+    }
+
+    /**
+     * Cap nhat VDV va thuoc tinh tran dau bracket.
+     */
+    public function updateMatchAthletes(MatchModel $match, array $data): void
+    {
+        $updates = [];
+
+        if (array_key_exists('athlete1_id', $data)) {
+            $updates['athlete1_id'] = $data['athlete1_id'];
+            $updates['athlete1_name'] = $data['athlete1_id']
+                ? TournamentAthlete::find($data['athlete1_id'])?->pair_name
+                : null;
+        }
+        if (array_key_exists('athlete2_id', $data)) {
+            $updates['athlete2_id'] = $data['athlete2_id'];
+            $updates['athlete2_name'] = $data['athlete2_id']
+                ? TournamentAthlete::find($data['athlete2_id'])?->pair_name
+                : null;
+        }
+
+        foreach (['match_time', 'best_of', 'notes'] as $field) {
+            if (array_key_exists($field, $data)) {
+                $updates[$field] = $data[$field];
+            }
+        }
+
+        if (!empty($updates)) {
+            $match->update($updates);
+        }
+    }
+
+    /**
+     * Dem so tran dau o cac vong sau bi anh huong khi thay doi VDV.
+     */
+    public function countCascadeAffected(MatchModel $match): int
+    {
+        $affected = 0;
+        $currentMatch = $match;
+
+        while ($currentMatch->next_match_id) {
+            $nextMatch = MatchModel::find($currentMatch->next_match_id);
+            if (!$nextMatch) break;
+
+            if ($nextMatch->athlete1_id || $nextMatch->athlete2_id) {
+                $affected++;
+            }
+            $currentMatch = $nextMatch;
+        }
+
+        return $affected;
+    }
+
+    /**
+     * Xoa VDV da duoc advance o cac tran vong sau (cascade clear).
+     */
+    public function cascadeClearDownstream(MatchModel $match): void
+    {
+        $currentMatch = $match;
+
+        while ($currentMatch->next_match_id) {
+            $nextMatch = MatchModel::find($currentMatch->next_match_id);
+            if (!$nextMatch) break;
+
+            $nextMatch->update([
+                'athlete1_id'   => null,
+                'athlete1_name' => null,
+                'athlete2_id'   => null,
+                'athlete2_name' => null,
+                'winner_id'     => null,
+                'status'        => 'scheduled',
+            ]);
+
+            $currentMatch = $nextMatch;
+        }
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function formatMatch(MatchModel $match): array
@@ -97,6 +236,9 @@ class KnockoutBracketQuery
             'athlete1_score'   => $match->athlete1_score,
             'athlete2_score'   => $match->athlete2_score,
             'set_scores'       => $match->set_scores,
+            'match_time'       => $match->match_time ? Carbon::parse($match->match_time)->format('H:i') : null,
+            'best_of'          => $match->best_of,
+            'notes'            => $match->notes,
         ];
     }
 

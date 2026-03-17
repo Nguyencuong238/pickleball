@@ -85,6 +85,94 @@
         </div>
     </template>
 
+    {{-- Modal chỉnh sửa trận đấu --}}
+    <template x-if="editMatchId">
+        <div style="position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:50;display:flex;align-items:center;justify-content:center;"
+             @keydown.escape.window="editMatchId = null">
+            <div style="background:#fff;border-radius:10px;padding:24px;max-width:480px;width:90%;">
+                <h3 style="font-size:1rem;font-weight:700;margin:0 0 16px;">Chỉnh sửa trận đấu</h3>
+
+                <template x-if="editLoading">
+                    <p style="font-size:0.85rem;color:#64748b;">Đang tải...</p>
+                </template>
+
+                <template x-if="!editLoading">
+                    <div>
+                        <!-- VĐV 1 -->
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:0.82rem;color:#64748b;display:block;margin-bottom:4px;">VĐV 1</label>
+                            <select x-model="editForm.athlete1_id"
+                                    style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;">
+                                <option value="">-- Chưa xác định --</option>
+                                <template x-for="a in editEligibleAthletes" :key="a.id">
+                                    <option :value="a.id" x-text="a.pair_name || a.name"
+                                            :disabled="String(a.id) === String(editForm.athlete2_id)"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <!-- VĐV 2 -->
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:0.82rem;color:#64748b;display:block;margin-bottom:4px;">VĐV 2</label>
+                            <select x-model="editForm.athlete2_id"
+                                    style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;">
+                                <option value="">-- Chưa xác định --</option>
+                                <template x-for="a in editEligibleAthletes" :key="a.id">
+                                    <option :value="a.id" x-text="a.pair_name || a.name"
+                                            :disabled="String(a.id) === String(editForm.athlete1_id)"></option>
+                                </template>
+                            </select>
+                        </div>
+
+                        <!-- Giờ thi đấu -->
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:0.82rem;color:#64748b;display:block;margin-bottom:4px;">Giờ thi đấu</label>
+                            <input type="time" x-model="editForm.match_time"
+                                   style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;">
+                        </div>
+
+                        <!-- Số set (best of) -->
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:0.82rem;color:#64748b;display:block;margin-bottom:4px;">Số set (best of)</label>
+                            <select x-model="editForm.best_of"
+                                    style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;">
+                                <option value="">-- Không đổi --</option>
+                                <option value="1">1</option>
+                                <option value="3">3</option>
+                                <option value="5">5</option>
+                            </select>
+                        </div>
+
+                        <!-- Ghi chú -->
+                        <div style="margin-bottom:16px;">
+                            <label style="font-size:0.82rem;color:#64748b;display:block;margin-bottom:4px;">Ghi chú</label>
+                            <textarea x-model="editForm.notes" rows="2"
+                                      style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;resize:vertical;"></textarea>
+                        </div>
+
+                        <!-- Cảnh báo cascade -->
+                        <template x-if="editCascadeCount > 0">
+                            <div style="background:#fef3c7;border:1px solid #f59e0b;border-radius:6px;padding:10px;margin-bottom:12px;font-size:0.82rem;color:#92400e;">
+                                <strong>Cảnh báo:</strong> Thay đổi VĐV sẽ ảnh hưởng
+                                <span x-text="editCascadeCount"></span> trận đấu ở các vòng sau.
+                                Dữ liệu VĐV ở các trận đó sẽ bị xóa.
+                            </div>
+                        </template>
+
+                        <!-- Nút hành động -->
+                        <div style="display:flex;gap:8px;justify-content:flex-end;">
+                            <button class="td-btn" @click="editMatchId = null">Hủy</button>
+                            <button class="td-btn td-btn-primary" @click="saveMatchEdit()" :disabled="editSaving">
+                                <span x-show="!editSaving">Lưu</span>
+                                <span x-show="editSaving">Đang lưu...</span>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+    </template>
+
     {{-- Content area --}}
     <template x-if="activeCategoryId">
         <div class="td-card" style="border-radius:0 0 10px 10px;border-top:1px solid #f1f5f9;">

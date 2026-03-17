@@ -55,4 +55,15 @@
         </div>
     </template>
 
+    {{-- Nút chỉnh sửa trận đấu (chỉ hiện trong edit mode) --}}
+    <template x-if="editMode">
+        <div style="padding:4px 8px;text-align:center;border-top:1px solid #f1f5f9;">
+            <button class="bracket-score-btn"
+                    @click.stop="openMatchEditor(match.id)"
+                    style="font-size:0.75rem;color:#6b21a8;cursor:pointer;background:none;border:none;">
+                Chỉnh sửa trận đấu
+            </button>
+        </div>
+    </template>
+
 </div>

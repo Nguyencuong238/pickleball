@@ -205,6 +205,61 @@ class KnockoutBracketService
     }
 
     /**
+     * Lấy danh sách VDV hợp lệ cho trận đấu bracket.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    public function getEligibleAthletes(MatchModel $match): array
+    {
+        return $this->bracketQuery->getEligibleAthletes($match);
+    }
+
+    /**
+     * Cập nhật VDV và thuộc tính trận đấu bracket.
+     *
+     * @return array{success: bool, affected_count?: int, message?: string}
+     */
+    public function updateMatch(MatchModel $match, array $data): array
+    {
+        // Block in_progress matches
+        if ($match->status === 'in_progress') {
+            return ['success' => false, 'message' => 'Không thể chỉnh sửa trận đấu đang diễn ra.'];
+        }
+
+        $athleteChanged = (array_key_exists('athlete1_id', $data) && (int) ($data['athlete1_id'] ?? 0) !== (int) ($match->athlete1_id ?? 0))
+            || (array_key_exists('athlete2_id', $data) && (int) ($data['athlete2_id'] ?? 0) !== (int) ($match->athlete2_id ?? 0));
+
+        if ($athleteChanged) {
+            $affectedCount = $this->bracketQuery->countCascadeAffected($match);
+
+            if ($affectedCount > 0 && empty($data['confirm_cascade'])) {
+                return [
+                    'success'        => false,
+                    'needs_confirm'  => true,
+                    'affected_count' => $affectedCount,
+                    'message'        => "Thay đổi VĐV sẽ ảnh hưởng {$affectedCount} trận đấu ở các vòng sau.",
+                ];
+            }
+        }
+
+        return DB::transaction(function () use ($match, $data, $athleteChanged) {
+            $match = MatchModel::lockForUpdate()->findOrFail($match->id);
+
+            if ($athleteChanged) {
+                $affectedCount = $this->bracketQuery->countCascadeAffected($match);
+                if ($affectedCount > 0) {
+                    $this->bracketQuery->cascadeClearDownstream($match);
+                }
+            }
+
+            $this->bracketQuery->updateMatchAthletes($match, $data);
+            $this->reEvaluateMatch($match->fresh());
+
+            return ['success' => true, 'message' => 'Cập nhật thành công'];
+        });
+    }
+
+    /**
      * Kiểm tra tất cả bảng đấu trong nội dung đã hoàn thành chưa.
      */
     public function checkCategoryCompletion(int $tournamentId, int $categoryId): bool

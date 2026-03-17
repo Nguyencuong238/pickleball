@@ -80,5 +80,6 @@ function bracketManager(config) {
         ...bracketDataFetcherMixin(),
         ...bracketScoreEntryMixin(),
         ...bracketSwapEditorMixin(),
+        ...bracketMatchEditorMixin(),
     };
 }
