@@ -2,8 +2,6 @@
 
 namespace App\Services\Tournament;
 
-use App\Models\Group;
-use App\Models\GroupStanding;
 use App\Models\MatchModel;
 use App\Models\Round;
 use App\Models\TournamentAthlete;
@@ -94,17 +92,6 @@ class KnockoutBracketQuery
         $categoryId = $match->category_id;
         $tournamentId = $match->tournament_id;
 
-        // Get advanced athlete IDs from group_standings (is_advanced lives there, not on tournament_athletes)
-        $advancedAthleteIds = GroupStanding::whereHas('group', function ($q) use ($tournamentId, $categoryId) {
-            $q->where('tournament_id', $tournamentId)->where('category_id', $categoryId);
-        })->where('is_advanced', true)->pluck('athlete_id');
-
-        $basePool = TournamentAthlete::where('tournament_id', $tournamentId)
-            ->where('category_id', $categoryId)
-            ->whereIn('id', $advancedAthleteIds)
-            ->with('partner')
-            ->get();
-
         $bracketRoundTypes = ['knockout', 'quarterfinal', 'semifinal', 'final'];
 
         $firstBracketRound = Round::where('tournament_id', $tournamentId)
@@ -116,8 +103,13 @@ class KnockoutBracketQuery
         $currentRoundNumber = $round->round_number;
 
         if ($firstBracketRound && $currentRoundNumber === $firstBracketRound->round_number) {
-            $eligible = $basePool;
+            // Vong bracket dau tien: cho chon tat ca VDV trong noi dung (ve vot, hang 3 tot nhat, v.v.)
+            $eligible = TournamentAthlete::where('tournament_id', $tournamentId)
+                ->where('category_id', $categoryId)
+                ->with('partner')
+                ->get();
         } else {
+            // Vong sau: chi VDV da thang o vong bracket truoc
             $previousRounds = Round::where('tournament_id', $tournamentId)
                 ->where('category_id', $categoryId)
                 ->whereIn('round_type', $bracketRoundTypes)
@@ -129,7 +121,11 @@ class KnockoutBracketQuery
                 ->pluck('winner_id')
                 ->unique();
 
-            $eligible = $basePool->whereIn('id', $winnerIds);
+            $eligible = TournamentAthlete::where('tournament_id', $tournamentId)
+                ->where('category_id', $categoryId)
+                ->whereIn('id', $winnerIds)
+                ->with('partner')
+                ->get();
         }
 
         $usedInRound = MatchModel::where('round_id', $round->id)
