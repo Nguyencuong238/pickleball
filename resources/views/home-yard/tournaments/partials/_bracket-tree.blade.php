@@ -105,7 +105,7 @@
                                     style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;">
                                 <option value="">-- Chưa xác định --</option>
                                 <template x-for="a in editEligibleAthletes" :key="a.id">
-                                    <option :value="a.id" x-text="a.pair_name || a.name"
+                                    <option :value="String(a.id)" x-text="a.pair_name || a.name"
                                             :disabled="String(a.id) === String(editForm.athlete2_id)"></option>
                                 </template>
                             </select>
@@ -118,7 +118,7 @@
                                     style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;">
                                 <option value="">-- Chưa xác định --</option>
                                 <template x-for="a in editEligibleAthletes" :key="a.id">
-                                    <option :value="a.id" x-text="a.pair_name || a.name"
+                                    <option :value="String(a.id)" x-text="a.pair_name || a.name"
                                             :disabled="String(a.id) === String(editForm.athlete1_id)"></option>
                                 </template>
                             </select>
