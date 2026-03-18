@@ -127,6 +127,7 @@ class TournamentBracketController extends Controller
             'athlete1_id'      => ['nullable', 'integer', Rule::exists('tournament_athletes', 'id')->where('tournament_id', $tournament->id)],
             'athlete2_id'      => ['nullable', 'integer', Rule::exists('tournament_athletes', 'id')->where('tournament_id', $tournament->id)],
             'match_time'       => 'nullable|date_format:H:i',
+            'match_date'       => 'nullable|date',
             'confirm_cascade'  => 'nullable|boolean',
             'best_of'          => 'nullable|integer|in:1,3,5',
             'notes'            => 'nullable|string|max:500',

@@ -124,6 +124,13 @@
                             </select>
                         </div>
 
+                        <!-- Ngày thi đấu -->
+                        <div style="margin-bottom:12px;">
+                            <label style="font-size:0.82rem;color:#64748b;display:block;margin-bottom:4px;">Ngày thi đấu</label>
+                            <input type="date" x-model="editForm.match_date"
+                                   style="width:100%;padding:8px;border:1px solid #e2e8f0;border-radius:6px;font-size:0.85rem;">
+                        </div>
+
                         <!-- Giờ thi đấu -->
                         <div style="margin-bottom:12px;">
                             <label style="font-size:0.82rem;color:#64748b;display:block;margin-bottom:4px;">Giờ thi đấu</label>

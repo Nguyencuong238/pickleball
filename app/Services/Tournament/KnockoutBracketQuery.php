@@ -167,7 +167,7 @@ class KnockoutBracketQuery
                 : null;
         }
 
-        foreach (['match_time', 'best_of', 'notes'] as $field) {
+        foreach (['match_time', 'match_date', 'best_of', 'notes'] as $field) {
             if (array_key_exists($field, $data)) {
                 $updates[$field] = $data[$field];
             }
@@ -241,6 +241,7 @@ class KnockoutBracketQuery
             'athlete2_score'   => $match->athlete2_score,
             'set_scores'       => $match->set_scores,
             'match_time'       => $match->match_time ? Carbon::parse($match->match_time)->format('H:i') : null,
+            'match_date'       => $match->match_date ? Carbon::parse($match->match_date)->format('Y-m-d') : null,
             'best_of'          => $match->best_of,
             'notes'            => $match->notes,
         ];

@@ -14,6 +14,7 @@ function bracketMatchEditorMixin() {
             athlete1_id: '',
             athlete2_id: '',
             match_time: '',
+            match_date: '',
             best_of: '',
             notes: '',
         },
@@ -31,6 +32,7 @@ function bracketMatchEditorMixin() {
                 athlete1_id: '',
                 athlete2_id: '',
                 match_time: match ? (match.match_time || '') : '',
+                match_date: match ? (match.match_date || '') : '',
                 best_of: match && match.best_of ? String(match.best_of) : '',
                 notes: match ? (match.notes || '') : '',
             };
@@ -95,6 +97,9 @@ function bracketMatchEditorMixin() {
                 }
                 if (this.editForm.match_time) {
                     body.match_time = this.editForm.match_time;
+                }
+                if (this.editForm.match_date) {
+                    body.match_date = this.editForm.match_date;
                 }
                 if (this.editForm.best_of) {
                     body.best_of = parseInt(this.editForm.best_of);
