@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front\Tournament;
 use App\Http\Controllers\Controller;
 use App\Models\Group;
 use App\Models\GroupStanding;
+use App\Models\MatchModel;
 use App\Models\Tournament;
 use App\Models\TournamentCategory;
 use App\Services\Tournament\TournamentStandingService;
@@ -88,7 +89,33 @@ class TournamentRankingController extends Controller
             ])
             ->get();
 
-        $groupsData = $groups->map(function (Group $group) use ($isDoubles) {
+        // Compute cumulative game scores from set_scores JSON
+        $groupIds = $groups->pluck('id');
+        $matches = MatchModel::whereIn('group_id', $groupIds)
+            ->where('status', 'completed')
+            ->whereNotNull('set_scores')
+            ->select('group_id', 'athlete1_id', 'athlete2_id', 'set_scores')
+            ->get();
+
+        $gameScores = [];
+        foreach ($matches as $m) {
+            $setScores = $m->set_scores ?? [];
+            $total1 = $total2 = 0;
+            foreach ($setScores as $set) {
+                $total1 += $set['athlete1_score'] ?? $set['athlete1'] ?? 0;
+                $total2 += $set['athlete2_score'] ?? $set['athlete2'] ?? 0;
+            }
+            $gameScores[$m->group_id][$m->athlete1_id]['scored'] =
+                ($gameScores[$m->group_id][$m->athlete1_id]['scored'] ?? 0) + $total1;
+            $gameScores[$m->group_id][$m->athlete1_id]['conceded'] =
+                ($gameScores[$m->group_id][$m->athlete1_id]['conceded'] ?? 0) + $total2;
+            $gameScores[$m->group_id][$m->athlete2_id]['scored'] =
+                ($gameScores[$m->group_id][$m->athlete2_id]['scored'] ?? 0) + $total2;
+            $gameScores[$m->group_id][$m->athlete2_id]['conceded'] =
+                ($gameScores[$m->group_id][$m->athlete2_id]['conceded'] ?? 0) + $total1;
+        }
+
+        $groupsData = $groups->map(function (Group $group) use ($isDoubles, $gameScores) {
             $standings = $group->standings;
 
             if ($isDoubles) {
@@ -111,7 +138,7 @@ class TournamentRankingController extends Controller
                 $standings = collect(array_values($dedupMap))->sortBy('rank_position')->values();
             }
 
-            $standings = $standings->map(function (GroupStanding $standing, int $index) use ($group) {
+            $standings = $standings->map(function (GroupStanding $standing, int $index) use ($group, $gameScores) {
                 $athlete = $standing->athlete;
                 $athleteName = $athlete?->athlete_name ?? 'N/A';
                 if ($athlete?->partner) {
@@ -128,6 +155,8 @@ class TournamentRankingController extends Controller
                     'sets_won'     => $standing->sets_won ?? 0,
                     'sets_lost'    => $standing->sets_lost ?? 0,
                     'set_diff'     => $standing->sets_differential ?? 0,
+                    'games_scored'   => $gameScores[$group->id][$standing->athlete_id]['scored'] ?? 0,
+                    'games_conceded' => $gameScores[$group->id][$standing->athlete_id]['conceded'] ?? 0,
                     'points'       => $standing->points ?? 0,
                     'is_advanced'  => (bool) ($standing->is_advanced ?? false),
                 ];

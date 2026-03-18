@@ -70,6 +70,11 @@
     white-space: nowrap;
 }
 
+/* Game scores (cumulative) */
+.rk-games-scored { color: #16a34a; font-weight: 600; }
+.rk-games-conceded { color: #dc2626; font-weight: 600; }
+.rk-games-sep { color: #94a3b8; margin: 0 1px; }
+
 /* Points highlight */
 .rk-pts { font-weight: 700; color: #1e293b; }
 

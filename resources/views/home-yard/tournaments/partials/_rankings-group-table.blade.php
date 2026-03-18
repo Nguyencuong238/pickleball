@@ -29,7 +29,7 @@
                             @click="sortGroup(group.group_id,'athlete_name')">VDV
                             <span class="sort-arrow" x-text="isSorted(group.group_id,'athlete_name') ? getSortArrow(group.group_id,'athlete_name') : '&#9660;'"></span>
                         </th>
-                        @foreach([['played','P'],['won','W'],['lost','L'],['sets_won','SW'],['sets_lost','SL'],['set_diff','SD'],['points','Điểm']] as [$field, $label])
+                        @foreach([['played','P'],['won','W'],['lost','L'],['sets_won','SW'],['sets_lost','SL'],['set_diff','SD'],['games_scored','GS'],['points','Điểm']] as [$field, $label])
                         <th class="num"
                             :class="{ 'sorted-asc': isSorted(group.group_id,'{{ $field }}') && getSortDir(group.group_id,'{{ $field }}')==='asc', 'sorted-desc': isSorted(group.group_id,'{{ $field }}') && getSortDir(group.group_id,'{{ $field }}')==='desc' }"
                             @click="sortGroup(group.group_id,'{{ $field }}')">{{ $label }}
@@ -57,6 +57,9 @@
                             <td class="num" x-text="row.sets_won"></td>
                             <td class="num" x-text="row.sets_lost"></td>
                             <td class="num" x-text="row.set_diff"></td>
+                            <td class="num">
+                                <span class="rk-games-scored" x-text="row.games_scored"></span><span class="rk-games-sep">-</span><span class="rk-games-conceded" x-text="row.games_conceded"></span>
+                            </td>
                             <td class="num"><span class="rk-pts" x-text="row.points"></span></td>
                         </tr>
                     </template>
