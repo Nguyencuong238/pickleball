@@ -920,9 +920,9 @@
             <!-- Rules -->
             <div class="content-card">
                 <h2 class="content-title">Quy định thi đấu</h2>
-                @if ($tournament->rules && trim($tournament->rules) !== '')
+                @if ($tournament->competition_rules && trim($tournament->competition_rules) !== '')
                     @php
-                        $ruleText = trim($tournament->rules);
+                        $ruleText = trim($tournament->competition_rules);
                         // Split by main sections (lines starting with numbers like "1 ", "2 ", etc)
                         $sections = preg_split('/(?=^\d+\s+)/m', $ruleText);
                         $sections = array_filter(array_map('trim', $sections));

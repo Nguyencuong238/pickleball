@@ -149,7 +149,11 @@
             <div class="td-section-title">Luật thi đấu &amp; quyền lợi</div>
             <div class="td-form-group">
                 <label class="td-label">Luật thi đấu</label>
-                <textarea name="rules" class="td-textarea" rows="4">{{ old('rules', $tournament->rules) }}</textarea>
+                <textarea name="competition_rules" class="td-textarea" rows="4">{{ old('competition_rules', $tournament->competition_rules) }}</textarea>
+            </div>
+            <div class="td-form-group">
+                <label class="td-label">Timeline sự kiện</label>
+                <textarea name="event_timeline" class="td-textarea" rows="4">{{ old('event_timeline', $tournament->event_timeline) }}</textarea>
             </div>
             <div class="td-form-group">
                 <label class="td-label">Quyền lợi đăng ký</label>
