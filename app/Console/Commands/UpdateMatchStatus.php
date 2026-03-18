@@ -55,8 +55,8 @@ class UpdateMatchStatus extends Command
                         config('app.timezone')
                     );
                     
-                    // Check if match should have started
-                    if ($matchDateTime <= $now) {
+                    // Chi chuyen sang in_progress neu trong vong 2 tieng tu match_time
+                    if ($matchDateTime <= $now && $matchDateTime->copy()->addHours(2) >= $now) {
                         $match->update(['status' => 'in_progress']);
                         $updated++;
                         
