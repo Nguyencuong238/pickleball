@@ -677,7 +677,7 @@ $stadiumImage = $stadium->getFirstMediaUrl('banner') ?? asset('assets/images/cou
 @endsection
 
 @section('js')
-    <script src="{{ asset('assets/js/tournament-detail.js') }}"></script>
+    <script src="{{ asset('assets/js/tournament-detail.js') }}?v=1.0"></script>
     <script>
         // ==================== Reviews Feature ====================
         let reviewsCurrentPage = 1;

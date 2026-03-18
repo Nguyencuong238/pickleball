@@ -2,6 +2,8 @@
 
 @php
 $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/logo.png');
+$isRegistrationOpen = $tournament->registration_deadline && $tournament->registration_deadline->gt(now());
+$registrationDaysRemaining = $isRegistrationOpen ? (int) now()->diffInDays($tournament->registration_deadline) : 0;
 @endphp
 
 @section('seo')
@@ -154,7 +156,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                             </svg>
                             Xem chi tiết
                         </button>
-                    @else
+                    @elseif ($isRegistrationOpen)
                         @if (!$registered)
                             <button class="btn btn-primary btn-lg tournament-detail-register-btn" onclick="openRegisterModal()">
                                 <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -171,6 +173,11 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                                 Chờ xét duyệt
                             </button>
                         @endif
+                    @else
+                        <button class="btn btn-secondary btn-lg tournament-detail-register-btn" disabled
+                            style="opacity: 0.6; cursor: not-allowed;">
+                            Đã hết hạn đăng ký
+                        </button>
                     @endif
                     <button class="btn btn-secondary btn-lg">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -232,11 +239,13 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                 <div class="stat-card">
                     <div class="stat-icon">⏰</div>
                     <div class="stat-info">
-                        @php
-                            $daysRemaining = max(0, now()->diffInDays($tournament->registration_deadline));
-                        @endphp
-                        <div class="stat-value">{{ $daysRemaining }} ngày</div>
-                        <div class="stat-label">Còn lại để đăng ký</div>
+                        @if ($isRegistrationOpen)
+                            <div class="stat-value">{{ $registrationDaysRemaining }} ngày</div>
+                            <div class="stat-label">Còn lại để đăng ký</div>
+                        @else
+                            <div class="stat-value">Hết hạn</div>
+                            <div class="stat-label">Đăng ký đã đóng</div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -255,13 +264,17 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                     <div class="sidebar-card registration-card">
                         <div class="card-header">
                             <h3>Đăng ký tham gia</h3>
-                            <span class="urgency-badge">⏰ Còn 15 ngày</span>
+                            @if ($isRegistrationOpen)
+                                <span class="urgency-badge">Còn {{ $registrationDaysRemaining }} ngày</span>
+                            @else
+                                <span class="urgency-badge" style="background: #fee2e2; color: #dc2626;">Hết hạn</span>
+                            @endif
                         </div>
 
                         <div class="price-section">
                             <div class="price-item">
                                 <span class="price-label">Lệ phí đăng ký</span>
-                                <span class="price-value">{{ number_format($tournament->price, 0, ',', '.') }} VNĐ</span>
+                                <span class="price-value">{{ $tournament->price > 0 ? number_format($tournament->price, 0, ',', '.') . ' VNĐ' : 'Miễn phí' }}</span>
                             </div>
                         </div>
 
@@ -285,7 +298,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                             <button class="btn btn-primary btn-block btn-lg tournament-detail-register-btn" onclick="openDetailModal()">
                                 Xem chi tiết
                             </button>
-                        @else
+                        @elseif ($isRegistrationOpen)
                             @if (!$registered)
                                 <button class="btn btn-primary btn-block btn-lg tournament-detail-register-btn"
                                     onclick="openRegisterModal()">
@@ -297,6 +310,11 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                                     Chờ xét duyệt
                                 </button>
                             @endif
+                        @else
+                            <button class="btn btn-secondary btn-lg btn-block tournament-detail-register-btn" disabled
+                                style="opacity: 0.6; cursor: not-allowed;">
+                                Đã hết hạn đăng ký
+                            </button>
                         @endif
 
                         @if ($tournament->registration_benefits)
@@ -482,7 +500,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
                             </div>
                             <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
                                 <span style="font-weight: 600; color: #6b7280;">Lệ phí đăng ký:</span>
-                                <span style="color: #1f2937;">{{ number_format($tournament->price, 0, ',', '.') }} VNĐ</span>
+                                <span style="color: #1f2937;">{{ $tournament->price > 0 ? number_format($tournament->price, 0, ',', '.') . ' VNĐ' : 'Miễn phí' }}</span>
                             </div>
                             <div style="display: grid; grid-template-columns: 150px 1fr; gap: 20px;">
                                 <span style="font-weight: 600; color: #6b7280;">Hạn đăng ký:</span>
@@ -777,7 +795,7 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
 @endsection
 
 @section('js')
-    <script src="{{ asset('assets/js/tournament-detail.js') }}"></script>
+    <script src="{{ asset('assets/js/tournament-detail.js') }}?v=1.0"></script>
     <script>
         // Doubles category types
         const DOUBLES_TYPES = ['double_men', 'double_women', 'double_mixed'];
@@ -795,6 +813,10 @@ $bannerImage = $tournament->getFirstMediaUrl('banner') ?? asset('assets/images/l
         }
 
         function openRegisterModal() {
+            @if (!$isRegistrationOpen)
+                alert('Đã hết hạn đăng ký cho giải đấu này.');
+                return;
+            @endif
             const modal = document.getElementById('registerModal');
             modal.style.display = 'flex';
             document.body.style.overflow = 'hidden';
