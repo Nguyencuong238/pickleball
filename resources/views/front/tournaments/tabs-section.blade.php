@@ -1160,7 +1160,7 @@
                             @endphp
                             @if ($allStandings->isNotEmpty())
                                 <div class="content-card">
-                                    <h2 class="content-title">Tổng kết</h2>
+                                    <h2 class="content-title">Tổng kết bảng</h2>
                                     <div class="front-schedule-summary">
                                         @foreach ($allStandings as $standing)
                                             <div class="front-schedule-summary-row">
