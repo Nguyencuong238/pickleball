@@ -66,9 +66,9 @@
                                 </td>
                                 <td>{{ $match->tournament->name }}</td>
                                 <td>
-                                    <strong>{{ $match->athlete1_name ?? 'TBD' }}</strong>
+                                    <strong>{{ $match->athlete1_name ?? 'Chưa xác định' }}</strong>
                                     <span style="color: var(--primary-color); font-weight: 700;"> vs </span>
-                                    <strong>{{ $match->athlete2_name ?? 'TBD' }}</strong>
+                                    <strong>{{ $match->athlete2_name ?? 'Chưa xác định' }}</strong>
                                     @if($match->category)
                                         <br><small style="color: var(--text-secondary);">{{ $match->category->name }}</small>
                                     @endif

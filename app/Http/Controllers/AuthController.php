@@ -148,11 +148,13 @@ class AuthController extends Controller
     public function login(Request $req)
     {
         $req->validate([
-            'email'    => 'required|email',
+            'email'    => 'required',
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($req->only('email', 'password'))) {
+        $loginType = filter_var($req->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
+
+        if (Auth::attempt([$loginType => $req->email, 'password' => $req->password])) {
             $req->session()->regenerate();
 
             // Lấy user vừa login
@@ -181,7 +183,7 @@ class AuthController extends Controller
             return redirect('/user/profile/edit');
         }
 
-        return back()->withErrors(['email' => 'Email hoặc mật khẩu không đúng!']);
+        return back()->withErrors(['email' => 'Tài khoản hoặc mật khẩu không đúng!']);
     }
 
 

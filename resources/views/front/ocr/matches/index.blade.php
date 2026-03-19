@@ -423,7 +423,7 @@
                         <div class="match-card-footer">
                             <div class="match-meta">
                                 <span class="match-meta-item">
-                                    📅 {{ $match->scheduled_date?->format('d/m/Y') ?? 'TBD' }}
+                                    📅 {{ $match->scheduled_date?->format('d/m/Y') ?? 'Chưa xác định' }}
                                 </span>
                                 @if($match->scheduled_time)
                                     <span class="match-meta-item">

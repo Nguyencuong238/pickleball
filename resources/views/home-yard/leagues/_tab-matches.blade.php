@@ -84,7 +84,7 @@
                         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
                             <!-- Home Team -->
                             <div style="flex: 1; min-width: 120px; text-align: right; font-weight: 500; color: #1e293b;">
-                                {{ $match->homeTeam->name ?? 'TBD' }}
+                                {{ $match->homeTeam->name ?? 'Chưa xác định' }}
                             </div>
 
                             <!-- Score -->
@@ -106,7 +106,7 @@
 
                             <!-- Away Team -->
                             <div style="flex: 1; min-width: 120px; text-align: left; font-weight: 500; color: #1e293b;">
-                                {{ $match->awayTeam->name ?? 'TBD' }}
+                                {{ $match->awayTeam->name ?? 'Chưa xác định' }}
                             </div>
 
                             <!-- Match Status + Action -->
@@ -128,12 +128,12 @@
 
                                 @if(in_array($league->status, ['active']) && $match->status !== 'cancelled')
                                     @if($isMlp)
-                                        <button onclick='openMlpScoreModal(@json($match->id), @json($match->homeTeam->name ?? "TBD"), @json($match->awayTeam->name ?? "TBD"), @json($match->games))'
+                                        <button onclick='openMlpScoreModal(@json($match->id), @json($match->homeTeam->name ?? "Chưa xác định"), @json($match->awayTeam->name ?? "Chưa xác định"), @json($match->games))'
                                             style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
                                             <i class="fas fa-edit"></i> Điểm
                                         </button>
                                     @else
-                                        <button onclick='openScoreModal({{ $match->id }}, @json($match->homeTeam->name ?? "TBD"), @json($match->awayTeam->name ?? "TBD"), {{ $match->home_score ?? 0 }}, {{ $match->away_score ?? 0 }})'
+                                        <button onclick='openScoreModal({{ $match->id }}, @json($match->homeTeam->name ?? "Chưa xác định"), @json($match->awayTeam->name ?? "Chưa xác định"), {{ $match->home_score ?? 0 }}, {{ $match->away_score ?? 0 }})'
                                             style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; cursor: pointer;">
                                             <i class="fas fa-edit"></i> Điểm
                                         </button>

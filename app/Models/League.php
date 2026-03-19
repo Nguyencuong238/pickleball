@@ -25,6 +25,7 @@ class League extends Model
         'logo',
         'required_players_per_registration',
         'registration_fee',
+        'qr_code_image',
     ];
 
     protected $casts = [

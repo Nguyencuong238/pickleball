@@ -10,6 +10,7 @@ use App\Services\LeagueScheduleService;
 use App\Services\LeagueService;
 use App\Services\LeagueStandingsService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use InvalidArgumentException;
 
 class HomeYardLeagueController extends Controller
@@ -67,9 +68,24 @@ class HomeYardLeagueController extends Controller
             'config.points_for_loss' => 'nullable|integer|min:0',
             'required_players_per_registration' => 'nullable|integer|in:1,2,4',
             'registration_fee' => 'nullable|numeric|min:0',
+            'qr_code_image' => ($request->input('has_fee') ? 'required' : 'nullable') . '|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'config.max_players_per_team.min' => "Thể thức MLP yêu cầu tối thiểu {$minPlayers} VĐV/đội.",
         ]);
+
+        if (!$request->input('has_fee')) {
+            $validated['registration_fee'] = null;
+            $validated['qr_code_image'] = null;
+        } elseif ($request->hasFile('qr_code_image')) {
+            $imagePath = $request->file('qr_code_image')->store('leagues/qr_codes', config('filesystems.default'));
+            $validated['qr_code_image'] = $imagePath;
+        }
+
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('leagues/logos', config('filesystems.default'));
+            $validated['logo'] = $logoPath;
+        }
 
         $league = $this->leagueService->createLeague(auth()->user(), $validated);
 
@@ -139,9 +155,29 @@ class HomeYardLeagueController extends Controller
             'config.points_for_loss' => 'nullable|integer|min:0',
             'required_players_per_registration' => 'nullable|integer|in:1,2,4',
             'registration_fee' => 'nullable|numeric|min:0',
+            'qr_code_image' => $request->input('has_fee') && !$league->qr_code_image
+                ? 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+                : 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'config.max_players_per_team.min' => "Thể thức MLP yêu cầu tối thiểu {$minPlayers} VĐV/đội.",
         ]);
+
+        if (!$request->input('has_fee')) {
+            $validated['registration_fee'] = null;
+            if ($league->qr_code_image) {
+                Storage::delete($league->qr_code_image);
+            }
+            $validated['qr_code_image'] = null;
+        } elseif ($request->hasFile('qr_code_image')) {
+            $imagePath = $request->file('qr_code_image')->store('leagues/qr_codes', config('filesystems.default'));
+            $validated['qr_code_image'] = $imagePath;
+        }
+
+        if ($request->hasFile('logo')) {
+            $logoPath = $request->file('logo')->store('leagues/logos', config('filesystems.default'));
+            $validated['logo'] = $logoPath;
+        }
 
         $this->leagueService->updateLeague($league, $validated);
 

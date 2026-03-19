@@ -547,6 +547,8 @@
                     <a href="{{ route('tournaments') }}" class="nav-link dropdown-toggle @if(request()->routeIs('tournaments') || request()->routeIs('ocr.matches.list')) active @endif">Giải đấu</a>
                     <span class="arrow-btn mobile-only">▼</span>
                     <ul class="dropdown-menu">
+                        <li><a href="{{ route('tournaments') }}" class="dropdown-item">Tournaments</a></li>
+                        <li><a href="{{ route('leagues.index') }}" class="dropdown-item">Giải đấu Round Robin</a></li>
                         <li><a href="{{ route('ocr.matches.list') }}" class="dropdown-item">Trận đấu</a></li>
                     </ul>
                 </li>

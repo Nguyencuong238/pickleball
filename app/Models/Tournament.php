@@ -30,6 +30,9 @@ class Tournament extends Model implements HasMedia
         'is_watch' => 'boolean',
         'is_ocr' => 'boolean',
         'is_featured' => 'boolean',
+        'bracket_data' => 'array',
+        'enable_third_place' => 'boolean',
+        'auto_bracket_generation' => 'boolean',
     ];
 
     public function user()

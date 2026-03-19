@@ -1,0 +1,277 @@
+/* Tournament Dashboard - Draw & Seeding Components */
+
+/* Category selector tabs */
+.draw-category-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+.draw-category-tab {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    border: 2px solid #e2e8f0;
+    background: #fff;
+    color: #64748b;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.draw-category-tab:hover { border-color: var(--primary-color); color: var(--primary-color); }
+.draw-category-tab.active { background: var(--primary-color); border-color: var(--primary-color); color: #fff; }
+
+/* Draw status badge */
+.draw-status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.draw-status-badge.not-drawn { background: #fef9c3; color: #854d0e; }
+.draw-status-badge.drawn     { background: #dcfce7; color: #15803d; }
+
+/* Method selector */
+.draw-method-group {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.draw-method-option {
+    flex: 1;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #475569;
+}
+
+.draw-method-option:hover { border-color: var(--primary-color); }
+.draw-method-option.selected { border-color: var(--primary-color); background: rgba(0,217,181,0.07); color: #0f766e; }
+
+.draw-method-option input[type="radio"] { accent-color: var(--primary-color); }
+
+/* Athlete seeding list */
+.draw-athlete-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.draw-athlete-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    transition: box-shadow 0.15s;
+}
+
+.draw-athlete-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.draw-athlete-item.sortable-ghost { opacity: 0.4; background: #f0fdfa; }
+.draw-athlete-item.sortable-chosen { box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+
+.drag-handle {
+    color: #94a3b8;
+    cursor: grab;
+    font-size: 1rem;
+    padding: 0 2px;
+    line-height: 1;
+    user-select: none;
+}
+
+.drag-handle:active { cursor: grabbing; }
+
+.draw-seed-number {
+    min-width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.draw-athlete-name {
+    flex: 1;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.draw-athlete-partner {
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+/* Group result cards */
+.draw-groups-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.draw-group-card {
+    background: #fff;
+    border-radius: 10px;
+    border: 2px solid #e2e8f0;
+    overflow: hidden;
+}
+
+.draw-group-card.drop-active { border-color: var(--primary-color); background: #f0fdfa; }
+
+.draw-group-header {
+    padding: 10px 14px;
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.draw-group-count {
+    font-size: 0.75rem;
+    font-weight: 500;
+    opacity: 0.85;
+}
+
+.draw-group-athletes {
+    list-style: none;
+    padding: 8px;
+    margin: 0;
+    min-height: 48px;
+}
+
+.draw-group-athlete {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 8px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    background: #f8fafc;
+    font-size: 0.82rem;
+    color: #1e293b;
+}
+
+.draw-group-athlete.sortable-ghost  { opacity: 0.35; }
+.draw-group-athlete.sortable-chosen { box-shadow: 0 3px 8px rgba(0,0,0,0.12); }
+
+.draw-order-num {
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #64748b;
+    font-size: 0.7rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* Manual draw split layout */
+.draw-manual-layout {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.draw-unassigned-panel {
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.draw-panel-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 10px;
+}
+
+.draw-unassigned-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    min-height: 60px;
+}
+
+/* Empty drop hint */
+.draw-drop-hint {
+    text-align: center;
+    padding: 14px;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    border: 2px dashed #e2e8f0;
+    border-radius: 6px;
+}
+
+/* Controls row */
+.draw-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    margin-top: 16px;
+}
+
+/* Loading spinner */
+.draw-spinner {
+    width: 18px;
+    height: 18px;
+    border: 3px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: draw-spin 0.6s linear infinite;
+    display: inline-block;
+}
+
+@keyframes draw-spin { to { transform: rotate(360deg); } }
+
+/* No-groups empty state */
+.draw-empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: #94a3b8;
+}
+
+.draw-empty-state p { margin: 8px 0 0; font-size: 0.875rem; }
+
+/* Mobile */
+@media (max-width: 640px) {
+    .draw-manual-layout { grid-template-columns: 1fr; }
+    .draw-groups-grid   { grid-template-columns: 1fr; }
+    .draw-method-group  { flex-direction: column; }
+    .draw-method-option { min-width: unset; }
+}

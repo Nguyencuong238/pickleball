@@ -74,6 +74,7 @@ class LeagueService
                 'logo' => $data['logo'] ?? null,
                 'required_players_per_registration' => $data['required_players_per_registration'] ?? 1,
                 'registration_fee' => $data['registration_fee'] ?? null,
+                'qr_code_image' => $data['qr_code_image'] ?? null,
             ]);
         });
     }

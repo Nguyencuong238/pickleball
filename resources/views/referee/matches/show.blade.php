@@ -703,23 +703,23 @@
                 const buildPlayersArray = (athlete, isDoubles) => {
                     if (isDoubles && athlete.partnerName) {
                         return [
-                            { name: athlete.name || 'TBD', courtSide: 'right' },
+                            { name: athlete.name || 'Chưa xác định', courtSide: 'right' },
                             { name: athlete.partnerName, courtSide: 'left' }
                         ]
                     }
-                    return [{ name: athlete.name || 'TBD', courtSide: 'right' }]
+                    return [{ name: athlete.name || 'Chưa xác định', courtSide: 'right' }]
                 }
 
                 const teams = reactive({
                     left: {
-                        name: MATCH_DATA.athlete1.pairName || MATCH_DATA.athlete1.name || 'TBD',
+                        name: MATCH_DATA.athlete1.pairName || MATCH_DATA.athlete1.name || 'Chưa xác định',
                         athleteId: MATCH_DATA.athlete1.id,
                         score: 0,
                         gamesWon: MATCH_DATA.gamesWonAthlete1 || 0,
                         players: buildPlayersArray(MATCH_DATA.athlete1, MATCH_DATA.gameMode === 'doubles')
                     },
                     right: {
-                        name: MATCH_DATA.athlete2.pairName || MATCH_DATA.athlete2.name || 'TBD',
+                        name: MATCH_DATA.athlete2.pairName || MATCH_DATA.athlete2.name || 'Chưa xác định',
                         athleteId: MATCH_DATA.athlete2.id,
                         score: 0,
                         gamesWon: MATCH_DATA.gamesWonAthlete2 || 0,

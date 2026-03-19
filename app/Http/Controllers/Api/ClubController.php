@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Club;
 use App\Models\ClubJoinRequest;
 use App\Models\Province;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -322,14 +323,15 @@ class ClubController extends Controller
     public function updateMemberRole(Request $request, Club $club)
     {
         $this->authorize('update', $club);
-
+    
         $validated = $request->validate([
             'user_id' => 'required|exists:users,id',
             'role' => 'required|in:admin,moderator,member'
         ]);
-
+    
         // Cannot change creator's role
-        $currentRole = $club->getMemberRole($validated['user_id']);
+        $user = User::findOrFail($validated['user_id']);
+        $currentRole = $club->getMemberRole($user);
         if ($currentRole === 'creator') {
             return response()->json([
                 'success' => false,
@@ -367,7 +369,8 @@ class ClubController extends Controller
         ]);
 
         // Cannot remove creator
-        $memberRole = $club->getMemberRole($validated['user_id']);
+        $user = User::findOrFail($validated['user_id']);
+        $memberRole = $club->getMemberRole($user);
         if ($memberRole === 'creator') {
             return response()->json([
                 'success' => false,

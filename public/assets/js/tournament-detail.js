@@ -117,6 +117,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 targetPane.classList.add('active');
             }
             
+            // Update URL hash without scrolling
+            history.replaceState(null, '', '#' + targetTab);
+
             // Smooth scroll to tab content on mobile
             if (window.innerWidth <= 768) {
                 const tabContent = document.querySelector('.tab-content');
@@ -129,6 +132,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // Restore tab from URL hash
+    const hash = window.location.hash.substring(1);
+    if (hash) {
+        const targetBtn = document.querySelector('.tab-btn[data-tab="' + hash + '"]');
+        if (targetBtn) {
+            targetBtn.click();
+        }
+    }
 
     // Share Functionality
     const shareButtons = document.querySelectorAll('.share-btn');

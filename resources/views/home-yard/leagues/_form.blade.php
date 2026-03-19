@@ -37,6 +37,19 @@
             </div>
         </div>
 
+        <!-- Logo League -->
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Logo League</label>
+            @if(isset($league) && $league->logo)
+                <div style="margin-bottom: 10px;">
+                    <img src="{{ Storage::url($league->logo) }}" alt="Logo League" style="max-height: 100px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                </div>
+            @endif
+            <input type="file" name="logo" class="form-control" accept="image/*"
+                style="width: 100%; padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; background: white;">
+            <small style="color: #6b7280; font-size: 0.8rem;">Tải lên logo cho giải đấu (không bắt buộc)</small>
+        </div>
+
         <!-- Câu Lạc Bộ -->
         @if(isset($clubs) && $clubs->count() > 0)
             <div style="margin-bottom: 20px;">
@@ -95,12 +108,49 @@
                 </select>
                 <small style="color: #6b7280; font-size: 0.8rem;">Số VĐV bắt buộc trong mỗi lần đăng ký</small>
             </div>
-            <div>
-                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Phí Đăng Ký (VNĐ)</label>
-                <input type="number" name="registration_fee" class="form-control" min="0" step="1000" placeholder="VD: 500000"
-                    value="{{ old('registration_fee', $league->registration_fee ?? '') }}"
-                    style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
-                <small style="color: #6b7280; font-size: 0.8rem;">Để trống nếu miễn phí</small>
+        </div>
+
+        <!-- Có phí đăng ký -->
+        @php
+            $hasFee = old('has_fee', (isset($league) && ($league->registration_fee > 0 || $league->qr_code_image)) ? '1' : '0');
+        @endphp
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Có phí đăng ký</label>
+            <input type="hidden" name="has_fee" id="hasFeeInput" value="{{ $hasFee }}">
+            <div style="display: flex; gap: 15px;">
+                <label id="hasFeeYesLabel" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 2px solid {{ $hasFee === '1' ? '#3b82f6' : '#e2e8f0' }}; border-radius: 8px; cursor: pointer; background: {{ $hasFee === '1' ? '#eff6ff' : 'white' }};">
+                    <input type="radio" name="has_fee_radio" value="1" {{ $hasFee === '1' ? 'checked' : '' }}
+                        onchange="onHasFeeChange('1')" style="accent-color: #3b82f6;">
+                    <span style="font-weight: 600; color: #1e293b;">Có phí</span>
+                </label>
+                <label id="hasFeeNoLabel" style="display: flex; align-items: center; gap: 8px; padding: 10px 16px; border: 2px solid {{ $hasFee === '0' ? '#3b82f6' : '#e2e8f0' }}; border-radius: 8px; cursor: pointer; background: {{ $hasFee === '0' ? '#eff6ff' : 'white' }};">
+                    <input type="radio" name="has_fee_radio" value="0" {{ $hasFee === '0' ? 'checked' : '' }}
+                        onchange="onHasFeeChange('0')" style="accent-color: #3b82f6;">
+                    <span style="font-weight: 600; color: #1e293b;">Miễn phí</span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Phí + QR (conditional) -->
+        <div id="feeSection" style="{{ $hasFee === '0' ? 'display: none;' : '' }}">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Phí Đăng Ký (VNĐ)</label>
+                    <input type="number" name="registration_fee" id="registrationFeeInput" class="form-control" min="0" step="1000" placeholder="VD: 500000"
+                        value="{{ old('registration_fee', $league->registration_fee ?? '') }}"
+                        style="width: 100%; padding: 10px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #1e293b;">Mã QR Thanh Toán *</label>
+                    @if(isset($league) && $league->qr_code_image)
+                        <div style="margin-bottom: 10px;">
+                            <img src="{{ Storage::url($league->qr_code_image) }}" alt="QR Code" style="max-height: 100px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                        </div>
+                    @endif
+                    <input type="file" name="qr_code_image" id="qrCodeInput" class="form-control" accept="image/*"
+                        style="width: 100%; padding: 7px 12px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 0.95rem; background: white;">
+                    <small style="color: #6b7280; font-size: 0.8rem;">Tải lên ảnh mã QR nhận tiền chuyển khoản</small>
+                </div>
             </div>
         </div>
 
@@ -221,6 +271,29 @@
 
 <script>
 var mlpPreset = @json($mlpFormat);
+
+function onHasFeeChange(value) {
+    document.getElementById('hasFeeInput').value = value;
+    var feeSection = document.getElementById('feeSection');
+    var yesLabel = document.getElementById('hasFeeYesLabel');
+    var noLabel = document.getElementById('hasFeeNoLabel');
+
+    if (value === '1') {
+        feeSection.style.display = '';
+        yesLabel.style.borderColor = '#3b82f6';
+        yesLabel.style.background = '#eff6ff';
+        noLabel.style.borderColor = '#e2e8f0';
+        noLabel.style.background = 'white';
+    } else {
+        feeSection.style.display = 'none';
+        yesLabel.style.borderColor = '#e2e8f0';
+        yesLabel.style.background = 'white';
+        noLabel.style.borderColor = '#3b82f6';
+        noLabel.style.background = '#eff6ff';
+        document.getElementById('registrationFeeInput').value = '';
+        document.getElementById('qrCodeInput').value = '';
+    }
+}
 
 function addMatchFormat(value) {
     var container = document.getElementById('matchFormatContainer');

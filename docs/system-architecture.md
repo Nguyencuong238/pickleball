@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-03-09
+**Last Updated**: 2026-03-13
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -76,7 +76,7 @@ The Pickleball Platform follows Laravel's Model-View-Controller (MVC) architectu
 #### Public Frontend (`resources/views/front/`)
 - Homepage with featured content
 - Court/stadium listing and detail
-- Tournament listing and registration
+- Tournament listing and detail with tab-based schedule (group stage, standings, knockout bracket)
 - Instructor profiles
 - News and static pages
 
@@ -131,8 +131,23 @@ app/Http/Controllers/
     ├── HomeController.php              # Main frontend
     ├── DashboardController.php         # User dashboard
     ├── HomeYardStadiumController.php
-    ├── HomeYardTournamentController.php  # Includes referee assignment
     ├── HomeYardLeagueController.php    # League management
+    ├── HomeYardTournamentController.php  # Legacy (deprecated)
+    ├── Tournament/
+    │   ├── TournamentController.php           # CRUD
+    │   ├── TournamentAthleteController.php    # Athletes management
+    │   ├── TournamentDrawController.php       # Draw/seeding
+    │   ├── TournamentManualDrawController.php # Manual draw
+    │   ├── TournamentGroupController.php      # Groups
+    │   ├── TournamentMatchController.php      # Matches & scoring
+    │   ├── TournamentRankingController.php    # Rankings
+    │   ├── TournamentBracketController.php    # Knockout brackets
+    │   ├── DrawAuthorizationTrait.php
+    │   ├── MatchListFormatterTrait.php
+    │   ├── MatchScheduleTrait.php
+    │   ├── MatchScoreTrait.php
+    │   ├── TournamentAthleteStatusTrait.php
+    │   └── BracketAdvancementTrait.php
     ├── AthleteManagementController.php
     ├── TournamentRegistrationController.php
     ├── CategoryController.php
@@ -460,6 +475,9 @@ User register → Validate phone (normalize) → Upload payment proof → Admin 
 ### Recurring Activity Generation Flow (Scheduled Command)
 Daily 06:00 → Query active recurring templates (status=upcoming, type=recurring) → For each template: iterate 7 days ahead → Check recurrence day of week match → Skip if instance already exists for target date → Create instance via ClubActivityService.createRecurringInstance() → Log output → Idempotent: safe to run multiple times
 
+### Knockout Bracket Flow
+Tournament admin requests bracket → TournamentBracketController.generate() → KnockoutBracketService seeds athletes per BracketSeedingHelper → KnockoutMatchBuilder creates bracket rounds → First round matches from seeded athletes → Subsequent rounds populated as winners advance via BracketAdvancementTrait → Admin enters match scores → Winners auto-advance to next round → Optional third-place match if enable_third_place=true → Bracket data formatted by KnockoutBracketQuery
+
 ### Authentication Flow
 Standard: Login form → Validate credentials → Create session
 OAuth: Redirect to provider → Callback → Find/Create user
@@ -554,6 +572,15 @@ Admin: Admin login → Check role 'admin' → Create admin session
     └── {league}/standings      # Real-time standings
 ```
 
+### Knockout Bracket Routes (Web)
+
+```
+/tournament-manage/{tournament}/bracket              GET  # Bracket display
+/tournament-manage/{tournament}/bracket/data         GET  # Bracket data (JSON)
+/tournament-manage/{tournament}/bracket/generate     POST # Generate bracket
+/tournament-manage/{tournament}/bracket/swap         POST # Swap bracket placement
+```
+
 ### Response Format
 
 ```json
@@ -631,26 +658,8 @@ Admin: Admin login → Check role 'admin' → Create admin session
 
 ## Monitoring & Logging
 
-### Log Channels
-
-```php
-// config/logging.php
-'channels' => [
-    'daily' => [
-        'driver' => 'daily',
-        'path' => storage_path('logs/laravel.log'),
-        'days' => 14,
-    ],
-]
-```
-
-### Key Metrics
-
-- Request latency
-- Error rates
-- Database query time
-- Memory usage
-- Booking success rate
+**Log Channels:** Daily logs (config/logging.php)
+**Key Metrics:** Request latency, error rates, query time, memory usage, booking success rate
 
 ## Future Architecture Considerations
 
@@ -746,19 +755,8 @@ OPRS = (0.7 × Elo) + (0.2 × Challenge) + (0.1 × Community)
 4.5 (Pro)               1600-1849
 5.0+ (Elite)            1850+
 
-// Challenge Types
-- serve_accuracy: 50 points (70% threshold)
-- volley_control: 60 points (75% threshold)
-- dink_precision: 55 points (70% threshold)
-- footwork_drill: 45 points (65% threshold)
-- monthly_test: 200 points (80% threshold, 1/month)
-
-// Community Activities
-- check_in: 10 points (daily per stadium)
-- event_participation: 50 points (per event)
-- player_referral: 100 points (per referral)
-- weekly_matches: 30 points (5+ matches/week)
-- monthly_challenge: 150 points (1/month)
+// Challenge Types: serve_accuracy (50pts, 70%), volley_control (60pts, 75%), dink_precision (55pts, 70%), footwork_drill (45pts, 65%), monthly_test (200pts, 80%, 1/month)
+// Community Activities: check_in (10pts daily), event_participation (50pts), player_referral (100pts), weekly_matches (30pts, 5+/week), monthly_challenge (150pts)
 ```
 
 ### OPRS Data Dependencies
@@ -785,13 +783,13 @@ User Gender: enum('male','female', nullable), defaults 'male'
 ```
 
 ### Skill Quiz Config
-
 See `code-standards.md`. Base ELO=800, Max=1400, anti-fraud, gender-aware, 30-90 day cooldowns.
 
 ### Club Activity Match System (Mar 2026)
-
 3 algorithms: Singles RR, Rotating Doubles, Fixed Doubles. Service: ClubMatchService. 7 AJAX endpoints.
 
-## Unresolved Questions
+### Tournament Rewrite Architecture (Mar 2026)
+**Pattern:** Controller → Service → Model | **Frontend:** Alpine.js mixins | **Route:** tournament-manage | **Assets:** 8 JS + 11 CSS files
 
-1. **Queue Driver**: Redis vs SQS? | 2. **CDN**: Cloudflare vs CloudFront? | 3. **Monitoring**: New Relic vs Sentry?
+## Unresolved Questions
+1. Queue Driver (Redis vs SQS)? | 2. CDN (Cloudflare vs CloudFront)? | 3. Monitoring (New Relic vs Sentry)?

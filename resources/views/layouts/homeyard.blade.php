@@ -837,7 +837,7 @@
                 <div class="nav-section">
                     <div class="nav-section-title">Quản Lý Giải Đâu</div>
 
-                    <a href="{{ route('homeyard.tournaments.index') }}" class="nav-item">
+                    <a href="{{ route('tournament-manage.tournaments.index') }}" class="nav-item">
                         <span class="nav-icon">🏆</span>
                         <span class="nav-text">Giải đấu</span>
                         {{-- <span class="nav-badge">{{ $tournamentsCount ?? 0 }}</span> --}}
@@ -1277,6 +1277,11 @@ console.log(href, currentPath, href.split('/').pop())
         // Call on page load
         setActiveNavItem();
     </script>
+
+    <!-- SortableJS (drag-and-drop) -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <!-- Alpine.js (after jQuery, before Toastr) -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.14.8/dist/cdn.min.js"></script>
 
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>

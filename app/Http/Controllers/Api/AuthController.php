@@ -72,7 +72,7 @@ class AuthController extends Controller
             'email'     => 'required',
             'password'  => 'required',
         ],[
-            'email.required' => 'Vui lòng nhập email.',
+            'email.required' => 'Vui lòng nhập tài khoản (email hoặc số điện thoại).',
             'password.required' => 'Vui lòng nhập mật khẩu.',
         ]);
 
@@ -84,12 +84,12 @@ class AuthController extends Controller
             ]);
         }
 
-        $credentials = $request->only('email', 'password');
+        $loginType = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
 
-        if (!$token = JWTAuth::attempt($credentials)) {
+        if (!$token = JWTAuth::attempt([$loginType => $request->email, 'password' => $request->password])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email hoặc mật khẩu không chính xác.'
+                'message' => 'Tài khoản hoặc mật khẩu không chính xác.'
             ], 401);
         }
 

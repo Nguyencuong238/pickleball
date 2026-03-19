@@ -773,6 +773,23 @@ For atomic sequences (e.g., team generation), use `lockForUpdate()` within `DB::
 
 Document public methods with PHPDoc (`@param`, `@return`). Use inline comments sparingly for complex logic only.
 
+## Alpine.js Mixin Patterns (Tournament Rewrite - Mar 2026)
+
+Use mixin composition with `Object.assign()` for modular Alpine components:
+
+```javascript
+// Base component + mixins
+const component = Object.assign({}, baseComponent, groupSetupMixin, manualDrawMixin);
+
+// Mixin file: tournament-draw-group-setup-mixin.js
+const groupSetupMixin = {
+    groups: [],
+    setupGroups() { /* implementation */ },
+};
+```
+
+**Guidelines:** One mixin per file. Name: `{feature}-mixin.js`. Compose in main file.
+
 ## Related Documentation
 
 - [Project Overview PDR](./project-overview-pdr.md) | [Codebase Summary](./codebase-summary.md) | [System Architecture](./system-architecture.md)

@@ -1,0 +1,272 @@
+/* Tournament Dashboard - Athletes Management */
+
+/* Filter tabs */
+.at-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+}
+
+.at-filter-tab {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background: #f1f5f9;
+    color: #64748b;
+    transition: all 0.15s;
+}
+
+.at-filter-tab:hover { background: #e2e8f0; }
+.at-filter-tab.active { background: #1e293b; color: #fff; border-color: #1e293b; }
+.at-filter-tab.tab-pending.active  { background: #f59e0b; border-color: #f59e0b; }
+.at-filter-tab.tab-approved.active { background: #10b981; border-color: #10b981; }
+.at-filter-tab.tab-rejected.active { background: #ef4444; border-color: #ef4444; }
+
+/* Status badges */
+.at-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.at-badge-pending  { background: #fef3c7; color: #92400e; }
+.at-badge-approved { background: #d1fae5; color: #065f46; }
+.at-badge-rejected { background: #fee2e2; color: #991b1b; }
+.at-badge-unpaid   { background: #f1f5f9; color: #64748b; }
+.at-badge-paid     { background: #dbeafe; color: #1e40af; }
+
+/* Table */
+.at-table-wrap {
+    overflow-x: auto;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.at-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.at-table th {
+    background: #f8fafc;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: #64748b;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.at-table td {
+    padding: 11px 12px;
+    border-bottom: 1px solid #f1f5f9;
+    vertical-align: middle;
+    color: #1e293b;
+}
+
+.at-table tr:last-child td { border-bottom: none; }
+.at-table tr:hover td { background: #f8fafc; }
+
+.at-table .at-name { font-weight: 600; }
+.at-table .at-sub  { font-size: 0.78rem; color: #94a3b8; margin-top: 2px; }
+
+/* Row actions */
+.at-row-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.at-action-btn {
+    padding: 4px 10px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.at-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.at-btn-approve  { background: #d1fae5; color: #065f46; }
+.at-btn-approve:hover:not(:disabled) { background: #10b981; color: #fff; }
+.at-btn-reject   { background: #fee2e2; color: #991b1b; }
+.at-btn-reject:hover:not(:disabled)  { background: #ef4444; color: #fff; }
+.at-btn-edit     { background: #dbeafe; color: #1e40af; }
+.at-btn-edit:hover { background: #3b82f6; color: #fff; }
+.at-btn-remove   { background: #f1f5f9; color: #475569; }
+.at-btn-remove:hover { background: #ef4444; color: #fff; }
+
+/* Bulk action bar */
+.at-bulk-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #1e293b;
+    color: #fff;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 0.875rem;
+    flex-wrap: wrap;
+}
+
+.at-bulk-bar span { flex: 1; }
+
+/* Search */
+.at-search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+}
+
+.at-search-input {
+    width: 100%;
+    padding: 8px 12px 8px 36px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    outline: none;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+.at-search-input:focus { border-color: #00d9b5; box-shadow: 0 0 0 3px rgba(0,217,181,0.1); }
+
+.at-search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+/* Top toolbar */
+.at-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+
+/* Empty state */
+.at-empty {
+    text-align: center;
+    padding: 48px 16px;
+    color: #94a3b8;
+}
+
+.at-empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.at-empty-text { font-size: 0.9rem; }
+
+/* Mobile card layout */
+@media (max-width: 768px) {
+    .at-table-wrap { display: none; }
+    .at-cards-mobile { display: flex; flex-direction: column; gap: 10px; }
+}
+
+@media (min-width: 769px) {
+    .at-cards-mobile { display: none; }
+}
+
+.at-card-mobile {
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    padding: 14px;
+}
+
+.at-card-mobile-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.at-card-mobile-name { font-weight: 700; color: #1e293b; font-size: 0.95rem; }
+.at-card-mobile-cat  { font-size: 0.78rem; color: #64748b; margin-top: 2px; }
+
+.at-card-mobile-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 10px;
+}
+
+.at-card-mobile-actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+/* Modal */
+.at-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.at-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 480px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.at-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.at-modal-title { font-size: 1.05rem; font-weight: 700; color: #1e293b; }
+
+.at-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: #94a3b8;
+    line-height: 1;
+    padding: 0 4px;
+}
+
+.at-modal-close:hover { color: #1e293b; }
+.at-modal-body { padding: 20px; }
+.at-modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
