@@ -918,18 +918,16 @@
             </div>
 
             <!-- Rules -->
-            <div class="content-card">
-                <h2 class="content-title">Quy định thi đấu</h2>
+            <div class="content-card" style="margin-bottom: 0;">
+                <h2 class="content-title">Luật thi đấu</h2>
                 @if ($tournament->competition_rules && trim($tournament->competition_rules) !== '')
                     @php
                         $ruleText = trim($tournament->competition_rules);
-                        // Split by main sections (lines starting with numbers like "1 ", "2 ", etc)
                         $sections = preg_split('/(?=^\d+\s+)/m', $ruleText);
                         $sections = array_filter(array_map('trim', $sections));
                     @endphp
                     
                     @if (!empty($sections))
-                        {{-- Render theo định dạng có số (1, 2, 3, ...) --}}
                         @forelse($sections as $section)
                             @php
                                 $lines = array_filter(array_map('trim', explode("\n", $section)));
@@ -938,8 +936,8 @@
                             @endphp
                             
                             @if ($isHeader)
-                                <div style="margin-top: 28px; margin-bottom: 20px;">
-                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+                                <div style="margin-top: 16px; margin-bottom: 16px;">
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
                                         <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #ec4899, #3b82f6); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.1rem;">
                                             {{ preg_match('/^(\d+)/', $firstLine, $matches) ? $matches[1] : '1' }}
                                         </div>
@@ -948,10 +946,10 @@
                                         </h3>
                                     </div>
                                     
-                                    <div style="display: flex; flex-direction: column; gap: 14px;">
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
                                         @foreach (array_slice($lines, 1) as $rule)
                                             @if (preg_match('/^[-•]/', $rule))
-                                                <div style="display: flex; gap: 14px; padding: 14px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
+                                                <div style="display: flex; gap: 14px; padding: 12px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
                                                     <span style="color: #ec4899; font-weight: 700; flex-shrink: 0; margin-top: 2px;">✓</span>
                                                     <p style="margin: 0; color: #374151; line-height: 1.6; font-size: 0.95rem;">
                                                         {{ preg_replace('/^[-•]\s*/', '', $rule) }}
@@ -962,10 +960,9 @@
                                     </div>
                                 </div>
                             @else
-                                {{-- Không có format với số, render dạng đơn giản --}}
-                                <div style="display: flex; flex-direction: column; gap: 14px;">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
                                     @foreach ($lines as $line)
-                                        <div style="display: flex; gap: 14px; padding: 14px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
+                                        <div style="display: flex; gap: 14px; padding: 12px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
                                             <span style="color: #ec4899; font-weight: 700; flex-shrink: 0; margin-top: 2px;">✓</span>
                                             <p style="margin: 0; color: #374151; line-height: 1.6; font-size: 0.95rem;">
                                                 {{ $line }}
@@ -975,16 +972,15 @@
                                 </div>
                             @endif
                         @empty
-                            <p style="color: #6b7280;">Chưa có thông tin quy định thi đấu</p>
+                            <p style="color: #6b7280;">Chưa có thông tin luật thi đấu</p>
                         @endforelse
                     @else
-                        {{-- Nếu không có section nào, hiển thị tất cả dòng đơn giản --}}
                         @php
                             $lines = array_filter(array_map('trim', explode("\n", $ruleText)));
                         @endphp
-                        <div style="display: flex; flex-direction: column; gap: 14px;">
+                        <div style="display: flex; flex-direction: column; gap: 12px;">
                             @foreach ($lines as $line)
-                                <div style="display: flex; gap: 14px; padding: 14px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
+                                <div style="display: flex; gap: 14px; padding: 12px; background: linear-gradient(135deg, rgba(236, 72, 153, 0.03), rgba(59, 130, 246, 0.03)); border-radius: 8px; border-left: 3px solid #ec4899;">
                                     <span style="color: #ec4899; font-weight: 700; flex-shrink: 0; margin-top: 2px;">✓</span>
                                     <p style="margin: 0; color: #374151; line-height: 1.6; font-size: 0.95rem;">
                                         {{ $line }}
@@ -994,12 +990,12 @@
                         </div>
                     @endif
                 @else
-                    <p style="color: #6b7280;">Chưa có thông tin quy định thi đấu</p>
+                    <p style="color: #6b7280; padding: 20px 0; margin: 0;">Chưa có thông tin luật thi đấu</p>
                 @endif
             </div>
 
             <!-- Timeline -->
-            <div class="content-card">
+            {{-- <div class="content-card">
                 <h2 class="content-title">Timeline sự kiện</h2>
                 @if ($tournament->event_timeline)
                     @php
@@ -1031,7 +1027,7 @@
                 @else
                     <p style="color: #6b7280;">Chưa có thông tin timeline</p>
                 @endif
-            </div>
+            </div> --}}
         </div>
 
         <!-- Schedule Tab -->
