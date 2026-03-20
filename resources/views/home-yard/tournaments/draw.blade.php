@@ -2,7 +2,7 @@
 
 @section('css')
 @parent
-<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-athletes.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-athletes.css') }}?v=1.0">
 <link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-draw.css') }}">
 @endsection
 

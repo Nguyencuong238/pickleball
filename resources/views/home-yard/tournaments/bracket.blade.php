@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/layout-sidebar.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-cards.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-buttons-alerts.css') }}">
-<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-forms.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-forms.css') }}?v=1.1">
 <link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-matches.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/bracket-tree.css') }}">
 @endsection

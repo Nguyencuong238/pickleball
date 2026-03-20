@@ -6,12 +6,14 @@ function tournamentAthletes(config) {
         tournamentId: config.tournamentId,
         storeUrl: config.storeUrl,
         bulkApproveUrl: config.bulkApproveUrl,
+        searchUserUrl: config.searchUserUrl,
         csrfToken: config.csrfToken,
 
         // State
         athletes: config.athletes || [],
         categories: config.categories || [],
         activeFilter: 'all',
+        categoryFilter: '',
         searchQuery: '',
         selectedIds: [],
         selectAll: false,
@@ -24,6 +26,12 @@ function tournamentAthletes(config) {
         formErrors: {},
         submitting: false,
 
+        // User search in add modal
+        userSearchQuery: '',
+        userSearchResults: [],
+        userSearchLoading: false,
+        userSearchDone: false,
+
         // Computed: categories map for fast lookup
         get categoryMap() {
             const map = {};
@@ -34,22 +42,26 @@ function tournamentAthletes(config) {
         // Computed: filtered athlete list
         get filtered() {
             const q = this.searchQuery.toLowerCase().trim();
+            const catId = this.categoryFilter ? parseInt(this.categoryFilter) : null;
             return this.athletes.filter(a => {
                 const matchFilter = this.activeFilter === 'all' || a.status === this.activeFilter;
+                const matchCategory = !catId || a.category_id === catId;
                 const matchSearch = !q
                     || a.athlete_name.toLowerCase().includes(q)
                     || (a.email && a.email.toLowerCase().includes(q));
-                return matchFilter && matchSearch;
+                return matchFilter && matchCategory && matchSearch;
             });
         },
 
-        // Computed: count per tab
+        // Computed: count per tab (respects category filter)
         get counts() {
+            const catId = this.categoryFilter ? parseInt(this.categoryFilter) : null;
+            const base = catId ? this.athletes.filter(a => a.category_id === catId) : this.athletes;
             return {
-                all:      this.athletes.length,
-                pending:  this.athletes.filter(a => a.status === 'pending').length,
-                approved: this.athletes.filter(a => a.status === 'approved').length,
-                rejected: this.athletes.filter(a => a.status === 'rejected').length,
+                all:      base.length,
+                pending:  base.filter(a => a.status === 'pending').length,
+                approved: base.filter(a => a.status === 'approved').length,
+                rejected: base.filter(a => a.status === 'rejected').length,
             };
         },
 
@@ -138,12 +150,49 @@ function tournamentAthletes(config) {
             }
         },
 
+        // Search user by email or phone
+        async searchUser() {
+            const q = this.userSearchQuery.trim();
+            if (q.length < 3) {
+                this.userSearchResults = [];
+                this.userSearchDone = false;
+                return;
+            }
+            this.userSearchLoading = true;
+            this.userSearchDone = false;
+            try {
+                const url = this.searchUserUrl + '?q=' + encodeURIComponent(q);
+                const data = await this.apiFetch(url, 'GET');
+                this.userSearchResults = data.users || [];
+            } catch {
+                this.userSearchResults = [];
+            } finally {
+                this.userSearchLoading = false;
+                this.userSearchDone = true;
+            }
+        },
+
+        selectUser(user) {
+            this.form.athlete_name = user.name || '';
+            this.form.email = user.email || '';
+            this.form.phone = user.phone || '';
+            this.clearUserSearch();
+        },
+
+        clearUserSearch() {
+            this.userSearchQuery = '';
+            this.userSearchResults = [];
+            this.userSearchLoading = false;
+            this.userSearchDone = false;
+        },
+
         // Open add modal
         openAddModal() {
             this.editMode = false;
             this.editId = null;
             this.form = { athlete_name: '', email: '', phone: '', category_id: '', partner_id: '' };
             this.formErrors = {};
+            this.clearUserSearch();
             this.showModal = true;
         },
 

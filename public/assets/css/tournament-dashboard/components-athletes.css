@@ -148,6 +148,19 @@
 
 .at-search-input:focus { border-color: #00d9b5; box-shadow: 0 0 0 3px rgba(0,217,181,0.1); }
 
+.at-category-select {
+    padding: 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    outline: none;
+    background: #fff;
+    color: #334155;
+    cursor: pointer;
+    min-width: 160px;
+}
+.at-category-select:focus { border-color: #00d9b5; box-shadow: 0 0 0 3px rgba(0,217,181,0.1); }
+
 .at-search-icon {
     position: absolute;
     left: 10px;

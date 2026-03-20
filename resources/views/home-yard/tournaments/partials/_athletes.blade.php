@@ -25,6 +25,7 @@
     tournamentId: '{{ $tournament->slug }}',
     storeUrl: '{{ route('tournament-manage.athletes.store', $tournament) }}',
     bulkApproveUrl: '{{ route('tournament-manage.athletes.bulkApprove', $tournament) }}',
+    searchUserUrl: '{{ route('tournament-manage.athletes.searchUser', $tournament) }}',
     csrfToken: document.querySelector('meta[name=csrf-token]').content,
     athletes: {{ $athletesJson }},
     categories: {{ $categoriesJson }}
@@ -39,6 +40,12 @@
                    placeholder="Tìm theo tên, email..."
                    x-model="searchQuery">
         </div>
+        <select class="at-category-select" x-model="categoryFilter">
+            <option value="">Tất cả nội dung</option>
+            <template x-for="cat in categories" :key="cat.id">
+                <option :value="cat.id" x-text="cat.category_name"></option>
+            </template>
+        </select>
         <button class="td-btn td-btn-primary" @click="openAddModal">
             + Thêm vận động viên
         </button>

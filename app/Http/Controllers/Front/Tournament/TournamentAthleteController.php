@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
 use App\Models\TournamentCategory;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -236,7 +237,29 @@ class TournamentAthleteController extends Controller
     }
 
     /**
-     * Danh sách vận động viên theo trạng thái
+     * Tim kiem user theo email hoac so dien thoai
+     */
+    public function searchUser(Request $request, Tournament $tournament): JsonResponse
+    {
+        $this->authorizeOwner($tournament);
+
+        $request->validate(['q' => 'required|string|min:3']);
+
+        $q = trim($request->q);
+        $normalizedPhone = preg_replace('/[\s\-]/', '', $q);
+        $normalizedPhone = preg_replace('/^(\+84|84)/', '0', $normalizedPhone);
+
+        $users = User::where('email', $q)
+            ->orWhere('phone', $q)
+            ->orWhere('phone', $normalizedPhone)
+            ->limit(5)
+            ->get(['id', 'name', 'email', 'phone']);
+
+        return response()->json(['users' => $users]);
+    }
+
+    /**
+     * Danh sach van dong vien theo trang thai
      */
     public function listByStatus(Request $request, Tournament $tournament): JsonResponse
     {

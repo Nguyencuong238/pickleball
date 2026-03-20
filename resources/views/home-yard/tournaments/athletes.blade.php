@@ -3,7 +3,7 @@
 
 @section('css')
 @parent
-<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-athletes.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-athletes.css') }}?v=1.0">
 @endsection
 
 @section('tournament-content')
@@ -15,5 +15,5 @@
 
 @section('js')
 @parent
-<script src="{{ asset('assets/js/tournament-athletes.js') }}"></script>
+<script src="{{ asset('assets/js/tournament-athletes.js') }}?v=1.0"></script>
 @endsection

@@ -7,6 +7,40 @@
         </div>
 
         <form class="at-modal-body" @submit.prevent="submitForm">
+            {{-- Tìm kiếm người dùng --}}
+            <div class="td-form-group" x-show="!editMode" style="margin-bottom:16px;">
+                <label class="td-label">Tìm người dùng</label>
+                <div style="position:relative;">
+                    <input type="text"
+                           class="td-input"
+                           placeholder="Nhập email hoặc số điện thoại để tìm..."
+                           x-model="userSearchQuery"
+                           @input.debounce.400ms="searchUser"
+                           @keydown.escape="clearUserSearch">
+                    <div x-show="userSearchLoading" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:0.8rem;color:#94a3b8;">
+                        Đang tìm...
+                    </div>
+                </div>
+                <div x-show="userSearchResults.length > 0"
+                     style="border:1px solid #e2e8f0;border-radius:8px;margin-top:4px;max-height:200px;overflow-y:auto;background:#fff;">
+                    <template x-for="user in userSearchResults" :key="user.id">
+                        <div @click="selectUser(user)"
+                             style="padding:8px 12px;cursor:pointer;border-bottom:1px solid #f1f5f9;"
+                             class="at-search-result-item">
+                            <div style="font-weight:500;" x-text="user.name"></div>
+                            <div style="font-size:0.8rem;color:#64748b;">
+                                <span x-text="user.email"></span>
+                                <span x-show="user.phone"> - <span x-text="user.phone"></span></span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div x-show="userSearchQuery.length >= 3 && !userSearchLoading && userSearchResults.length === 0 && userSearchDone"
+                     style="font-size:0.8rem;color:#94a3b8;margin-top:4px;">
+                    Không tìm thấy người dùng nào.
+                </div>
+            </div>
+
             {{-- Name --}}
             <div class="td-form-group">
                 <label class="td-label">Họ và tên <span style="color:#ef4444">*</span></label>

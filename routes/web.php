@@ -584,6 +584,7 @@ Route::middleware(['auth'])->prefix('tournament-manage')->name('tournament-manag
     Route::patch('{tournament}/athletes/{athlete}/status', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'updateStatus'])->name('athletes.updateStatus');
     Route::post('{tournament}/athletes/{athlete}/approve', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'approve'])->name('athletes.approve');
     Route::post('{tournament}/athletes/{athlete}/reject', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'reject'])->name('athletes.reject');
+    Route::get('{tournament}/athletes/search-user', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'searchUser'])->name('athletes.searchUser');
     Route::get('{tournament}/athletes/by-status', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'listByStatus'])->name('athletes.byStatus');
     Route::post('{tournament}/athletes/bulk-approve', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'bulkApprove'])->name('athletes.bulkApprove');
 
