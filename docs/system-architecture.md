@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-03-13
+**Last Updated**: 2026-03-22
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -755,7 +755,7 @@ OPRS = (0.7 × Elo) + (0.2 × Challenge) + (0.1 × Community)
 4.5 (Pro)               1600-1849
 5.0+ (Elite)            1850+
 
-// Challenge Types: serve_accuracy (50pts, 70%), volley_control (60pts, 75%), dink_precision (55pts, 70%), footwork_drill (45pts, 65%), monthly_test (200pts, 80%, 1/month)
+// Challenge Types: dinking_rally (10pts, rallies>=20), drop_shot (8pts, success>=5/10), serve_accuracy (6pts, success>=7/10), monthly_test (30-50pts, score>=70)
 // Community Activities: check_in (10pts daily), event_participation (50pts), player_referral (100pts), weekly_matches (30pts, 5+/week), monthly_challenge (150pts)
 ```
 

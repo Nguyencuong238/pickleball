@@ -1,8 +1,9 @@
 # Club Activities Feature Guide
 
-**Last Updated**: 2026-03-02
+**Last Updated**: 2026-03-22
 **Status**: Complete (All 6 Phases Done)
 **Phases Complete**: Database, Models, Controllers, Views, Scheduling, Testing
+**Enhancement Note**: Auto-create club post when activity is created (2026-03-14+)
 
 ---
 

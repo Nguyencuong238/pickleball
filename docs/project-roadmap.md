@@ -1,6 +1,6 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-03-13
+**Last Updated:** 2026-03-22
 **Current Version:** 1.11.0
 **Project:** Pickleball Platform
 
@@ -195,6 +195,17 @@ Referee management system for tournament match officiating.
   - [x] 4 JavaScript modules (bracket-manager, bracket-data-fetcher, bracket-score-entry, bracket-swap-editor)
   - [x] Bracket tree CSS styling
   - [x] 4 bracket routes (index, data, generate, swap)
+- [x] **Bracket Match Editor Enhancements (Mar 14-22, 2026)** NEW
+  - [x] Athlete reassignment with cascade warning
+  - [x] Bracket slot swap with null athlete/bye match support
+  - [x] Match date field for scheduling
+  - [x] Cumulative game scores in rankings display
+  - [x] Rankings +/- column for win/loss differential
+  - [x] User search by email/phone in athlete management
+  - [x] LIVE status limited to 2-hour window after match start
+  - [x] First bracket round allows all category athletes for wildcard flexibility
+  - [x] group_standings.is_advanced instead of tournament_athletes for eligible athletes
+  - [x] Tournament form: renamed rules to competition_rules, added event_timeline field
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -446,6 +457,8 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 ---
 
 ## Change Log (Compact)
+
+**v1.11.1 (2026-03-22)** - Bracket Match Editor: athlete reassignment with cascade warning, bracket slot swap (null/bye support), match date field, cumulative game scores, rankings +/- column, user search by email/phone, LIVE status 2-hour window, first round wildcard flexibility, competition_rules rename, event_timeline field
 
 **v1.11.0 (2026-03-13)** - Knockout Bracket System: Single elimination bracket, seeding helpers, match advancement, optional third-place, 4 services, 4 JS modules, bracket CSS, 4 routes, enable_third_place migration
 

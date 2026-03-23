@@ -1,11 +1,11 @@
 # Tournament Views Structure
 
-**Last Updated**: 2026-03-14
+**Last Updated**: 2026-03-22
 **Focus**: Public and Admin tournament views architecture
 
 ## Overview
 
-Tournament views are organized into two main sections: Admin Dashboard (Home Yard) and Public Frontend. The public tournament detail page (Mar 2026) now displays rich schedule, standings, and bracket information through a tabbed interface.
+Tournament views are organized into two main sections: Admin Dashboard (Home Yard) and Public Frontend. The public tournament detail page displays rich schedule, standings, and bracket information through a tabbed interface with advanced match editing capabilities.
 
 ## Admin Views (`resources/views/home-yard/tournaments/`)
 
@@ -38,10 +38,12 @@ Tournament views are organized into two main sections: Admin Dashboard (Home Yar
 - `_matches.blade.php` - Match listing container
 - `_matches-row.blade.php` - Individual match row with score entry
 - `_matches-empty-generate.blade.php` - Empty state with generate button
+- `_bracket-match-editor.blade.php` - Match editor with athlete reassignment and cascade warning
+- `_bracket-swap-editor.blade.php` - Bracket slot swap with null athlete/bye support
 
 **Rankings & Results:**
 - `_rankings.blade.php` - Rankings container by category
-- `_rankings-group-table.blade.php` - Group standings table
+- `_rankings-group-table.blade.php` - Group standings table with cumulative game scores and +/- column
 - `_category-editor.blade.php` - Category configuration form
 
 **Bracket Display:**
@@ -66,10 +68,11 @@ Tournament views are organized into two main sections: Admin Dashboard (Home Yar
 
 **Features:**
 - Displays match status (scheduled, in_progress, completed)
-- Shows "LIVE" badge for in-progress matches
+- Shows "LIVE" badge for in-progress matches (limited to 2-hour window after match start)
 - Displays athlete names and scores
 - Highlights winner with visual styling
 - No edit controls (read-only for public)
+- Includes match date field
 
 ## View Component Details
 
@@ -171,14 +174,46 @@ Selectors:
 - `.front-bracket-slot-name` - Athlete name display
 - `.front-bracket-slot-score` - Score display (- if not played)
 
+## Match Editor Features (2026-03-22)
+
+### Bracket Match Editor
+- Athlete reassignment with dropdown selection
+- Cascade warning when changing athletes in elimination bracket
+- Match date field for scheduling
+- Real-time athlete list filtering by category
+- Preselect current athletes with string conversion for x-model binding
+
+### Bracket Slot Swap Editor
+- Swap bracket slots including null athletes and bye matches
+- Confirmation dialog with descriptive messaging
+- Support for flexible slot reordering in brackets
+
+## Athlete Management Enhancements
+
+- User search by email or phone for tournament athlete management
+- Category-aware athlete selection and partner management
+- First bracket round allows all category athletes for wildcard flexibility
+- Uses `group_standings.is_advanced` instead of tournament_athletes for eligible athletes query
+
+## Tournament Form Changes
+
+- Renamed `rules` field to `competition_rules` in tournament forms
+- Added `event_timeline` field to tournament configuration
+- Enhanced registration logic with category validation
+
 ## Related Files
 
 - **Controller**: `app/Http/Controllers/Front/HomeController.php` - tournamentsDetail() method
+- **Admin Controller**: `app/Http/Controllers/Admin/TournamentController.php` - tournament management
 - **Models**: Tournament, TournamentCategory, Group, GroupStanding, MatchModel
-- **Services**: TournamentService, KnockoutBracketService
-- **JavaScript**: Alpine.js mixins for admin dashboard (not used in public views)
+- **Services**: TournamentService, KnockoutBracketService, TournamentCrudService
+- **JavaScript**:
+  - `bracket-match-editor.js` (v1.2) - match editor with athlete reassignment
+  - `bracket-swap-editor.js` (v1.1) - slot swap functionality
+- **Alpine.js**: Components for admin dashboard tournament management
 
 ## Unresolved Notes
 
 - Mobile bracket horizontal scroll UX could be enhanced with touch swipe indicators
 - Consider caching eager-loaded tournament data for public views (tournamentsDetail)
+- Wildcard flexibility in first bracket round may need additional validation for tournament integrity

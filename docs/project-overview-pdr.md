@@ -2,7 +2,7 @@
 
 **Project Name**: Pickleball Platform
 **Version**: 1.9.0
-**Last Updated**: 2026-03-09
+**Last Updated**: 2026-03-22
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -72,12 +72,16 @@ Create a centralized platform connecting pickleball players with courts, tournam
 
 ### 2. Tournament System (Rewritten - Mar 2026)
 - Tournament creation and configuration
-- Category management (skill levels, age groups, singles/doubles)
+- Category management with new fields: `competition_rules` (renamed from rules) and `event_timeline`
 - Athlete registration with partner selection for doubles categories
 - Partner linking system for doubles pairs with draw_order for tournament draws
+- User search by email or phone in tournament athlete management
 - Round and group management
-- Match scheduling with pair support
+- Match scheduling with pair support and match date field
 - Match results and rankings with Excel export
+- Cumulative game scores in tournament rankings
+- Bracket editor with athlete reassignment and cascade warning
+- Bracket slot swapping with null athletes and bye matches
 - **NEW (Mar 2026)**: Modular Alpine.js dashboard with sidebar navigation
 - **NEW (Mar 2026)**: Draw/seeding with auto-assign and manual modes
 - **NEW (Mar 2026)**: Group setup and management UI

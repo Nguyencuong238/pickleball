@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-03-13
+**Last Updated**: 2026-03-22
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -11,14 +11,15 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 ## Project Structure
 
 **File Counts (Current):**
-- PHP files: 335+ (Controllers 105+, Models 85+, Services 24, Commands 22+, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
-  - Front/Tournament/: 7 controllers + 6 traits (new rewrite)
-- Blade templates: 252+ (Admin 50+, Front 60+, Home-yard 50+, Clubs 15, User 10, Auth 6, Referee 10)
-  - home-yard/tournaments/: dashboard + 20+ partials (new rewrite)
-- JS modules: 8 files (Alpine.js components for tournament dashboard)
-- CSS stylesheets: 11 files (tournament-dashboard components)
-- Database migrations: 190+
-- Routes: ~80 (web.php 55+, api.php 27+)
+- PHP files: 327 (Controllers 112, Models 83, Services 31, Commands 22+, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
+  - Front/Tournament/: 8 controllers + 6 traits (rewrite complete)
+- Blade templates: 255 (Admin 54, Front 53, Home-yard 59, Clubs 45, Layouts 5, User/Auth/Referee 39)
+  - home-yard/tournaments/: dashboard + 20+ partials (complete rewrite)
+- JS modules: 18 files (Alpine.js components for tournament dashboard, bracket editor)
+- CSS stylesheets: 26 files (15 feature-specific + 11 tournament-dashboard components)
+- Database migrations: 191
+- Database seeders: 20
+- Routes: ~590 (web.php 420+, api.php 170+)
 
 ## Core Technologies
 
@@ -95,7 +96,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-## Services Overview (30 Services)
+## Services Overview (31 Services)
 
 ### Business Logic Services
 - `EloService` - Elo rating calculations, K-factor management, match processing
@@ -339,10 +340,10 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
   - Challenge Score (20% weight) - Technical skills
   - Community Score (10% weight) - Engagement
 - **Seven OPR Levels**: 1.0 to 5.0+ (Beginner to Elite)
-- **Challenge System**:
-  - Skill tests (serve, volley, dink, etc.)
-  - Monthly comprehensive test
-  - Point-based scoring with thresholds
+- **Challenge System** (4 types):
+  - dinking_rally (10pts), drop_shot (8pts), serve_accuracy (6pts)
+  - monthly_test (30-50pts, score>=70)
+  - Point-based scoring with pass/fail thresholds
   - Admin verification system
 - **Community Activities**:
   - Stadium check-ins (daily)
@@ -681,11 +682,11 @@ php artisan db:seed --class=SkillQuestionSeeder
 
 ## Frontend Assets (Tournament Rewrite - Mar 2026)
 
-### JavaScript Modules (`public/assets/js/`)
-12 Alpine.js modules: `tournament-dashboard.js`, `tournament-athletes.js`, `tournament-draw.js`, `tournament-draw-group-setup-mixin.js`, `tournament-draw-manual-sortable-mixin.js`, `tournament-draw-reset-mixin.js`, `tournament-matches.js`, `tournament-matches-api.js`, `tournament-matches-schedule-mixin.js`, `tournament-rankings.js`, `bracket-manager.js`, `bracket-data-fetcher.js`, `bracket-score-entry.js`, `bracket-swap-editor.js`
+### JavaScript Modules (`public/assets/js/`) - 18 files
+Tournament core (12): dashboard, athletes, draw (+3 mixins), matches (+api, schedule-mixin), rankings. Bracket (5): manager, data-fetcher, match-editor, score-entry, swap-editor. Utility: script.js
 
-### CSS Stylesheets (`public/assets/css/tournament-dashboard/`)
-12 files: Layout (sidebar), Components (cards, forms, buttons, alerts), Feature-specific (athletes, draw, matches, rankings, bracket-tree). Responsive design with mobile support.
+### CSS Stylesheets (`public/assets/css/`) - 26 files
+Feature-specific (15): style, tournaments, courts, bookings, clubs, coaches, news, galleries, instructor-review. Tournament dashboard (11): layout-sidebar, components (athletes, buttons, cards, draw, forms, matches, rankings, rankings-table, rankings-row-states), bracket-tree.
 
 ## Authentication Flow
 
@@ -697,15 +698,10 @@ php artisan db:seed --class=SkillQuestionSeeder
 ## File Storage
 
 ### Media Library (Spatie)
-- Stadium images
-- Tournament galleries
-- Instructor photos
-- Video thumbnails
-- OCR match evidence
+- Stadium images, Tournament galleries, Instructor photos, Video thumbnails, OCR match evidence
 
 ### Storage Paths
-- `storage/app/public` - Public uploads
-- `public/storage` - Symlinked public access
+- `storage/app/public` - Public uploads, `public/storage` - Symlinked public access
 
 ## Configuration
 

@@ -1,6 +1,6 @@
 # Code Standards & Conventions
 
-**Last Updated**: 2026-03-09
+**Last Updated**: 2026-03-22
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -21,7 +21,7 @@ app/
 ├── Http/
 │   ├── Controllers/       # Route controllers
 │   │   ├── Admin/        # Admin panel (24 controllers)
-│   │   ├── Api/          # API endpoints (28+ controllers)
+│   │   ├── Api/          # API endpoints (30+ controllers)
 │   │   └── Front/        # Public frontend (35+ controllers)
 │   └── Middleware/        # HTTP middleware
 ├── Models/                # Eloquent models (85+ models)
