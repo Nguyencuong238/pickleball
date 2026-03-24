@@ -74,6 +74,7 @@
                                 <span x-text="(court.match.player3 ? court.match.player3.name : '') + (court.match.player4 ? ' & ' + court.match.player4.name : '')"></span>
                             </div>
                             <div class="ca-court-actions">
+                                <a class="ca-btn-sm ca-btn-score" :href="'{{ url('clubs/' . $club->slug . '/activities/' . $activity->id . '/matches') }}/' + court.match.id + '/score'">Nhập điểm</a>
                                 <button class="ca-btn-sm ca-btn-danger" @click="endMatch(court.match.id)">Kết thúc</button>
                             </div>
                         </div>

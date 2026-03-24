@@ -239,10 +239,27 @@ class ClubOpenPlayController extends Controller
 
         if (!$participant) return null;
 
+        $currentMatchId = null;
+        if ($participant->current_status === 'playing') {
+            $currentMatch = $activity->matches()
+                ->whereNotNull('started_at')
+                ->whereNull('ended_at')
+                ->where(function ($q) use ($userId) {
+                    $q->where('player1_id', $userId)
+                      ->orWhere('player2_id', $userId)
+                      ->orWhere('player3_id', $userId)
+                      ->orWhere('player4_id', $userId);
+                })
+                ->first();
+            $currentMatchId = $currentMatch?->id;
+        }
+
         return [
             'current_status' => $participant->current_status,
             'queue_position' => $participant->queue_position,
             'matches_played' => $participant->matches_played_count,
+            'user_id' => $userId,
+            'current_match_id' => $currentMatchId,
         ];
     }
 

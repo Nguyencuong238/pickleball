@@ -43,6 +43,9 @@
             <div class="ca-hero-content ca-hero-playing">
                 <p class="ca-hero-label">Đang thi đấu</p>
                 <p class="ca-hero-court">Sân đang chơi</p>
+                <template x-if="myStatus.current_match_id">
+                    <a class="ca-btn-score-link" :href="'/clubs/{{ $club->slug }}/activities/{{ $activity->id }}/matches/' + myStatus.current_match_id + '/score'">Nhập điểm</a>
+                </template>
             </div>
         </template>
     </div>
