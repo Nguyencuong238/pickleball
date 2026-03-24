@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\ClubActivityMatch;
 use App\Models\EloHistory;
 use App\Models\OcrMatch;
 use App\Models\User;
@@ -197,6 +198,40 @@ class EloService
 
         // Trigger OPRS recalculation
         app(OprsService::class)->recalculateAfterMatch($user, $match->id);
+    }
+
+    /**
+     * Xu ly Elo cho tran dau club open play (K-factor giam theo oprs_weight)
+     */
+    public function processClubMatchElo(ClubActivityMatch $match, string $winner): void
+    {
+        $oprsWeight = $match->activity->oprs_weight;
+
+        $team1Elo = $match->player2
+            ? (int) round(($match->player1->elo_rating + $match->player2->elo_rating) / 2)
+            : $match->player1->elo_rating;
+        $team2Elo = $match->player4
+            ? (int) round(($match->player3->elo_rating + $match->player4->elo_rating) / 2)
+            : $match->player3->elo_rating;
+
+        $expected1 = $this->calculateExpectedScore($team1Elo, $team2Elo);
+        $actual1 = $winner === 'team1' ? 1.0 : 0.0;
+
+        $players = [
+            ['user' => $match->player1, 'expected' => $expected1, 'actual' => $actual1],
+            ['user' => $match->player2, 'expected' => $expected1, 'actual' => $actual1],
+            ['user' => $match->player3, 'expected' => 1 - $expected1, 'actual' => 1 - $actual1],
+            ['user' => $match->player4, 'expected' => 1 - $expected1, 'actual' => 1 - $actual1],
+        ];
+
+        foreach ($players as $p) {
+            if (!$p['user']) continue;
+            $k = $this->getKFactor($p['user']) * $oprsWeight;
+            $change = (int) round($k * ($p['actual'] - $p['expected']));
+            $newElo = max(self::MIN_ELO, $p['user']->elo_rating + $change);
+            $p['user']->update(['elo_rating' => $newElo]);
+            $p['user']->updateEloRank();
+        }
     }
 
     /**

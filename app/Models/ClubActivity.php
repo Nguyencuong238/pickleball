@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 
 class ClubActivity extends Model
 {
@@ -29,6 +30,15 @@ class ClubActivity extends Model
         'max_skill_level',
         'competition_config',
         'status',
+        'qr_code',
+        'courts_count',
+        'avg_match_duration',
+        'rotation_mode',
+        'gender_preference_enabled',
+        'oprs_weight',
+        'allow_guests',
+        'started_at',
+        'ended_at',
     ];
 
     protected $casts = [
@@ -38,6 +48,12 @@ class ClubActivity extends Model
         'recurrence_day' => 'integer',
         'min_skill_level' => 'float',
         'max_skill_level' => 'float',
+        'courts_count' => 'integer',
+        'gender_preference_enabled' => 'boolean',
+        'oprs_weight' => 'decimal:2',
+        'allow_guests' => 'boolean',
+        'started_at' => 'datetime',
+        'ended_at' => 'datetime',
     ];
 
     // Relationships
@@ -109,6 +125,11 @@ class ClubActivity extends Model
         return $this->hasMany(ClubActivityMatchStanding::class);
     }
 
+    public function matches(): HasMany
+    {
+        return $this->hasMany(ClubActivityMatch::class);
+    }
+
     // Scopes
     public function scopeOfType($query, string $type)
     {
@@ -133,6 +154,18 @@ class ClubActivity extends Model
         }
 
         return $this->confirmedParticipants()->count() >= $this->max_participants;
+    }
+
+    public function isOpenPlay(): bool
+    {
+        return $this->type === 'open_play';
+    }
+
+    public function generateQrCode(): string
+    {
+        $this->qr_code = (string) Str::uuid();
+        $this->save();
+        return $this->qr_code;
     }
 
     public function isRecurringTemplate(): bool
@@ -174,9 +207,11 @@ class ClubActivity extends Model
         $typeLabel = match ($this->type) {
             'competition' => 'giải đấu',
             'recurring' => 'lịch hoạt động định kỳ',
+            'open_play' => 'buổi chơi mở',
             default => 'hoạt động',
         };
 
-        return "<p>CLB vừa đăng {$typeLabel} mới: <strong>{$this->title}</strong></p>";
+        $safeTitle = e($this->title);
+        return "<p>CLB vừa đăng {$typeLabel} mới: <strong>{$safeTitle}</strong></p>";
     }
 }

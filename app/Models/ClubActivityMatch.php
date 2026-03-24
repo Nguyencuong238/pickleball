@@ -11,6 +11,7 @@ class ClubActivityMatch extends Model
     use HasFactory;
 
     protected $fillable = [
+        'club_activity_id',
         'round_id',
         'court_number',
         'match_type',
@@ -22,10 +23,25 @@ class ClubActivityMatch extends Model
         'team2_score',
         'status',
         'completed_at',
+        'match_number',
+        'scheduled_court',
+        'started_at',
+        'ended_at',
+        'result_submitted_by',
+        'result_confirmed',
+        'oprs_processed',
+        'set_scores',
     ];
 
     protected $casts = [
         'completed_at' => 'datetime',
+        'started_at' => 'datetime',
+        'ended_at' => 'datetime',
+        'result_confirmed' => 'boolean',
+        'oprs_processed' => 'boolean',
+        'set_scores' => 'array',
+        'match_number' => 'integer',
+        'scheduled_court' => 'integer',
     ];
 
     public function round(): BelongsTo
@@ -51,5 +67,15 @@ class ClubActivityMatch extends Model
     public function player4(): BelongsTo
     {
         return $this->belongsTo(User::class, 'player4_id');
+    }
+
+    public function activity(): BelongsTo
+    {
+        return $this->belongsTo(ClubActivity::class, 'club_activity_id');
+    }
+
+    public function submittedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'result_submitted_by');
     }
 }

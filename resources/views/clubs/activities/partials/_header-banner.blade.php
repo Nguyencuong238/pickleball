@@ -26,6 +26,22 @@
                     </svg>
                 </button>
                 <div class="header-dropdown" id="header-dropdown">
+                    @if($activity->isOpenPlay())
+                    <a href="#" class="dropdown-item" onclick="event.preventDefault(); generateQrCode();">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                        </svg>
+                        Lấy mã QR Check-in
+                    </a>
+                    <a href="{{ route('club.activity.dashboard', [$club->slug, $activity]) }}" class="dropdown-item">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                            <rect x="3" y="14" width="7" height="7"/><circle cx="17.5" cy="17.5" r="3.5"/>
+                        </svg>
+                        Bảng điều khiển
+                    </a>
+                    @endif
                     <a href="{{ route('clubs.activities.edit', [$club, $activity]) }}" class="dropdown-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>

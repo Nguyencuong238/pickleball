@@ -1,0 +1,260 @@
+/* Club Activity Admin Dashboard */
+.ca-dashboard {
+    display: grid;
+    grid-template-columns: 240px 1fr 280px;
+    gap: 20px;
+    min-height: calc(100vh - 80px);
+    padding: 20px;
+}
+
+@media (max-width: 1024px) {
+    .ca-dashboard {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cards */
+.ca-dash-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.ca-dash-card-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.ca-dash-club-name {
+    font-size: 13px;
+    color: #666;
+    margin-bottom: 14px;
+}
+
+/* Stats grid */
+.ca-dash-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.ca-dash-stat {
+    text-align: center;
+    padding: 10px 0;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.ca-dash-stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: 800;
+    color: #2563eb;
+}
+
+.ca-dash-stat-label {
+    display: block;
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Config rows */
+.ca-dash-config-row {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+.ca-dash-qr-link a {
+    color: #2563eb;
+    font-size: 13px;
+    text-decoration: underline;
+}
+
+/* Section title */
+.ca-dash-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Court grid */
+.ca-dash-court-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+}
+
+.ca-court-card-admin {
+    background: #fff;
+    border-radius: 12px;
+    border-left: 4px solid #e5e7eb;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    overflow: hidden;
+}
+
+.ca-court-card-admin.is-playing {
+    border-left-color: #22c55e;
+}
+
+.ca-court-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 14px 8px;
+}
+
+.ca-court-label {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #555;
+}
+
+.ca-court-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.ca-court-status-badge.playing {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.ca-court-status-badge.available {
+    background: #f3f4f6;
+    color: #999;
+}
+
+.ca-court-card-body {
+    padding: 8px 14px 14px;
+}
+
+.ca-court-team-row {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.ca-court-vs-label {
+    font-size: 10px;
+    color: #aaa;
+    text-transform: uppercase;
+    margin: 2px 0;
+}
+
+.ca-court-empty-state {
+    color: #bbb;
+    font-size: 13px;
+    font-style: italic;
+}
+
+.ca-court-actions {
+    margin-top: 10px;
+}
+
+/* Right panel */
+.ca-dash-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.ca-dash-queue-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.ca-dash-queue-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+}
+
+.ca-dash-queue-rank {
+    font-weight: 700;
+    color: #999;
+    min-width: 24px;
+}
+
+.ca-dash-queue-name {
+    flex: 1;
+    font-weight: 600;
+}
+
+.ca-dash-queue-oprs {
+    color: #888;
+    font-size: 12px;
+}
+
+.ca-dash-empty {
+    text-align: center;
+    color: #bbb;
+    padding: 16px;
+    font-size: 13px;
+}
+
+/* Buttons */
+.ca-btn-sm {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.ca-btn-primary {
+    background: #2563eb;
+    color: #fff;
+}
+
+.ca-btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.ca-btn-primary:disabled {
+    opacity: 0.5;
+}
+
+.ca-btn-danger {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.ca-btn-danger:hover {
+    background: #fecaca;
+}
+
+/* Trigger messages */
+.ca-dash-trigger-msg {
+    font-size: 13px;
+    text-align: center;
+    padding: 8px;
+    border-radius: 8px;
+    margin-top: 8px;
+}
+
+.ca-msg-success {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.ca-msg-error {
+    background: #fef2f2;
+    color: #dc2626;
+}

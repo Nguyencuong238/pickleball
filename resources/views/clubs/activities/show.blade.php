@@ -17,7 +17,7 @@
 
 @section('content')
 @php
-    $typeLabels = ['one_off' => 'Buổi chơi', 'recurring' => 'Lịch cố định', 'competition' => 'Giải đấu'];
+    $typeLabels = ['one_off' => 'Buổi chơi', 'recurring' => 'Lịch cố định', 'competition' => 'Giải đấu', 'open_play' => 'Chơi mở'];
 @endphp
 @include('clubs.activities.partials._show-styles')
 

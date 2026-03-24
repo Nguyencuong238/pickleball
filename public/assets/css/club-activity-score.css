@@ -1,0 +1,225 @@
+/* Club Activity Score Submit - Mobile-first */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f7fa;
+    color: #1a1a2e;
+    -webkit-font-smoothing: antialiased;
+}
+
+.ca-score-page {
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 24px 16px 120px;
+}
+
+/* Header */
+.ca-score-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.ca-score-court {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.ca-score-match-info {
+    font-size: 13px;
+    color: #888;
+}
+
+/* Teams */
+.ca-teams {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 28px;
+}
+
+.ca-team-card {
+    flex: 1;
+    background: #fff;
+    border-radius: 14px;
+    padding: 16px 12px;
+    text-align: center;
+    border: 2px solid #e5e7eb;
+    transition: border-color 0.3s, background 0.3s;
+}
+
+.ca-team-card.is-winner {
+    border-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.ca-team-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.ca-team-players {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.ca-vs-badge {
+    font-size: 12px;
+    font-weight: 800;
+    color: #aaa;
+    flex-shrink: 0;
+}
+
+/* Sets */
+.ca-sets {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ca-set-row {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.ca-set-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #888;
+    min-width: 44px;
+}
+
+.ca-set-scores {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.ca-stepper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ca-stepper-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #e0e0e0;
+    background: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    color: #333;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ca-stepper-btn:active:not(:disabled) {
+    background: #2563eb;
+    border-color: #2563eb;
+    color: #fff;
+    transform: scale(0.92);
+}
+
+.ca-stepper-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+.ca-score-display {
+    font-size: 32px;
+    font-weight: 800;
+    min-width: 36px;
+    text-align: center;
+}
+
+.ca-set-divider {
+    font-size: 24px;
+    font-weight: 700;
+    color: #ccc;
+}
+
+/* Winner preview */
+.ca-winner-preview {
+    background: #f0fdf4;
+    border: 2px solid #22c55e;
+    border-radius: 12px;
+    padding: 14px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.ca-winner-text {
+    font-size: 15px;
+    color: #15803d;
+}
+
+/* Error */
+.ca-error-msg {
+    color: #dc2626;
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 12px;
+}
+
+/* CTA */
+.ca-cta-fixed {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    background: linear-gradient(transparent, #f5f7fa 30%);
+}
+
+.ca-btn-primary {
+    display: block;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    height: 52px;
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.ca-btn-primary:hover:not(:disabled) {
+    background: #1d4ed8;
+}
+
+.ca-btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.ca-btn-confirm {
+    background: #22c55e;
+}
+
+.ca-btn-confirm:hover:not(:disabled) {
+    background: #16a34a;
+}

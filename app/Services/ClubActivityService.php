@@ -54,6 +54,54 @@ class ClubActivityService
     }
 
     /**
+     * Check-in nguoi choi qua QR (open play)
+     */
+    public function checkinByPhone(ClubActivity $activity, User $user): ClubActivityParticipant
+    {
+        return DB::transaction(function () use ($activity, $user) {
+            // Auto-add to club if not member
+            $club = $activity->club;
+            if (!$club->members()->where('user_id', $user->id)->exists()) {
+                $club->members()->attach($user->id, [
+                    'role' => 'member',
+                    'joined_at' => now(),
+                ]);
+            }
+
+            // Check if already participant
+            $existing = $activity->participants()
+                ->where('user_id', $user->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existing && $existing->checked_in_at) {
+                // Already checked in, just return
+                return $existing;
+            }
+
+            $nextPos = ($activity->participants()->lockForUpdate()->max('queue_position') ?? 0) + 1;
+
+            if ($existing) {
+                $existing->update([
+                    'checked_in_at' => now(),
+                    'current_status' => 'queued',
+                    'queue_position' => $nextPos,
+                ]);
+                return $existing->fresh();
+            }
+
+            return $activity->participants()->create([
+                'user_id' => $user->id,
+                'status' => 'confirmed',
+                'responded_at' => now(),
+                'checked_in_at' => now(),
+                'current_status' => 'queued',
+                'queue_position' => $nextPos,
+            ]);
+        });
+    }
+
+    /**
      * Huy dang ky va tu dong nang hang nguoi cho
      */
     public function cancelRsvp(ClubActivity $activity, User $user): void

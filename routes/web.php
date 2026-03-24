@@ -43,6 +43,10 @@ use App\Http\Controllers\ClubActivityController;
 use App\Http\Controllers\ClubActivityParticipantController;
 use App\Http\Controllers\ClubCompetitionController;
 use App\Http\Controllers\ClubMatchController;
+use App\Http\Controllers\ClubCheckinController;
+use App\Http\Controllers\ClubOpenPlayController;
+use App\Http\Controllers\ClubDashboardController;
+use App\Http\Controllers\ClubLeaderboardController;
 use App\Http\Controllers\Front\ClubPostController;
 use App\Http\Controllers\Front\ClubPostReactionController;
 use App\Http\Controllers\Front\ClubPostCommentController;
@@ -307,6 +311,7 @@ Route::middleware('auth')->group(function () {
         Route::put('{activity}', [ClubActivityController::class, 'update'])->name('update');
         Route::delete('{activity}', [ClubActivityController::class, 'destroy'])->name('destroy');
         Route::get('{activity}', [ClubActivityController::class, 'show'])->name('show');
+        Route::post('{activity}/generate-qr', [ClubActivityController::class, 'generateQr'])->name('generate-qr');
 
         // RSVP / Participants
         Route::post('{activity}/rsvp', [ClubActivityParticipantController::class, 'rsvp'])->name('rsvp');
@@ -342,6 +347,35 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::get('clubs/{club}', [ClubController::class, 'show'])->name('clubs.show');
+
+// Club Activity Check-in & Queue (public, no auth)
+Route::prefix('clubs/{club}/activities/{activity}')->group(function () {
+    Route::get('/checkin', [ClubCheckinController::class, 'show'])->name('club.activity.checkin');
+    Route::post('/lookup', [ClubCheckinController::class, 'lookup'])->middleware('throttle:10,1')->name('club.activity.lookup');
+    Route::post('/confirm', [ClubCheckinController::class, 'confirm'])->middleware('throttle:10,1')->name('club.activity.confirm');
+    Route::post('/register', [ClubCheckinController::class, 'register'])->middleware('throttle:5,1')->name('club.activity.register');
+    Route::get('/queue', [ClubOpenPlayController::class, 'queue'])->name('club.activity.queue');
+    Route::get('/queue-status', [ClubOpenPlayController::class, 'queueStatus'])->name('club.activity.queue-status');
+    Route::get('/my-match', [ClubOpenPlayController::class, 'myMatch'])->name('club.activity.my-match');
+    Route::post('/trigger-match', [ClubOpenPlayController::class, 'triggerMatch'])->name('club.activity.trigger-match');
+    Route::post('/start-match/{match}', [ClubOpenPlayController::class, 'startMatch'])->name('club.activity.start-match');
+    Route::post('/end-match/{match}', [ClubOpenPlayController::class, 'endMatch'])->name('club.activity.end-match');
+    Route::get('/matches/{match}/score', [ClubOpenPlayController::class, 'scoreForm'])->name('club.activity.score-form');
+    Route::post('/matches/{match}/submit-score', [ClubOpenPlayController::class, 'submitScore'])->name('club.activity.submit-score');
+});
+
+// Club Admin Dashboard & Members (auth required)
+Route::middleware(['auth'])->group(function () {
+    Route::get('clubs/{club}/activities/{activity}/dashboard', [ClubDashboardController::class, 'dashboard'])->name('club.activity.dashboard');
+    Route::get('clubs/{club}/activities/{activity}/dashboard-state', [ClubDashboardController::class, 'dashboardState'])->name('club.activity.dashboard-state');
+    Route::get('clubs/{club}/members-management', [ClubDashboardController::class, 'members'])->name('club.members.index');
+    Route::post('clubs/{club}/members-management/add', [ClubDashboardController::class, 'addMember'])->name('club.members.add');
+    Route::patch('clubs/{club}/members-management/{user}/oprs', [ClubDashboardController::class, 'updateMemberOprs'])->name('club.members.update-oprs');
+    Route::patch('clubs/{club}/members-management/{user}/status', [ClubDashboardController::class, 'updateMemberStatus'])->name('club.members.update-status');
+});
+
+// Club Leaderboard (public)
+Route::get('clubs/{club}/leaderboard', [ClubLeaderboardController::class, 'index'])->name('club.leaderboard');
 
 // Club Posts Routes
 Route::prefix('clubs/{club}/posts')->name('clubs.posts.')->group(function () {

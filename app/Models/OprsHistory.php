@@ -15,6 +15,7 @@ class OprsHistory extends Model
     public const REASON_INITIAL_CALCULATION = 'initial_calculation';
     public const REASON_SKILL_QUIZ = 'skill_quiz';
     public const REASON_ELO_VERIFIED = 'elo_verified';
+    public const REASON_CLUB_MATCH = 'club_match';
 
     protected $fillable = [
         'user_id',

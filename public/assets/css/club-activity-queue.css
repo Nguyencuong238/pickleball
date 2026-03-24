@@ -1,0 +1,254 @@
+/* Club Activity Queue - Mobile-first */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f7fa;
+    color: #1a1a2e;
+    -webkit-font-smoothing: antialiased;
+}
+
+.ca-queue-page {
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 0 16px 24px;
+}
+
+/* Top bar */
+.ca-queue-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 0;
+    position: sticky;
+    top: 0;
+    background: #f5f7fa;
+    z-index: 10;
+}
+
+.ca-queue-activity-name {
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.ca-badge {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ca-badge-waiting {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.ca-stale-badge {
+    font-size: 12px;
+    font-weight: 600;
+    color: #dc2626;
+    background: #fef2f2;
+    padding: 4px 10px;
+    border-radius: 6px;
+    animation: ca-pulse 2s infinite;
+}
+
+@keyframes ca-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Hero card */
+.ca-hero-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+}
+
+.ca-hero-label {
+    font-size: 13px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+}
+
+.ca-queue-position {
+    font-size: clamp(48px, 12vw, 72px);
+    font-weight: 800;
+    color: #2563eb;
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.ca-hero-sub {
+    font-size: 14px;
+    color: #666;
+}
+
+.ca-hero-playing {
+    background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.ca-hero-playing .ca-hero-label {
+    color: #15803d;
+}
+
+.ca-hero-court {
+    font-size: 20px;
+    font-weight: 700;
+    color: #15803d;
+}
+
+/* Section title */
+.ca-section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Court grid */
+.ca-court-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+}
+
+.ca-court-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 14px;
+    border-left: 4px solid #e5e7eb;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+.ca-court-card.is-playing {
+    border-left-color: #22c55e;
+    background: #f0fdf4;
+}
+
+.ca-court-number {
+    font-size: 12px;
+    font-weight: 700;
+    color: #888;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+}
+
+.ca-court-match {
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.ca-court-team {
+    font-weight: 600;
+    color: #333;
+}
+
+.ca-court-vs {
+    font-size: 10px;
+    color: #aaa;
+    margin: 2px 0;
+    text-transform: uppercase;
+}
+
+.ca-court-empty {
+    font-size: 13px;
+    color: #bbb;
+    font-style: italic;
+}
+
+/* Queue list */
+.ca-queue-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.ca-queue-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 12px 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.ca-queue-row.is-me {
+    background: #eff6ff;
+    border: 2px solid #2563eb;
+}
+
+.ca-queue-rank {
+    font-size: 16px;
+    font-weight: 700;
+    color: #999;
+    min-width: 28px;
+    text-align: center;
+}
+
+.ca-queue-row.is-me .ca-queue-rank {
+    color: #2563eb;
+}
+
+.ca-queue-player-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.ca-queue-name {
+    display: block;
+    font-size: 15px;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ca-queue-oprs {
+    display: block;
+    font-size: 12px;
+    color: #888;
+}
+
+/* Status dot */
+.ca-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.ca-status-queued {
+    background: #2563eb;
+    animation: ca-pulse 2s infinite;
+}
+
+.ca-status-playing {
+    background: #22c55e;
+}
+
+.ca-status-idle {
+    background: #d1d5db;
+}
+
+.ca-queue-empty {
+    text-align: center;
+    color: #999;
+    padding: 24px;
+    font-size: 14px;
+}

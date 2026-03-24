@@ -182,6 +182,24 @@ class ClubActivityController extends Controller
             ->with('success', 'Hoạt động được cập nhật thành công!');
     }
 
+    public function generateQr(Club $club, ClubActivity $activity)
+    {
+        $this->authorize('manageActivity', $club);
+
+        if ($activity->club_id !== $club->id) {
+            abort(404);
+        }
+
+        $qrCode = $activity->qr_code ?: $activity->generateQrCode();
+        $checkinUrl = route('club.activity.checkin', [$club->slug, $activity->id]) . '?token=' . $qrCode;
+
+        return response()->json([
+            'success' => true,
+            'qr_code' => $qrCode,
+            'checkin_url' => $checkinUrl,
+        ]);
+    }
+
     public function destroy(Request $request, Club $club, ClubActivity $activity)
     {
         $this->authorize('manageActivity', $club);

@@ -192,7 +192,7 @@ class ClubMatchController extends Controller
     private function validateActivityBelongsToClub(Club $club, ClubActivity $activity): void
     {
         if ($activity->club_id !== $club->id) {
-            abort(404, 'Không tìm thấy hoạt động');
+            abort(404, 'Khong tim thay hoat dong');
         }
     }
 }

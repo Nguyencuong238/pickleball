@@ -108,6 +108,34 @@ class OprsService
     }
 
     /**
+     * Recalculate after club open play match
+     */
+    public function recalculateAfterClubMatch(\App\Models\ClubActivityMatch $match): void
+    {
+        $playerIds = array_filter([
+            $match->player1_id,
+            $match->player2_id,
+            $match->player3_id,
+            $match->player4_id,
+        ]);
+
+        foreach ($playerIds as $userId) {
+            $user = User::find($userId);
+            if (!$user) continue;
+
+            $this->updateUserOprs(
+                $user,
+                OprsHistory::REASON_CLUB_MATCH,
+                [
+                    'club_activity_match_id' => $match->id,
+                    'club_id' => $match->activity->club_id ?? null,
+                    'oprs_weight' => $match->activity->oprs_weight ?? null,
+                ]
+            );
+        }
+    }
+
+    /**
      * Recalculate after challenge completion
      */
     public function recalculateAfterChallenge(User $user, ?int $challengeId = null): void
