@@ -23,24 +23,25 @@
             </div>
 
             <div class="form-group">
-                <label>Chế độ ghép trận</label>
+                <label>Cách ghép đội</label>
                 <select name="rotation_mode" class="form-control">
-                    <option value="oprs_based" {{ $rotation === 'oprs_based' ? 'selected' : '' }}>Theo trình độ (OPRS)</option>
-                    <option value="random" {{ $rotation === 'random' ? 'selected' : '' }}>Ngẫu nhiên</option>
-                    <option value="round_robin" {{ $rotation === 'round_robin' ? 'selected' : '' }}>Vòng tròn (theo thứ tự)</option>
+                    <option value="oprs_based" {{ $rotation === 'oprs_based' ? 'selected' : '' }}>Ghép theo trình độ gần nhau</option>
+                    <option value="random" {{ $rotation === 'random' ? 'selected' : '' }}>Ghép ngẫu nhiên</option>
+                    <option value="round_robin" {{ $rotation === 'round_robin' ? 'selected' : '' }}>Ghép theo thứ tự check-in</option>
                 </select>
+                <small style="color: #6b7280;">Hệ thống sẽ tự ghép 4 người thành 1 trận doubles theo cách này</small>
             </div>
 
             <div class="form-group">
-                <label>Mức ảnh hưởng OPRS</label>
+                <label>Kết quả trận ảnh hưởng đến điểm xếp hạng?</label>
                 <select name="oprs_weight" class="form-control">
-                    <option value="0" {{ (float)$oprsWeight === 0.0 ? 'selected' : '' }}>Không ảnh hưởng (0%)</option>
-                    <option value="0.25" {{ (float)$oprsWeight === 0.25 ? 'selected' : '' }}>Thấp (25%)</option>
-                    <option value="0.50" {{ (float)$oprsWeight === 0.50 ? 'selected' : '' }}>Vừa (50%)</option>
-                    <option value="0.75" {{ (float)$oprsWeight === 0.75 ? 'selected' : '' }}>Cao (75%)</option>
-                    <option value="1.00" {{ (float)$oprsWeight === 1.0 ? 'selected' : '' }}>Tối đa (100%)</option>
+                    <option value="0" {{ (float)$oprsWeight === 0.0 ? 'selected' : '' }}>Không - chỉ chơi vui, không tính điểm</option>
+                    <option value="0.25" {{ (float)$oprsWeight === 0.25 ? 'selected' : '' }}>Ít - thắng/thua thay đổi điểm rất nhẹ</option>
+                    <option value="0.50" {{ (float)$oprsWeight === 0.50 ? 'selected' : '' }}>Vừa phải - thay đổi điểm ở mức trung bình</option>
+                    <option value="0.75" {{ (float)$oprsWeight === 0.75 ? 'selected' : '' }}>Nhiều - thay đổi điểm đáng kể</option>
+                    <option value="1.00" {{ (float)$oprsWeight === 1.0 ? 'selected' : '' }}>Như giải đấu - tính điểm đầy đủ</option>
                 </select>
-                <small style="color: #6b7280;">Mức thay đổi điểm OPRS sau mỗi trận</small>
+                <small style="color: #6b7280;">Chọn "Không" nếu buổi chơi chỉ mang tính giao lưu, chọn mức cao hơn nếu muốn kết quả ảnh hưởng đến bảng xếp hạng CLB</small>
             </div>
         </div>
     </div>
