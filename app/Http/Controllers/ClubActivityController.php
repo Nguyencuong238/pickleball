@@ -55,7 +55,7 @@ class ClubActivityController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'type' => 'required|in:one_off,recurring,competition',
+            'type' => 'required|in:one_off,recurring,competition,open_play',
             'activity_date' => 'required|date_format:Y-m-d\TH:i',
             'end_time' => 'nullable|date_format:H:i,H:i:s',
             'location' => 'nullable|string|max:255',
@@ -69,11 +69,21 @@ class ClubActivityController extends Controller
             'competition_config.format' => 'nullable|in:round_robin,pool_play,single_elimination',
             'competition_config.points_for_win' => 'nullable|integer|min:0',
             'competition_config.points_for_loss' => 'nullable|integer|min:0',
+            // Open play fields
+            'courts_count' => 'required_if:type,open_play|nullable|integer|min:1|max:20',
+            'avg_match_duration' => 'nullable|integer|min:5|max:60',
+            'rotation_mode' => 'nullable|in:round_robin,oprs_based,random',
+            'oprs_weight' => 'nullable|numeric|min:0|max:1',
         ]);
 
         $validated['created_by'] = Auth::id();
 
         $activity = $club->activities()->create($validated);
+
+        // Auto-generate QR code for open_play activities
+        if ($activity->isOpenPlay()) {
+            $activity->generateQrCode();
+        }
 
         // Auto-create linked post in club feed
         ClubPost::create([

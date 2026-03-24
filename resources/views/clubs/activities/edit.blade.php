@@ -23,7 +23,7 @@
 
         {{-- Show type as read-only badge (type cannot change after creation) --}}
         @php
-            $typeLabels = ['one_off' => 'Buổi chơi', 'recurring' => 'Lịch cố định', 'competition' => 'Giải đấu'];
+            $typeLabels = ['one_off' => 'Buổi chơi', 'recurring' => 'Lịch cố định', 'competition' => 'Giải đấu', 'open_play' => 'Chơi mở'];
         @endphp
         <span class="type-badge-static type-{{ $activity->type }}">
             {{ $typeLabels[$activity->type] ?? $activity->type }}

@@ -77,6 +77,7 @@
             @include('clubs.activities.partials._skill-level-fields', ['activity' => (object)['min_skill_level' => null, 'max_skill_level' => null]])
             @include('clubs.activities.partials._recurring-fields', ['activity' => (object)['recurrence_day' => null, 'auto_approve' => false]])
             @include('clubs.activities.partials._competition-fields', ['activity' => (object)['competition_config' => null]])
+            @include('clubs.activities.partials._open-play-fields', ['activity' => (object)['courts_count' => 3, 'rotation_mode' => 'oprs_based', 'oprs_weight' => 0.50, 'avg_match_duration' => 15]])
 
             <div class="btn-group">
                 <button type="submit" class="btn-submit">✅ Tạo Hoạt Động</button>
@@ -92,6 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var typeInput = document.getElementById('type-input');
     var recurringFields = document.getElementById('recurring-fields');
     var competitionFields = document.getElementById('competition-fields');
+    var openPlayFields = document.getElementById('open-play-fields');
 
     function updateTypeDisplay(type) {
         typeCards.forEach(function(c) {
@@ -100,6 +102,7 @@ document.addEventListener('DOMContentLoaded', function() {
         typeInput.value = type;
         recurringFields.style.display = type === 'recurring' ? 'block' : 'none';
         competitionFields.style.display = type === 'competition' ? 'block' : 'none';
+        if (openPlayFields) openPlayFields.style.display = type === 'open_play' ? 'block' : 'none';
     }
 
     typeCards.forEach(function(card) {

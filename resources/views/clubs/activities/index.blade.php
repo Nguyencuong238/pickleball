@@ -19,7 +19,7 @@
 
     @if($activities->count() > 0)
         @php
-            $typeLabels = ['one_off' => 'Buổi chơi', 'recurring' => 'Lịch cố định', 'competition' => 'Giải đấu'];
+            $typeLabels = ['one_off' => 'Buổi chơi', 'recurring' => 'Lịch cố định', 'competition' => 'Giải đấu', 'open_play' => 'Chơi mở'];
             $statusLabels = ['upcoming' => 'Sắp tới', 'completed' => 'Đã hoàn thành', 'cancelled' => 'Đã hủy'];
         @endphp
 

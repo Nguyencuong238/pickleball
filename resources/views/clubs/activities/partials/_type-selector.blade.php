@@ -22,6 +22,11 @@
             <div class="type-label">Giải đấu</div>
             <div class="type-desc">Thi đấu có xếp hạng</div>
         </div> --}}
+        <div class="type-card {{ $selectedType === 'open_play' ? 'active' : '' }}" data-type="open_play">
+            <div class="type-icon">🎯</div>
+            <div class="type-label">Chơi mở</div>
+            <div class="type-desc">Check-in QR, ghép trận tự động</div>
+        </div>
     </div>
 </div>
 
