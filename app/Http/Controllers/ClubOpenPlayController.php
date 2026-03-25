@@ -148,11 +148,12 @@ class ClubOpenPlayController extends Controller
             'set_scores.*.team2' => "required|integer|min:0|max:{$maxPoints}",
         ]);
 
-        // Validate submitter is a player
+        // Validate submitter is a player or club admin
         $userId = auth()->id() ?? session('checkin_user_id');
-        $playerIds = [$match->player1_id, $match->player2_id, $match->player3_id, $match->player4_id];
-        if (!in_array($userId, $playerIds)) {
-            return response()->json(['success' => false, 'message' => 'Bạn không phải người chơi trong trận này.'], 403);
+        $isPlayer = in_array($userId, [$match->player1_id, $match->player2_id, $match->player3_id, $match->player4_id]);
+        $isAdmin = auth()->check() && $club->isManagement(auth()->user());
+        if (!$isPlayer && !$isAdmin) {
+            return response()->json(['success' => false, 'message' => 'Bạn không có quyền cập nhật điểm trận này.'], 403);
         }
 
         if ($match->result_confirmed) {
