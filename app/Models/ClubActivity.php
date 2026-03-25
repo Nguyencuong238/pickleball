@@ -37,6 +37,8 @@ class ClubActivity extends Model
         'gender_preference_enabled',
         'oprs_weight',
         'allow_guests',
+        'best_of',
+        'points_per_set',
         'started_at',
         'ended_at',
     ];
@@ -52,6 +54,8 @@ class ClubActivity extends Model
         'gender_preference_enabled' => 'boolean',
         'oprs_weight' => 'decimal:2',
         'allow_guests' => 'boolean',
+        'best_of' => 'integer',
+        'points_per_set' => 'integer',
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
     ];

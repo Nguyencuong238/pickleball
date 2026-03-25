@@ -92,6 +92,10 @@
                 @include('clubs.activities.partials._competition-fields', ['activity' => $activity])
             @endif
 
+            @if($activity->type === 'open_play')
+                @include('clubs.activities.partials._open-play-fields', ['activity' => $activity])
+            @endif
+
             <div class="btn-group">
                 <button type="submit" class="btn-submit">✅ Cập Nhật</button>
                 <a href="{{ route('clubs.activities.show', [$club, $activity]) }}" class="btn-cancel">← Quay Lại</a>
@@ -119,6 +123,13 @@ document.addEventListener('DOMContentLoaded', function() {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('competition-fields').style.display = 'block';
+});
+</script>
+@endif
+@if($activity->type === 'open_play')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('open-play-fields').style.display = 'block';
 });
 </script>
 @endif

@@ -139,10 +139,13 @@ class ClubOpenPlayController extends Controller
         $this->validateActivity($club, $activity);
         $this->validateMatchBelongsToActivity($match, $activity);
 
+        $bestOf = $activity->best_of ?? 1;
+        $maxPoints = $activity->points_per_set ?? 21;
+
         $validated = $request->validate([
-            'set_scores' => 'required|array|min:2|max:3',
-            'set_scores.*.team1' => 'required|integer|min:0|max:21',
-            'set_scores.*.team2' => 'required|integer|min:0|max:21',
+            'set_scores' => "required|array|min:1|max:{$bestOf}",
+            'set_scores.*.team1' => "required|integer|min:0|max:{$maxPoints}",
+            'set_scores.*.team2' => "required|integer|min:0|max:{$maxPoints}",
         ]);
 
         // Validate submitter is a player

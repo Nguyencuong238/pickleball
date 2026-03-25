@@ -74,6 +74,8 @@ class ClubActivityController extends Controller
             'avg_match_duration' => 'nullable|integer|min:5|max:60',
             'rotation_mode' => 'nullable|in:round_robin,oprs_based,random',
             'oprs_weight' => 'nullable|numeric|min:0|max:1',
+            'best_of' => 'nullable|integer|in:1,3',
+            'points_per_set' => 'nullable|integer|in:11,15,21',
         ]);
 
         $validated['created_by'] = Auth::id();
@@ -166,6 +168,8 @@ class ClubActivityController extends Controller
             'competition_config.format' => 'nullable|in:round_robin,pool_play,single_elimination',
             'competition_config.points_for_win' => 'nullable|integer|min:0',
             'competition_config.points_for_loss' => 'nullable|integer|min:0',
+            'best_of' => 'nullable|integer|in:1,3',
+            'points_per_set' => 'nullable|integer|in:11,15,21',
         ]);
 
         // Prevent type change after creation

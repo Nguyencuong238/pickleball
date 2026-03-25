@@ -13,6 +13,8 @@
      x-data="caScoreSubmit({
         submitUrl: '{{ route('club.activity.submit-score', [$club->slug, $activity->id, $match->id]) }}',
         queueUrl: '{{ route('club.activity.queue', [$club->slug, $activity->id]) }}',
+        bestOf: {{ $activity->best_of ?? 1 }},
+        pointsPerSet: {{ $activity->points_per_set ?? 21 }},
      })">
 
     {{-- Court hero --}}
@@ -47,19 +49,19 @@
     {{-- Set scores --}}
     <div class="ca-sets">
         <template x-for="(set, idx) in sets" :key="idx">
-            <div class="ca-set-row" x-show="idx < 2 || showSet3">
-                <div class="ca-set-label" x-text="'Set ' + (idx + 1)"></div>
+            <div class="ca-set-row" x-show="bestOf === 1 ? idx === 0 : (idx < 2 || showSet3)">
+                <div class="ca-set-label" x-text="bestOf === 1 ? '' : 'Set ' + (idx + 1)"></div>
                 <div class="ca-set-scores">
                     <div class="ca-stepper">
                         <button type="button" class="ca-stepper-btn" @click="decrement(idx, 'team1')" :disabled="set.team1 <= 0">-</button>
                         <span class="ca-score-display" x-text="set.team1"></span>
-                        <button type="button" class="ca-stepper-btn" @click="increment(idx, 'team1')" :disabled="set.team1 >= 21">+</button>
+                        <button type="button" class="ca-stepper-btn" @click="increment(idx, 'team1')" :disabled="set.team1 >= pointsPerSet">+</button>
                     </div>
                     <div class="ca-set-divider">:</div>
                     <div class="ca-stepper">
                         <button type="button" class="ca-stepper-btn" @click="decrement(idx, 'team2')" :disabled="set.team2 <= 0">-</button>
                         <span class="ca-score-display" x-text="set.team2"></span>
-                        <button type="button" class="ca-stepper-btn" @click="increment(idx, 'team2')" :disabled="set.team2 >= 21">+</button>
+                        <button type="button" class="ca-stepper-btn" @click="increment(idx, 'team2')" :disabled="set.team2 >= pointsPerSet">+</button>
                     </div>
                 </div>
             </div>

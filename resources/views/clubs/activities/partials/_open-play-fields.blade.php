@@ -4,6 +4,8 @@
     $rotation = old('rotation_mode', $activity->rotation_mode ?? 'oprs_based');
     $oprsWeight = old('oprs_weight', $activity->oprs_weight ?? 0.50);
     $avgDuration = old('avg_match_duration', $activity->avg_match_duration ?? 15);
+    $bestOf = (int) old('best_of', $activity->best_of ?? 1);
+    $pointsPerSet = (int) old('points_per_set', $activity->points_per_set ?? 21);
 @endphp
 
 <div id="open-play-fields" style="display: none;">
@@ -42,6 +44,25 @@
                     <option value="1.00" {{ (float)$oprsWeight === 1.0 ? 'selected' : '' }}>Như giải đấu - tính điểm đầy đủ</option>
                 </select>
                 <small style="color: #6b7280;">Chọn "Không" nếu buổi chơi chỉ mang tính giao lưu, chọn mức cao hơn nếu muốn kết quả ảnh hưởng đến bảng xếp hạng CLB</small>
+            </div>
+
+            <div class="form-group">
+                <label>Số set</label>
+                <select name="best_of" class="form-control">
+                    <option value="1" {{ $bestOf === 1 ? 'selected' : '' }}>1 set</option>
+                    <option value="3" {{ $bestOf === 3 ? 'selected' : '' }}>3 set (thắng 2)</option>
+                </select>
+                <small style="color: #6b7280;">Số set chơi trong mỗi trận</small>
+            </div>
+
+            <div class="form-group">
+                <label>Điểm tối đa mỗi set</label>
+                <select name="points_per_set" class="form-control">
+                    <option value="11" {{ $pointsPerSet === 11 ? 'selected' : '' }}>11 điểm</option>
+                    <option value="15" {{ $pointsPerSet === 15 ? 'selected' : '' }}>15 điểm</option>
+                    <option value="21" {{ $pointsPerSet === 21 ? 'selected' : '' }}>21 điểm</option>
+                </select>
+                <small style="color: #6b7280;">Điểm tối đa có thể đạt trong mỗi set</small>
             </div>
         </div>
     </div>
