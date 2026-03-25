@@ -109,6 +109,23 @@ body {
     color: #15803d;
 }
 
+.ca-btn-score-link {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 24px;
+    background: #15803d;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.ca-btn-score-link:hover {
+    background: #166534;
+}
+
 /* Section title */
 .ca-section-title {
     font-size: 14px;
@@ -251,4 +268,75 @@ body {
     color: #999;
     padding: 24px;
     font-size: 14px;
+}
+
+/* End match button */
+.ca-btn-end-match {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 12px 28px;
+    background: #dc2626;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.ca-btn-end-match:hover:not(:disabled) {
+    background: #b91c1c;
+}
+
+.ca-btn-end-match:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Pending confirmation hero */
+.ca-hero-pending {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.ca-hero-pending .ca-hero-label {
+    color: #92400e;
+}
+
+.ca-hero-pending .ca-hero-sub {
+    color: #a16207;
+}
+
+.ca-btn-confirm-link {
+    display: inline-block;
+    margin-top: 12px;
+    padding: 10px 24px;
+    background: #d97706;
+    color: #fff;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.ca-btn-confirm-link:hover {
+    background: #b45309;
+}
+
+/* Rejected hero */
+.ca-hero-rejected {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.ca-hero-rejected .ca-hero-label {
+    color: #991b1b;
+}
+
+.ca-hero-rejected .ca-hero-sub {
+    color: #dc2626;
 }

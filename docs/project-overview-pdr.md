@@ -1,8 +1,8 @@
 # Project Overview & Product Development Requirements (PDR)
 
 **Project Name**: Pickleball Platform
-**Version**: 1.9.0
-**Last Updated**: 2026-03-22
+**Version**: 1.12.0
+**Last Updated**: 2026-03-24
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -208,7 +208,16 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **UI**: Modal-based match generation, custom match creation, standings display
 - **API**: 7 AJAX endpoints for matches/rounds/standings operations
 
-### 13. League Management (MLP Format) [NEW - Mar 2026]
+### 13. Club Check-in & Leaderboard [NEW - Mar 2026]
+- Real-time check-in tracking with timestamp and status
+- Per-activity leaderboard with player rankings
+- Stats calculation: wins, losses, points_for, points_against
+- Leaderboard filtering and sorting options
+- Dashboard tabs: Check-in tab shows check-in list with status, Leaderboard tab shows standings
+- Admin controls for check-in management
+- Integration with club activity lifecycle
+
+### 14. League Management (MLP Format) [NEW - Mar 2026]
 - MLP league format with 6 sub-game doubles pairing
 - League creation and status tracking
 - Team management and roster assignment
@@ -219,7 +228,7 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Round editing and modification capabilities
 - League association with clubs
 
-### 14. League Registration System [NEW - Mar 2026]
+### 15. League Registration System [NEW - Mar 2026]
 - User self-registration with phone number normalization
 - Payment proof upload for verification
 - Admin approval workflow for league registration
@@ -229,12 +238,12 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Race-condition safe with DB::transaction + lockForUpdate
 - Email notification on registration status changes
 
-### 15. News & CMS
+### 16. News & CMS
 - News articles with categories
 - Featured content
 - Static pages (About, Contact, etc.)
 
-### 16. User Authentication
+### 17. User Authentication
 - Email/password registration
 - OAuth (Google, Facebook)
 - Role-based access control

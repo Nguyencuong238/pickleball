@@ -362,6 +362,8 @@ Route::prefix('clubs/{club}/activities/{activity}')->group(function () {
     Route::post('/end-match/{match}', [ClubOpenPlayController::class, 'endMatch'])->name('club.activity.end-match');
     Route::get('/matches/{match}/score', [ClubOpenPlayController::class, 'scoreForm'])->name('club.activity.score-form');
     Route::post('/matches/{match}/submit-score', [ClubOpenPlayController::class, 'submitScore'])->name('club.activity.submit-score');
+    Route::post('/player-end-match/{match}', [ClubOpenPlayController::class, 'playerEndMatch'])->name('club.activity.player-end-match');
+    Route::post('/matches/{match}/confirm-score', [ClubOpenPlayController::class, 'confirmScore'])->name('club.activity.confirm-score');
 });
 
 // Club Admin Dashboard & Members (auth required)

@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-03-22
+**Last Updated**: 2026-03-25
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -464,6 +464,31 @@ RSVP phase complete → Management assigns RSVPd players to teams (AJAX) → Cli
 ### Club Activity Casual Matches Flow (Matches Tab)
 Activity loaded → View existing matches tab (AJAX GET) → No matches yet? → Click "Tao tran dau" → Select format (singles_rr|rotating_doubles|fixed_doubles) → Select court count → ClubMatchService generates match rounds → View rounds matrix with player assignments → Enter scores per match (AJAX PUT) → Service recalculates standings → View real-time standings with win/loss/points
 
+### Club Activity Match End + Score Flow (Mar 2026)
+1. **Match End (Player)**:
+   - Player finishes playing → POST `/clubs/{club}/activities/{activity}/player-end-match/{match}`
+   - `playerEndMatch()` marks match with `ended_at` timestamp
+   - Match status: `in_progress` → `pending_score` for player confirmation
+
+2. **Score Submission**:
+   - **Admin Path**: Admin submits scores → `ClubScoreService.adminSubmitScore()` → status: `admin_confirmed` (immediate completion)
+   - **Player Path**: Player submits scores → `ClubScoreService.playerSubmitScore()` → status: `pending_confirmation` (awaits confirmation)
+
+3. **Score Confirmation**:
+   - Opposing team players see pending score in `getMyStatus()`
+   - POST `/clubs/{club}/activities/{activity}/matches/{match}/confirm-score` with decision: confirm/reject
+   - `ClubScoreService.confirmScore()` → status: `confirmed`/`admin_confirmed` → match complete
+   - If rejected: `rejectScore()` → status: `rejected`, scores cleared for resubmission
+
+4. **Match Completion**:
+   - Trigger ELO/OPRS processing (if `oprs_weight > 0`)
+   - Update member stats via `ClubMemberStatsService`
+   - Update standings and leaderboard
+
+5. **Score Settings** (per activity):
+   - `best_of`: Match format (1, 3, or 5 sets)
+   - `points_per_set`: Points to win a set (default: 21)
+
 ### Casual Match Generation Algorithms
 1. **Singles RR (Round-Robin)**: Polygon rotation on singles players, handles odd byes
 2. **Rotating Doubles**: Dynamic partner pairing each round, avoids repeated partnerships (3+ rounds)
@@ -564,6 +589,8 @@ Admin: Admin login → Check role 'admin' → Create admin session
 │   ├── {club}/show             # Club details with join_request_status
 │   ├── activities              # Club activities CRUD
 │   ├── competitions            # Club competitions CRUD
+│   ├── {club}/activities/{activity}/player-end-match/{match} # Player end match
+│   ├── {club}/activities/{activity}/confirm-score/{match}    # Confirm match score
 │   └── posts                   # Club posts CRUD
 └── leagues/
     ├── {league}                # League detail with MLP format
@@ -633,49 +660,15 @@ Admin: Admin login → Check role 'admin' → Create admin session
 
 ## Scalability Considerations
 
-### Horizontal Scaling
-
-- Stateless application design
-- Session storage in database/Redis
-- Shared file storage (S3 compatible)
-- Load balancer ready
-
-### Vertical Scaling
-
-- Query optimization with indexes
-- Eager loading relationships
+- Stateless application design with session storage in database/Redis
+- Query optimization with indexes and eager loading
 - Pagination for large datasets
-- Media processing optimization
-
-### Performance Optimization
-
-| Area | Strategy |
-|------|----------|
-| Database | Indexing, query optimization |
-| Assets | Vite bundling, minification |
-| Images | Spatie conversions, WebP |
-| Caching | Query caching, page caching |
+- Media processing optimization (Spatie conversions, WebP)
 
 ## Monitoring & Logging
 
-**Log Channels:** Daily logs (config/logging.php)
 **Key Metrics:** Request latency, error rates, query time, memory usage, booking success rate
 
-## Future Architecture Considerations
-
-### Planned Enhancements
-
-1. **Queue System**: Background job processing
-2. **Real-time**: WebSocket for live updates
-3. **API Gateway**: Public API for third parties
-4. **Microservices**: Separate booking/tournament services
-
-### Technology Upgrades
-
-1. **Redis**: For caching and sessions
-2. **Elasticsearch**: For advanced search
-3. **CDN**: For media delivery
-4. **Message Queue**: For async processing
 
 ## Related Documentation
 
@@ -791,5 +784,3 @@ See `code-standards.md`. Base ELO=800, Max=1400, anti-fraud, gender-aware, 30-90
 ### Tournament Rewrite Architecture (Mar 2026)
 **Pattern:** Controller → Service → Model | **Frontend:** Alpine.js mixins | **Route:** tournament-manage | **Assets:** 8 JS + 11 CSS files
 
-## Unresolved Questions
-1. Queue Driver (Redis vs SQS)? | 2. CDN (Cloudflare vs CloudFront)? | 3. Monitoring (New Relic vs Sentry)?

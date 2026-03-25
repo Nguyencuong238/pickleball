@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-03-22
-**Current Version:** 1.11.0
+**Last Updated:** 2026-03-25
+**Current Version:** 1.12.0 (Score Flow Complete)
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -206,6 +206,29 @@ Referee management system for tournament match officiating.
   - [x] First bracket round allows all category athletes for wildcard flexibility
   - [x] group_standings.is_advanced instead of tournament_athletes for eligible athletes
   - [x] Tournament form: renamed rules to competition_rules, added event_timeline field
+- [x] **Club Check-in & Leaderboard (Mar 23, 2026)** NEW
+  - [x] Real-time participant check-in with timestamps
+  - [x] Check-in status management (checked-in, pending, absent)
+  - [x] Per-activity leaderboard with rankings
+  - [x] Player statistics (wins, losses, points_for, points_against)
+  - [x] Leaderboard filtering and sorting
+  - [x] New tabs in activity detail: Check-in and Leaderboard
+  - [x] Admin check-in management controls
+  - [x] ClubCheckinController for check-in operations
+  - [x] ClubLeaderboardController for leaderboard display
+  - [x] Integration with ClubActivityMatchStanding model
+- [x] **Additional Bracket & Search Improvements (Mar 22-24, 2026)** NEW
+  - [x] Bracket match editor with validation improvements
+  - [x] Enhanced user search by email or phone in athlete management
+  - [x] Competition rules and event timeline field enhancements
+- [x] **Club Activity Match End & Score Flow (Mar 25, 2026)** NEW
+  - [x] Player-initiated match end with `playerEndMatch()` endpoint
+  - [x] Admin vs player score submission branching via `ClubScoreService`
+  - [x] Score confirmation workflow with opposing team validation
+  - [x] Score rejection with resubmission support
+  - [x] Configurable match settings (best_of, points_per_set)
+  - [x] Score status tracking (pending_confirmation, confirmed, rejected, admin_confirmed)
+  - [x] Integration with ELO/OPRS processing and member stats updates
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -457,6 +480,8 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 ---
 
 ## Change Log (Compact)
+
+**v1.12.0 (2026-03-25)** - Club Activity Match End & Score Flow: playerEndMatch endpoint, admin/player score submission branching, score confirmation/rejection workflow, best_of and points_per_set config, score_status and score_confirmed_by tracking, ClubScoreService
 
 **v1.11.1 (2026-03-22)** - Bracket Match Editor: athlete reassignment with cascade warning, bracket slot swap (null/bye support), match date field, cumulative game scores, rankings +/- column, user search by email/phone, LIVE status 2-hour window, first round wildcard flexibility, competition_rules rename, event_timeline field
 

@@ -12,9 +12,11 @@
 <div class="ca-queue-page"
      x-data="caQueue({
         statusUrl: '{{ route('club.activity.queue-status', [$club->slug, $activity->id]) }}',
+        playerEndMatchUrlBase: '{{ url('clubs/' . $club->slug . '/activities/' . $activity->id . '/player-end-match') }}',
+        scoreUrlBase: '{{ url('clubs/' . $club->slug . '/activities/' . $activity->id . '/matches') }}',
         courtsCount: {{ $activity->courts_count }},
         avgMatchDuration: {{ $activity->avg_match_duration ?? 15 }},
-        activityTitle: '{{ $activity->title }}',
+        activityTitle: '{{ addslashes($activity->title) }}',
      })">
 
     {{-- Fixed top bar --}}
@@ -39,13 +41,40 @@
                 </p>
             </div>
         </template>
-        <template x-if="myStatus && myStatus.current_status === 'playing'">
+        <template x-if="myStatus && myStatus.current_status === 'playing' && !myStatus.pending_score_match_id && !myStatus.rejected_match_id">
             <div class="ca-hero-content ca-hero-playing">
                 <p class="ca-hero-label">Đang thi đấu</p>
                 <p class="ca-hero-court">Sân đang chơi</p>
                 <template x-if="myStatus.current_match_id">
-                    <a class="ca-btn-score-link" :href="'/clubs/{{ $club->slug }}/activities/{{ $activity->id }}/matches/' + myStatus.current_match_id + '/score'">Nhập điểm</a>
+                    <button class="ca-btn-end-match" @click="playerEndMatch()" :disabled="endingMatch">
+                        <span x-show="!endingMatch">Kết thúc & Nhập điểm</span>
+                        <span x-show="endingMatch">Đang xử lý...</span>
+                    </button>
                 </template>
+            </div>
+        </template>
+        <template x-if="myStatus && myStatus.pending_score_match_id">
+            <div class="ca-hero-content ca-hero-pending">
+                <template x-if="myStatus.can_confirm_score">
+                    <div>
+                        <p class="ca-hero-label">Chờ xác nhận điểm</p>
+                        <p class="ca-hero-sub">Đội bạn cần xác nhận điểm số</p>
+                        <a class="ca-btn-confirm-link" :href="config.scoreUrlBase + '/' + myStatus.pending_score_match_id + '/score'">Xác nhận điểm</a>
+                    </div>
+                </template>
+                <template x-if="!myStatus.can_confirm_score">
+                    <div>
+                        <p class="ca-hero-label">Chờ xác nhận điểm</p>
+                        <p class="ca-hero-sub">Đang chờ đội còn lại xác nhận...</p>
+                    </div>
+                </template>
+            </div>
+        </template>
+        <template x-if="myStatus && myStatus.rejected_match_id && !myStatus.pending_score_match_id">
+            <div class="ca-hero-content ca-hero-rejected">
+                <p class="ca-hero-label">Điểm bị từ chối</p>
+                <p class="ca-hero-sub">Điểm bạn nhập đã bị từ chối. Vui lòng nhập lại.</p>
+                <a class="ca-btn-score-link" :href="config.scoreUrlBase + '/' + myStatus.rejected_match_id + '/score'">Nhập lại điểm</a>
             </div>
         </template>
     </div>

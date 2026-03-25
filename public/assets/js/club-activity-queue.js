@@ -6,6 +6,7 @@ function caQueue(config) {
         myStatus: null,
         lastUpdated: null,
         isStale: false,
+        endingMatch: false,
         _pollTimer: null,
 
         init() {
@@ -39,6 +40,28 @@ function caQueue(config) {
             if (!this.myStatus || !this.myStatus.queue_position) return null;
             var avg = config.avgMatchDuration || 15;
             return Math.ceil(this.myStatus.queue_position / (config.courtsCount * 4)) * avg;
+        },
+
+        async playerEndMatch() {
+            if (!this.myStatus || !this.myStatus.current_match_id) return;
+            this.endingMatch = true;
+            try {
+                var url = config.playerEndMatchUrlBase + '/' + this.myStatus.current_match_id;
+                var res = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+                var data = await res.json();
+                if (data.success && data.score_url) {
+                    window.location.href = data.score_url;
+                    return;
+                }
+            } catch (e) {}
+            this.endingMatch = false;
         }
     };
 }

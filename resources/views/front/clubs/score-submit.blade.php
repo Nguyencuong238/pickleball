@@ -12,9 +12,14 @@
 <div class="ca-score-page"
      x-data="caScoreSubmit({
         submitUrl: '{{ route('club.activity.submit-score', [$club->slug, $activity->id, $match->id]) }}',
+        confirmUrl: '{{ route('club.activity.confirm-score', [$club->slug, $activity->id, $match->id]) }}',
         queueUrl: '{{ route('club.activity.queue', [$club->slug, $activity->id]) }}',
+        dashboardUrl: '{{ ($isAdmin ?? false) ? route('club.activity.dashboard', [$club->slug, $activity->id]) : '' }}',
         bestOf: {{ $activity->best_of ?? 1 }},
         pointsPerSet: {{ $activity->points_per_set ?? 21 }},
+        mode: '{{ $mode ?? 'submit' }}',
+        isAdmin: {{ ($isAdmin ?? false) ? 'true' : 'false' }},
+        existingScores: {{ $match->set_scores ? json_encode($match->set_scores) : 'null' }},
      })">
 
     {{-- Court hero --}}
@@ -53,15 +58,15 @@
                 <div class="ca-set-label" x-text="bestOf === 1 ? '' : 'Set ' + (idx + 1)"></div>
                 <div class="ca-set-scores">
                     <div class="ca-stepper">
-                        <button type="button" class="ca-stepper-btn" @click="decrement(idx, 'team1')" :disabled="set.team1 <= 0">-</button>
+                        <button type="button" class="ca-stepper-btn" @click="decrement(idx, 'team1')" :disabled="set.team1 <= 0 || isConfirmMode">-</button>
                         <span class="ca-score-display" x-text="set.team1"></span>
-                        <button type="button" class="ca-stepper-btn" @click="increment(idx, 'team1')" :disabled="set.team1 >= pointsPerSet">+</button>
+                        <button type="button" class="ca-stepper-btn" @click="increment(idx, 'team1')" :disabled="set.team1 >= pointsPerSet || isConfirmMode">+</button>
                     </div>
                     <div class="ca-set-divider">:</div>
                     <div class="ca-stepper">
-                        <button type="button" class="ca-stepper-btn" @click="decrement(idx, 'team2')" :disabled="set.team2 <= 0">-</button>
+                        <button type="button" class="ca-stepper-btn" @click="decrement(idx, 'team2')" :disabled="set.team2 <= 0 || isConfirmMode">-</button>
                         <span class="ca-score-display" x-text="set.team2"></span>
-                        <button type="button" class="ca-stepper-btn" @click="increment(idx, 'team2')" :disabled="set.team2 >= pointsPerSet">+</button>
+                        <button type="button" class="ca-stepper-btn" @click="increment(idx, 'team2')" :disabled="set.team2 >= pointsPerSet || isConfirmMode">+</button>
                     </div>
                 </div>
             </div>
@@ -75,16 +80,30 @@
         </p>
     </div>
 
+    {{-- Confirm mode actions --}}
+    <template x-if="isConfirmMode">
+        <div class="ca-confirm-actions">
+            <p class="ca-confirm-label">Đội bạn đã nhập điểm. Vui lòng xác nhận.</p>
+            <button class="ca-btn-primary ca-btn-confirm" @click="confirmScore('confirm')" :disabled="loading">
+                <span x-show="!loading">Xác nhận điểm</span>
+                <span x-show="loading">Đang gửi...</span>
+            </button>
+            <button class="ca-btn-reject" @click="confirmScore('reject')" :disabled="loading">Từ chối</button>
+        </div>
+    </template>
+
     {{-- Error --}}
     <p class="ca-error-msg" x-show="error" x-text="error"></p>
 
-    {{-- CTA --}}
-    <div class="ca-cta-fixed">
-        <button class="ca-btn-primary ca-btn-confirm" @click="submit()" :disabled="loading || !isValid">
-            <span x-show="!loading">Xác nhận điểm</span>
-            <span x-show="loading">Đang gửi...</span>
-        </button>
-    </div>
+    {{-- CTA (submit mode only) --}}
+    <template x-if="!isConfirmMode">
+        <div class="ca-cta-fixed">
+            <button class="ca-btn-primary ca-btn-confirm" @click="submit()" :disabled="loading || !isValid">
+                <span x-show="!loading">Xác nhận điểm</span>
+                <span x-show="loading">Đang gửi...</span>
+            </button>
+        </div>
+    </template>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3/dist/cdn.min.js" defer></script>

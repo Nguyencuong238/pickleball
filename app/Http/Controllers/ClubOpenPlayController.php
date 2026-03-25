@@ -6,13 +6,9 @@ use App\Models\Club;
 use App\Models\ClubActivity;
 use App\Models\ClubActivityMatch;
 use App\Services\ClubMatchmakingService;
-use App\Services\ClubMatchService;
-use App\Services\ClubMemberStatsService;
-use App\Services\EloService;
-use App\Services\OprsService;
+use App\Services\ClubScoreService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ClubOpenPlayController extends Controller
@@ -20,17 +16,12 @@ class ClubOpenPlayController extends Controller
     public function queue(Club $club, ClubActivity $activity): View
     {
         $this->validateActivity($club, $activity);
-
-        return view('front.clubs.queue', [
-            'club' => $club,
-            'activity' => $activity,
-        ]);
+        return view('front.clubs.queue', compact('club', 'activity'));
     }
 
     public function queueStatus(Club $club, ClubActivity $activity): JsonResponse
     {
         $this->validateActivity($club, $activity);
-
         $userId = auth()->id() ?? session('checkin_user_id');
 
         return response()->json([
@@ -57,21 +48,12 @@ class ClubOpenPlayController extends Controller
     {
         $this->authorize('manageActivity', $club);
         $this->validateActivity($club, $activity);
-
         $matches = app(ClubMatchmakingService::class)->generateMatches($activity);
 
         if ($matches->isEmpty()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Không đủ người chơi hoặc sân trống.',
-            ], 422);
+            return response()->json(['success' => false, 'message' => 'Không đủ người chơi hoặc sân trống.'], 422);
         }
-
-        return response()->json([
-            'success' => true,
-            'matches_created' => $matches->count(),
-            'message' => "Đã tạo {$matches->count()} trận đấu.",
-        ]);
+        return response()->json(['success' => true, 'matches_created' => $matches->count(), 'message' => "Đã tạo {$matches->count()} trận đấu."]);
     }
 
     public function startMatch(Club $club, ClubActivity $activity, ClubActivityMatch $match): JsonResponse
@@ -79,41 +61,61 @@ class ClubOpenPlayController extends Controller
         $this->authorize('manageActivity', $club);
         $this->validateActivity($club, $activity);
         $this->validateMatchBelongsToActivity($match, $activity);
-
         $match->update(['started_at' => now(), 'status' => 'in_progress']);
-
         return response()->json(['success' => true]);
     }
 
-    public function endMatch(Club $club, ClubActivity $activity, ClubActivityMatch $match): JsonResponse
+    public function endMatch(Club $club, ClubActivity $activity, ClubActivityMatch $match, Request $request): JsonResponse
     {
         $this->authorize('manageActivity', $club);
         $this->validateActivity($club, $activity);
         $this->validateMatchBelongsToActivity($match, $activity);
 
-        app(ClubMatchmakingService::class)->completeMatch($match);
+        if ($request->boolean('skip_score')) {
+            app(ClubMatchmakingService::class)->completeMatch($match);
+            return response()->json(['success' => true, 'message' => 'Trận đấu đã kết thúc (không có điểm).']);
+        }
 
-        return response()->json(['success' => true, 'message' => 'Trận đấu đã kết thúc.']);
+        return response()->json([
+            'success' => true,
+            'redirect_to_score' => true,
+            'score_url' => route('club.activity.score-form', [$club->slug, $activity->id, $match->id]),
+        ]);
+    }
+
+    public function playerEndMatch(Club $club, ClubActivity $activity, ClubActivityMatch $match): JsonResponse
+    {
+        $this->validateActivity($club, $activity);
+        $this->validateMatchBelongsToActivity($match, $activity);
+
+        $userId = auth()->id() ?? session('checkin_user_id');
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Vui lòng đăng nhập.'], 401);
+        }
+        $isPlayer = in_array($userId, [$match->player1_id, $match->player2_id, $match->player3_id, $match->player4_id]);
+
+        if (!$isPlayer) {
+            return response()->json(['success' => false, 'message' => 'Bạn không ở trong trận này.'], 403);
+        }
+        if ($match->ended_at) {
+            return response()->json(['success' => false, 'message' => 'Trận đấu đã kết thúc.'], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'score_url' => route('club.activity.score-form', [$club->slug, $activity->id, $match->id]),
+        ]);
     }
 
     public function myMatch(Club $club, ClubActivity $activity): JsonResponse
     {
         $this->validateActivity($club, $activity);
-
         $userId = auth()->id() ?? session('checkin_user_id');
-        if (!$userId) {
-            return response()->json(['match' => null]);
-        }
+        if (!$userId) return response()->json(['match' => null]);
 
         $match = $activity->matches()
-            ->whereNotNull('started_at')
-            ->whereNull('ended_at')
-            ->where(function ($q) use ($userId) {
-                $q->where('player1_id', $userId)
-                  ->orWhere('player2_id', $userId)
-                  ->orWhere('player3_id', $userId)
-                  ->orWhere('player4_id', $userId);
-            })
+            ->whereNotNull('started_at')->whereNull('ended_at')
+            ->where(fn($q) => $q->where('player1_id', $userId)->orWhere('player2_id', $userId)->orWhere('player3_id', $userId)->orWhere('player4_id', $userId))
             ->with(['player1:id,name', 'player2:id,name', 'player3:id,name', 'player4:id,name'])
             ->first();
 
@@ -124,13 +126,18 @@ class ClubOpenPlayController extends Controller
     {
         $this->validateActivity($club, $activity);
         $this->validateMatchBelongsToActivity($match, $activity);
-
         $match->load(['player1:id,name', 'player2:id,name', 'player3:id,name', 'player4:id,name']);
 
+        $userId = auth()->id() ?? session('checkin_user_id');
+        $isAdmin = auth()->check() && $club->isManagement(auth()->user());
+        $isPending = $match->score_status === 'pending_confirmation';
+        $canConfirm = $isPending && (
+            $isAdmin || in_array($userId, $match->getOpposingTeamPlayerIds($match->result_submitted_by ?? 0))
+        );
+
         return view('front.clubs.score-submit', [
-            'club' => $club,
-            'activity' => $activity,
-            'match' => $match,
+            'club' => $club, 'activity' => $activity, 'match' => $match,
+            'isAdmin' => $isAdmin, 'mode' => $canConfirm ? 'confirm' : 'submit',
         ]);
     }
 
@@ -139,96 +146,83 @@ class ClubOpenPlayController extends Controller
         $this->validateActivity($club, $activity);
         $this->validateMatchBelongsToActivity($match, $activity);
 
-        $bestOf = $activity->best_of ?? 1;
-        $maxPoints = $activity->points_per_set ?? 21;
-
         $validated = $request->validate([
-            'set_scores' => "required|array|min:1|max:{$bestOf}",
-            'set_scores.*.team1' => "required|integer|min:0|max:{$maxPoints}",
-            'set_scores.*.team2' => "required|integer|min:0|max:{$maxPoints}",
+            'set_scores' => 'required|array|min:1|max:' . ($activity->best_of ?? 1),
+            'set_scores.*.team1' => 'required|integer|min:0|max:' . ($activity->points_per_set ?? 21),
+            'set_scores.*.team2' => 'required|integer|min:0|max:' . ($activity->points_per_set ?? 21),
         ]);
 
-        // Validate submitter is a player or club admin
         $userId = auth()->id() ?? session('checkin_user_id');
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Vui lòng đăng nhập.'], 401);
+        }
         $isPlayer = in_array($userId, [$match->player1_id, $match->player2_id, $match->player3_id, $match->player4_id]);
         $isAdmin = auth()->check() && $club->isManagement(auth()->user());
+
         if (!$isPlayer && !$isAdmin) {
             return response()->json(['success' => false, 'message' => 'Bạn không có quyền cập nhật điểm trận này.'], 403);
         }
-
         if ($match->result_confirmed) {
             return response()->json(['success' => false, 'message' => 'Điểm đã được nhập trước đó.'], 422);
         }
-
-        // Validate each set has a winner (no ties)
+        if ($match->status === 'completed') {
+            return response()->json(['success' => false, 'message' => 'Trận đấu đã kết thúc bởi admin.'], 422);
+        }
+        if ($match->score_status === 'pending_confirmation') {
+            return response()->json(['success' => false, 'message' => 'Điểm đã được nhập, đang chờ xác nhận.', 'redirect' => route('club.activity.score-form', [$club->slug, $activity->id, $match->id])], 422);
+        }
         foreach ($validated['set_scores'] as $set) {
             if ($set['team1'] === $set['team2']) {
                 return response()->json(['success' => false, 'message' => 'Mỗi set phải có đội thắng (không được hòa).'], 422);
             }
         }
 
-        DB::transaction(function () use ($match, $validated, $userId) {
-            $setScores = $validated['set_scores'];
-            $winner = $this->determineWinner($setScores);
+        $scoreService = app(ClubScoreService::class);
+        if ($isAdmin) {
+            $scoreService->adminSubmitScore($match, $validated['set_scores'], $userId);
+            return response()->json(['success' => true, 'message' => 'Điểm đã được cập nhật.']);
+        }
 
-            $match->update([
-                'set_scores' => $setScores,
-                'result_submitted_by' => $userId,
-                'result_confirmed' => true,
-                'ended_at' => $match->ended_at ?? now(),
-                'status' => 'completed',
-            ]);
-
-            // Calculate total scores for compatibility
-            $totalT1 = collect($setScores)->sum('team1');
-            $totalT2 = collect($setScores)->sum('team2');
-            $match->update([
-                'team1_score' => $totalT1,
-                'team2_score' => $totalT2,
-            ]);
-
-            // Process Elo if enabled
-            if ($match->activity->oprs_weight > 0 && !$match->oprs_processed) {
-                app(EloService::class)->processClubMatchElo($match, $winner);
-                app(OprsService::class)->recalculateAfterClubMatch($match);
-                $match->update(['oprs_processed' => true]);
-            }
-
-            // Return players to queue (skip if already completed by admin)
-            if ($match->fresh()->status !== 'completed') {
-                app(ClubMatchmakingService::class)->completeMatch($match);
-            }
-
-            // Update club member stats
-            app(ClubMemberStatsService::class)->updateAfterMatch($match, $winner);
-        });
-
-        return response()->json(['success' => true, 'message' => 'Điểm đã được cập nhật.']);
+        $scoreService->playerSubmitScore($match, $validated['set_scores'], $userId);
+        return response()->json(['success' => true, 'message' => 'Điểm đã được gửi, đang chờ đội còn lại xác nhận.']);
     }
 
-    private function determineWinner(array $setScores): string
+    public function confirmScore(Club $club, ClubActivity $activity, ClubActivityMatch $match, Request $request): JsonResponse
     {
-        $t1Wins = collect($setScores)->filter(fn($s) => $s['team1'] > $s['team2'])->count();
-        $t2Wins = collect($setScores)->filter(fn($s) => $s['team2'] > $s['team1'])->count();
-        return $t1Wins > $t2Wins ? 'team1' : 'team2';
+        $this->validateActivity($club, $activity);
+        $this->validateMatchBelongsToActivity($match, $activity);
+
+        $userId = auth()->id() ?? session('checkin_user_id');
+        if (!$userId) {
+            return response()->json(['success' => false, 'message' => 'Vui lòng đăng nhập.'], 401);
+        }
+        $isAdmin = auth()->check() && $club->isManagement(auth()->user());
+        $opposingIds = $match->getOpposingTeamPlayerIds($match->result_submitted_by ?? 0);
+
+        if (!$isAdmin && !in_array($userId, $opposingIds)) {
+            return response()->json(['success' => false, 'message' => 'Bạn không có quyền xác nhận.'], 403);
+        }
+        if ($match->score_status !== 'pending_confirmation') {
+            return response()->json(['success' => false, 'message' => 'Điểm đã được xử lý.'], 422);
+        }
+
+        $scoreService = app(ClubScoreService::class);
+        if ($request->input('action') === 'reject') {
+            $scoreService->rejectScore($match);
+            return response()->json(['success' => true, 'message' => 'Điểm đã bị từ chối. Người nhập có thể nhập lại.']);
+        }
+
+        $scoreService->confirmScore($match, $userId, $isAdmin);
+        return response()->json(['success' => true, 'message' => 'Điểm đã được xác nhận.']);
     }
 
     private function getCourtStatus(ClubActivity $activity): array
     {
         $courts = [];
         for ($i = 1; $i <= $activity->courts_count; $i++) {
-            $match = $activity->matches()
-                ->where('scheduled_court', $i)
-                ->whereNotNull('started_at')
-                ->whereNull('ended_at')
-                ->with(['player1:id,name', 'player2:id,name', 'player3:id,name', 'player4:id,name'])
-                ->first();
-
-            $courts[] = [
-                'court' => $i,
-                'status' => $match ? 'playing' : 'available',
-                'match' => $match,
-            ];
+            $match = $activity->matches()->where('scheduled_court', $i)->whereNotNull('started_at')->whereNull('ended_at')
+                ->with(['player1:id,name', 'player2:id,name', 'player3:id,name', 'player4:id,name'])->first();
+            $courts[] = ['court' => $i, 'status' => $match ? 'playing' : 'available', 'match' => $match];
         }
         return $courts;
     }
@@ -236,27 +230,22 @@ class ClubOpenPlayController extends Controller
     private function getMyStatus(ClubActivity $activity, ?int $userId): ?array
     {
         if (!$userId) return null;
-
-        $participant = $activity->participants()
-            ->where('user_id', $userId)
-            ->first();
-
+        $participant = $activity->participants()->where('user_id', $userId)->first();
         if (!$participant) return null;
 
         $currentMatchId = null;
         if ($participant->current_status === 'playing') {
-            $currentMatch = $activity->matches()
-                ->whereNotNull('started_at')
-                ->whereNull('ended_at')
-                ->where(function ($q) use ($userId) {
-                    $q->where('player1_id', $userId)
-                      ->orWhere('player2_id', $userId)
-                      ->orWhere('player3_id', $userId)
-                      ->orWhere('player4_id', $userId);
-                })
+            $currentMatch = $activity->matches()->whereNotNull('started_at')->whereNull('ended_at')
+                ->where(fn($q) => $q->where('player1_id', $userId)->orWhere('player2_id', $userId)->orWhere('player3_id', $userId)->orWhere('player4_id', $userId))
                 ->first();
             $currentMatchId = $currentMatch?->id;
         }
+
+        $pendingMatch = $activity->matches()->where('score_status', 'pending_confirmation')
+            ->where(fn($q) => $q->where('player1_id', $userId)->orWhere('player2_id', $userId)->orWhere('player3_id', $userId)->orWhere('player4_id', $userId))
+            ->first();
+
+        $rejectedMatch = $activity->matches()->where('score_status', 'rejected')->where('result_submitted_by', $userId)->first();
 
         return [
             'current_status' => $participant->current_status,
@@ -264,20 +253,19 @@ class ClubOpenPlayController extends Controller
             'matches_played' => $participant->matches_played_count,
             'user_id' => $userId,
             'current_match_id' => $currentMatchId,
+            'pending_score_match_id' => $pendingMatch?->id,
+            'can_confirm_score' => $pendingMatch && in_array($userId, $pendingMatch->getOpposingTeamPlayerIds($pendingMatch->result_submitted_by ?? 0)),
+            'rejected_match_id' => $rejectedMatch?->id,
         ];
     }
 
     private function validateActivity(Club $club, ClubActivity $activity): void
     {
-        if ($activity->club_id !== $club->id) {
-            abort(404, 'Không tìm thấy hoạt động');
-        }
+        if ($activity->club_id !== $club->id) abort(404, 'Không tìm thấy hoạt động');
     }
 
     private function validateMatchBelongsToActivity(ClubActivityMatch $match, ClubActivity $activity): void
     {
-        if ($match->club_activity_id !== $activity->id) {
-            abort(404, 'Không tìm thấy trận đấu');
-        }
+        if ($match->club_activity_id !== $activity->id) abort(404, 'Không tìm thấy trận đấu');
     }
 }

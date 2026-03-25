@@ -31,6 +31,8 @@ class ClubActivityMatch extends Model
         'result_confirmed',
         'oprs_processed',
         'set_scores',
+        'score_status',
+        'score_confirmed_by',
     ];
 
     protected $casts = [
@@ -67,6 +69,35 @@ class ClubActivityMatch extends Model
     public function player4(): BelongsTo
     {
         return $this->belongsTo(User::class, 'player4_id');
+    }
+
+    public function scoreConfirmedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'score_confirmed_by');
+    }
+
+    public function isPendingConfirmation(): bool
+    {
+        return $this->score_status === 'pending_confirmation';
+    }
+
+    public function isScoreConfirmed(): bool
+    {
+        return in_array($this->score_status, ['confirmed', 'admin_confirmed']);
+    }
+
+    public function getOpposingTeamPlayerIds(?int $submitterId): array
+    {
+        if (!$submitterId) return [];
+        $team1 = array_filter([$this->player1_id, $this->player2_id]);
+        $team2 = array_filter([$this->player3_id, $this->player4_id]);
+        if (in_array($submitterId, $team1)) {
+            return $team2;
+        }
+        if (in_array($submitterId, $team2)) {
+            return $team1;
+        }
+        return [];
     }
 
     public function activity(): BelongsTo

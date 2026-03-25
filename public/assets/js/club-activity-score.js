@@ -2,8 +2,17 @@ function caScoreSubmit(config) {
     var bestOf = config.bestOf || 1;
     var pointsPerSet = config.pointsPerSet || 21;
     var initialSets = [];
-    for (var i = 0; i < bestOf; i++) {
-        initialSets.push({ team1: 0, team2: 0 });
+
+    if (config.existingScores && config.mode === 'confirm') {
+        initialSets = config.existingScores;
+        // Pad to bestOf length if needed
+        while (initialSets.length < bestOf) {
+            initialSets.push({ team1: 0, team2: 0 });
+        }
+    } else {
+        for (var i = 0; i < bestOf; i++) {
+            initialSets.push({ team1: 0, team2: 0 });
+        }
     }
 
     return {
@@ -12,14 +21,17 @@ function caScoreSubmit(config) {
         pointsPerSet: pointsPerSet,
         loading: false,
         error: '',
+        isConfirmMode: config.mode === 'confirm',
 
         increment(setIdx, team) {
+            if (this.isConfirmMode) return;
             if (this.sets[setIdx][team] < this.pointsPerSet) {
                 this.sets[setIdx][team]++;
             }
         },
 
         decrement(setIdx, team) {
+            if (this.isConfirmMode) return;
             if (this.sets[setIdx][team] > 0) {
                 this.sets[setIdx][team]--;
             }
@@ -44,7 +56,6 @@ function caScoreSubmit(config) {
             if (this.bestOf === 1) {
                 return this.getSetWinner(0);
             }
-            // Best of 3
             var t1Wins = 0;
             var t2Wins = 0;
             var setsToCheck = this.showSet3 ? 3 : 2;
@@ -64,7 +75,6 @@ function caScoreSubmit(config) {
                 var s = this.sets[0];
                 return s.team1 !== s.team2 && (s.team1 > 0 || s.team2 > 0);
             }
-            // Best of 3
             var setsToCheck = this.showSet3 ? 3 : 2;
             for (var i = 0; i < setsToCheck; i++) {
                 var s = this.sets[i];
@@ -72,6 +82,22 @@ function caScoreSubmit(config) {
                 if (s.team1 === 0 && s.team2 === 0) return false;
             }
             return true;
+        },
+
+        _headers() {
+            return {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'X-Requested-With': 'XMLHttpRequest',
+            };
+        },
+
+        _redirectAfterSuccess() {
+            if (config.isAdmin && config.dashboardUrl) {
+                window.location.href = config.dashboardUrl;
+            } else {
+                window.location.href = config.queueUrl;
+            }
         },
 
         async submit() {
@@ -91,18 +117,36 @@ function caScoreSubmit(config) {
             try {
                 var res = await fetch(config.submitUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
+                    headers: this._headers(),
                     body: JSON.stringify({ set_scores: setsToSend }),
                 });
                 var data = await res.json();
                 if (data.success) {
-                    window.location.href = config.queueUrl;
+                    this._redirectAfterSuccess();
                 } else {
                     this.error = data.message || 'L\u1ed7i g\u1eedi \u0111i\u1ec3m. Vui l\u00f2ng th\u1eed l\u1ea1i.';
+                }
+            } catch (e) {
+                this.error = 'Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i. Vui l\u00f2ng th\u1eed l\u1ea1i.';
+            } finally {
+                this.loading = false;
+            }
+        },
+
+        async confirmScore(action) {
+            this.loading = true;
+            this.error = '';
+            try {
+                var res = await fetch(config.confirmUrl, {
+                    method: 'POST',
+                    headers: this._headers(),
+                    body: JSON.stringify({ action: action }),
+                });
+                var data = await res.json();
+                if (data.success) {
+                    this._redirectAfterSuccess();
+                } else {
+                    this.error = data.message || 'L\u1ed7i. Vui l\u00f2ng th\u1eed l\u1ea1i.';
                 }
             } catch (e) {
                 this.error = 'Kh\u00f4ng th\u1ec3 k\u1ebft n\u1ed1i. Vui l\u00f2ng th\u1eed l\u1ea1i.';

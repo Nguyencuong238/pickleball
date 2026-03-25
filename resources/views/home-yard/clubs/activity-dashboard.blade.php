@@ -8,6 +8,7 @@
 <div class="ca-dashboard" x-data="caAdminDashboard({
     stateUrl: '{{ route('club.activity.dashboard-state', [$club->slug, $activity->id]) }}',
     triggerUrl: '{{ route('club.activity.trigger-match', [$club->slug, $activity->id]) }}',
+    baseUrl: '{{ url('clubs/' . $club->slug . '/activities/' . $activity->id) }}',
     courtsCount: {{ $activity->courts_count }},
 })">
     {{-- Left sidebar --}}
@@ -74,8 +75,7 @@
                                 <span x-text="(court.match.player3 ? court.match.player3.name : '') + (court.match.player4 ? ' & ' + court.match.player4.name : '')"></span>
                             </div>
                             <div class="ca-court-actions">
-                                <a class="ca-btn-sm ca-btn-score" :href="'{{ url('clubs/' . $club->slug . '/activities/' . $activity->id . '/matches') }}/' + court.match.id + '/score'">Nhập điểm</a>
-                                <button class="ca-btn-sm ca-btn-danger" @click="endMatch(court.match.id)">Kết thúc</button>
+                                <button class="ca-btn-sm ca-btn-danger" @click="endMatch(court.match.id, court.court, court.match.match_number)">Kết thúc</button>
                             </div>
                         </div>
                     </template>
@@ -84,6 +84,41 @@
                     </template>
                 </div>
             </template>
+        </div>
+    </div>
+
+    {{-- Chờ xác nhận điểm --}}
+    <template x-if="pendingScores.length > 0">
+        <div class="ca-dash-pending">
+            <h4 class="ca-dash-section-title">Chờ xác nhận điểm (<span x-text="pendingScores.length"></span>)</h4>
+            <template x-for="pm in pendingScores" :key="pm.id">
+                <div class="ca-pending-card">
+                    <div class="ca-pending-teams">
+                        <span x-text="(pm.player1?.name || '') + (pm.player2 ? ' & ' + pm.player2.name : '')"></span>
+                        vs
+                        <span x-text="(pm.player3?.name || '') + (pm.player4 ? ' & ' + pm.player4.name : '')"></span>
+                    </div>
+                    <div class="ca-pending-scores" x-text="pm.team1_score + ' - ' + pm.team2_score"></div>
+                    <div class="ca-pending-submitter">Người nhập: <span x-text="pm.submitted_by?.name || ''"></span></div>
+                    <div class="ca-pending-actions">
+                        <button class="ca-btn-sm ca-btn-primary" @click="adminConfirmScore(pm.id)">Xác nhận</button>
+                        <button class="ca-btn-sm ca-btn-danger" @click="adminRejectAndEnd(pm.id)">Từ chối & Kết thúc</button>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </template>
+
+    {{-- End match dialog --}}
+    <div class="ca-modal-overlay" x-show="endMatchDialog.show" x-transition @click.self="endMatchDialog.show = false" style="display: none;">
+        <div class="ca-modal-card">
+            <h3>Kết thúc trận đấu</h3>
+            <p>Sân <span x-text="endMatchDialog.court"></span> - Trận #<span x-text="endMatchDialog.matchNumber"></span></p>
+            <div class="ca-modal-actions">
+                <button class="ca-btn-sm ca-btn-primary" @click="goToScore(endMatchDialog.matchId)">Nhập điểm</button>
+                <button class="ca-btn-sm ca-btn-secondary" @click="skipScore(endMatchDialog.matchId)">Kết thúc không điểm</button>
+                <button class="ca-btn-sm ca-btn-ghost" @click="endMatchDialog.show = false">Hủy</button>
+            </div>
         </div>
     </div>
 

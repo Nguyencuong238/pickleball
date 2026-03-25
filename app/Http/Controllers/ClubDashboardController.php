@@ -46,6 +46,11 @@ class ClubDashboardController extends Controller
             ];
         }
 
+        $pendingScores = $activity->matches()
+            ->where('score_status', 'pending_confirmation')
+            ->with(['player1:id,name', 'player2:id,name', 'player3:id,name', 'player4:id,name', 'submittedBy:id,name'])
+            ->get();
+
         return response()->json([
             'courts' => $courts,
             'queue' => $activity->participants()
@@ -57,6 +62,7 @@ class ClubDashboardController extends Controller
                 ->playing()
                 ->with('user:id,name')
                 ->get(),
+            'pending_scores' => $pendingScores,
             'stats' => [
                 'total_checked_in' => $activity->participants()->checkedIn()->count(),
                 'total_matches' => $activity->matches()->count(),
