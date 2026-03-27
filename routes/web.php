@@ -454,7 +454,6 @@ Route::middleware(['auth'])->prefix('homeyard')->name('homeyard.')->group(functi
     Route::patch('tournaments/{tournament_id}/athletes/{athlete_id}/status', [HomeYardTournamentController::class, 'updateAthleteStatus'])->name('tournaments.athletes.updateStatus');
     Route::post('tournaments/{tournament_id}/athletes/{athlete_id}/approve', [HomeYardTournamentController::class, 'approveAthlete'])->name('athletes.approve');
     Route::post('tournaments/{tournament_id}/athletes/{athlete_id}/reject', [HomeYardTournamentController::class, 'rejectAthlete'])->name('athletes.reject');
-    Route::get('athletes', [HomeYardTournamentController::class, 'listAthletes'])->name('athletes.index');
     Route::get('overview', [HomeYardTournamentController::class, 'overview'])->name('overview');
     Route::get('matches', [HomeYardTournamentController::class, 'matches'])->name('matches');
     Route::get('athletes', [HomeYardTournamentController::class, 'athletes'])->name('athletes');

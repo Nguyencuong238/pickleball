@@ -971,9 +971,71 @@ class HomeYardTournamentController extends Controller
         return view('home-yard.tournaments.matches', compact('liveMatches', 'upcomingMatches', 'completedMatches', 'stats', 'matchesByDate'));
     }
 
-    public function athletes()
+    public function athletes(Request $request)
     {
-        return view('home-yard.tournaments.athletes');
+        $userId = auth()->id();
+
+        $tournaments = Tournament::where('user_id', $userId)
+            ->select('id', 'name')
+            ->latest()
+            ->get();
+
+        $tournamentIds = $tournaments->pluck('id');
+
+        // Stats query (always unfiltered)
+        $statsQuery = TournamentAthlete::whereIn('tournament_id', $tournamentIds);
+        $stats = [
+            'total' => (clone $statsQuery)->count(),
+            'approved' => (clone $statsQuery)->where('status', 'approved')->count(),
+            'pending' => (clone $statsQuery)->where('status', 'pending')->count(),
+            'rejected' => (clone $statsQuery)->where('status', 'rejected')->count(),
+        ];
+
+        // AJAX request: return paginated + filtered data
+        if ($request->ajax()) {
+            $query = TournamentAthlete::whereIn('tournament_id', $tournamentIds)
+                ->with(['tournament:id,name', 'category:id,category_name,category_type']);
+
+            if ($request->filled('tournament_id')) {
+                $query->where('tournament_id', $request->tournament_id);
+            }
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('athlete_name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+
+            $athletes = $query->latest()->paginate(20);
+
+            return response()->json([
+                'data' => $athletes->map(fn($a) => [
+                    'id' => $a->id,
+                    'athlete_name' => $a->athlete_name,
+                    'email' => $a->email ?? '',
+                    'tournament_name' => $a->tournament->name ?? '',
+                    'category_name' => $a->category->category_name ?? '',
+                    'status' => $a->status,
+                    'payment_status' => $a->payment_status,
+                    'matches_played' => $a->matches_played ?? 0,
+                    'matches_won' => $a->matches_won ?? 0,
+                    'matches_lost' => $a->matches_lost ?? 0,
+                    'win_rate' => $a->win_rate ?? 0,
+                ]),
+                'pagination' => [
+                    'current_page' => $athletes->currentPage(),
+                    'last_page' => $athletes->lastPage(),
+                    'total' => $athletes->total(),
+                ],
+                'stats' => $stats,
+            ]);
+        }
+
+        return view('home-yard.tournaments.athletes', compact('tournaments', 'stats'));
     }
 
     public function rankings()
