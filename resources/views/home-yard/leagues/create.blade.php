@@ -1,22 +1,32 @@
-@extends('layouts.front')
+@extends('layouts.homeyard')
+
+@section('css')
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/layout-sidebar.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-buttons-alerts.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-forms.css') }}?v=1.1">
+@endsection
 
 @section('content')
-<style>
-    @media (min-width: 768px) {
-        .page-header { margin-top: 80px; }
-    }
-</style>
-<div class="page-header" style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 80px 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-    <div class="container" style="max-width: 900px; margin: 0 auto;">
-        <a href="{{ route('homeyard.leagues.index') }}" style="color: rgba(255, 255, 255, 0.9); text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px;">
-            <i class="fas fa-arrow-left"></i> Quay Lại
+<div class="main-content">
+    <div class="top-header">
+        <a href="{{ route('homeyard.leagues.index') }}" class="td-btn td-btn-ghost">
+            &larr; Quay lại
         </a>
-        <h1 style="color: white; font-size: clamp(1.75rem, 5vw, 2.5rem); font-weight: 700; margin: 0; line-height: 1.2;">Tạo League Mới</h1>
+        <h2 class="page-title">Tạo League Mới</h2>
     </div>
-</div>
 
-<div style="background: #f9fafb; padding: 50px 20px; min-height: 60vh;">
-    <div class="container" style="max-width: 900px; margin: 0 auto;">
+    @if($errors->any())
+        <div class="td-alert td-alert-error">
+            <strong>Lỗi xác thực:</strong>
+            <ul style="margin: 8px 0 0 16px; padding: 0;">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div style="max-width: 900px;">
         @include('home-yard.leagues._form')
     </div>
 </div>

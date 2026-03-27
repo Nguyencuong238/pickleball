@@ -1,19 +1,29 @@
-@extends('layouts.front')
+@extends('layouts.homeyard')
+
+@section('css')
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/layout-sidebar.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-buttons-alerts.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-forms.css') }}?v=1.1">
+@endsection
 
 @section('content')
 @include('clubs.activities.partials._form-styles')
 
-<div class="activity-form-container">
-    <div class="form-header">
-        <h2>✏️ Chỉnh Sửa Hoạt Động</h2>
-        <p>Cập nhật thông tin hoạt động</p>
+<div class="main-content">
+    <div class="top-header">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <a href="{{ route('clubs.activities.show', [$club, $activity]) }}" class="td-btn td-btn-ghost">
+                &larr; Quay lại
+            </a>
+            <h2 class="page-title" style="margin: 0;">Chỉnh Sửa Hoạt Động</h2>
+        </div>
     </div>
 
     <div class="form-card">
         @if($errors->any())
-            <div class="error-message">
+            <div class="td-alert td-alert-error">
                 <strong>Vui lòng sửa các lỗi sau:</strong>
-                <ul class="error-list">
+                <ul style="margin: 8px 0 0 16px; padding: 0;">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -97,8 +107,8 @@
             @endif
 
             <div class="btn-group">
-                <button type="submit" class="btn-submit">✅ Cập Nhật</button>
-                <a href="{{ route('clubs.activities.show', [$club, $activity]) }}" class="btn-cancel">← Quay Lại</a>
+                <button type="submit" class="btn-submit">Cập Nhật</button>
+                <a href="{{ route('clubs.activities.show', [$club, $activity]) }}" class="btn-cancel">Quay Lại</a>
             </div>
         </form>
 
@@ -107,7 +117,7 @@
             @csrf
             @method('DELETE')
             <button type="submit" class="btn-delete" style="width: 100%;"
-                onclick="return confirm('Bạn chắc chắn muốn xóa hoạt động này?')">🗑️ Xóa hoạt động</button>
+                onclick="return confirm('Bạn chắc chắn muốn xóa hoạt động này?')">Xóa hoạt động</button>
         </form>
     </div>
 </div>

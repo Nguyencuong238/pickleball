@@ -36,37 +36,46 @@
                                 'member' => '#16a34a',
                             ];
                         @endphp
-                        <a href="{{ route('clubs.show', $joinedClub) }}" class="joined-club-card" style="text-decoration: none; color: inherit;">
-                            <div class="joined-club-banner">
-                                @if ($joinedClub->banner)
-                                    <img src="{{ storage_url($joinedClub->banner) }}" alt="{{ $joinedClub->name }}">
-                                @else
-                                    <div class="joined-banner-placeholder">
-                                        {{ $joinedClub->type === 'club' ? '🏆' : '👥' }}
-                                    </div>
-                                @endif
-                            </div>
-                            <div class="joined-club-body">
-                                <div style="display: flex; align-items: center; gap: 12px;">
-                                    @if ($joinedClub->image)
-                                        <img src="{{ storage_url($joinedClub->image) }}" alt="{{ $joinedClub->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                        <div class="joined-club-card">
+                            <a href="{{ route('clubs.show', $joinedClub) }}" style="text-decoration: none; color: inherit; display: block;">
+                                <div class="joined-club-banner">
+                                    @if ($joinedClub->banner)
+                                        <img src="{{ storage_url($joinedClub->banner) }}" alt="{{ $joinedClub->name }}">
                                     @else
-                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem;">
+                                        <div class="joined-banner-placeholder">
                                             {{ $joinedClub->type === 'club' ? '🏆' : '👥' }}
                                         </div>
                                     @endif
-                                    <div style="flex: 1; min-width: 0;">
-                                        <h4 style="font-size: 1rem; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $joinedClub->name }}</h4>
-                                        <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-                                            <span style="font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px; color: white; background: {{ $roleColors[$memberRole] ?? '#6b7280' }}; font-weight: 500;">
-                                                {{ $roleLabels[$memberRole] ?? $memberRole }}
-                                            </span>
-                                            <span style="font-size: 0.8rem; color: #6b7280;">{{ $joinedClub->members->count() }} thành viên</span>
+                                </div>
+                                <div class="joined-club-body">
+                                    <div style="display: flex; align-items: center; gap: 12px;">
+                                        @if ($joinedClub->image)
+                                            <img src="{{ storage_url($joinedClub->image) }}" alt="{{ $joinedClub->name }}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; flex-shrink: 0;">
+                                        @else
+                                            <div style="width: 40px; height: 40px; border-radius: 50%; background: #f3f4f6; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem;">
+                                                {{ $joinedClub->type === 'club' ? '🏆' : '👥' }}
+                                            </div>
+                                        @endif
+                                        <div style="flex: 1; min-width: 0;">
+                                            <h4 style="font-size: 1rem; font-weight: 600; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $joinedClub->name }}</h4>
+                                            <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+                                                <span style="font-size: 0.75rem; padding: 2px 8px; border-radius: 9999px; color: white; background: {{ $roleColors[$memberRole] ?? '#6b7280' }}; font-weight: 500;">
+                                                    {{ $roleLabels[$memberRole] ?? $memberRole }}
+                                                </span>
+                                                <span style="font-size: 0.8rem; color: #6b7280;">{{ $joinedClub->members->count() }} thành viên</span>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </a>
+                            </a>
+                            @if(in_array($memberRole, ['creator', 'admin', 'moderator']))
+                                <div style="padding: 8px 16px 12px; border-top: 1px solid #e5e7eb;">
+                                    <a href="{{ route('clubs.activities.index', $joinedClub) }}" class="btn btn-sm btn-success" style="width: 100%; display: block; text-align: center; padding: 6px 12px; font-size: 0.8rem;">
+                                        Hoạt Động
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
                     @endforeach
                 </div>
             </div>
@@ -156,14 +165,17 @@
 
                         <!-- Actions -->
                         <div class="club-actions">
+                            <a href="{{ route('clubs.activities.index', $club) }}" class="btn btn-sm btn-success">
+                                Hoạt Động
+                            </a>
                             <a href="{{ route('homeyard.clubs.edit', $club) }}" class="btn btn-sm btn-primary">
-                                <span>✏️</span> Chỉnh sửa
+                                Chỉnh sửa
                             </a>
                             <form action="{{ route('homeyard.clubs.destroy', $club) }}" method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa?')">
-                                    <span>🗑️</span> Xóa
+                                    Xóa
                                 </button>
                             </form>
                         </div>

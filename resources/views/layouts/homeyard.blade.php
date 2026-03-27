@@ -843,11 +843,11 @@
                         {{-- <span class="nav-badge">{{ $tournamentsCount ?? 0 }}</span> --}}
                     </a>
 
-                    <a href="{{ route('homeyard.matches') }}" class="nav-item">
+                    {{-- <a href="{{ route('homeyard.matches') }}" class="nav-item">
                         <span class="nav-icon">🎾</span>
                         <span class="nav-text">Trận đấu</span>
-                        {{-- <span class="nav-badge">{{ $matchesCount ?? 0 }}</span> --}}
-                    </a>
+                        <span class="nav-badge">{{ $matchesCount ?? 0 }}</span>
+                    </a> --}}
 
                     <a href="{{ route('homeyard.leagues.index') }}" class="nav-item">
                         <span class="nav-icon">🏅</span>
@@ -896,7 +896,6 @@
                         <span class="nav-icon">📋</span>
                         <span class="nav-text">Danh sách nhóm/CLB</span>
                     </a>
-
                 </div>
 
                 <div class="nav-section">

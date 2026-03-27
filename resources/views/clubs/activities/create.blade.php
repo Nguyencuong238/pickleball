@@ -1,19 +1,31 @@
-@extends('layouts.front')
+@extends('layouts.homeyard')
+
+@section('css')
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/layout-sidebar.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-buttons-alerts.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-forms.css') }}?v=1.1">
+@endsection
 
 @section('content')
 @include('clubs.activities.partials._form-styles')
 
-<div class="activity-form-container">
-    <div class="form-header">
-        <h2>➕ Thêm Hoạt Động Mới</h2>
-        <p>Tạo hoạt động cho {{ $club->name }}</p>
+<div class="main-content">
+    <div class="top-header">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <a href="{{ route('clubs.activities.index', $club) }}" class="td-btn td-btn-ghost">
+                &larr; Quay lại
+            </a>
+            <h2 class="page-title" style="margin: 0;">Thêm Hoạt Động Mới</h2>
+        </div>
     </div>
+
+    <p style="color: #6b7280; margin-bottom: 20px;">Tạo hoạt động cho {{ $club->name }}</p>
 
     <div class="form-card">
         @if($errors->any())
-            <div class="error-message">
+            <div class="td-alert td-alert-error">
                 <strong>Vui lòng sửa các lỗi sau:</strong>
-                <ul class="error-list">
+                <ul style="margin: 8px 0 0 16px; padding: 0;">
                     @foreach($errors->all() as $error)
                         <li>{{ $error }}</li>
                     @endforeach
@@ -80,8 +92,8 @@
             @include('clubs.activities.partials._open-play-fields', ['activity' => (object)['courts_count' => 3, 'rotation_mode' => 'oprs_based', 'oprs_weight' => 0.50, 'avg_match_duration' => 15]])
 
             <div class="btn-group">
-                <button type="submit" class="btn-submit">✅ Tạo Hoạt Động</button>
-                <a href="{{ route('clubs.activities.index', $club) }}" class="btn-cancel">← Quay Lại</a>
+                <button type="submit" class="btn-submit">Tạo Hoạt Động</button>
+                <a href="{{ route('clubs.activities.index', $club) }}" class="btn-cancel">Quay Lại</a>
             </div>
         </form>
     </div>

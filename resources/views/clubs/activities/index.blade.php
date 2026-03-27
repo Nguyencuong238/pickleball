@@ -1,20 +1,31 @@
-@extends('layouts.front')
+@extends('layouts.homeyard')
+
+@section('css')
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/layout-sidebar.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-cards.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/tournament-dashboard/components-buttons-alerts.css') }}">
+@endsection
 
 @section('content')
 @include('clubs.activities.partials._index-styles')
 
-<div class="activities-container">
-    <a href="{{ route('clubs.show', $club) }}" class="btn-back">← Quay lại câu lạc bộ</a>
-
-    <div class="activities-header">
-        <h2>📅 Hoạt Động - {{ $club->name }}</h2>
+<div class="main-content">
+    <div class="top-header">
+        <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+            <a href="{{ route('homeyard.clubs.index') }}" class="td-btn td-btn-ghost">
+                &larr; Quay lại
+            </a>
+            <h2 class="page-title" style="margin: 0;">Hoạt Động - {{ $club->name }}</h2>
+        </div>
         @if($isManagement)
-            <a href="{{ route('clubs.activities.create', $club) }}" class="btn-create-activity">➕ Thêm Hoạt Động</a>
+            <a href="{{ route('clubs.activities.create', $club) }}" class="td-btn td-btn-primary">
+                + Thêm Hoạt Động
+            </a>
         @endif
     </div>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="td-alert td-alert-success">{{ session('success') }}</div>
     @endif
 
     @if($activities->count() > 0)
@@ -38,16 +49,16 @@
 
                     <div class="activity-meta">
                         <div class="activity-meta-item">
-                            📅 {{ $activity->activity_date->format('d/m/Y H:i') }}
+                            {{ $activity->activity_date->format('d/m/Y H:i') }}
                         </div>
                         @if($activity->location)
                             <div class="activity-meta-item">
-                                📍 {{ $activity->location }}
+                                {{ $activity->location }}
                             </div>
                         @endif
                         @if($activity->max_participants)
                             <div class="activity-meta-item participant-count">
-                                👥 {{ $activity->confirmed_participants_count ?? 0 }}/{{ $activity->max_participants }} người
+                                {{ $activity->confirmed_participants_count ?? 0 }}/{{ $activity->max_participants }} người
                             </div>
                         @endif
                     </div>
@@ -61,11 +72,11 @@
 
                 @if($isManagement)
                     <div class="activity-actions" style="margin-top: -10px; margin-bottom: 10px;">
-                        <a href="{{ route('clubs.activities.edit', [$club, $activity]) }}" class="btn-action btn-edit">✏️ Chỉnh Sửa</a>
+                        <a href="{{ route('clubs.activities.edit', [$club, $activity]) }}" class="btn-action btn-edit">Chỉnh Sửa</a>
                         <form action="{{ route('clubs.activities.destroy', [$club, $activity]) }}" method="POST" style="display: inline;">
                             @csrf
                             @method('DELETE')
-                            <button type="submit" class="btn-action btn-delete" onclick="return confirm('Bạn chắc chắn muốn xóa hoạt động này?')">🗑️ Xóa</button>
+                            <button type="submit" class="btn-action btn-delete" onclick="return confirm('Bạn chắc chắn muốn xóa hoạt động này?')">Xóa</button>
                         </form>
                     </div>
                 @endif
@@ -80,10 +91,9 @@
             <h3>Chưa có hoạt động nào</h3>
             <p>Hãy tạo hoạt động đầu tiên cho câu lạc bộ/nhóm của bạn!</p>
             @if($isManagement)
-                <a href="{{ route('clubs.activities.create', $club) }}" class="btn-create-activity" style="margin-top: 20px;">➕ Tạo Hoạt Động</a>
+                <a href="{{ route('clubs.activities.create', $club) }}" class="td-btn td-btn-primary" style="margin-top: 20px;">+ Tạo Hoạt Động</a>
             @endif
         </div>
     @endif
 </div>
-
 @endsection
