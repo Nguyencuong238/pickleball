@@ -1040,7 +1040,12 @@ class HomeYardTournamentController extends Controller
 
     public function rankings()
     {
-        return view('home-yard.tournaments.rankings');
+        $tournaments = Tournament::where('user_id', auth()->id())
+            ->select('id', 'name')
+            ->latest()
+            ->get();
+
+        return view('home-yard.tournaments.rankings', compact('tournaments'));
     }
 
     /**
