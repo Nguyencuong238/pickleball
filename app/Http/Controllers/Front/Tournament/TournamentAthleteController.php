@@ -73,7 +73,7 @@ class TournamentAthleteController extends Controller
 
         $categories = TournamentCategory::where('tournament_id', $tournament->id)->get();
 
-        return view('home-yard.tournaments.athletes', compact('tournament', 'athletes', 'categories'));
+        return view('home-yard.tournaments.tournament-athletes', compact('tournament', 'athletes', 'categories'));
     }
 
     /**

@@ -39,7 +39,7 @@ class TournamentRankingController extends Controller
             return $this->buildCategoryRankingsResponse($tournament, $defaultCategory->id);
         }
 
-        return view('home-yard.tournaments.rankings', compact('tournament', 'categories'));
+        return view('home-yard.tournaments.tournament-rankings', compact('tournament', 'categories'));
     }
 
     /**
