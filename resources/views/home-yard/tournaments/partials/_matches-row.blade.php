@@ -3,7 +3,12 @@
 
     {{-- Collapsed head (always visible) --}}
     <div class="match-row-head" @click="toggleExpand(match)">
-        <span class="match-num" x-text="'#' + match.match_number"></span>
+        <input type="text" class="match-num-input"
+               :value="match.match_number"
+               @click.stop
+               @keydown.enter="$event.target.blur()"
+               @blur="saveMatchNumber(match.id, $event.target.value, match.match_number)"
+               title="Chỉnh thứ tự trận đấu">
 
         <div class="match-athletes">
             <span class="athlete-name"

@@ -642,6 +642,7 @@ Route::middleware(['auth'])->prefix('tournament-manage')->name('tournament-manag
     Route::put('{tournament}/matches/{match}/score', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'updateScore'])->name('matches.updateScore');
     Route::delete('{tournament}/matches/{match}', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'destroy'])->name('matches.destroy');
     Route::patch('{tournament}/matches/{match}/schedule', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'updateSchedule'])->name('matches.updateSchedule');
+    Route::patch('{tournament}/matches/{match}/match-number', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'updateMatchNumber'])->name('matches.updateMatchNumber');
     Route::post('{tournament}/matches/groups', [\App\Http\Controllers\Front\Tournament\TournamentMatchController::class, 'createForGroups'])->name('matches.createForGroups');
 
     // Bracket knockout

@@ -147,6 +147,28 @@ function matchManager(config) {
             return this.indexUrl.replace(/\/$/, '') + '/' + matchId + '/score';
         },
 
+        matchNumberUrl(matchId) {
+            return this.indexUrl.replace(/\/$/, '') + '/' + matchId + '/match-number';
+        },
+
+        async saveMatchNumber(matchId, newValue, oldValue) {
+            newValue = newValue.trim();
+            if (!newValue || newValue === oldValue) return;
+            try {
+                const data = await MatchesApi.updateMatchNumber(
+                    this.matchNumberUrl(matchId), this.csrf, newValue
+                );
+                if (data.success) {
+                    toastr.success('Đã cập nhật số thứ tự');
+                    await this.loadMatches();
+                } else {
+                    toastr.error(data.message || 'Cập nhật thất bại');
+                }
+            } catch (e) {
+                toastr.error('Lỗi kết nối máy chủ');
+            }
+        },
+
         askDelete(id)    { this.confirmDeleteId = id; },
         cancelDelete()   { this.confirmDeleteId = null; },
 

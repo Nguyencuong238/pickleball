@@ -145,6 +145,25 @@ class TournamentMatchController extends Controller
         }
     }
 
+    public function updateMatchNumber(Request $request, Tournament $tournament, MatchModel $match): JsonResponse
+    {
+        abort_unless($tournament->user_id === auth()->id(), 403);
+        abort_unless($match->tournament_id === $tournament->id, 404);
+
+        $validated = $request->validate([
+            'match_number' => 'required|string|max:20',
+        ]);
+
+        try {
+            $match->update(['match_number' => $validated['match_number']]);
+
+            return response()->json(['success' => true, 'message' => 'Cập nhật số thứ tự thành công']);
+        } catch (\Exception $e) {
+            Log::error('Cập nhật match_number thất bại: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['success' => false, 'message' => 'Cập nhật thất bại'], 500);
+        }
+    }
+
     public function createForGroups(Request $request, Tournament $tournament): JsonResponse
     {
         abort_unless($tournament->user_id === auth()->id(), 403);

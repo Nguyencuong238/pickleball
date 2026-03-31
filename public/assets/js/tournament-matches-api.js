@@ -45,6 +45,15 @@ const MatchesApi = {
         return res.json();
     },
 
+    async updateMatchNumber(url, csrf, matchNumber) {
+        const res = await fetch(url, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+            body: JSON.stringify({ match_number: matchNumber }),
+        });
+        return res.json();
+    },
+
     async generateMatches(createGroupsUrl, csrf, categoryId, bestOf) {
         const res = await fetch(createGroupsUrl, {
             method: 'POST',

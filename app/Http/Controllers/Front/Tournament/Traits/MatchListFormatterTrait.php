@@ -27,7 +27,7 @@ trait MatchListFormatterTrait
             $query->where('status', $status);
         }
 
-        $matches = $query->orderBy('match_number')->get();
+        $matches = $query->orderBy('group_id')->orderBy('round_id')->orderBy('match_number')->get();
 
         $grouped = [];
         foreach ($matches as $match) {
