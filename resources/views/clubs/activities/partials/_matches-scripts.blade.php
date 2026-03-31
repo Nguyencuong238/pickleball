@@ -6,6 +6,7 @@
     var activityId = '{{ $activity->id }}';
     var baseUrl = '/clubs/' + clubSlug + '/activities/' + activityId + '/matches';
     var isManagement = {{ $isManagement ? 'true' : 'false' }};
+    var isOpenPlay = {{ $activity->isOpenPlay() ? 'true' : 'false' }};
     var csrfToken = document.querySelector('meta[name="csrf-token"]').content;
     var headers = {
         'X-CSRF-TOKEN': csrfToken,
@@ -62,14 +63,17 @@
         var html = '';
         rounds.forEach(function(round) {
             html += '<div class="round-section">';
-            html += '<div class="round-header">';
-            html += '<span class="round-title">Vòng ' + esc(String(round.round_number)) + '</span>';
-            html += '<span class="round-status round-status-' + round.status + '">' + statusLabel(round.status) + '</span>';
-            if (isManagement && round.status !== 'completed') {
-                html += ' <button class="btn-matches btn-matches-secondary" style="padding:4px 10px;font-size:0.75rem;" '
-                    + 'onclick="completeRound(' + round.id + ', this)">✓ Hoàn thành</button>';
+            // Hide round header for open play virtual rounds (no real round id)
+            if (!isOpenPlay || round.id) {
+                html += '<div class="round-header">';
+                html += '<span class="round-title">Vòng ' + esc(String(round.round_number)) + '</span>';
+                html += '<span class="round-status round-status-' + round.status + '">' + statusLabel(round.status) + '</span>';
+                if (isManagement && round.status !== 'completed') {
+                    html += ' <button class="btn-matches btn-matches-secondary" style="padding:4px 10px;font-size:0.75rem;" '
+                        + 'onclick="completeRound(' + round.id + ', this)">✓ Hoàn thành</button>';
+                }
+                html += '</div>';
             }
-            html += '</div>';
             round.matches.forEach(function(m) {
                 html += renderMatch(m, round.status);
             });
@@ -106,7 +110,9 @@
 
         // Score display or input
         if (m.status === 'completed') {
-            html += '<span class="match-score-display">' + m.team1_score + '<span class="score-separator">-</span>' + m.team2_score + '</span>';
+            var s1 = m.team1_score != null ? m.team1_score : '-';
+            var s2 = m.team2_score != null ? m.team2_score : '-';
+            html += '<span class="match-score-display">' + s1 + '<span class="score-separator">-</span>' + s2 + '</span>';
             if (isManagement && roundStatus !== 'completed') {
                 html += ' <button class="btn-edit-score" onclick="enableScoreEdit(' + m.id + ', ' + m.team1_score + ', ' + m.team2_score + ')">Sửa</button>';
             }

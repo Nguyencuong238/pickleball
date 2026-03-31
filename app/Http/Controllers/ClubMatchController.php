@@ -29,29 +29,25 @@ class ClubMatchController extends Controller
             ->with(['matches.player1', 'matches.player2', 'matches.player3', 'matches.player4'])
             ->orderBy('round_number')
             ->get()
-            ->map(function ($round) {
-                return [
-                    'id' => $round->id,
-                    'round_number' => $round->round_number,
-                    'status' => $round->status,
-                    'matches' => $round->matches->map(function ($m) {
-                        return [
-                            'id' => $m->id,
-                            'court_number' => $m->court_number,
-                            'match_type' => $m->match_type,
-                            'status' => $m->status,
-                            'team1_score' => $m->team1_score,
-                            'team2_score' => $m->team2_score,
-                            'players' => [
-                                'player1' => $m->player1 ? ['id' => $m->player1->id, 'name' => $m->player1->name] : null,
-                                'player2' => $m->player2 ? ['id' => $m->player2->id, 'name' => $m->player2->name] : null,
-                                'player3' => $m->player3 ? ['id' => $m->player3->id, 'name' => $m->player3->name] : null,
-                                'player4' => $m->player4 ? ['id' => $m->player4->id, 'name' => $m->player4->name] : null,
-                            ],
-                        ];
-                    }),
-                ];
-            });
+            ->map(fn ($round) => $this->formatRound($round));
+
+        // For open play: include matches without rounds as a virtual round
+        if ($activity->isOpenPlay()) {
+            $orphanMatches = $activity->matches()
+                ->whereNull('round_id')
+                ->with(['player1', 'player2', 'player3', 'player4'])
+                ->orderBy('id')
+                ->get();
+
+            if ($orphanMatches->isNotEmpty()) {
+                $rounds->push([
+                    'id' => null,
+                    'round_number' => $rounds->count() + 1,
+                    'status' => 'completed',
+                    'matches' => $orphanMatches->map(fn ($m) => $this->formatMatch($m)),
+                ]);
+            }
+        }
 
         return response()->json(['rounds' => $rounds]);
     }
@@ -187,6 +183,34 @@ class ClubMatchController extends Controller
         } catch (InvalidArgumentException $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 422);
         }
+    }
+
+    private function formatRound(ClubActivityMatchRound $round): array
+    {
+        return [
+            'id' => $round->id,
+            'round_number' => $round->round_number,
+            'status' => $round->status,
+            'matches' => $round->matches->map(fn ($m) => $this->formatMatch($m)),
+        ];
+    }
+
+    private function formatMatch(ClubActivityMatch $m): array
+    {
+        return [
+            'id' => $m->id,
+            'court_number' => $m->court_number,
+            'match_type' => $m->match_type,
+            'status' => $m->status,
+            'team1_score' => $m->team1_score,
+            'team2_score' => $m->team2_score,
+            'players' => [
+                'player1' => $m->player1 ? ['id' => $m->player1->id, 'name' => $m->player1->name] : null,
+                'player2' => $m->player2 ? ['id' => $m->player2->id, 'name' => $m->player2->name] : null,
+                'player3' => $m->player3 ? ['id' => $m->player3->id, 'name' => $m->player3->name] : null,
+                'player4' => $m->player4 ? ['id' => $m->player4->id, 'name' => $m->player4->name] : null,
+            ],
+        ];
     }
 
     private function validateActivityBelongsToClub(Club $club, ClubActivity $activity): void

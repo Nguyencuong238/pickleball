@@ -5,8 +5,8 @@
      data-club-id="{{ $club->id }}"
      data-activity-id="{{ $activity->id }}">
 
-    {{-- Management actions --}}
-    @if($isManagement)
+    {{-- Management actions (hidden for open play) --}}
+    @if($isManagement && !$activity->isOpenPlay())
     <div class="matches-actions">
         <button class="btn-matches btn-matches-primary" onclick="openGenerateModal()">
             🏆 Tạo trận đấu
@@ -28,15 +28,17 @@
 
     {{-- Empty state --}}
     <div id="matches-empty-state">
-        @if($isManagement)
+        @if($activity->isOpenPlay())
+            <p class="matches-empty">Chưa có trận đấu nào.</p>
+        @elseif($isManagement)
             <p class="matches-empty">Chưa có trận đấu nào. Nhấn "Tạo trận đấu" để bắt đầu.</p>
         @else
             <p class="matches-empty">Chưa có trận đấu nào. Liên hệ ban tổ chức.</p>
         @endif
     </div>
 
-    {{-- Confirmed participants data for custom match modal --}}
-    @if($isManagement)
+    {{-- Confirmed participants data for custom match modal (not needed for open play) --}}
+    @if($isManagement && !$activity->isOpenPlay())
     <div id="confirmed-participants-data"
          data-participants='@json($activity->confirmedParticipants->map(fn($p) => ["id" => $p->user_id, "name" => $p->user->name ?? "N/A"]))'
          style="display:none"></div>
