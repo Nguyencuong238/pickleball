@@ -38,7 +38,12 @@ class ClubActivityController extends Controller
 
         $isManagement = Auth::check() && $club->isManagement(Auth::user());
 
-        return view('clubs.activities.index', compact('club', 'activities', 'isManagement'));
+        $statusCounts = $club->activities()->whereNull('parent_activity_id')
+            ->selectRaw("status, count(*) as count")
+            ->groupBy('status')
+            ->pluck('count', 'status');
+
+        return view('clubs.activities.index', compact('club', 'activities', 'isManagement', 'statusCounts'));
     }
 
     public function create(Club $club)

@@ -1,0 +1,287 @@
+/* Club Activity Index - List/Table View */
+
+/* Stats Summary */
+.ca-idx-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ca-idx-stat {
+    background: #fff;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.15s ease, transform 0.15s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.ca-idx-stat:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transform: translateY(-1px);
+    color: inherit;
+}
+
+.ca-idx-stat.active {
+    border-bottom-color: #00D9B5;
+}
+
+.ca-idx-stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: #1e293b;
+}
+
+.ca-idx-stat-label {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-top: 4px;
+}
+
+.ca-idx-stat--upcoming .ca-idx-stat-value { color: #0284c7; }
+.ca-idx-stat--completed .ca-idx-stat-value { color: #16a34a; }
+.ca-idx-stat--cancelled .ca-idx-stat-value { color: #b91c1c; }
+
+/* Filter Bar */
+.ca-idx-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.ca-idx-filter-select {
+    padding: 8px 32px 8px 12px;
+    border: 1px solid #e2e8f0;
+    border-radius: 7px;
+    background: #fff;
+    font-size: 0.875rem;
+    color: #1e293b;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2364748b' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    min-width: 140px;
+    transition: border-color 0.15s ease;
+}
+
+.ca-idx-filter-select:focus {
+    outline: none;
+    border-color: #00D9B5;
+}
+
+.ca-idx-filter-reset {
+    font-size: 0.8rem;
+    color: #64748b;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: 7px;
+    transition: background 0.15s ease;
+}
+
+.ca-idx-filter-reset:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+/* Table */
+.ca-idx-table-wrap {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    overflow-x: auto;
+}
+
+.ca-idx-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.ca-idx-table thead th {
+    background: #f8fafc;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    border-bottom: 1px solid #e2e8f0;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.ca-idx-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background 0.1s ease;
+}
+
+.ca-idx-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.ca-idx-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.ca-idx-table td {
+    padding: 14px 16px;
+    color: #1e293b;
+    vertical-align: middle;
+}
+
+.ca-idx-title-link {
+    color: #1e293b;
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.15s ease;
+}
+
+.ca-idx-title-link:hover {
+    color: #00D9B5;
+}
+
+/* Type Badge */
+.ca-idx-type-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ca-idx-type-badge.type-one_off { background: #dbeafe; color: #0284c7; }
+.ca-idx-type-badge.type-recurring { background: #dcfce7; color: #16a34a; }
+.ca-idx-type-badge.type-competition { background: #ffedd5; color: #c2410c; }
+.ca-idx-type-badge.type-open_play { background: #ccfbf1; color: #0d9488; }
+
+/* Status Badge */
+.ca-idx-status {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.ca-idx-status--upcoming { background: #dbeafe; color: #0284c7; }
+.ca-idx-status--completed { background: #dcfce7; color: #16a34a; }
+.ca-idx-status--cancelled { background: #fee2e2; color: #b91c1c; }
+
+/* Meta text */
+.ca-idx-meta {
+    color: #64748b;
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+
+/* Actions */
+.ca-idx-actions {
+    display: flex;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.ca-idx-btn {
+    padding: 5px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.15s ease;
+    display: inline-block;
+}
+
+.ca-idx-btn--edit {
+    background: #dbeafe;
+    color: #0284c7;
+}
+
+.ca-idx-btn--edit:hover {
+    background: #bfdbfe;
+    color: #0284c7;
+}
+
+.ca-idx-btn--delete {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.ca-idx-btn--delete:hover {
+    background: #fecaca;
+}
+
+/* Empty State */
+.ca-idx-empty {
+    text-align: center;
+    padding: 60px 20px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.ca-idx-empty h3 {
+    color: #1e293b;
+    margin-bottom: 8px;
+}
+
+.ca-idx-empty p {
+    color: #64748b;
+    margin-bottom: 20px;
+}
+
+/* Pagination */
+.ca-idx-pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .ca-idx-stats {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .ca-idx-stat {
+        padding: 12px;
+    }
+
+    .ca-idx-stat-value {
+        font-size: 1.3rem;
+    }
+
+    .ca-idx-filters {
+        gap: 8px;
+    }
+
+    .ca-idx-filter-select {
+        min-width: 0;
+        flex: 1;
+        font-size: 0.8rem;
+    }
+
+    .ca-idx-table {
+        font-size: 0.8rem;
+    }
+
+    .ca-idx-table td,
+    .ca-idx-table thead th {
+        padding: 10px 10px;
+    }
+}
