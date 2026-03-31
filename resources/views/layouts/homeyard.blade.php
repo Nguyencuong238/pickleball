@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Cấu Hình Giải Đấu - Hệ Thống Quản Lý Giải Đấu</title>
     <link rel="icon" href="{{ asset('assets/images/logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}?v=1.0">
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <!-- Select2 CSS -->
@@ -817,7 +817,7 @@
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <a href="/" class="sidebar-brand">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="74px">
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="OnePickleball" width="56px">
                 </a>
                 <button class="sidebar-toggle" onclick="toggleSidebar()">
                     <span>☰</span>
@@ -826,89 +826,51 @@
 
             <nav class="sidebar-nav" id="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">Tổng Quan</div>
+                    <div class="nav-section-title">Tổng quan</div>
                     <a href="{{ route('homeyard.overview') }}" class="nav-item">
-                        <span class="nav-icon">📊</span>
+                        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span>
                         <span class="nav-text">Tổng quan</span>
                     </a>
-
                 </div>
 
                 <div class="nav-section">
-                    <div class="nav-section-title">Quản Lý Giải Đâu</div>
-
+                    <div class="nav-section-title">Quản lý Giải đấu</div>
                     <a href="{{ route('tournament-manage.tournaments.index') }}" class="nav-item">
-                        <span class="nav-icon">🏆</span>
+                        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9z"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9z"/><path d="M4 22h16"/><path d="M10 22V8a2 2 0 0 0-2-2H6"/><path d="M14 22V8a2 2 0 0 1 2-2h2"/><path d="M8 6h8"/><path d="M12 6v16"/></svg></span>
                         <span class="nav-text">Giải đấu</span>
-                        {{-- <span class="nav-badge">{{ $tournamentsCount ?? 0 }}</span> --}}
                     </a>
-
-                    {{-- <a href="{{ route('homeyard.matches') }}" class="nav-item">
-                        <span class="nav-icon">🎾</span>
-                        <span class="nav-text">Trận đấu</span>
-                        <span class="nav-badge">{{ $matchesCount ?? 0 }}</span>
-                    </a> --}}
-
                     <a href="{{ route('homeyard.leagues.index') }}" class="nav-item">
-                        <span class="nav-icon">🏅</span>
+                        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span>
                         <span class="nav-text">Giải đấu Round Robin</span>
                     </a>
                 </div>
 
-                {{-- <div class="nav-section">
-                    <div class="nav-section-title">Quản lý Sân</div>
-                    <a href="{{ route('homeyard.stadiums.index') }}" class="nav-item">
-                        <span class="nav-icon">🏢</span>
-                        <span class="nav-text">Quản Lý Cụm Sân</span>
-                    </a>
-                    <a href="{{ route('homeyard.courts') }}" class="nav-item">
-                        <span class="nav-icon">🏟️</span>
-                        <span class="nav-text">Quản Lý Sân</span>
-                    </a>
-                    <a href="{{ route('homeyard.bookings') }}" class="nav-item">
-                        <span class="nav-icon">📅</span>
-                        <span class="nav-text">Đặt Sân</span>
-                    </a>
-                    <a href="{{ route('homeyard.socials.index') }}" class="nav-item">
-                        <span class="nav-icon">🎾</span>
-                        <span class="nav-text">Quản lý thi đấu Social</span>
-                    </a>
-                </div> --}}
-
                 <div class="nav-section">
                     <div class="nav-section-title">Vận động viên</div>
-
                     <a href="{{ route('homeyard.athletes') }}" class="nav-item">
-                        <span class="nav-icon">👥</span>
+                        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
                         <span class="nav-text">Vận động viên</span>
-                        {{-- <span class="nav-badge">248</span> --}}
                     </a>
                     <a href="{{ route('homeyard.rankings') }}" class="nav-item">
-                        <span class="nav-icon">🏅</span>
+                        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></span>
                         <span class="nav-text">Xếp hạng</span>
                     </a>
-
                 </div>
 
                 <div class="nav-section">
-                    <div class="nav-section-title">Quản Lý Nhóm/CLB</div>
+                    <div class="nav-section-title">Quản lý nhóm/CLB</div>
                     <a href="{{ route('homeyard.clubs.index') }}" class="nav-item">
-                        <span class="nav-icon">📋</span>
+                        <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
                         <span class="nav-text">Danh sách nhóm/CLB</span>
                     </a>
                 </div>
 
                 <div class="nav-section">
-                    <div class="nav-section-title">Hệ Thống</div>
-                    <a href="#" class="nav-item">
-                        <span class="nav-icon">⚙️</span>
-                        <span class="nav-text">Cài đặt</span>
-                    </a>
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
                         <a href="#" class="nav-item btn-logout"
                             onclick="event.preventDefault();this.closest('form').submit();">
-                            <span class="nav-icon">↪️</span>
+                            <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
                             <span class="nav-text">Đăng xuất</span>
                         </a>
                     </form>

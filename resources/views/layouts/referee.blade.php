@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Bảng Điều Khiển Trọng Tài') - OnePickleball</title>
     <link rel="icon" href="{{ asset('assets/images/logo.png') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/tournament-styles.css') }}?v=1.0">
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <!-- jQuery -->
