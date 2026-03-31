@@ -27,13 +27,6 @@
                 </button>
                 <div class="header-dropdown" id="header-dropdown">
                     @if($activity->isOpenPlay())
-                    <a href="#" class="dropdown-item" onclick="event.preventDefault(); generateQrCode();">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
-                            <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
-                            <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
-                        </svg>
-                        Lấy mã QR Check-in
-                    </a>
                     <a href="{{ route('club.activity.dashboard', [$club->slug, $activity]) }}" class="dropdown-item">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
                             <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>

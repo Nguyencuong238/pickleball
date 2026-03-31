@@ -391,6 +391,107 @@
 }
 .detail-club-info a:hover { color: #00D9B5; }
 
+/* ========== Share Section ========== */
+.detail-share-section {
+    padding: 16px 20px;
+    border-top: 1px solid #f3f4f6;
+}
+.btn-share-activity {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 24px;
+    border: 1.5px solid #e5e7eb;
+    background: white;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.btn-share-activity:hover {
+    border-color: #00D9B5;
+    color: #00D9B5;
+    background: #f0fdf4;
+}
+
+/* Share modal */
+.share-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+.share-modal {
+    background: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    max-width: 400px;
+    width: 90%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+    text-align: center;
+}
+.share-modal h3 {
+    margin: 0 0 16px;
+    font-size: 1.1rem;
+    color: #1f2937;
+}
+.share-qr-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+.share-qr-wrap canvas {
+    border-radius: 8px;
+}
+.share-link-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: #374151;
+    background: #f9fafb;
+    box-sizing: border-box;
+}
+.share-modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+}
+.share-btn-copy {
+    flex: 1;
+    padding: 10px;
+    background: #00D9B5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.share-btn-copy:hover { background: #00c4a3; }
+.share-btn-close {
+    flex: 1;
+    padding: 10px;
+    background: #f3f4f6;
+    color: #555;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.share-btn-close:hover { background: #e5e7eb; }
+
 /* ========== RSVP Button ========== */
 .rsvp-button-wrap {
     padding: 16px 20px;

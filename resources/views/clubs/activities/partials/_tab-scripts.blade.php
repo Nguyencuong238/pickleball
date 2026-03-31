@@ -1,3 +1,6 @@
+{{-- QR code library --}}
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
 {{-- Tab switching, share, dropdown menu scripts --}}
 <script>
 (function() {
@@ -70,6 +73,86 @@ function showToast(message) {
     }, 2500);
 }
 
+// Share modal with QR code
+function showShareModal() {
+    var pageUrl = window.location.href.split('#')[0];
+
+    // Build modal
+    var overlay = document.createElement('div');
+    overlay.className = 'share-modal-overlay';
+    overlay.innerHTML =
+        '<div class="share-modal">' +
+            '<h3>Chia sẻ hoạt động</h3>' +
+            '<div class="share-qr-wrap" id="share-qr-container"></div>' +
+            '<input type="text" value="" readonly class="share-link-input" id="share-link-input">' +
+            '<div class="share-modal-actions">' +
+                '<button type="button" class="share-btn-copy" id="share-copy-btn">Sao chép liên kết</button>' +
+                '<button type="button" class="share-btn-close" id="share-close-btn">Đóng</button>' +
+            '</div>' +
+        '</div>';
+    document.body.appendChild(overlay);
+
+    // Close handlers
+    document.getElementById('share-close-btn').addEventListener('click', function() {
+        overlay.remove();
+    });
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.remove();
+    });
+
+    // Copy link handler
+    document.getElementById('share-copy-btn').addEventListener('click', function() {
+        var input = document.getElementById('share-link-input');
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(input.value);
+        } else {
+            input.select();
+            document.execCommand('copy');
+        }
+        this.textContent = 'Đã sao chép!';
+        var btn = this;
+        setTimeout(function() { btn.textContent = 'Sao chép liên kết'; }, 2000);
+    });
+
+    @if(isset($activity) && $activity->isOpenPlay() && isset($isManagement) && $isManagement)
+    // Open play: fetch check-in URL from server
+    fetch('{{ route("clubs.activities.generate-qr", [$club, $activity]) }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+        if (data.success) {
+            var qrUrl = data.checkin_url;
+            document.getElementById('share-link-input').value = qrUrl;
+            new QRCode(document.getElementById('share-qr-container'), {
+                text: qrUrl,
+                width: 200,
+                height: 200,
+                colorDark: '#1f2937',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.M
+            });
+        }
+    });
+    @else
+    // Other activities: use page URL
+    document.getElementById('share-link-input').value = pageUrl;
+    new QRCode(document.getElementById('share-qr-container'), {
+        text: pageUrl,
+        width: 200,
+        height: 200,
+        colorDark: '#1f2937',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.M
+    });
+    @endif
+}
+
 // Header dropdown menu
 function toggleHeaderMenu() {
     var dropdown = document.getElementById('header-dropdown');
@@ -87,50 +170,4 @@ document.addEventListener('click', function(e) {
         }
     }
 });
-
-@if(isset($activity) && $activity->isOpenPlay() && isset($isManagement) && $isManagement)
-function generateQrCode() {
-    fetch('{{ route("clubs.activities.generate-qr", [$club, $activity]) }}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-    })
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-        if (data.success) {
-            // Show modal with QR link
-            var modal = document.createElement('div');
-            modal.className = 'ca-qr-modal-overlay';
-            modal.innerHTML =
-                '<div class="ca-qr-modal">' +
-                    '<h3>Ma QR Check-in</h3>' +
-                    '<p style="margin:12px 0;font-size:13px;color:#666;">Chia se link nay hoac tao ma QR tu link ben duoi:</p>' +
-                    '<div class="ca-qr-link-box">' +
-                        '<input type="text" value="' + data.checkin_url + '" readonly id="qr-link-input" style="width:100%;padding:10px;border:2px solid #e0e0e0;border-radius:8px;font-size:13px;">' +
-                    '</div>' +
-                    '<div style="display:flex;gap:8px;margin-top:16px;">' +
-                        '<button onclick="copyQrLink()" style="flex:1;padding:10px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Sao chep link</button>' +
-                        '<button onclick="this.closest(\'.ca-qr-modal-overlay\').remove()" style="flex:1;padding:10px;background:#f3f4f6;color:#555;border:none;border-radius:8px;font-weight:600;cursor:pointer;">Dong</button>' +
-                    '</div>' +
-                '</div>';
-            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;';
-            modal.querySelector('.ca-qr-modal').style.cssText = 'background:#fff;border-radius:16px;padding:24px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,0.15);';
-            modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
-            document.body.appendChild(modal);
-        }
-    });
-}
-
-function copyQrLink() {
-    var input = document.getElementById('qr-link-input');
-    input.select();
-    document.execCommand('copy');
-    var btn = input.closest('.ca-qr-modal').querySelector('button');
-    btn.textContent = 'Da sao chep!';
-    setTimeout(function() { btn.textContent = 'Sao chep link'; }, 2000);
-}
-@endif
 </script>
