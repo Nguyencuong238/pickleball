@@ -297,7 +297,7 @@
 
             <!-- Quick Actions -->
             <div class="quick-actions fade-in">
-                <a href="{{ route('homeyard.tournaments.index') }}" class="quick-action-btn">
+                <a href="{{ url('tournament-manage/tournaments') }}" class="quick-action-btn">
                     <div class="quick-action-icon">➕</div>
                     <div class="quick-action-title">Tạo Giải Mới</div>
                 </a>
@@ -305,9 +305,9 @@
                     <div class="quick-action-icon">✅</div>
                     <div class="quick-action-title">Duyệt VĐV</div>
                 </a> --}}
-                <a href="{{ route('homeyard.matches') }}" class="quick-action-btn">
-                    <div class="quick-action-icon">🎾</div>
-                    <div class="quick-action-title">Cập Nhật Kết Quả</div>
+                <a href="{{ route('homeyard.rankings') }}" class="quick-action-btn">
+                    <div class="quick-action-icon">📊</div>
+                    <div class="quick-action-title">Xếp hạng</div>
                 </a>
                 <a href="{{ route('homeyard.leagues.index') }}" class="quick-action-btn">
                     <div class="quick-action-icon">🏅</div>
@@ -397,7 +397,7 @@
                     <div class="card-header">
                         <h3 class="card-title">Giải Đấu Gần Đây</h3>
                         <div class="card-actions">
-                            <a href="{{ route('homeyard.tournaments.index') }}" class="btn btn-ghost btn-sm">Xem tất cả →</a>
+                            <a href="{{ url('tournament-manage/tournaments') }}" class="btn btn-ghost btn-sm">Xem tất cả →</a>
                         </div>
                     </div>
                     <div class="card-body">
