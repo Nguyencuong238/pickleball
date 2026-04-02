@@ -5,7 +5,7 @@
             @if ($paginator->onFirstPage())
                 <span style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #999; cursor: not-allowed; opacity: 0.5;">← Trước</span>
             @else
-                <a href="{{ $paginator->previousPageUrl() }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #00d9b5; text-decoration: none; display: inline-block; transition: all 0.3s ease;">← Trước</a>
+                <a href="{{ $paginator->previousPageUrl() }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #006646; text-decoration: none; display: inline-block; transition: all 0.3s ease;">← Trước</a>
             @endif
 
             {{-- Pagination Elements --}}
@@ -19,9 +19,9 @@
                 @if (is_array($element))
                     @foreach ($element as $page => $url)
                         @if ($page == $paginator->currentPage())
-                            <span style="padding: 8px 12px; border: 1px solid #00d9b5; border-radius: 4px; background-color: #00d9b5; color: white; display: inline-block;">{{ $page }}</span>
+                            <span style="padding: 8px 12px; border: 1px solid #006646; border-radius: 4px; background-color: #006646; color: white; display: inline-block;">{{ $page }}</span>
                         @else
-                            <a href="{{ $url }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #00d9b5; text-decoration: none; display: inline-block; transition: all 0.3s ease;">{{ $page }}</a>
+                            <a href="{{ $url }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #006646; text-decoration: none; display: inline-block; transition: all 0.3s ease;">{{ $page }}</a>
                         @endif
                     @endforeach
                 @endif
@@ -29,7 +29,7 @@
 
             {{-- Next Page Link --}}
             @if ($paginator->hasMorePages())
-                <a href="{{ $paginator->nextPageUrl() }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #00d9b5; text-decoration: none; display: inline-block; transition: all 0.3s ease;">Sau →</a>
+                <a href="{{ $paginator->nextPageUrl() }}" style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #006646; text-decoration: none; display: inline-block; transition: all 0.3s ease;">Sau →</a>
             @else
                 <span style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; color: #999; cursor: not-allowed; opacity: 0.5;">Sau →</span>
             @endif
@@ -38,9 +38,9 @@
 
     <style>
         nav a:hover {
-            background-color: #00d9b5 !important;
+            background-color: #006646 !important;
             color: white !important;
-            border-color: #00d9b5 !important;
+            border-color: #006646 !important;
         }
     </style>
 @endif
