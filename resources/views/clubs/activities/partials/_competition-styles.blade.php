@@ -42,7 +42,7 @@
     opacity: 0.6;
     cursor: not-allowed;
 }
-.btn-add-team { background: #00D9B5; color: white; }
+.btn-add-team { background: #006646; color: white; }
 .btn-add-team:hover:not(:disabled) { background: #0db89d; }
 .btn-generate { background: #f59e0b; color: white; }
 .btn-generate:hover:not(:disabled) { background: #d97706; }
@@ -83,7 +83,7 @@
     font-size: 0.9rem;
 }
 .btn-save-score {
-    background: #00D9B5;
+    background: #006646;
     color: white;
     padding: 6px 12px;
     border: none;

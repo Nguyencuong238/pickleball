@@ -29,7 +29,7 @@
             border: 1px solid #ddd !important;
             border-radius: 4px !important;
             text-decoration: none !important;
-            color: #00d9b5 !important;
+            color: #006646 !important;
             transition: all 0.3s ease !important;
             font-size: 14px !important;
             display: inline-block !important;
@@ -37,15 +37,15 @@
         }
 
         nav[role="navigation"] .page-link:hover {
-            background-color: #00d9b5 !important;
+            background-color: #006646 !important;
             color: white !important;
-            border-color: #00d9b5 !important;
+            border-color: #006646 !important;
         }
 
         nav[role="navigation"] .page-item.active .page-link {
-            background-color: #00d9b5 !important;
+            background-color: #006646 !important;
             color: white !important;
-            border-color: #00d9b5 !important;
+            border-color: #006646 !important;
         }
 
         nav[role="navigation"] .page-item.disabled .page-link {
@@ -133,7 +133,7 @@
         .booking-code-value {
             font-size: 16px;
             font-weight: 600;
-            color: #00d9b5;
+            color: #006646;
             font-family: 'Courier New', monospace;
         }
 
@@ -202,7 +202,7 @@
         .booking-amount {
             font-size: 18px;
             font-weight: 600;
-            color: #00d9b5;
+            color: #006646;
         }
 
         .booking-actions {
@@ -212,7 +212,7 @@
 
         .btn-view {
             padding: 8px 16px;
-            background-color: #00d9b5;
+            background-color: #006646;
             color: white;
             border: none;
             border-radius: 6px;
@@ -256,7 +256,7 @@
         .empty-state a {
             display: inline-block;
             padding: 10px 20px;
-            background-color: #00d9b5;
+            background-color: #006646;
             color: white;
             border-radius: 6px;
             text-decoration: none;
@@ -277,7 +277,7 @@
         }
 
         .breadcrumb a {
-            color: #00d9b5;
+            color: #006646;
             text-decoration: none;
         }
 

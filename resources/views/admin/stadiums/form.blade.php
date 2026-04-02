@@ -219,7 +219,7 @@
             <a href="{{ route('admin.stadiums.index') }}" class="btn"
                 style="background-color: #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">Hủy</a>
             <button type="submit" class="btn"
-                style="background-color: #00D9B5; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+                style="background-color: #006646; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
                 {{ isset($stadium) ? 'Cập Nhật Sân' : 'Tạo Sân Mới' }}
             </button>
         </div>

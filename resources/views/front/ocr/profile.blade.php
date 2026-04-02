@@ -184,7 +184,7 @@
 
     .progress-fill {
         height: 100%;
-        background: linear-gradient(90deg, #00D9B5, #0099CC);
+        background: linear-gradient(90deg, #006646, #52c98c);
         border-radius: 4px;
         transition: width 0.3s;
     }
@@ -332,7 +332,7 @@
                             @if(auth()->id() === $user->id)
                                 @if($user->canRequestVerification())
                                     <a href="{{ route('opr-verification.create') }}"
-                                       style="display: inline-flex; align-items: center; gap: 0.25rem; background: linear-gradient(135deg, #00D9B5, #0099CC); color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; text-decoration: none; margin-left: 0.5rem;">
+                                       style="display: inline-flex; align-items: center; gap: 0.25rem; background: linear-gradient(135deg, #006646, #52c98c); color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; text-decoration: none; margin-left: 0.5rem;">
                                         Gửi Xác Minh
                                     </a>
                                 @elseif($user->hasPendingVerificationRequest())

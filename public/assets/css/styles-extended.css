@@ -1931,11 +1931,11 @@
 }
 
 .stat-icon-wrapper.blue {
-    background: linear-gradient(135deg, #0099CC, #0077AA);
+    background: linear-gradient(135deg, #52c98c, #0077AA);
 }
 
 .stat-icon-wrapper.green {
-    background: linear-gradient(135deg, #00D9B5, #00B89A);
+    background: linear-gradient(135deg, #006646, #004d34);
 }
 
 .stat-icon-wrapper.orange {

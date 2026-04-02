@@ -4,7 +4,7 @@
 <style>
     .matches-container {
         min-height: 100vh;
-        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
+        background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
         padding: 60px 20px 80px;
         margin-top: 100px;
     }

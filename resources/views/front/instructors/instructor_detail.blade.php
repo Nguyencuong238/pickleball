@@ -372,7 +372,7 @@
                                     <!-- Edit/Delete buttons for own reviews -->
                                     @if(auth()->check() && auth()->user()->id === $review->user_id)
                                         <div class="review-actions" style="margin-top: 12px; display: flex; gap: 8px;">
-                                            <button class="btn-edit-review btn-sm" data-review-id="{{ $review->id }}" data-rating="{{ $review->rating }}" data-content="{{ $review->content }}" data-tags="{{ implode(',', $review->tags ?? []) }}" style="padding: 6px 12px; font-size: 13px; background-color: #00D9B5; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                            <button class="btn-edit-review btn-sm" data-review-id="{{ $review->id }}" data-rating="{{ $review->rating }}" data-content="{{ $review->content }}" data-tags="{{ implode(',', $review->tags ?? []) }}" style="padding: 6px 12px; font-size: 13px; background-color: #006646; color: white; border: none; border-radius: 4px; cursor: pointer;">
                                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline; margin-right: 4px;">
                                                     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
                                                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
@@ -857,7 +857,7 @@
 
         .form-control:focus {
             outline: none;
-            border-color: #00D9B5;
+            border-color: #006646;
             box-shadow: 0 0 0 3px rgba(0, 217, 181, 0.1);
         }
 

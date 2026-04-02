@@ -5,7 +5,7 @@
 @section('css')
 <style>
     .history-header {
-        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
+        background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;

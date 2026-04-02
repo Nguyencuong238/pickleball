@@ -3,7 +3,7 @@
 @section('title', $page->title)
 
 @section('content')
-<div style="background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%); padding: clamp(40px, 8vw, 80px) 20px;">
+<div style="background: linear-gradient(135deg, #006646 0%, #52c98c 100%); padding: clamp(40px, 8vw, 80px) 20px;">
     <div class="container" style="max-width: 900px; margin: 0 auto;">
         <h1 style="color: white; font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 700; margin: 0; line-height: 1.2;">
             {{ $page->title }}
@@ -33,7 +33,7 @@
 
         <!-- Back Link -->
         <div style="margin-top: 30px;">
-            <a href="{{ url('/') }}" style="color: #00D9B5; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
+            <a href="{{ url('/') }}" style="color: #006646; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;">
                 <i class="fas fa-arrow-left"></i> Back to Home
             </a>
         </div>

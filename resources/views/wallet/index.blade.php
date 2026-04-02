@@ -179,7 +179,7 @@
 
     /* Header */
     .wallet-header {
-        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
+        background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
         color: white;
         padding: 3rem 0;
         margin-bottom: 2rem;
@@ -199,7 +199,7 @@
 
     /* Balance Card */
     .wallet-balance-card {
-        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
+        background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
         border-radius: 16px;
         padding: 2.5rem;
         color: white;

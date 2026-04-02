@@ -15,7 +15,7 @@
     .referral-header h2 {
         font-size: clamp(1.8rem, 5vw, 2.5rem);
         font-weight: 700;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -68,7 +68,7 @@
 
     .btn-copy {
         padding: 12px 24px;
-        background: #00D9B5;
+        background: #006646;
         color: white;
         border: none;
         border-radius: 10px;
@@ -107,7 +107,7 @@
     .stat-number {
         font-size: 2rem;
         font-weight: 700;
-        color: #00D9B5;
+        color: #006646;
         margin-bottom: 8px;
     }
 
@@ -190,7 +190,7 @@
         <h2>💼 Giới Thiệu Người Dùng</h2>
         <p>Chia sẻ mã referral của bạn và kiếm thêm lợi ích khi bạn bè đăng ký qua link của bạn</p>
         <div style="margin-top: 15px;">
-            <a href="{{ route('user.wallet.history') }}" style="display: inline-block; padding: 10px 20px; background: #00D9B5; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#00b899'" onmouseout="this.style.background='#00D9B5'">
+            <a href="{{ route('user.wallet.history') }}" style="display: inline-block; padding: 10px 20px; background: #006646; color: white; text-decoration: none; border-radius: 8px; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='#00b899'" onmouseout="this.style.background='#006646'">
                 📊 Xem Lịch Sử Điểm
             </a>
         </div>
@@ -202,7 +202,7 @@
         <div class="referral-section">
             @if($user->referral_code)
             <p style="margin: 0 0 10px 0; color: #065f46; font-weight: 500;">Chia sẻ link dưới đây để bạn bè có thể đăng ký qua bạn</p>
-            <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 0.85rem;">Mã của bạn: <strong style="color: #00D9B5;">{{ $user->referral_code }}</strong></p>
+            <p style="margin: 0 0 15px 0; color: #6b7280; font-size: 0.85rem;">Mã của bạn: <strong style="color: #006646;">{{ $user->referral_code }}</strong></p>
             <div style="margin-bottom: 15px; padding: 12px; background: #dbeafe; border: 1px solid #3b82f6; border-radius: 8px; color: #1e40af; font-size: 0.9rem;">
                 <strong>💡 Thông báo:</strong> Bạn sẽ nhận được 10 điểm sau khi user hoàn thành đăng ký tài khoản và đánh giá trình độ.
             </div>

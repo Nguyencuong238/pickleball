@@ -135,7 +135,7 @@
 
     /* Header */
     .transaction-detail-header {
-        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
+        background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
         color: white;
         padding: 2rem 0;
         margin-bottom: 2rem;

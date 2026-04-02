@@ -357,7 +357,7 @@
         }
 
         .btn-primary {
-            background-color: #00d9b5;
+            background-color: #006646;
             color: white;
         }
 
@@ -617,7 +617,7 @@
                         <p style="margin-bottom: 8px; color: #666;">
                             <strong>Mã đơn đặt:</strong>
                         </p>
-                        <p style="font-size: 20px; font-weight: 600; color: #00d9b5; margin: 0;" id="successBookingCode">-
+                        <p style="font-size: 20px; font-weight: 600; color: #006646; margin: 0;" id="successBookingCode">-
                         </p>
                     </div>
                     <div
@@ -631,7 +631,7 @@
                     </div>
                     <div style="background-color: #e8f5e9; border-left: 4px solid #27ae60; padding: 12px; border-radius: 4px; text-align: left;">
                         <p style="margin: 0; font-size: 13px; color: #2e7d32;">
-                            <strong>💡 Ghi chú:</strong> Bạn có thể theo dõi tình trạng đơn đặt trong mục "<a href="{{ route('user.booking-history.index') }}" style="color: #00d9b5; text-decoration: underline;">Lịch sử đặt sân</a>".
+                            <strong>💡 Ghi chú:</strong> Bạn có thể theo dõi tình trạng đơn đặt trong mục "<a href="{{ route('user.booking-history.index') }}" style="color: #006646; text-decoration: underline;">Lịch sử đặt sân</a>".
                         </p>
                     </div>
                 </div>
@@ -680,7 +680,7 @@
                         <input type="file" id="transferProofInput" accept="image/jpeg,image/png,image/jpg"
                             style="display: none;">
                         <button type="button" id="selectProofBtn"
-                            style="background: none; border: 2px dashed #00d9b5; color: #00d9b5; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
+                            style="background: none; border: 2px dashed #006646; color: #006646; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600;">
                             Chọn ảnh xác nhận chuyển khoản
                         </button>
                         <p style="color: #888; font-size: 12px; margin-top: 8px; margin-bottom: 0;">JPG, PNG - Tối đa 5MB
@@ -697,7 +697,7 @@
                     <div id="proofProgressBar" style="display: none; margin-top: 10px;">
                         <div style="background: #eee; border-radius: 4px; overflow: hidden; height: 6px;">
                             <div id="proofProgressFill"
-                                style="background: #00d9b5; height: 100%; width: 0%; transition: width 0.3s;"></div>
+                                style="background: #006646; height: 100%; width: 0%; transition: width 0.3s;"></div>
                         </div>
                         <p style="color: #888; font-size: 12px; margin-top: 4px;">Đang tải lên...</p>
                     </div>

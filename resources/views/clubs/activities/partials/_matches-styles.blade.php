@@ -42,7 +42,7 @@
     white-space: nowrap;
 }
 .btn-matches:disabled { opacity: 0.6; cursor: not-allowed; }
-.btn-matches-primary { background: #00D9B5; color: white; }
+.btn-matches-primary { background: #006646; color: white; }
 .btn-matches-primary:hover:not(:disabled) { background: #0db89d; }
 .btn-matches-secondary { background: #e0f2fe; color: #0369a1; }
 .btn-matches-secondary:hover:not(:disabled) { background: #bae6fd; }
@@ -135,7 +135,7 @@
     font-size: 0.85rem;
 }
 .btn-save-score {
-    background: #00D9B5;
+    background: #006646;
     color: white;
     padding: 5px 10px;
     border: none;

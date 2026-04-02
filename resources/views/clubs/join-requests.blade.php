@@ -34,7 +34,7 @@
     .header-content h1 {
         font-size: 2.2rem;
         font-weight: 800;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -67,9 +67,9 @@
     }
 
     .back-btn:hover {
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
-        border-color: #00D9B5;
+        border-color: #006646;
         transform: translateX(-3px);
     }
 
@@ -105,8 +105,8 @@
     }
 
     .tab-btn.active {
-        color: #00D9B5;
-        border-bottom-color: #00D9B5;
+        color: #006646;
+        border-bottom-color: #006646;
     }
 
     .tab-content {
@@ -144,7 +144,7 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-left: 4px solid #00D9B5;
+        border-left: 4px solid #006646;
         transition: all 0.3s ease;
     }
 
@@ -164,7 +164,7 @@
         width: 50px;
         height: 50px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         font-weight: 700;
         font-size: 1.2rem;

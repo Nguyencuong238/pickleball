@@ -17,7 +17,7 @@
     .clubs-header h2 {
         font-size: 2.5rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -27,7 +27,7 @@
     .clubs-header .btn-create {
         display: inline-block;
         padding: 12px 30px;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         border-radius: 8px;
         text-decoration: none;
@@ -64,7 +64,7 @@
     .club-image {
         width: 100%;
         height: 200px;
-        /* background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%); */
+        /* background: linear-gradient(135deg, #006646 0%, #0db89d 100%); */
         display: flex;
         align-items: center;
         justify-content: center;
@@ -77,7 +77,7 @@
         width: 100%;
         height: 100%;
         object-fit: contain;
-        /* background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%); */
+        /* background: linear-gradient(135deg, #006646 0%, #0db89d 100%); */
     }
 
     .club-content {
@@ -137,7 +137,7 @@
 
     .club-meta-item .count {
         font-weight: 700;
-        color: #00D9B5;
+        color: #006646;
         font-size: 1.2rem;
     }
 
@@ -149,7 +149,7 @@
     .btn-view {
         flex: 1;
         padding: 10px;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         border: none;
         border-radius: 8px;
@@ -221,15 +221,15 @@
     }
 
     .pagination a:hover {
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
-        border-color: #00D9B5;
+        border-color: #006646;
     }
 
     .pagination .active span {
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
-        border-color: #00D9B5;
+        border-color: #006646;
     }
 
     .pagination .disabled span {
@@ -239,9 +239,9 @@
     }
 
     .pagination li.active a {
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
-        border-color: #00D9B5;
+        border-color: #006646;
     }
 </style>
 

@@ -45,11 +45,11 @@
     transition: all 0.3s ease;
 }
 .type-card:hover {
-    border-color: #00D9B5;
+    border-color: #006646;
     background: #f0fdfb;
 }
 .type-card.active {
-    border-color: #00D9B5;
+    border-color: #006646;
     background: linear-gradient(135deg, rgba(0,217,181,0.08), rgba(0,217,181,0.02));
     box-shadow: 0 0 0 3px rgba(0,217,181,0.1);
 }
@@ -59,7 +59,7 @@
     color: #6b7280;
 }
 .type-card.active .type-icon {
-    color: #00D9B5;
+    color: #006646;
 }
 .type-label {
     font-weight: 700;

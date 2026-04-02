@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --primary-color: #00D9B5;
+            --primary-color: #006646;
             --sidebar-bg: #1e293b;
             --sidebar-hover: #334155;
         }

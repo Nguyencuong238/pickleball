@@ -172,11 +172,11 @@
                              <label class="form-label">Giới tính <span style="color: #dc3545;">*</span></label>
                              <div style="display: flex; gap: 1.5rem; margin-top: 0.5rem;">
                                  <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                     <input type="radio" name="gender" value="male" {{ old('gender') == 'male' ? 'checked' : '' }} required style="width: 18px; height: 18px; accent-color: #00D9B5;">
+                                     <input type="radio" name="gender" value="male" {{ old('gender') == 'male' ? 'checked' : '' }} required style="width: 18px; height: 18px; accent-color: #006646;">
                                      <span>Nam</span>
                                  </label>
                                  <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                                     <input type="radio" name="gender" value="female" {{ old('gender') == 'female' ? 'checked' : '' }} required style="width: 18px; height: 18px; accent-color: #00D9B5;">
+                                     <input type="radio" name="gender" value="female" {{ old('gender') == 'female' ? 'checked' : '' }} required style="width: 18px; height: 18px; accent-color: #006646;">
                                      <span>Nữ</span>
                                  </label>
                              </div>
@@ -316,8 +316,8 @@
                 <div class="auth-side-content">
                     <div class="side-icon">
                         <svg viewBox="0 0 120 120" fill="none">
-                            <circle cx="60" cy="60" r="55" stroke="#00D9B5" stroke-width="3" fill="rgba(0,217,181,0.1)"/>
-                            <circle cx="60" cy="60" r="40" fill="#00D9B5"/>
+                            <circle cx="60" cy="60" r="55" stroke="#006646" stroke-width="3" fill="rgba(0,217,181,0.1)"/>
+                            <circle cx="60" cy="60" r="40" fill="#006646"/>
                             <path d="M40 60 L55 75 L80 45" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
                         </svg>
                     </div>

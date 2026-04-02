@@ -12,8 +12,8 @@
             <svg viewBox="0 0 1200 300" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
                 <defs>
                     <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" style="stop-color:#00D9B5;stop-opacity:1" />
-                        <stop offset="50%" style="stop-color:#0099CC;stop-opacity:1" />
+                        <stop offset="0%" style="stop-color:#006646;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#52c98c;stop-opacity:1" />
                         <stop offset="100%" style="stop-color:#006699;stop-opacity:1" />
                     </linearGradient>
                     <pattern id="courtPattern" patternUnits="userSpaceOnUse" width="100" height="100">

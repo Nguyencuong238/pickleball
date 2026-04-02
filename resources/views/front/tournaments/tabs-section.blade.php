@@ -407,9 +407,9 @@
     }
 
     .front-schedule-cat-tab.active {
-        background: var(--primary-color, #00d9b5);
+        background: var(--primary-color, #006646);
         color: #fff;
-        border-color: var(--primary-color, #00d9b5);
+        border-color: var(--primary-color, #006646);
     }
 
     .front-schedule-cat-content {
@@ -624,7 +624,7 @@
 
     .front-schedule-summary-bar {
         height: 100%;
-        background: var(--primary-color, #00d9b5);
+        background: var(--primary-color, #006646);
         border-radius: 4px;
         min-width: 2px;
     }

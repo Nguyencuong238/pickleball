@@ -67,12 +67,12 @@
 }
 
 .tag-option:hover {
-    border-color: #00D9B5;
+    border-color: #006646;
     background-color: rgba(0, 217, 181, 0.05);
 }
 
 .tag-option input:checked + span {
-    color: #00D9B5;
+    color: #006646;
 }
 
 .review-form-section .form-group {
@@ -97,7 +97,7 @@
 .review-tag {
     display: inline-block;
     background-color: rgba(0, 217, 181, 0.1);
-    color: #00D9B5;
+    color: #006646;
     padding: 4px 10px;
     border-radius: 12px;
     font-size: 12px;

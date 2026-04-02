@@ -81,7 +81,7 @@
                                                 }
                                             }
                                             $initials = $initials ?: 'I';
-                                            $colors = ['#FF8E53', '#00D9B5', '#9D84B7', '#FFC93C', '#FF6B6B'];
+                                            $colors = ['#FF8E53', '#006646', '#9D84B7', '#FFC93C', '#FF6B6B'];
                                             $colorIndex = (ord($initials[0]) + strlen($initials)) % count($colors);
                                             $bgColor = $colors[$colorIndex];
                                         @endphp
@@ -256,7 +256,7 @@
                                         }
                                     }
                                     $initials = $initials ?: 'U';
-                                    $colors = ['#FF8E53', '#00D9B5', '#9D84B7', '#FFC93C', '#FF6B6B'];
+                                    $colors = ['#FF8E53', '#006646', '#9D84B7', '#FFC93C', '#FF6B6B'];
                                     $colorIndex = (ord($initials[0]) + strlen($initials)) % count($colors);
                                     $bgColor = $colors[$colorIndex];
                                 @endphp
@@ -285,7 +285,7 @@
                                             }
                                         }
                                         $initials = $initials ?: 'U';
-                                        $colors = ['#FF8E53', '#00D9B5', '#9D84B7', '#FFC93C', '#FF6B6B'];
+                                        $colors = ['#FF8E53', '#006646', '#9D84B7', '#FFC93C', '#FF6B6B'];
                                         $colorIndex = (ord($initials[0]) + strlen($initials)) % count($colors);
                                         $bgColor = $colors[$colorIndex];
                                     @endphp
@@ -395,7 +395,7 @@
                                      }
                                  }
                                  $initials = $initials ?: 'I';
-                                 $colors = ['#FF8E53', '#00D9B5', '#9D84B7', '#FFC93C', '#FF6B6B'];
+                                 $colors = ['#FF8E53', '#006646', '#9D84B7', '#FFC93C', '#FF6B6B'];
                                  $colorIndex = (ord($initials[0]) + strlen($initials)) % count($colors);
                                  $bgColor = $colors[$colorIndex];
                              @endphp

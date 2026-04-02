@@ -27,7 +27,7 @@
 }
 
 .ca-idx-stat.active {
-    border-bottom-color: #00D9B5;
+    border-bottom-color: #006646;
 }
 
 .ca-idx-stat-value {
@@ -74,7 +74,7 @@
 
 .ca-idx-filter-select:focus {
     outline: none;
-    border-color: #00D9B5;
+    border-color: #006646;
 }
 
 .ca-idx-filter-reset {
@@ -148,7 +148,7 @@
 }
 
 .ca-idx-title-link:hover {
-    color: #00D9B5;
+    color: #006646;
 }
 
 /* Type Badge */

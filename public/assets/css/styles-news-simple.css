@@ -139,7 +139,7 @@
 }
 
 .article-badge.community {
-    background: linear-gradient(135deg, #00D9B5, #0099CC);
+    background: linear-gradient(135deg, #006646, #52c98c);
 }
 
 .article-badge.international {
@@ -147,7 +147,7 @@
 }
 
 .article-badge.tournament {
-    background: linear-gradient(135deg, #0099CC, #9D84B7);
+    background: linear-gradient(135deg, #52c98c, #9D84B7);
 }
 
 .featured-article-content {

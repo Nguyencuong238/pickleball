@@ -44,8 +44,8 @@
 </head>
 <style>
     :root {
-        --primary-color: #00D9B5;
-        --secondary-color: #0099CC;
+        --primary-color: #006646;
+        --secondary-color: #52c98c;
     }
 
     * {
@@ -594,7 +594,7 @@
 
                 @guest
                     <li class="mobile-only login-register-btn">
-                        <a href="/login" class="btn btn-outline" style="border-color: #57e9dc;" >Đăng nhập</a>
+                        <a href="/login" class="btn btn-outline" style="border-color: #52c98c;" >Đăng nhập</a>
                         <a href="/register" class="btn btn-primary" >Đăng ký</a>
                     </li>
                 @endguest
@@ -679,7 +679,7 @@
                     </div>
                 @else
                     <div class="nav-actions">
-                        <a href="/login" class="btn btn-outline" style="border-color: #57e9dc;width: 120px;">Đăng nhập</a>
+                        <a href="/login" class="btn btn-outline" style="border-color: #52c98c;width: 120px;">Đăng nhập</a>
                         <a href="/register" class="btn btn-primary" style="width: 100px">Đăng ký</a>
                     </div>
                 @endauth
@@ -699,7 +699,7 @@
             <div id="gender-modal-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 9999; display: flex; align-items: center; justify-content: center;">
                 <div style="background: #fff; border-radius: 16px; max-width: 420px; width: 90%; padding: 2rem; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: modalFadeIn 0.3s ease;">
                     <div style="text-align: center; margin-bottom: 1.5rem;">
-                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #00D9B5, #0099CC); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
+                        <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #006646, #52c98c); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem;">
                             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
@@ -730,7 +730,7 @@
                             </label>
                         </div>
 
-                        <button type="submit" id="gender-submit-btn" disabled style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #00D9B5, #0099CC); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; opacity: 0.6;">
+                        <button type="submit" id="gender-submit-btn" disabled style="width: 100%; padding: 0.875rem 1.5rem; background: linear-gradient(135deg, #006646, #52c98c); color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.2s ease; opacity: 0.6;">
                             Xác nhận
                         </button>
                     </form>
@@ -745,11 +745,11 @@
                     to { opacity: 1; transform: scale(1); }
                 }
                 .gender-option:hover {
-                    border-color: #00D9B5 !important;
+                    border-color: #006646 !important;
                     background: #f0fdfa;
                 }
                 .gender-option.selected {
-                    border-color: #00D9B5 !important;
+                    border-color: #006646 !important;
                     background: linear-gradient(135deg, rgba(0, 217, 181, 0.1), rgba(0, 153, 204, 0.1));
                 }
                 #gender-submit-btn:not(:disabled):hover {

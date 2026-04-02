@@ -76,7 +76,7 @@
         <!-- Buttons -->
         <div style="display: flex; gap: 10px; justify-content: flex-end; padding-top: 20px; border-top: 1px solid #e2e8f0;">
             <a href="{{ route('admin.pages.index') }}" class="btn" style="background-color: #e2e8f0; color: #1e293b; padding: 10px 20px; border-radius: 6px; text-decoration: none; font-weight: 600;">Cancel</a>
-            <button type="submit" class="btn" style="background-color: #00D9B5; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
+            <button type="submit" class="btn" style="background-color: #006646; color: #1e293b; padding: 10px 20px; border-radius: 6px; border: none; font-weight: 600; cursor: pointer;">
                 {{ isset($page) ? 'Update Page' : 'Create Page' }}
             </button>
         </div>

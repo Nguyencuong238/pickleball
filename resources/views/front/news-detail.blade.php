@@ -65,7 +65,7 @@ $articleImage = $article->getFirstMediaUrl('featured_image') ?? asset('assets/im
                 <div class="article-author-simple">
                     <div class="author-avatar-simple">
                         <svg viewBox="0 0 48 48">
-                            <circle cx="24" cy="24" r="24" fill="#00D9B5"/>
+                            <circle cx="24" cy="24" r="24" fill="#006646"/>
                             <text x="24" y="30" font-family="Inter" font-size="16" fill="white" text-anchor="middle">{{ strtoupper(substr($article->author, 0, 2)) }}</text>
                         </svg>
                     </div>

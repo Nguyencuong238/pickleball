@@ -17,7 +17,7 @@
     .create-header h2 {
         font-size: 2rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -71,7 +71,7 @@
     .form-group textarea:focus,
     .form-group select:focus {
         outline: none;
-        border-color: #00D9B5;
+        border-color: #006646;
         box-shadow: 0 0 0 3px rgba(0, 217, 181, 0.1);
     }
 
@@ -141,7 +141,7 @@
     }
 
     .btn-submit {
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
     }
 

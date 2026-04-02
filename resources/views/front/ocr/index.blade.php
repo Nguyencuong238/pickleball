@@ -272,7 +272,7 @@
     }
 
     .cta-section {
-        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
+        background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
         padding: 3rem;
         border-radius: 1rem;
         color: white;
@@ -454,7 +454,7 @@
             <div class="cta-section" style="margin-top: 2rem;">
                 <h3>Sẵn Sàng Tham Gia Cuộc Đua?</h3>
                 <p>Đăng ký tài khoản để bắt đầu thi đấu, tích lũy điểm Elo và chinh phục bảng xếp hạng!</p>
-                <a href="{{ route('register') }}" class="btn btn-primary btn-lg" style="background: white; color: #0099CC;">
+                <a href="{{ route('register') }}" class="btn btn-primary btn-lg" style="background: white; color: #52c98c;">
                     Đăng Ký Ngay
                 </a>
             </div>

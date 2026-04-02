@@ -65,7 +65,7 @@
             <div style="padding: 60px 20px; text-align: center;">
                 <i class="fas fa-inbox" style="font-size: 3rem; color: #d1d5db; margin-bottom: 20px;"></i>
                 <h4 style="color: #9ca3af; margin: 20px 0;">No stadiums found</h4>
-                <p style="color: #9ca3af;">Start by <a href="{{ route('admin.stadiums.create') }}" style="color: #00D9B5; text-decoration: none; font-weight: 600;">adding a new stadium</a></p>
+                <p style="color: #9ca3af;">Start by <a href="{{ route('admin.stadiums.create') }}" style="color: #006646; text-decoration: none; font-weight: 600;">adding a new stadium</a></p>
             </div>
         @endif
     </div>
@@ -77,8 +77,8 @@
     }
 
     .btn-primary {
-        background-color: #00D9B5;
-        border-color: #00D9B5;
+        background-color: #006646;
+        border-color: #006646;
         color: #1e293b;
         font-weight: 600;
         padding: 10px 20px;

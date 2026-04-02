@@ -14,7 +14,7 @@
         }
 
         .breadcrumb a {
-            color: #00d9b5;
+            color: #006646;
             text-decoration: none;
         }
 
@@ -107,7 +107,7 @@
             color: #333;
             margin-bottom: 20px;
             padding-bottom: 15px;
-            border-bottom: 2px solid #00d9b5;
+            border-bottom: 2px solid #006646;
         }
 
         .info-item {
@@ -134,7 +134,7 @@
         }
 
         .info-value.highlight {
-            color: #00d9b5;
+            color: #006646;
             font-weight: 600;
             font-size: 18px;
             font-family: 'Courier New', monospace;
@@ -179,7 +179,7 @@
             justify-content: space-between;
             align-items: center;
             margin-top: 15px;
-            border: 2px solid #00d9b5;
+            border: 2px solid #006646;
         }
 
         .summary-total .summary-label {
@@ -189,7 +189,7 @@
 
         .summary-total .summary-value {
             font-size: 22px;
-            color: #00d9b5;
+            color: #006646;
         }
 
         .transfer-proof {
@@ -229,7 +229,7 @@
         }
 
         .btn-primary {
-            background-color: #00d9b5;
+            background-color: #006646;
             color: white;
         }
 

@@ -15,7 +15,7 @@
     .profile-header h2 {
         font-size: clamp(1.8rem, 5vw, 2.5rem);
         font-weight: 700;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -55,7 +55,7 @@
         width: 100px;
         height: 100px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         display: flex;
         align-items: center;
@@ -100,7 +100,7 @@
 
     .form-control:focus {
         outline: none;
-        border-color: #00D9B5;
+        border-color: #006646;
         box-shadow: 0 0 0 3px rgba(0, 217, 181, 0.1);
     }
 
@@ -124,7 +124,7 @@
     }
 
     .btn-primary {
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
     }
 
@@ -364,7 +364,7 @@
     }
 
     .btn-copy {
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         padding: 12px 20px;
         border-radius: 8px;
@@ -402,7 +402,7 @@
     .stat-number {
         font-size: 1.8rem;
         font-weight: 700;
-        color: #00D9B5;
+        color: #006646;
     }
 
     .stat-label {

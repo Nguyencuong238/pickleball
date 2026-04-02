@@ -14,14 +14,14 @@
 
 :root {
     /* Primary Colors */
-    --primary-color: #00D9B5;
-    --primary-dark: #00B89A;
-    --primary-light: #33E3C6;
+    --primary-color: #006646;
+    --primary-dark: #004d34;
+    --primary-light: #008a5c;
 
     /* Secondary Colors */
-    --secondary-color: #0099CC;
-    --secondary-dark: #007AA3;
-    --secondary-light: #33ADDB;
+    --secondary-color: #52c98c;
+    --secondary-dark: #3daa74;
+    --secondary-light: #7dd6a8;
 
     /* Accent Colors */
     --accent-orange: #FF8E53;
@@ -44,7 +44,7 @@
     --status-success: #4ADE80;
     --status-warning: #FFD93D;
     --status-danger: #FF6B6B;
-    --status-info: #0099CC;
+    --status-info: #52c98c;
 
     /* Spacing */
     --spacing-xs: 0.5rem;

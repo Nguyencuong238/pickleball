@@ -13,7 +13,7 @@
 
 /* ========== Header Banner ========== */
 .activity-header-banner {
-    background: linear-gradient(135deg, #00D9B5 0%, #00B89C 50%, #009688 100%);
+    background: linear-gradient(135deg, #006646 0%, #00B89C 50%, #009688 100%);
     padding: 20px 20px 24px;
     color: white;
     border-radius: 16px 16px 0 0;
@@ -153,7 +153,7 @@
 }
 .tab-btn:hover { color: #6b7280; }
 .tab-btn.active {
-    color: #00D9B5;
+    color: #006646;
 }
 .tab-btn.active::after {
     content: '';
@@ -161,7 +161,7 @@
     bottom: -2px;
     left: 0; right: 0;
     height: 3px;
-    background: #00D9B5;
+    background: #006646;
     border-radius: 3px 3px 0 0;
 }
 .tab-btn svg { flex-shrink: 0; }
@@ -208,7 +208,7 @@
     border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    color: #00D9B5;
+    color: #006646;
 }
 .section-content {
     flex: 1;
@@ -233,7 +233,7 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    color: #00D9B5;
+    color: #006646;
     font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
@@ -260,7 +260,7 @@
 .organizer-avatar-placeholder {
     width: 48px; height: 48px;
     border-radius: 12px;
-    background: linear-gradient(135deg, #00D9B5, #0099CC);
+    background: linear-gradient(135deg, #006646, #52c98c);
     display: flex; align-items: center; justify-content: center;
     color: white;
     font-weight: 700;
@@ -276,8 +276,8 @@
 .organizer-sub { font-size: 0.8rem; color: #9ca3af; }
 .btn-outline-sm {
     padding: 6px 14px;
-    border: 1.5px solid #00D9B5;
-    color: #00D9B5;
+    border: 1.5px solid #006646;
+    color: #006646;
     background: none;
     border-radius: 8px;
     font-size: 0.8rem;
@@ -288,7 +288,7 @@
     align-self: center;
 }
 .btn-outline-sm:hover {
-    background: #00D9B5;
+    background: #006646;
     color: white;
 }
 
@@ -311,7 +311,7 @@
 }
 .avatar-sm:first-child { margin-left: 0; }
 .avatar-sm-placeholder {
-    background: linear-gradient(135deg, #00D9B5, #0099CC);
+    background: linear-gradient(135deg, #006646, #52c98c);
     display: flex; align-items: center; justify-content: center;
     color: white;
     font-size: 0.75rem;
@@ -376,7 +376,7 @@
 }
 .club-avatar-sm-placeholder {
     display: flex; align-items: center; justify-content: center;
-    background: linear-gradient(135deg, #00D9B5, #0099CC);
+    background: linear-gradient(135deg, #006646, #52c98c);
     color: white;
     font-weight: 700;
     font-size: 0.9rem;
@@ -389,7 +389,7 @@
     text-decoration: none;
     font-size: 0.9rem;
 }
-.detail-club-info a:hover { color: #00D9B5; }
+.detail-club-info a:hover { color: #006646; }
 
 /* ========== Share Section ========== */
 .detail-share-section {
@@ -413,8 +413,8 @@
     transition: all 0.2s;
 }
 .btn-share-activity:hover {
-    border-color: #00D9B5;
-    color: #00D9B5;
+    border-color: #006646;
+    color: #006646;
     background: #f0fdf4;
 }
 
@@ -468,7 +468,7 @@
 .share-btn-copy {
     flex: 1;
     padding: 10px;
-    background: #00D9B5;
+    background: #006646;
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -514,7 +514,7 @@
     text-align: center;
 }
 .btn-join {
-    background: linear-gradient(135deg, #00D9B5, #0db89d);
+    background: linear-gradient(135deg, #006646, #0db89d);
     color: white;
 }
 .btn-join:hover {
@@ -609,7 +609,7 @@
     flex-shrink: 0;
 }
 .participant-avatar-lg-placeholder {
-    background: linear-gradient(135deg, #00D9B5, #0099CC);
+    background: linear-gradient(135deg, #006646, #52c98c);
     display: flex; align-items: center; justify-content: center;
     color: white;
     font-size: 1rem;
@@ -727,6 +727,6 @@
     .rsvp-button-wrap,
     .btn-outline-sm { display: none; }
     .tab-content { display: block !important; opacity: 1 !important; }
-    .activity-header-banner { background: #00D9B5 !important; -webkit-print-color-adjust: exact; }
+    .activity-header-banner { background: #006646 !important; -webkit-print-color-adjust: exact; }
 }
 </style>

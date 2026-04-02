@@ -27,7 +27,7 @@
     .welcome-header h2 {
         font-size: clamp(1.8rem, 5vw, 2.5rem);
         font-weight: 700;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -72,7 +72,7 @@
         width: clamp(80px, 15vw, 100px);
         height: clamp(80px, 15vw, 100px);
         margin: 0 auto 20px;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         border-radius: 50%;
         display: flex;
@@ -100,7 +100,7 @@
 
     .role-badge {
         display: inline-block;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         padding: 6px 16px;
         border-radius: 20px;
@@ -118,7 +118,7 @@
     .edit-profile-btn {
         width: 100%;
         padding: 12px;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         border: none;
         border-radius: 10px;
@@ -162,7 +162,7 @@
     .stat-value {
         font-size: 1.75rem;
         font-weight: 700;
-        color: #00D9B5;
+        color: #006646;
     }
 
     .menu-grid {
@@ -188,7 +188,7 @@
         left: 0;
         right: 0;
         height: 3px;
-        background: linear-gradient(90deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(90deg, #006646 0%, #0db89d 100%);
         transform: scaleX(0);
         transform-origin: left;
         transition: transform 0.3s ease;
@@ -217,7 +217,7 @@
     }
 
     .icon-box-teal {
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
     }
 
     .icon-box-blue {
@@ -254,7 +254,7 @@
     .menu-btn {
         display: inline-block;
         padding: clamp(8px, 1vw, 10px) clamp(12px, 2vw, 16px);
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         color: white;
         border-radius: 8px;
         text-decoration: none;

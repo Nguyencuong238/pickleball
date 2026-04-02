@@ -4,7 +4,7 @@
 <style>
     .matches-container {
         min-height: 100vh;
-        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
+        background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
         padding: 60px 20px 80px;
         margin-top: 100px;
     }
@@ -50,13 +50,13 @@
 
     .filter-btn:hover {
         background: white;
-        color: #00D9B5;
+        color: #006646;
         transform: translateY(-2px);
     }
 
     .filter-btn.active {
         background: white;
-        color: #00D9B5;
+        color: #006646;
     }
 
     .matches-wrapper {
@@ -103,7 +103,7 @@
     }
 
     .match-card.accepted {
-        border-left-color: #00D9B5;
+        border-left-color: #006646;
     }
 
     .match-card.in_progress {
@@ -136,7 +136,7 @@
 
     .status-accepted {
         background: rgba(0, 217, 181, 0.1);
-        color: #00D9B5;
+        color: #006646;
     }
 
     .status-in_progress {
@@ -165,7 +165,7 @@
     .match-type {
         display: inline-block;
         background: #f1f5f9;
-        color: #0099CC;
+        color: #52c98c;
         padding: 4px 10px;
         border-radius: 12px;
         font-size: 0.75rem;
@@ -190,7 +190,7 @@
         width: 40px;
         height: 40px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #00D9B5 0%, #0099CC 100%);
+        background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
         color: white;
         display: flex;
         align-items: center;
@@ -213,7 +213,7 @@
     .vs-separator {
         text-align: center;
         font-weight: 700;
-        color: #0099CC;
+        color: #52c98c;
         font-size: 0.85rem;
         margin: 12px 0;
         text-transform: uppercase;
@@ -237,7 +237,7 @@
     .score-number {
         font-size: 1.8rem;
         font-weight: 800;
-        color: #0099CC;
+        color: #52c98c;
     }
 
     .match-details {
@@ -302,19 +302,19 @@
         padding: 10px 14px;
         border-radius: 8px;
         background: white;
-        color: #0099CC;
+        color: #52c98c;
         text-decoration: none;
         font-weight: 600;
         transition: all 0.3s ease;
     }
 
     .pagination a:hover {
-        background: #0099CC;
+        background: #52c98c;
         color: white;
     }
 
     .pagination .active {
-        background: #0099CC;
+        background: #52c98c;
         color: white;
     }
 
@@ -476,19 +476,19 @@
                 <div style="display: flex; justify-content: center; gap: 8px; margin-top: 40px; flex-wrap: wrap;">
                     @if($matches->onFirstPage())
                     @else
-                        <a href="{{ $matches->previousPageUrl() }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #0099CC; text-decoration: none; font-weight: 600;">← Trước</a>
+                        <a href="{{ $matches->previousPageUrl() }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #52c98c; text-decoration: none; font-weight: 600;">← Trước</a>
                     @endif
 
                     @foreach($matches->getUrlRange(1, $matches->lastPage()) as $page => $url)
                         @if($page == $matches->currentPage())
-                            <span style="padding: 10px 14px; border-radius: 8px; background: white; color: #0099CC; font-weight: 600;">{{ $page }}</span>
+                            <span style="padding: 10px 14px; border-radius: 8px; background: white; color: #52c98c; font-weight: 600;">{{ $page }}</span>
                         @else
-                            <a href="{{ $url }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #0099CC; text-decoration: none; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#0099CC'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#0099CC';">{{ $page }}</a>
+                            <a href="{{ $url }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #52c98c; text-decoration: none; font-weight: 600; transition: all 0.3s ease;" onmouseover="this.style.backgroundColor='#52c98c'; this.style.color='white';" onmouseout="this.style.backgroundColor='white'; this.style.color='#52c98c';">{{ $page }}</a>
                         @endif
                     @endforeach
 
                     @if($matches->hasMorePages())
-                        <a href="{{ $matches->nextPageUrl() }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #0099CC; text-decoration: none; font-weight: 600;">Sau →</a>
+                        <a href="{{ $matches->nextPageUrl() }}" style="padding: 10px 14px; border-radius: 8px; background: white; color: #52c98c; text-decoration: none; font-weight: 600;">Sau →</a>
                     @endif
                 </div>
             @endif

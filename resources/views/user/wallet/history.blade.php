@@ -15,7 +15,7 @@
     .wallet-header h2 {
         font-size: clamp(1.8rem, 5vw, 2.5rem);
         font-weight: 700;
-        background: linear-gradient(135deg, #00D9B5 0%, #0db89d 100%);
+        background: linear-gradient(135deg, #006646 0%, #0db89d 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -62,7 +62,7 @@
     .point-number {
         font-size: 2rem;
         font-weight: 700;
-        color: #00D9B5;
+        color: #006646;
         margin-bottom: 8px;
     }
 
@@ -171,20 +171,20 @@
         padding: 8px 12px;
         border: 1px solid #d1d5db;
         border-radius: 8px;
-        color: #00D9B5;
+        color: #006646;
         text-decoration: none;
         transition: all 0.3s ease;
     }
 
     .pagination-link:hover {
-        background: #00D9B5;
+        background: #006646;
         color: white;
     }
 
     .pagination-link.active {
-        background: #00D9B5;
+        background: #006646;
         color: white;
-        border-color: #00D9B5;
+        border-color: #006646;
     }
 
     @media (max-width: 768px) {

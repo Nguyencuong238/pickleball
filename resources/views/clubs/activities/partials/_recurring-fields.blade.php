@@ -21,7 +21,7 @@
         <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
             <input type="hidden" name="auto_approve" value="0">
             <input type="checkbox" name="auto_approve" value="1" {{ $autoApprove ? 'checked' : '' }}
-                   style="width: auto; accent-color: #00D9B5;">
+                   style="width: auto; accent-color: #006646;">
             Tự động duyệt người tham gia
         </label>
         <div class="hint">Nếu bật, người đăng ký sẽ được xác nhận ngay khi còn chỗ trống</div>
