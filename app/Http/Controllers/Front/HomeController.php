@@ -16,6 +16,7 @@ use App\Models\Tournament;
 use App\Models\User;
 use App\Models\Video;
 use App\Models\Round;
+use App\Models\Club;
 use App\Models\SpecialChallenge;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,13 +39,12 @@ class HomeController extends Controller
             ->limit(3)
             ->get();
 
-        // Tournaments (upcoming)
+        // Tournaments (upcoming first, then recent)
         $upcomingTournaments = Tournament::query()
-            // ->where('status', 'active')
-            ->where('start_date', '>=', now())
             ->select('id', 'name', 'slug', 'description', 'location', 'start_date', 'end_date', 'prizes', 'price', 'max_participants', 'status', 'is_watch')
+            ->orderByRaw('CASE WHEN start_date >= NOW() THEN 0 ELSE 1 END')
             ->orderBy('start_date', 'asc')
-            ->limit(6)
+            ->limit(4)
             ->get();
 
         // Statistics
@@ -60,6 +60,13 @@ class HomeController extends Controller
         // Special Challenges for homepage banner
         $specialChallenges = SpecialChallenge::ongoing()->get();
 
+        // Featured clubs for community section
+        $featuredClubs = Club::where('status', 'active')
+            ->withCount('members')
+            ->orderByDesc('members_count')
+            ->limit(6)
+            ->get();
+
         return view('front.home', [
             'featuredStadiums' => $featuredStadiums,
             'latestNews' => $latestNews,
@@ -69,6 +76,7 @@ class HomeController extends Controller
             'totalMembers' => $totalMembers,
             'totalSocial' => $totalSocial,
             'specialChallenges' => $specialChallenges,
+            'featuredClubs' => $featuredClubs,
         ]);
     }
 
