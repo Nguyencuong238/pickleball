@@ -1,0 +1,2820 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="zoYmMGVcCCbyUR5Wx4Shm1SMkEJmaPRZQ1wcBVT9">
+    <meta name="zalo-platform-site-verification" content="HVkzTfNl77DAsxbOgQKqPMc4cd65yaylEJ4n" />
+    <title>OnePickleball - Nền tảng Pickleball hàng đầu tại Việt Nam</title>
+    <meta name="description" content="Nền tảng kết nối cộng đồng Pickleball tại Việt Nam. Tìm sân, đăng ký giải đấu và kết nối với hàng ngàn tay vợt.">
+    <meta name="keywords" content="pickleball, sân pickleball, giải đấu pickleball, cộng đồng pickleball">
+    <meta name="author" content="OnePickleball">
+    <meta property="og:title" content="OnePickleball - Nền tảng kết nối cộng đồng Pickleball tại Việt Nam">
+    <meta property="og:description" content="Nền tảng kết nối cộng đồng Pickleball tại Việt Nam. Tìm sân, đăng ký giải đấu và kết nối với hàng ngàn tay vợt.">
+    <meta property="og:image" content="https://onepickleball.vn/assets/images/logo.png">
+    <meta property="og:url" content="http://onepickleball.vn">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="OnePickleball">
+    <meta name="twitter:description" content="Nền tảng kết nối cộng đồng Pickleball tại Việt Nam">
+    <meta name="twitter:image" content="https://onepickleball.vn/assets/images/logo.png">
+    <meta name="canonical" content="http://onepickleball.vn">
+        
+
+    <link rel="icon" href="https://onepickleball.vn/assets/images/logo.png">
+
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --primary: #006646;
+      --primary-light: #008a5c;
+      --primary-dark: #004d34;
+      --accent: #52c98c;
+      --bg-dark: #f5f7f5;
+      --bg-card: #ffffff;
+      --bg-surface: #eef2ee;
+      --text-primary: #0d1f18;
+      --text-secondary: #4a6b5a;
+      --text-muted: #7a9b8a;
+      --border: rgba(0, 102, 70, 0.12);
+      --border-bright: rgba(0, 102, 70, 0.35);
+      --glow: 0 0 40px rgba(0, 102, 70, 0.18);
+      --glow-accent: 0 0 30px rgba(82, 201, 140, 0.18);
+    }
+
+
+
+    /* ─── SECTION INNER CONTAINER ─── */
+    .section-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .stats-band {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    footer {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+
+    /* ─── MAX WIDTH CONTAINER ─── */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 0 24px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: #f5f7f5;
+      color: #0d1f18;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.4;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 0;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: all 0.3s ease;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 900;
+      color: white;
+      box-shadow: var(--glow);
+    }
+
+    .logo-text {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #0d1f18;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span { color: #006646; }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #4a6b5a;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-links a:hover { color: #0d1f18; }
+
+    .nav-cta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-ghost {
+      padding: 8px 20px;
+      border: 1px solid var(--border-bright);
+      border-radius: 8px;
+      color: #0d1f18;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 600;
+      transition: all 0.2s;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(0, 102, 70, 0.08);
+      border-color: var(--primary);
+    }
+
+    .btn-primary {
+      padding: 8px 22px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      border: none;
+      border-radius: 8px;
+      color: white;
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(0, 102, 70, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 25px rgba(0, 102, 70, 0.45);
+    }
+
+    /* ─── HERO ─── */
+    .hero {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding-top: 100px;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,102,70,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,102,70,0.08) 1px, transparent 1px);
+      background-size: 60px 60px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 30%, transparent 100%);
+    }
+
+    .hero-orb1 {
+      position: absolute;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(0,102,70,0.12) 0%, transparent 70%);
+      top: -150px;
+      right: -100px;
+      border-radius: 50%;
+      animation: orbFloat 8s ease-in-out infinite;
+    }
+
+    .hero-orb2 {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(82,201,140,0.1) 0%, transparent 70%);
+      bottom: 100px;
+      left: -50px;
+      border-radius: 50%;
+      animation: orbFloat 10s ease-in-out infinite reverse;
+    }
+
+    @keyframes orbFloat {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      animation: fadeUp 0.8s ease forwards;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      background: rgba(0, 102, 70, 0.08);
+      border: 1px solid var(--border-bright);
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #006646;
+      margin-bottom: 28px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.4); }
+    }
+
+    .hero-title {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: clamp(2.8rem, 6vw, 3rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      margin-bottom: 24px;
+    }
+
+    .hero-title .line1 { display: block; color: #0d1f18; }
+    .hero-title .line2 {
+      display: block;
+      background: linear-gradient(135deg, #006646 0%, #52c98c 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 1.1rem;
+      color: #4a6b5a;
+      max-width: 520px;
+      margin-bottom: 40px;
+      line-height: 1.7;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 60px;
+    }
+
+    .btn-large {
+      padding: 14px 32px;
+      font-size: 1rem;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .btn-outline-large {
+      padding: 14px 32px;
+      font-size: 1rem;
+      border-radius: 10px;
+      font-weight: 600;
+      border: 1px solid var(--border-bright);
+      color: #0d1f18;
+      text-decoration: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-outline-large:hover {
+      border-color: var(--primary);
+      background: rgba(0,102,70,0.07);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+    }
+
+    .stat-item { }
+
+    .stat-value {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0d1f18;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-value span { color: #006646; }
+
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+
+    /* ─── HERO VISUAL ─── */
+    .hero-visual {
+      position: relative;
+      width: min(480px, 42vw);
+      z-index: 1;
+      animation: fadeUp 0.8s 0.2s ease both;
+      flex-shrink: 0;
+    }
+
+    .court-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 20px 60px rgba(0,102,70,0.12), var(--glow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .court-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #006646, #52c98c);
+    }
+
+    .court-illustration {
+      width: 100%;
+      aspect-ratio: 16/10;
+      background: linear-gradient(145deg, #e8f0ec, #d4e8dc);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 20px;
+      border: 1px solid rgba(0,102,70,0.18);
+    }
+
+    /* Pickleball court lines */
+    .court-lines {
+      position: absolute;
+      inset: 10%;
+      border: 2px solid rgba(0,102,70,0.5);
+      border-radius: 2px;
+    }
+
+    .court-center {
+      position: absolute;
+      top: 50%;
+      left: 10%;
+      right: 10%;
+      height: 2px;
+      background: rgba(0,102,70,0.4);
+      transform: translateY(-50%);
+    }
+
+    .court-kitchen-left {
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      width: 28%;
+      bottom: 10%;
+      border-right: 2px solid rgba(0,102,70,0.35);
+    }
+
+    .court-kitchen-right {
+      position: absolute;
+      top: 10%;
+      right: 10%;
+      width: 28%;
+      bottom: 10%;
+      border-left: 2px solid rgba(0,102,70,0.35);
+    }
+
+    .court-net {
+      position: absolute;
+      top: 10%;
+      bottom: 10%;
+      left: 50%;
+      width: 2px;
+      background: rgba(0,102,70,0.7);
+      transform: translateX(-50%);
+    }
+
+    .court-ball {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: radial-gradient(circle at 35% 35%, #ffe066, #f0c000);
+      border-radius: 50%;
+      box-shadow: 0 0 12px rgba(240,192,0,0.6);
+      top: 38%;
+      left: 62%;
+      animation: ballBounce 3s ease-in-out infinite;
+    }
+
+    @keyframes ballBounce {
+      0%, 100% { transform: translate(0, 0); }
+      30% { transform: translate(-40px, -30px); }
+      60% { transform: translate(20px, 10px); }
+    }
+
+    .court-player1 {
+      position: absolute;
+      width: 10px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 5px 5px 0 0;
+      bottom: 15%;
+      left: 25%;
+      opacity: 0.8;
+    }
+
+    .court-player2 {
+      position: absolute;
+      width: 10px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 5px 5px 0 0;
+      top: 15%;
+      right: 22%;
+      opacity: 0.8;
+    }
+
+    .card-score-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .score-match {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .team-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #4a6b5a;
+    }
+
+    .score {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0d1f18;
+    }
+
+    .score.win { color: var(--accent); }
+
+    .vs-badge {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    .live-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: rgba(255, 70, 70, 0.15);
+      border: 1px solid rgba(255,70,70,0.3);
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: #ff6464;
+      letter-spacing: 0.08em;
+    }
+
+    .live-dot {
+      width: 5px;
+      height: 5px;
+      background: #ff4646;
+      border-radius: 50%;
+      animation: pulse 1.2s ease infinite;
+    }
+
+    /* Floating cards */
+    .float-card {
+      position: absolute;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      box-shadow: 0 12px 40px rgba(0,102,70,0.1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: floatCard 4s ease-in-out infinite;
+    }
+
+    .float-card.card-top {
+      top: -20px;
+      right: -20px;
+      animation-delay: 0.5s;
+    }
+
+    .float-card.card-bottom {
+      bottom: -20px;
+      left: -20px;
+      animation-delay: 1.5s;
+    }
+
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .float-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+
+    .float-icon.blue { background: rgba(0,102,70,0.18); }
+    .float-icon.green { background: rgba(82,201,140,0.12); }
+
+    .float-text small {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .float-text strong {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #0d1f18;
+    }
+
+    /* ─── SECTIONS COMMON ─── */
+    section {
+      position: relative;
+      z-index: 1;
+      padding: 70px 24px;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #006646;
+      margin-bottom: 16px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 20px;
+      height: 2px;
+      background: var(--primary);
+    }
+
+    .section-title {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .section-desc {
+      font-size: 1rem;
+      color: #4a6b5a;
+      max-width: 560px;
+      line-height: 1.7;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 56px;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    /* ─── FEATURES ─── */
+    .features {
+      background: linear-gradient(180deg, #f5f7f5 0%, #eef2ee 100%);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      group: true;
+    }
+
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #006646, #52c98c);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .feature-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-4px);
+      box-shadow: var(--glow), 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .feature-card:hover::after { transform: scaleX(1); }
+
+    .feature-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+      background: rgba(0,102,70,0.1);
+      border: 1px solid rgba(0,102,70,0.18);
+    }
+
+    .feature-card:nth-child(2) .feature-icon {
+      background: rgba(82,201,140,0.08);
+      border-color: rgba(82,201,140,0.2);
+    }
+
+    .feature-card:nth-child(3) .feature-icon {
+      background: rgba(255,160,50,0.1);
+      border-color: rgba(255,160,50,0.2);
+    }
+
+    .feature-card:nth-child(4) .feature-icon {
+      background: rgba(160,100,255,0.1);
+      border-color: rgba(160,100,255,0.2);
+    }
+
+    .feature-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #0d1f18;
+    }
+
+    .feature-desc {
+      font-size: 0.85rem;
+      color: #4a6b5a;
+      line-height: 1.6;
+    }
+
+    .feature-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #006646;
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+
+    .feature-link:hover { gap: 10px; }
+
+    /* ─── TOURNAMENTS ─── */
+    .tournaments { background: #eef2ee; }
+
+    .tournaments-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .tournament-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      display: flex;
+    }
+
+    .tournament-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-3px);
+      box-shadow: var(--glow), 0 15px 40px rgba(0,0,0,0.3);
+    }
+
+    .tournament-accent {
+      width: 5px;
+      background: linear-gradient(180deg, #006646, #52c98c);
+      flex-shrink: 0;
+    }
+
+    .tournament-body {
+      padding: 22px 24px;
+      flex: 1;
+    }
+
+    .tournament-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      padding: 3px 10px;
+      border-radius: 100px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .tag-open {
+      background: rgba(82,201,140,0.1);
+      color: var(--accent);
+      border: 1px solid rgba(0,102,70,0.25);
+    }
+
+    .tag-closed {
+      background: rgba(255,100,100,0.1);
+      color: #ff8080;
+      border: 1px solid rgba(255,100,100,0.2);
+    }
+
+    .tag-soon {
+      background: rgba(255,180,50,0.1);
+      color: #ffb432;
+      border: 1px solid rgba(255,180,50,0.2);
+    }
+
+    .tournament-date {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .tournament-name {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0d1f18;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .tournament-info {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .tournament-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .prize {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #006646;
+    }
+
+    .prize span { color: var(--text-muted); font-weight: 400; font-size: 0.75rem; }
+
+    .btn-sm {
+      padding: 7px 18px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+      font-weight: 700;
+      background: rgba(0,102,70,0.12);
+      border: 1px solid var(--border-bright);
+      color: #006646;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-sm:hover {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* ─── COURTS ─── */
+    .courts { background: #f5f7f5; }
+
+    .courts-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .court-card-item {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .court-card-item:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-4px);
+      box-shadow: var(--glow), 0 20px 50px rgba(0,0,0,0.4);
+    }
+
+    .court-img {
+      height: 160px;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(145deg, #c8e6d4, #b8ddc8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .court-svg {
+      width: 100%;
+      height: 100%;
+      opacity: 0.7;
+    }
+
+    .court-img-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, var(--bg-card) 0%, transparent 60%);
+    }
+
+    .court-rating {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #b07800;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .court-info { padding: 18px 20px; }
+
+    .court-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0d1f18;
+      margin-bottom: 6px;
+    }
+
+    .court-location {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .court-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .court-tag {
+      padding: 3px 9px;
+      background: rgba(0,102,70,0.07);
+      border: 1px solid rgba(0,102,70,0.12);
+      border-radius: 6px;
+      font-size: 0.7rem;
+      color: #4a6b5a;
+      font-weight: 500;
+    }
+
+    .court-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .court-price {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #0d1f18;
+    }
+
+    .court-price small {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    /* ─── COACHES ─── */
+    .coaches { background: #eef2ee; }
+
+    .coaches-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .coach-card {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .coach-card:hover {
+      border-color: var(--border-bright);
+      transform: translateY(-4px);
+      box-shadow: var(--glow), 0 20px 50px rgba(0,0,0,0.3);
+    }
+
+    .coach-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      margin: 0 auto 14px;
+      border: 2px solid var(--border-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      position: relative;
+      background: linear-gradient(135deg, #e8f0ec, #f5f7f5);
+    }
+
+    .coach-verified {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 20px;
+      height: 20px;
+      background: var(--primary);
+      border-radius: 50%;
+      border: 2px solid var(--bg-card);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: white;
+    }
+
+    .coach-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0d1f18;
+      margin-bottom: 4px;
+    }
+
+    .coach-level {
+      font-size: 0.75rem;
+      color: #006646;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .coach-stats {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .coach-stat {
+      text-align: center;
+    }
+
+    .coach-stat-val {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #0d1f18;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    .coach-stat-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .coach-location {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    /* ─── COMMUNITY / CTA ─── */
+    .community {
+      background: #f5f7f5;
+      padding: 100px 24px;
+    }
+
+    .cta-block {
+      background: linear-gradient(135deg, rgba(0,102,70,0.1) 0%, rgba(82,201,140,0.06) 100%);
+      border: 1px solid var(--border-bright);
+      border-radius: 24px;
+      padding: 70px 60px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-block::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(0,102,70,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-block .section-title { margin-bottom: 16px; }
+    .cta-block .section-desc { margin: 0 auto 40px; }
+
+    .app-badges {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .app-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 24px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 12px;
+      text-decoration: none;
+      color: #0d1f18;
+      transition: all 0.2s;
+    }
+
+    .app-badge:hover {
+      background: rgba(0,102,70,0.12);
+      border-color: var(--border-bright);
+      transform: translateY(-2px);
+    }
+
+    .app-badge-icon { font-size: 24px; }
+
+    .app-badge-text small {
+      display: block;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .app-badge-text strong {
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    /* ─── COMMUNITY STATS ─── */
+    .stats-band {
+      background: linear-gradient(90deg, rgba(0,102,70,0.07) 0%, rgba(82,201,140,0.05) 100%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 50px 24px;
+    }
+
+    .stats-band-inner {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      text-align: center;
+    }
+
+    .stat-block { }
+
+    .stat-block .num {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #006646, #52c98c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-block .lbl {
+      font-size: 0.85rem;
+      color: #4a6b5a;
+      font-weight: 500;
+      margin-top: 4px;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: #f5f7f5;
+      border-top: 1px solid var(--border);
+      padding: 60px 24px 30px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 50px;
+    }
+
+    .footer-brand {}
+
+    .footer-brand .logo-text { font-size: 1.4rem; margin-bottom: 14px; display: block; }
+
+    .footer-tagline {
+      font-size: 0.875rem;
+      color: #4a6b5a;
+      line-height: 1.6;
+      max-width: 280px;
+      margin-bottom: 24px;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-link {
+      width: 38px;
+      height: 38px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #4a6b5a;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .social-link:hover {
+      border-color: var(--primary);
+      color: #006646;
+      background: rgba(0,102,70,0.07);
+    }
+
+    .footer-col h4 {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #4a6b5a;
+      margin-bottom: 18px;
+    }
+
+    .footer-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .footer-links a {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: #0d1f18; }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .footer-bottom p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* ─── SCROLL ANIMATIONS ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: none;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1100px) {
+      .hero-visual { display: none; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .coaches-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      section { padding: 70px 24px; }
+      .nav-links { display: none; }
+      .tournaments-grid { grid-template-columns: 1fr; }
+      .courts-grid { grid-template-columns: 1fr; }
+      .coaches-grid { grid-template-columns: repeat(2, 1fr); }
+      .stats-band-inner { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: 1fr; }
+      .cta-block { padding: 50px 30px; }
+      .hero-stats { gap: 24px; flex-wrap: wrap; }
+    }
+
+    @media (max-width: 480px) {
+      .features-grid { grid-template-columns: 1fr; }
+      .coaches-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ══════════════════════════════
+       MAX-WIDTH LAYOUT — 1400px
+    ══════════════════════════════ */
+    .wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    nav { padding: 0 24px; }
+    nav > .wrap { display: flex; align-items: center; justify-content: space-between; height: 70px; }
+
+    .hero { padding-left: 24px; padding-right: 24px; }
+    .hero > .wrap { position: relative; z-index: 1; display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: calc(70vh - 70px); padding-top: 0; }
+
+    section { padding-left: 24px; padding-right: 24px; }
+    .stats-band { padding-left: 24px; padding-right: 24px; }
+    footer { padding-left: 24px; padding-right: 24px; }
+
+
+    /* ─── COMMUNITY MAP SECTION ─── */
+    .community-layout {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Province list */
+    .province-list {
+      background: #ffffff;
+      border: 1px solid rgba(0,102,70,0.12);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .province-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid rgba(0,102,70,0.1);
+      background: #f5f7f5;
+    }
+
+    .province-search-icon { font-size: 14px; opacity: 0.6; }
+
+    .province-search input {
+      border: none;
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      color: #0d1f18;
+      outline: none;
+      width: 100%;
+    }
+
+    .province-search input::placeholder { color: #7a9b8a; }
+
+    .province-items {
+      max-height: 460px;
+      overflow-y: auto;
+    }
+
+    .province-items::-webkit-scrollbar { width: 4px; }
+    .province-items::-webkit-scrollbar-track { background: transparent; }
+    .province-items::-webkit-scrollbar-thumb { background: rgba(0,102,70,0.2); border-radius: 2px; }
+
+    .province-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      cursor: pointer;
+      border-bottom: 1px solid rgba(0,102,70,0.06);
+      transition: all 0.2s;
+    }
+
+    .province-item:last-child { border-bottom: none; }
+
+    .province-item:hover { background: rgba(0,102,70,0.04); }
+
+    .province-item.active {
+      background: rgba(0,102,70,0.07);
+      border-left: 3px solid #006646;
+    }
+
+    .province-flag { font-size: 20px; flex-shrink: 0; width: 28px; text-align: center; }
+
+    .province-info { flex: 1; min-width: 0; }
+
+    .province-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #0d1f18;
+      margin-bottom: 2px;
+    }
+
+    .province-item.active .province-name { color: #006646; }
+
+    .province-meta {
+      font-size: 0.72rem;
+      color: #7a9b8a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .province-badge { font-size: 14px; flex-shrink: 0; }
+
+    /* Map panel */
+    .map-panel {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .vietnam-map-wrap {
+      background: #ffffff;
+      border: 1px solid rgba(0,102,70,0.12);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 500px;
+    }
+
+    .vn-map-svg {
+      width: 100%;
+      max-width: 240px;
+      height: auto;
+    }
+
+    .map-dot {
+      cursor: pointer;
+      transition: r 0.2s, opacity 0.2s;
+    }
+
+    .map-dot:hover { opacity: 1 !important; }
+
+    .active-dot {
+      animation: mapPulse 2.5s ease-in-out infinite;
+    }
+
+    @keyframes mapPulse {
+      0%, 100% { r: 10; opacity: 0.9; }
+      50% { r: 13; opacity: 0.7; }
+    }
+
+    /* Detail card */
+    .map-detail-card {
+      background: #ffffff;
+      border: 1px solid rgba(0,102,70,0.15);
+      border-radius: 16px;
+      padding: 22px;
+      border-top: 3px solid #006646;
+    }
+
+    .detail-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .detail-icon { font-size: 28px; flex-shrink: 0; }
+
+    .detail-city {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0d1f18;
+      margin-bottom: 2px;
+    }
+
+    .detail-sub { font-size: 0.75rem; color: #7a9b8a; }
+
+    .detail-fire { margin-left: auto; font-size: 0.75rem; font-weight: 600; color: #e05c00; white-space: nowrap; }
+
+    .detail-stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+      text-align: center;
+    }
+
+    .detail-stat {
+      background: #f5f7f5;
+      border-radius: 10px;
+      padding: 12px 8px;
+    }
+
+    .detail-stat-val {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #006646;
+      letter-spacing: -0.03em;
+    }
+
+    .detail-stat-lbl {
+      font-size: 0.68rem;
+      color: #7a9b8a;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .community-layout { grid-template-columns: 1fr; }
+      .map-panel { grid-template-columns: 1fr; }
+      .vietnam-map-wrap { min-height: 300px; }
+    }
+
+    @media (max-width: 768px) {
+      .province-items { max-height: 300px; }
+    }
+
+
+    /* ══════════════════════════════
+       COMMUNITY LIST SECTION
+    ══════════════════════════════ */
+
+    .comm-head-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .comm-filter-tabs {
+      display: flex;
+      gap: 6px;
+      background: #fff;
+      border: 1px solid rgba(0,102,70,0.12);
+      border-radius: 10px;
+      padding: 4px;
+    }
+
+    .comm-tab {
+      padding: 7px 16px;
+      border: none;
+      background: transparent;
+      border-radius: 7px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #4a6b5a;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .comm-tab.active {
+      background: #006646;
+      color: #fff;
+    }
+
+    .comm-tab:hover:not(.active) {
+      background: rgba(0,102,70,0.06);
+      color: #006646;
+    }
+
+    /* Community list grid */
+    .community-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Community card */
+    .comm-card {
+      background: #fff;
+      border: 1px solid rgba(0,102,70,0.1);
+      border-radius: 16px;
+      display: flex;
+      gap: 0;
+      overflow: hidden;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+
+    .comm-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #006646, #52c98c);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.3s ease;
+    }
+
+    .comm-card:hover {
+      border-color: rgba(0,102,70,0.28);
+      box-shadow: 0 8px 32px rgba(0,102,70,0.1);
+      transform: translateY(-3px);
+    }
+
+    .comm-card:hover::before { transform: scaleX(1); }
+
+    /* Left accent stripe + avatar */
+    .comm-card-left {
+      width: 72px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 20px 0 20px 16px;
+    }
+
+    .comm-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .comm-avatar span {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    /* Card body */
+    .comm-card-body {
+      flex: 1;
+      padding: 20px 20px 18px 4px;
+      min-width: 0;
+    }
+
+    .comm-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .comm-name {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #0d1f18;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+
+    .comm-location {
+      font-size: 0.75rem;
+      color: #7a9b8a;
+      font-weight: 500;
+    }
+
+    .comm-badges {
+      display: flex;
+      gap: 5px;
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .comm-badge {
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.68rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-hot  { background: rgba(220,60,0,0.08);  color: #c94400; border: 1px solid rgba(220,60,0,0.15); }
+    .badge-open { background: rgba(0,102,70,0.07);  color: #006646; border: 1px solid rgba(0,102,70,0.18); }
+    .badge-new  { background: rgba(22,163,74,0.08); color: #15803d; border: 1px solid rgba(22,163,74,0.2); }
+
+    .comm-desc {
+      font-size: 0.82rem;
+      color: #4a6b5a;
+      line-height: 1.6;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .comm-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .comm-tag {
+      padding: 3px 9px;
+      background: #f0f7f4;
+      border: 1px solid rgba(0,102,70,0.1);
+      border-radius: 20px;
+      font-size: 0.7rem;
+      color: #4a6b5a;
+      font-weight: 500;
+    }
+
+    /* Footer row */
+    .comm-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .comm-members-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comm-avatars {
+      display: flex;
+    }
+
+    .mini-av {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      margin-left: -6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .mini-av:first-child { margin-left: 0; }
+
+    .mini-av.more {
+      background: #f0f7f4;
+      color: #006646;
+      font-size: 0.5rem;
+      font-weight: 700;
+      border-color: #e0ece6;
+      width: auto;
+      border-radius: 12px;
+      padding: 0 5px;
+    }
+
+    .comm-count {
+      font-size: 0.75rem;
+      color: #7a9b8a;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* Join button */
+    .btn-comm-join {
+      padding: 8px 18px;
+      background: #006646;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: all 0.2s;
+      border: 2px solid #006646;
+      flex-shrink: 0;
+    }
+
+    .btn-comm-join:hover {
+      background: transparent;
+      color: #006646;
+    }
+
+    /* Bottom CTA bar */
+    .community-bottom-cta {
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(0,102,70,0.05), rgba(82,201,140,0.07));
+      border: 1px dashed rgba(0,102,70,0.25);
+      border-radius: 14px;
+      padding: 20px 28px;
+    }
+
+    .bottom-cta-text {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bottom-cta-text span {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #4a6b5a;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .community-list { grid-template-columns: 1fr; }
+      .comm-head-actions { justify-content: flex-start; }
+    }
+
+    @media (max-width: 600px) {
+      .comm-filter-tabs { flex-wrap: wrap; }
+      .community-bottom-cta { flex-direction: column; gap: 14px; text-align: center; }
+    }
+
+  </style>
+</head>
+<body>
+  <!-- ─── NAVIGATION ─── -->
+  <nav>
+    <div class="wrap">
+      <div class="container" style="display:flex;align-items:center;justify-content:space-between;height:70px;padding:0 24px;">
+        <a class="nav-logo" href="#">
+          <img src="https://demo.onepickleball.vn/assets/images/logo.png" alt="OnePickleball" width="60px">
+        </a>
+        <ul class="nav-links">
+          <li>
+            <a href="#tournaments">Giải đấu</a>
+          </li>
+          <li>
+            <a href="#courts">Sân tập</a>
+          </li>
+          <li>
+            <a href="#coaches">Huấn luyện viên</a>
+          </li>
+          <li>
+            <a href="#community">Cộng đồng</a>
+          </li>
+          <li>
+            <a href="#">Tin tức</a>
+          </li>
+        </ul>
+        <div class="nav-cta">
+          <a class="btn-ghost" href="#">Đăng nhập</a>
+          <a class="btn-primary" href="#">Tham gia miễn phí</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="hero-bg">
+      <div class="hero-grid"></div>
+      <div class="hero-orb1"></div>
+      <div class="hero-orb2"></div>
+    </div>
+    <div class="wrap">
+      <div class="container" style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1;">
+        <div class="hero-content" style="position:relative;z-index:1;">
+          <div class="hero-badge">
+            <div class="badge-dot"></div> Nền tảng Pickleball #1 Việt Nam
+          </div>
+          <h1 class="hero-title">
+            <span class="line1">Kết nối cộng đồng</span>
+            <span class="line2">Pickleball Việt Nam</span>
+          </h1>
+          <p class="hero-desc"> Tìm sân, đăng ký giải đấu, kết nối huấn luyện viên và giao lưu cùng hàng ngàn người chơi trên toàn quốc — tất cả trên một nền tảng duy nhất. </p>
+          <div class="hero-actions">
+            <a class="btn-primary btn-large" href="#">🚀 Bắt đầu ngay</a>
+            <a class="btn-outline-large" href="#tournaments">Xem giải đấu →</a>
+          </div>
+          
+        </div>
+        <!-- Hero Visual Card -->
+        <div class="hero-visual" style="position:relative;z-index:1;">
+          <div class="court-card" style="position: relative;">
+            <div class="float-card card-top">
+              <div class="float-icon blue">📅</div>
+              <div class="float-text">
+                <small>Giải mới</small>
+                <strong>HCMC Open 2025</strong>
+              </div>
+            </div>
+            <div class="court-illustration">
+              <div class="court-lines"></div>
+              <div class="court-center"></div>
+              <div class="court-kitchen-left"></div>
+              <div class="court-kitchen-right"></div>
+              <div class="court-net"></div>
+              <div class="court-ball"></div>
+              <div class="court-player1"></div>
+              <div class="court-player2"></div>
+            </div>
+            <div class="card-score-row">
+              <div class="score-match">
+                <div>
+                  <div class="team-name">Tuấn Anh</div>
+                  <div class="score win">11</div>
+                </div>
+                <div class="vs-badge">VS</div>
+                <div>
+                  <div class="team-name">Minh Khoa</div>
+                  <div class="score">7</div>
+                </div>
+              </div>
+              <div class="live-chip">
+                <div class="live-dot"></div> LIVE
+              </div>
+            </div>
+            <div class="float-card card-bottom">
+              <div class="float-icon green">📍</div>
+              <div class="float-text">
+                <small>Gần bạn nhất</small>
+                <strong>Sân Phú Mỹ Hưng</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ─── STATS BAND ─── -->
+  <div class="stats-band">
+    <div class="wrap">
+      <div class="stats-band-inner">
+        <div class="stat-block reveal">
+          <div class="num">12,400+</div>
+          <div class="lbl">Thành viên đăng ký</div>
+        </div>
+        <div class="stat-block reveal" style="transition-delay:0.1s">
+          <div class="num">280+</div>
+          <div class="lbl">Sân pickleball toàn quốc</div>
+        </div>
+        <div class="stat-block reveal" style="transition-delay:0.2s">
+          <div class="num">450+</div>
+          <div class="lbl">Giải đấu</div>
+        </div>
+        <div class="stat-block reveal" style="transition-delay:0.3s">
+          <div class="num">98%</div>
+          <div class="lbl">Người dùng hài lòng</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+  
+  <!-- ─── TOURNAMENTS ─── -->
+  <section class="tournaments" id="tournaments">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-label">Giải đấu</div>
+          <h2 class="section-title">Giải đấu sắp diễn ra</h2>
+          <p class="section-desc">Đăng ký tham gia các giải đấu từ phong trào đến chuyên nghiệp trên toàn quốc.</p>
+        </div>
+        <a class="btn-ghost" href="#">Xem tất cả →</a>
+      </div>
+      <div class="tournaments-grid">
+        <div class="tournament-card reveal">
+          <div class="tournament-accent"></div>
+          <div class="tournament-body">
+            <div class="tournament-meta">
+              <span class="tag tag-open">Đang mở đăng ký</span>
+              <span class="tournament-date">📅 15–17 Tháng 8, 2025</span>
+            </div>
+            <div class="tournament-name">HCMC Pickleball Open Championship 2025</div>
+            <div class="tournament-info">
+              <div class="info-item">📍 Hồ Chí Minh</div>
+              <div class="info-item">👥 128 VĐV</div>
+              <div class="info-item">🏅 Hạng: Mở rộng</div>
+            </div>
+            <div class="tournament-footer">
+              <div class="prize">30,000,000 VNĐ <span>Giải thưởng</span>
+              </div>
+              <a class="btn-sm" href="#">Đăng ký</a>
+            </div>
+          </div>
+        </div>
+        <div class="tournament-card reveal" style="transition-delay:0.1s">
+          <div class="tournament-accent" style="background: linear-gradient(180deg, #ffb432, #ff6464);"></div>
+          <div class="tournament-body">
+            <div class="tournament-meta">
+              <span class="tag tag-soon">Sắp mở</span>
+              <span class="tournament-date">📅 22–24 Tháng 8, 2025</span>
+            </div>
+            <div class="tournament-name">Giải Pickleball Hà Nội Grand Prix 2025</div>
+            <div class="tournament-info">
+              <div class="info-item">📍 Hà Nội</div>
+              <div class="info-item">👥 96 VĐV</div>
+              <div class="info-item">🏅 Hạng: Amateur</div>
+            </div>
+            <div class="tournament-footer">
+              <div class="prize">15,000,000 VNĐ <span>Giải thưởng</span>
+              </div>
+              <a class="btn-sm" href="#">Xem chi tiết</a>
+            </div>
+          </div>
+        </div>
+        <div class="tournament-card reveal" style="transition-delay:0.15s">
+          <div class="tournament-accent" style="background: linear-gradient(180deg, #52c98c, #006646);"></div>
+          <div class="tournament-body">
+            <div class="tournament-meta">
+              <span class="tag tag-open">Đang mở đăng ký</span>
+              <span class="tournament-date">📅 5–6 Tháng 9, 2025</span>
+            </div>
+            <div class="tournament-name">Giải Pickleball Đà Nẵng Summer Cup 2025</div>
+            <div class="tournament-info">
+              <div class="info-item">📍 Đà Nẵng</div>
+              <div class="info-item">👥 64 VĐV</div>
+              <div class="info-item">🏅 Hạng: Mở rộng</div>
+            </div>
+            <div class="tournament-footer">
+              <div class="prize">10,000,000 VNĐ <span>Giải thưởng</span>
+              </div>
+              <a class="btn-sm" href="#">Đăng ký</a>
+            </div>
+          </div>
+        </div>
+        <div class="tournament-card reveal" style="transition-delay:0.2s">
+          <div class="tournament-accent" style="background: linear-gradient(180deg, #a064ff, #006646);"></div>
+          <div class="tournament-body">
+            <div class="tournament-meta">
+              <span class="tag tag-open">Đang mở đăng ký</span>
+              <span class="tournament-date">📅 12–14 Tháng 9, 2025</span>
+            </div>
+            <div class="tournament-name">Vietnam National Pickleball Championship 2025</div>
+            <div class="tournament-info">
+              <div class="info-item">📍 Hồ Chí Minh</div>
+              <div class="info-item">👥 256 VĐV</div>
+              <div class="info-item">🏅 Hạng: Quốc gia</div>
+            </div>
+            <div class="tournament-footer">
+              <div class="prize">100,000,000 VNĐ <span>Giải thưởng</span>
+              </div>
+              <a class="btn-sm" href="#">Đăng ký</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ─── COURTS ─── -->
+  <section class="courts" id="courts">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-label">Sân tập</div>
+          <h2 class="section-title">Sân pickleball gần bạn</h2>
+          <p class="section-desc">Khám phá hơn 280 sân trên 63 tỉnh thành với hệ thống đặt lịch trực tuyến tiện lợi.</p>
+        </div>
+        <a class="btn-ghost" href="#">Xem tất cả sân →</a>
+      </div>
+      <div class="courts-grid">
+        <div class="court-card-item reveal">
+          <div class="court-img">
+            <svg class="court-svg" viewbox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <lineargradient id="courtBg1" x1="0%" x2="100%" y1="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#c8e6d4"></stop>
+                  <stop offset="100%" style="stop-color:#b0d9c2"></stop>
+                </lineargradient>
+              </defs>
+              <rect fill="url(#courtBg1)" height="160" width="300"></rect>
+              <rect fill="none" height="120" stroke="rgba(0,102,70,0.5)" stroke-width="2" width="240" x="30" y="20"></rect>
+              <line stroke="rgba(255,255,255,0.5)" stroke-width="2.5" x1="150" x2="150" y1="20" y2="140"></line>
+              <line stroke="rgba(0,102,70,0.35)" stroke-width="1.5" x1="30" x2="150" y1="80" y2="80"></line>
+              <line stroke="rgba(0,102,70,0.35)" stroke-width="1.5" x1="150" x2="270" y1="80" y2="80"></line>
+              <rect fill="none" height="120" stroke="rgba(0,102,70,0.3)" stroke-width="1.5" width="70" x="30" y="20"></rect>
+              <rect fill="none" height="120" stroke="rgba(0,102,70,0.3)" stroke-width="1.5" width="70" x="200" y="20"></rect>
+              <circle cx="180" cy="65" fill="rgba(255,210,0,0.9)" r="6"></circle>
+            </svg>
+            <div class="court-img-overlay"></div>
+            <div class="court-rating">⭐ 4.9</div>
+          </div>
+          <div class="court-info">
+            <div class="court-name">Sân Pickleball Phú Mỹ Hưng</div>
+            <div class="court-location">📍 Quận 7, TP. Hồ Chí Minh</div>
+            <div class="court-tags">
+              <span class="court-tag">4 sân</span>
+              <span class="court-tag">Trong nhà</span>
+              <span class="court-tag">Đèn chiếu</span>
+              <span class="court-tag">Cho thuê vợt</span>
+            </div>
+            <div class="court-footer-row">
+              <div class="court-price">120,000đ <small>/ giờ</small>
+              </div>
+              <a class="btn-sm" href="#">Đặt sân</a>
+            </div>
+          </div>
+        </div>
+        <div class="court-card-item reveal" style="transition-delay:0.1s">
+          <div class="court-img">
+            <svg class="court-svg" viewbox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <lineargradient id="courtBg2" x1="0%" x2="100%" y1="100%" y2="0%">
+                  <stop offset="0%" style="stop-color:#c8e6d8"></stop>
+                  <stop offset="100%" style="stop-color:#b0d9c4"></stop>
+                </lineargradient>
+              </defs>
+              <rect fill="url(#courtBg2)" height="160" width="300"></rect>
+              <rect fill="none" height="120" stroke="rgba(0,102,70,0.4)" stroke-width="2" width="240" x="30" y="20"></rect>
+              <line stroke="rgba(255,255,255,0.5)" stroke-width="2.5" x1="150" x2="150" y1="20" y2="140"></line>
+              <line stroke="rgba(0,102,70,0.3)" stroke-width="1.5" x1="30" x2="150" y1="80" y2="80"></line>
+              <line stroke="rgba(0,102,70,0.3)" stroke-width="1.5" x1="150" x2="270" y1="80" y2="80"></line>
+              <rect fill="none" height="120" stroke="rgba(0,102,70,0.25)" stroke-width="1.5" width="70" x="30" y="20"></rect>
+              <rect fill="none" height="120" stroke="rgba(0,102,70,0.25)" stroke-width="1.5" width="70" x="200" y="20"></rect>
+              <circle cx="120" cy="95" fill="rgba(255,210,0,0.9)" r="6"></circle>
+            </svg>
+            <div class="court-img-overlay"></div>
+            <div class="court-rating">⭐ 4.8</div>
+          </div>
+          <div class="court-info">
+            <div class="court-name">Sân Pickleball Trống Đồng Arena</div>
+            <div class="court-location">📍 Hà Đông, Hà Nội</div>
+            <div class="court-tags">
+              <span class="court-tag">6 sân</span>
+              <span class="court-tag">Ngoài trời</span>
+              <span class="court-tag">Bãi đỗ xe</span>
+              <span class="court-tag">Căn tin</span>
+            </div>
+            <div class="court-footer-row">
+              <div class="court-price">90,000đ <small>/ giờ</small>
+              </div>
+              <a class="btn-sm" href="#">Đặt sân</a>
+            </div>
+          </div>
+        </div>
+        <div class="court-card-item reveal" style="transition-delay:0.2s">
+          <div class="court-img">
+            <svg class="court-svg" viewbox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <lineargradient id="courtBg3" x1="100%" x2="0%" y1="0%" y2="100%">
+                  <stop offset="0%" style="stop-color:#d4e8dc"></stop>
+                  <stop offset="100%" style="stop-color:#bcd9c8"></stop>
+                </lineargradient>
+              </defs>
+              <rect fill="url(#courtBg3)" height="160" width="300"></rect>
+              <rect fill="none" height="120" stroke="rgba(160,100,255,0.4)" stroke-width="2" width="240" x="30" y="20"></rect>
+              <line stroke="rgba(255,255,255,0.5)" stroke-width="2.5" x1="150" x2="150" y1="20" y2="140"></line>
+              <line stroke="rgba(160,100,255,0.3)" stroke-width="1.5" x1="30" x2="150" y1="80" y2="80"></line>
+              <line stroke="rgba(160,100,255,0.3)" stroke-width="1.5" x1="150" x2="270" y1="80" y2="80"></line>
+              <rect fill="none" height="120" stroke="rgba(160,100,255,0.25)" stroke-width="1.5" width="70" x="30" y="20"></rect>
+              <rect fill="none" height="120" stroke="rgba(160,100,255,0.25)" stroke-width="1.5" width="70" x="200" y="20"></rect>
+              <circle cx="200" cy="45" fill="rgba(255,210,0,0.9)" r="6"></circle>
+            </svg>
+            <div class="court-img-overlay"></div>
+            <div class="court-rating">⭐ 4.7</div>
+          </div>
+          <div class="court-info">
+            <div class="court-name">Global City Sports Park</div>
+            <div class="court-location">📍 Quận 2, TP. Hồ Chí Minh</div>
+            <div class="court-tags">
+              <span class="court-tag">8 sân</span>
+              <span class="court-tag">Trong nhà</span>
+              <span class="court-tag">Điều hòa</span>
+              <span class="court-tag">Pro shop</span>
+            </div>
+            <div class="court-footer-row">
+              <div class="court-price">150,000đ <small>/ giờ</small>
+              </div>
+              <a class="btn-sm" href="#">Đặt sân</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ─── COMMUNITY ─── -->
+  <section class="coaches" id="community-map">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <div>
+          <div class="section-label">Cộng đồng</div>
+          <h2 class="section-title">Cộng đồng Pickleball toàn quốc</h2>
+          <p class="section-desc">Tìm và tham gia cộng đồng pickleball tại tỉnh thành của bạn — kết nối, giao lưu và cùng nhau phát triển.</p>
+        </div>
+        <div class="comm-head-actions">
+          <div class="comm-filter-tabs">
+            <button class="comm-tab active">Tất cả</button>
+            <button class="comm-tab">Miền Nam</button>
+            <button class="comm-tab">Miền Trung</button>
+            <button class="comm-tab">Miền Bắc</button>
+          </div>
+        </div>
+      </div>
+      <div class="community-list">
+        <!-- Card 1 -->
+        <div class="comm-card reveal">
+          <div class="comm-card-left">
+            <div class="comm-avatar" style="background: linear-gradient(135deg,#006646,#52c98c);">
+              <span>HCM</span>
+            </div>
+          </div>
+          <div class="comm-card-body">
+            <div class="comm-card-top">
+              <div>
+                <div class="comm-name">Pickleball TP. Hồ Chí Minh</div>
+                <div class="comm-location">📍 TP. Hồ Chí Minh</div>
+              </div>
+              <div class="comm-badges">
+                <span class="comm-badge badge-hot">🔥 Hot</span>
+                <span class="comm-badge badge-open">Công khai</span>
+              </div>
+            </div>
+            <p class="comm-desc">Cộng đồng pickleball lớn nhất Việt Nam. Tổ chức giao lưu hàng tuần, cập nhật lịch sân, kết nối người chơi mọi cấp độ tại TP.HCM.</p>
+            <div class="comm-tags">
+              <span class="comm-tag">🏆 Giải đấu</span>
+              <span class="comm-tag">📅 Giao lưu tuần</span>
+              <span class="comm-tag">👶 Nhận newbie</span>
+            </div>
+            <div class="comm-footer">
+              <div class="comm-members-row">
+                <div class="comm-avatars">
+                  <div class="mini-av" style="background:#5b9">A</div>
+                  <div class="mini-av" style="background:#48a">B</div>
+                  <div class="mini-av" style="background:#a56">C</div>
+                  <div class="mini-av" style="background:#6a9">D</div>
+                  <div class="mini-av more">+3.8K</div>
+                </div>
+                <span class="comm-count">3,840 thành viên</span>
+              </div>
+              <a href="#" class="btn-comm-join">Tham gia →</a>
+            </div>
+          </div>
+        </div>
+        <!-- Card 2 -->
+        <div class="comm-card reveal" style="transition-delay:0.05s">
+          <div class="comm-card-left">
+            <div class="comm-avatar" style="background: linear-gradient(135deg,#1a6bbf,#4ea8e0);">
+              <span>HN</span>
+            </div>
+          </div>
+          <div class="comm-card-body">
+            <div class="comm-card-top">
+              <div>
+                <div class="comm-name">Pickleball Hà Nội</div>
+                <div class="comm-location">📍 Hà Nội</div>
+              </div>
+              <div class="comm-badges">
+                <span class="comm-badge badge-hot">⭐ Top</span>
+                <span class="comm-badge badge-open">Công khai</span>
+              </div>
+            </div>
+            <p class="comm-desc">Cộng đồng chính thức của người chơi pickleball tại Thủ đô. Chia sẻ lịch sân, thông tin giải đấu và tổ chức buổi chơi xã hội cuối tuần.</p>
+            <div class="comm-tags">
+              <span class="comm-tag">🏸 Social play</span>
+              <span class="comm-tag">📍 Nhiều quận</span>
+              <span class="comm-tag">🎯 Mọi cấp độ</span>
+            </div>
+            <div class="comm-footer">
+              <div class="comm-members-row">
+                <div class="comm-avatars">
+                  <div class="mini-av" style="background:#7a5">E</div>
+                  <div class="mini-av" style="background:#56a">F</div>
+                  <div class="mini-av" style="background:#9a5">G</div>
+                  <div class="mini-av more">+2.6K</div>
+                </div>
+                <span class="comm-count">2,610 thành viên</span>
+              </div>
+              <a href="#" class="btn-comm-join">Tham gia →</a>
+            </div>
+          </div>
+        </div>
+        <!-- Card 3 -->
+        <div class="comm-card reveal" style="transition-delay:0.1s">
+          <div class="comm-card-left">
+            <div class="comm-avatar" style="background: linear-gradient(135deg,#0a8faa,#2dc9e0);">
+              <span>ĐN</span>
+            </div>
+          </div>
+          <div class="comm-card-body">
+            <div class="comm-card-top">
+              <div>
+                <div class="comm-name">Pickleball Đà Nẵng</div>
+                <div class="comm-location">📍 Đà Nẵng</div>
+              </div>
+              <div class="comm-badges">
+                <span class="comm-badge badge-open">Công khai</span>
+              </div>
+            </div>
+            <p class="comm-desc">Thành phố biển – sân chơi đẳng cấp. Kết nối người yêu pickleball tại Đà Nẵng, tổ chức giao lưu ven biển và các giải đấu mùa hè sôi động.</p>
+            <div class="comm-tags">
+              <span class="comm-tag">🌊 Sân biển</span>
+              <span class="comm-tag">☀️ Mùa hè</span>
+              <span class="comm-tag">🏆 Summer Cup</span>
+            </div>
+            <div class="comm-footer">
+              <div class="comm-members-row">
+                <div class="comm-avatars">
+                  <div class="mini-av" style="background:#5aa">H</div>
+                  <div class="mini-av" style="background:#a95">I</div>
+                  <div class="mini-av more">+1.2K</div>
+                </div>
+                <span class="comm-count">1,240 thành viên</span>
+              </div>
+              <a href="#" class="btn-comm-join">Tham gia →</a>
+            </div>
+          </div>
+        </div>
+        <!-- Card 4 -->
+        <div class="comm-card reveal" style="transition-delay:0.15s">
+          <div class="comm-card-left">
+            <div class="comm-avatar" style="background: linear-gradient(135deg,#7c3aed,#a78bfa);">
+              <span>BD</span>
+            </div>
+          </div>
+          <div class="comm-card-body">
+            <div class="comm-card-top">
+              <div>
+                <div class="comm-name">Pickleball Bình Dương</div>
+                <div class="comm-location">📍 Bình Dương</div>
+              </div>
+              <div class="comm-badges">
+                <span class="comm-badge badge-new">🌱 Mới</span>
+                <span class="comm-badge badge-open">Công khai</span>
+              </div>
+            </div>
+            <p class="comm-desc">Cộng đồng pickleball đang phát triển nhanh tại Bình Dương. Phù hợp cho người mới bắt đầu và người chơi nghiệp dư muốn tìm bạn tập.</p>
+            <div class="comm-tags">
+              <span class="comm-tag">🟢 Newbie friendly</span>
+              <span class="comm-tag">🤝 Tìm đối tập</span>
+              <span class="comm-tag">🏟️ 14 sân</span>
+            </div>
+            <div class="comm-footer">
+              <div class="comm-members-row">
+                <div class="comm-avatars">
+                  <div class="mini-av" style="background:#8b5cf6">J</div>
+                  <div class="mini-av" style="background:#6d8">K</div>
+                  <div class="mini-av more">+890</div>
+                </div>
+                <span class="comm-count">890 thành viên</span>
+              </div>
+              <a href="#" class="btn-comm-join">Tham gia →</a>
+            </div>
+          </div>
+        </div>
+        <!-- Card 5 -->
+        <div class="comm-card reveal" style="transition-delay:0.2s">
+          <div class="comm-card-left">
+            <div class="comm-avatar" style="background: linear-gradient(135deg,#d97706,#fbbf24);">
+              <span>KH</span>
+            </div>
+          </div>
+          <div class="comm-card-body">
+            <div class="comm-card-top">
+              <div>
+                <div class="comm-name">Pickleball Khánh Hòa – Nha Trang</div>
+                <div class="comm-location">📍 Khánh Hòa</div>
+              </div>
+              <div class="comm-badges">
+                <span class="comm-badge badge-open">Công khai</span>
+              </div>
+            </div>
+            <p class="comm-desc">Du lịch kết hợp thể thao — cộng đồng pickleball tại xứ biển Nha Trang. Sân đẹp, view biển, khí hậu lý tưởng cho những buổi tập tuyệt vời.</p>
+            <div class="comm-tags">
+              <span class="comm-tag">🏖️ View biển</span>
+              <span class="comm-tag">🌴 Resort court</span>
+              <span class="comm-tag">📷 Cộng đồng sôi động</span>
+            </div>
+            <div class="comm-footer">
+              <div class="comm-members-row">
+                <div class="comm-avatars">
+                  <div class="mini-av" style="background:#f59e0b">L</div>
+                  <div class="mini-av" style="background:#34d">M</div>
+                  <div class="mini-av more">+720</div>
+                </div>
+                <span class="comm-count">720 thành viên</span>
+              </div>
+              <a href="#" class="btn-comm-join">Tham gia →</a>
+            </div>
+          </div>
+        </div>
+        <!-- Card 6 -->
+        <div class="comm-card reveal" style="transition-delay:0.25s">
+          <div class="comm-card-left">
+            <div class="comm-avatar" style="background: linear-gradient(135deg,#059669,#34d399);">
+              <span>CT</span>
+            </div>
+          </div>
+          <div class="comm-card-body">
+            <div class="comm-card-top">
+              <div>
+                <div class="comm-name">Pickleball Cần Thơ & Miền Tây</div>
+                <div class="comm-location">📍 Cần Thơ</div>
+              </div>
+              <div class="comm-badges">
+                <span class="comm-badge badge-open">Công khai</span>
+              </div>
+            </div>
+            <p class="comm-desc">Đại diện cho cộng đồng pickleball miền Tây Nam Bộ. Kết nối người chơi từ Cần Thơ, Vĩnh Long, An Giang và các tỉnh lân cận.</p>
+            <div class="comm-tags">
+              <span class="comm-tag">🌾 Miền Tây</span>
+              <span class="comm-tag">🛶 Đặc sắc</span>
+              <span class="comm-tag">🤝 Multi-tỉnh</span>
+            </div>
+            <div class="comm-footer">
+              <div class="comm-members-row">
+                <div class="comm-avatars">
+                  <div class="mini-av" style="background:#10b981">N</div>
+                  <div class="mini-av" style="background:#0ea5e9">O</div>
+                  <div class="mini-av more">+580</div>
+                </div>
+                <span class="comm-count">580 thành viên</span>
+              </div>
+              <a href="#" class="btn-comm-join">Tham gia →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Bottom CTA -->
+      <div class="community-bottom-cta reveal">
+        <div class="bottom-cta-text">
+          <span>Không tìm thấy cộng đồng tỉnh bạn?</span>
+        </div>
+        <a href="#" class="btn-primary" style="padding:12px 28px;border-radius:10px;font-size:0.9rem;text-decoration:none;display:inline-flex;align-items:center;gap:8px;"> ➕ Tạo cộng đồng mới </a>
+      </div>
+    </div>
+  </section>
+  <!-- ─── FEATURES ─── -->
+  <section class="features" id="features">
+    <div class="wrap">
+            <div class="container">
+              <div class="section-head reveal">
+                <div>
+                  <div class="section-label">Tính năng nổi bật</div>
+                  <h2 class="section-title">Mọi thứ bạn cần <br />trong một ứng dụng </h2>
+                </div>
+                <p class="section-desc">Từ tìm sân đến thi đấu chuyên nghiệp, onePickleball.vn là người đồng hành hoàn hảo cho hành trình pickleball của bạn.</p>
+              </div>
+              <div class="features-grid">
+                <div class="feature-card reveal">
+                  <div class="feature-icon">🏆</div>
+                  <div class="feature-title">Quản lý giải đấu</div>
+                  <div class="feature-desc">Đăng ký, theo dõi lịch thi đấu, bảng xếp hạng và kết quả trực tiếp trong tay.</div>
+                  <a class="feature-link" href="#">Xem giải đấu →</a>
+                </div>
+                <div class="feature-card reveal" style="transition-delay:0.1s">
+                  <div class="feature-icon">📍</div>
+                  <div class="feature-title">Tìm sân tập</div>
+                  <div class="feature-desc">Hơn 280 sân trên toàn quốc với thông tin chi tiết, giá cả, đặt lịch online tiện lợi.</div>
+                  <a class="feature-link" href="#">Tìm sân →</a>
+                </div>
+                <div class="feature-card reveal" style="transition-delay:0.2s">
+                  <div class="feature-icon">👨‍🏫</div>
+                  <div class="feature-title">Kết nối HLV</div>
+                  <div class="feature-desc">Tìm huấn luyện viên phù hợp với trình độ, lịch học và mức phí của bạn.</div>
+                  <a class="feature-link" href="#">Tìm HLV →</a>
+                </div>
+                <div class="feature-card reveal" style="transition-delay:0.3s">
+                  <div class="feature-icon">👥</div>
+                  <div class="feature-title">Giao lưu cộng đồng</div>
+                  <div class="feature-desc">Kết nối với người chơi cùng trình độ, tổ chức buổi chơi xã hội và chia sẻ đam mê.</div>
+                  <a class="feature-link" href="#">Tham gia →</a>
+                </div>
+              </div>
+      </div>
+  </section>
+  <!-- ─── CTA / COMMUNITY ─── -->
+  <section class="community" id="community">
+    <div class="wrap">
+      <div class="container">
+        <div class="cta-block reveal">
+          <div class="section-label" style="justify-content: center;">Tải ứng dụng</div>
+          <h2 class="section-title">Mang pickleball vào lòng bàn tay</h2>
+          <p class="section-desc">Tải ngay ứng dụng onePickleball.vn để trải nghiệm đầy đủ tính năng, nhận thông báo giải đấu và kết nối cộng đồng mọi lúc mọi nơi.</p>
+          <div class="app-badges">
+            <a class="app-badge" href="#">
+              <div class="app-badge-icon">🍎</div>
+              <div class="app-badge-text">
+                <small>Tải trên</small>
+                <strong>App Store</strong>
+              </div>
+            </a>
+            <a class="app-badge" href="#">
+              <div class="app-badge-icon">🤖</div>
+              <div class="app-badge-text">
+                <small>Tải trên</small>
+                <strong>Google Play</strong>
+              </div>
+            </a>
+            <a class="app-badge" href="#">
+              <div class="app-badge-icon">🌐</div>
+              <div class="app-badge-text">
+                <small>Dùng trực tiếp</small>
+                <strong>Web App</strong>
+              </div>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- ─── FOOTER ─── -->
+  <footer>
+    <div class="wrap">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a class="nav-logo" href="#" style="margin-bottom: 14px; display: inline-flex;">
+              <img src="https://demo.onepickleball.vn/assets/images/logo.png" alt="OnePickleball" width="100px">
+            </a>
+            <p class="footer-tagline">Nền tảng Pickleball toàn diện hàng đầu Việt Nam — Kết nối người chơi, sân tập, huấn luyện viên và giải đấu trong một hệ sinh thái thống nhất.</p>
+            <div class="social-links">
+              <a class="social-link" href="#">📘</a>
+              <a class="social-link" href="#">📸</a>
+              <a class="social-link" href="#">▶️</a>
+              <a class="social-link" href="#">🎵</a>
+            </div>
+          </div>
+          <div class="footer-col">
+            <h4>Nền tảng</h4>
+            <ul class="footer-links">
+              <li>
+                <a href="#">Giải đấu</a>
+              </li>
+              <li>
+                <a href="#">Tìm sân</a>
+              </li>
+              <li>
+                <a href="#">Huấn luyện viên</a>
+              </li>
+              <li>
+                <a href="#">Giao lưu xã hội</a>
+              </li>
+              <li>
+                <a href="#">Bảng xếp hạng</a>
+              </li>
+              <li>
+                <a href="#">Tính năng mới</a>
+              </li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Hỗ trợ</h4>
+            <ul class="footer-links">
+              <li>
+                <a href="#">Trung tâm trợ giúp</a>
+              </li>
+              <li>
+                <a href="#">Liên hệ</a>
+              </li>
+              <li>
+                <a href="#">Báo lỗi</a>
+              </li>
+              <li>
+                <a href="#">Hợp tác</a>
+              </li>
+              <li>
+                <a href="#">Blog</a>
+              </li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>Pháp lý</h4>
+            <ul class="footer-links">
+              <li>
+                <a href="#">Điều khoản sử dụng</a>
+              </li>
+              <li>
+                <a href="#">Chính sách bảo mật</a>
+              </li>
+              <li>
+                <a href="#">Cookie</a>
+              </li>
+              <li>
+                <a href="#">DMCA</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>© 2025 onePickleball.vn — AnyTech. Bảo lưu mọi quyền.</p>
+          <p>🇻🇳 Được xây dựng tại Việt Nam · Cho cộng đồng Pickleball Việt Nam</p>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+        }
+      });
+    }, {
+      threshold: 0.12
+    });
+    reveals.forEach(r => observer.observe(r));
+    // Nav scroll effect
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      if (window.scrollY > 50) {
+        nav.style.background = 'rgba(255, 255, 255, 0.97)';
+        nav.style.boxShadow = '0 4px 30px rgba(0,0,0,0.4)';
+      } else {
+        nav.style.background = 'rgba(255, 255, 255, 0.88)';
+        nav.style.boxShadow = 'none';
+      }
+    });
+    // Smooth counter animation
+    function animateCounter(el, target, suffix = '') {
+      let start = 0;
+      const duration = 2000;
+      const step = (timestamp) => {
+        if (!start) start = timestamp;
+        const progress = Math.min((timestamp - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = Math.floor(eased * target).toLocaleString() + suffix;
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          const nums = e.target.querySelectorAll('.num');
+          nums.forEach(n => {
+            const text = n.textContent;
+            const match = text.match(/[\d,]+/);
+            if (match) {
+              const num = parseInt(match[0].replace(',', ''));
+              const suffix = text.replace(/[\d,]+/, '');
+              animateCounter(n, num, suffix);
+            }
+          });
+          statsObserver.unobserve(e.target);
+        }
+      });
+    }, {
+      threshold: 0.3
+    });
+    const statsBand = document.querySelector('.stats-band-inner');
+    if (statsBand) statsObserver.observe(statsBand);
+    // Community map interactivity
+    const provinceData = {
+      hcm: {
+        name: 'TP. Hồ Chí Minh',
+        icon: '🏙️',
+        sub: 'Cộng đồng lớn nhất Việt Nam',
+        badge: '🔥 Hot',
+        members: '3,840',
+        courts: '42',
+        tournaments: '18'
+      },
+      hn: {
+        name: 'Hà Nội',
+        icon: '🏛️',
+        sub: 'Thủ đô Pickleball miền Bắc',
+        badge: '⭐ Top',
+        members: '2,610',
+        courts: '31',
+        tournaments: '12'
+      },
+      dn: {
+        name: 'Đà Nẵng',
+        icon: '🌊',
+        sub: 'Thành phố biển sôi động',
+        badge: '🎾',
+        members: '1,240',
+        courts: '16',
+        tournaments: '8'
+      },
+      bd: {
+        name: 'Bình Dương',
+        icon: '🏭',
+        sub: 'Cộng đồng công nghiệp phát triển',
+        badge: '',
+        members: '890',
+        courts: '14',
+        tournaments: '5'
+      },
+      nt: {
+        name: 'Khánh Hòa',
+        icon: '🏖️',
+        sub: 'Sân bãi du lịch tuyệt đẹp',
+        badge: '',
+        members: '720',
+        courts: '10',
+        tournaments: '4'
+      },
+      ct: {
+        name: 'Cần Thơ',
+        icon: '🌾',
+        sub: 'Miền Tây năng động',
+        badge: '',
+        members: '580',
+        courts: '8',
+        tournaments: '3'
+      },
+      qn: {
+        name: 'Quảng Nam',
+        icon: '🏞️',
+        sub: 'Di sản kết hợp thể thao',
+        badge: '',
+        members: '410',
+        courts: '6',
+        tournaments: '2'
+      },
+      hp: {
+        name: 'Hải Phòng',
+        icon: '⚓',
+        sub: 'Cảng biển sôi động',
+        badge: '',
+        members: '390',
+        courts: '5',
+        tournaments: '2'
+      },
+    };
+
+    function selectProvince(key) {
+      const d = provinceData[key];
+      if (!d) return;
+      // Update detail card
+      document.getElementById('detailCity').textContent = d.name;
+      document.querySelector('.detail-icon').textContent = d.icon;
+      document.querySelector('.detail-sub').textContent = d.sub;
+      document.querySelector('.detail-fire').textContent = d.badge;
+      document.getElementById('detailMembers').textContent = d.members;
+      document.getElementById('detailCourts').textContent = d.courts;
+      document.getElementById('detailTournaments').textContent = d.tournaments;
+      // Update list active
+      document.querySelectorAll('.province-item').forEach(el => {
+        el.classList.toggle('active', el.dataset.province === key);
+      });
+      // Update map dots
+      document.querySelectorAll('.map-dot').forEach(dot => {
+        dot.classList.remove('active-dot');
+        if (dot.dataset.city === key) dot.classList.add('active-dot');
+      });
+    }
+    document.querySelectorAll('.province-item').forEach(el => {
+      el.addEventListener('click', () => selectProvince(el.dataset.province));
+    });
+    document.querySelectorAll('.map-dot').forEach(dot => {
+      dot.addEventListener('click', () => selectProvince(dot.dataset.city));
+    });
+    // Province search filter
+    const searchInput = document.getElementById('provinceSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('.province-item').forEach(el => {
+          const name = el.querySelector('.province-name').textContent.toLowerCase();
+          el.style.display = name.includes(q) ? '' : 'none';
+        });
+      });
+    }
+    // Community filter tabs
+    document.querySelectorAll('.comm-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.comm-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
