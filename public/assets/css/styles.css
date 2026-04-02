@@ -379,10 +379,9 @@ ul {
    =================================== */
 .hero {
     position: relative;
-    min-height: 100vh;
     display: flex;
     align-items: center;
-    padding-top: 80px;
+    padding-top: 140px;
     overflow: hidden;
 }
 
@@ -1194,6 +1193,7 @@ ul {
 .footer-legal span {
     color: rgba(255, 255, 255, 0.3);
 }
+
 .mobile-only {
     display: none;
 }
@@ -1312,7 +1312,7 @@ ul {
     }
 
     /* Mobile dropdown styles */
-    .nav-item.dropdown > .dropdown-toggle::after {
+    .nav-item.dropdown>.dropdown-toggle::after {
         content: '▼';
         display: inline-block !important;
         margin-left: 0.5rem;
@@ -1337,10 +1337,12 @@ ul {
     .mobile-only {
         display: block;
     }
+
     .login-register-btn {
         width: 100%;
         text-align: center;
     }
+
     .login-register-btn .btn {
         width: 100%;
         max-width: 200px;
@@ -1349,8 +1351,9 @@ ul {
 
     .nav-actions {
         display: none;
-        
+
     }
+
     body.menu-open {
         overflow: hidden;
     }
