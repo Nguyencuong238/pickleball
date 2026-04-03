@@ -2,7 +2,7 @@
 
 **Project Name**: Pickleball Platform
 **Version**: 1.12.0
-**Last Updated**: 2026-03-24
+**Last Updated**: 2026-04-03
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -204,9 +204,12 @@ Create a centralized platform connecting pickleball players with courts, tournam
   - Rotating Doubles: Partners rotate each round (no duplicate pairings)
   - Fixed Doubles: Pre-defined team pairs with court/time assignment
 - **Match Management**: Round-based scheduling, score entry, auto-standings
+- **Score Confirmation Workflow**: Pending confirmation → Confirmed/Rejected → Admin confirmed
 - **Standings Calculation**: Per-player stats (wins, losses, points_for, points_against)
+- **Match Format Options**: Best of 1, 3, or 5 sets; points per set (default: 21)
+- **Waitlist Auto-Promotion**: Automatic participant promotion from waitlist when spots open
 - **UI**: Modal-based match generation, custom match creation, standings display
-- **API**: 7 AJAX endpoints for matches/rounds/standings operations
+- **API**: 7+ AJAX endpoints for matches/rounds/standings operations
 
 ### 13. Club Check-in & Leaderboard [NEW - Mar 2026]
 - Real-time check-in tracking with timestamp and status

@@ -1,6 +1,6 @@
 # Code Standards & Conventions
 
-**Last Updated**: 2026-03-24
+**Last Updated**: 2026-04-03
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -16,17 +16,17 @@ Follow Laravel's standard structure:
 
 ```
 app/
-├── Console/Commands/      # Artisan commands
+├── Console/Commands/      # Artisan commands (22 commands)
 ├── Exceptions/            # Exception handlers
 ├── Http/
-│   ├── Controllers/       # Route controllers
-│   │   ├── Admin/        # Admin panel (24 controllers)
+│   ├── Controllers/       # Route controllers (116 total)
+│   │   ├── Admin/        # Admin panel (23 controllers)
 │   │   ├── Api/          # API endpoints (30+ controllers)
-│   │   └── Front/        # Public frontend (35+ controllers)
+│   │   └── Front/        # Public frontend (46+ controllers)
 │   └── Middleware/        # HTTP middleware
-├── Models/                # Eloquent models (85+ models)
-├── Policies/              # Authorization policies
-├── Services/              # Business logic (18 services)
+├── Models/                # Eloquent models (84 models)
+├── Policies/              # Authorization policies (8)
+├── Services/              # Business logic (34 services)
 └── Providers/             # Service providers
 ```
 
@@ -418,12 +418,7 @@ Key: `lockForUpdate()` prevents race conditions; `DB::transaction()` ensures ato
 
 ### Soft Delete Pattern
 
-Use `SoftDeletes` trait for logical deletion with recovery:
-```php
-use Illuminate\Database\Eloquent\SoftDeletes;
-class User extends Model { use SoftDeletes; }
-// Auto-excludes deleted; withTrashed() includes; onlyTrashed() filters
-```
+Use `SoftDeletes` trait for logical deletion with recovery. Auto-excludes deleted records; use `withTrashed()` to include, `onlyTrashed()` to filter only deleted.
 
 ### Service Classes
 
@@ -543,24 +538,7 @@ class ChallengeService
 3. **Type Hints**: Always use strict typing
 4. **Transactions**: Wrap multi-model operations in DB transactions
 5. **Return Types**: Be explicit about return types
-6. **Documentation**: Document complex business logic
-
-```php
-/**
- * Award points and recalculate OPRS
- *
- * @param User $user User receiving points
- * @param CommunityActivity $activity Activity record
- * @return void
- */
-private function awardPoints(User $user, CommunityActivity $activity): void
-{
-    $newScore = $user->community_score + $activity->points_earned;
-
-    $user->update(['community_score' => $newScore]);
-    $this->oprsService->recalculateAfterActivity($user, $activity->id);
-}
-```
+6. **Documentation**: Document complex business logic with PHPDoc
 
 #### Skill Quiz Service Pattern
 
@@ -789,6 +767,31 @@ const groupSetupMixin = {
 ```
 
 **Guidelines:** One mixin per file. Name: `{feature}-mixin.js`. Compose in main file.
+
+## Club Activity Service Pattern (2026-03 Update)
+
+Club activities use multi-service architecture:
+
+```php
+// ClubActivityService - RSVP/participant management
+public function confirmParticipant(User $user, ClubActivity $activity): ClubActivityParticipant
+
+// ClubActivityMatchService - Match generation (3 algorithms)
+public function generateRoundRobinMatches(ClubActivity $activity): Collection
+
+// WaitlistAutoPromotionService - Automatic promotion
+public function promoteFromWaitlist(ClubActivity $activity): Collection
+
+// ClubScoreService - Score confirmation workflow
+public function confirmScore(ClubActivityMatch $match, User $confirmedBy): bool
+
+// ClubMemberStatsService - Stats calculation
+public function calculatePlayerStats(ClubActivity $activity, User $player): array
+```
+
+Score confirmation states: pending_confirmation → confirmed/rejected → admin_confirmed
+
+Match format support: Best of 1/3/5 with configurable points_per_set (default: 21)
 
 ## Related Documentation
 

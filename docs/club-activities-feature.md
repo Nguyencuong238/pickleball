@@ -1,20 +1,37 @@
 # Club Activities Feature Guide
 
-**Last Updated**: 2026-03-22
-**Status**: Complete (All 6 Phases Done)
+**Last Updated**: 2026-04-03
+**Status**: Complete (All 6 Phases Done + Mar Updates)
 **Phases Complete**: Database, Models, Controllers, Views, Scheduling, Testing
 **Enhancement Note**: Auto-create club post when activity is created (2026-03-14+)
+
+**Mar 2026 Updates**:
+- Check-in system: Real-time participant tracking with timestamps and status management
+- Leaderboard: Per-activity player stats with rankings and filtering
+- Match end flow: Player-initiated match end via `playerEndMatch()` endpoint
+- Score confirmation: Admin vs player submission with opposing team validation
+- Score rejection: Support for resubmission if scores are rejected
+- Match settings: `best_of` (1/3/5 sets) and `points_per_set` (default: 21) configuration
+- New controllers: `ClubCheckinController`, `ClubLeaderboardController`
+- New service: `WaitlistAutoPromotionService` for automatic promotion from waitlist
 
 ---
 
 ## Overview
 
 The Club Activities system enables club members to participate in three types of activities:
-1. **One-Off Meets** - Single event with RSVP and participant tracking
-2. **Recurring Activities** - Auto-generated recurring instances of a template activity
-3. **Competitions** - Structured tournaments with teams, matches, and standings
+1. **One-Off Meets** - Single event with RSVP, participant tracking, and casual match generation
+2. **Recurring Activities** - Auto-generated recurring instances of a template activity (scheduled 06:00 daily)
+3. **Competitions** - Structured tournaments with teams, matches, standings, and score confirmation
 
-All activity types support RSVP/waitlist, skill level filtering, and management controls.
+All activity types support:
+- RSVP/waitlist with auto-promotion from waitlist
+- Skill level filtering (OPR-based)
+- Check-in tracking with real-time timestamps
+- Leaderboard with per-player statistics
+- Match generation with 3 algorithms (singles round-robin, rotating doubles, fixed doubles)
+- Score confirmation workflow (pending → confirmed/rejected → admin_confirmed)
+- Management controls and admin overrides
 
 ---
 

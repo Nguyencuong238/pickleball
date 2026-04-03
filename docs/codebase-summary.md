@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-03-25
+**Last Updated**: 2026-04-03
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -10,16 +10,16 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 ## Project Structure
 
-**File Counts (Current - Mar 2026):**
-- PHP files: 350+ (Controllers 116, Models 84, Services 33, Commands 22, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
+**File Counts (Current - Apr 2026):**
+- PHP files: 360+ (Controllers 116, Models 84, Services 34, Commands 22, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
   - Front/Tournament/: 9 controllers + 5 traits
-- Blade templates: 261 (Admin 54, Front 53, Home-yard 59, Clubs 45, Layouts 5, User/Auth/Referee 39)
-  - home-yard/tournaments/: dashboard + 20+ partials
-- JS modules: 18 files (Alpine.js components for tournament dashboard, bracket editor)
-- CSS stylesheets: 26 files (15 feature-specific + 11 tournament-dashboard components)
-- Database migrations: 193
+- Blade templates: 273 (Admin 54, Front 53, Home-yard 65, Clubs 50, Layouts 5, User/Auth/Referee 45)
+  - home-yard/tournaments/: dashboard + 25+ partials
+- JS modules: 24 files (Alpine.js components for tournament dashboard, bracket editor, club activities)
+- CSS stylesheets: 34 files (20 feature-specific + 14 tournament-dashboard components)
+- Database migrations: 195
 - Database seeders: 20
-- Routes: ~590 (web.php 420+, api.php 170+)
+- Routes: ~600 (web.php 430+, api.php 170+)
 
 ## Core Technologies
 
@@ -40,7 +40,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - **Vite**: 5.0+ (Asset bundling)
 - **Axios**: 1.6+ (HTTP client)
 
-## Models Overview (85+ Models)
+## Models Overview (84 Models)
 
 ### User & Auth
 - `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data (avatar, location, province, gender), referee fields
@@ -96,15 +96,17 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-## Services Overview (33 Services)
+## Services Overview (34 Services)
 
-Core: EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService
+Core (11): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService
 
-Club & Social: ClubPostMediaService, ClubActivityService, ClubActivityMatchService, ClubCompetitionService, ClubMatchService, ClubMemberStatsService, ClubScoreService, CommunityService
+Club & Social (8): ClubPostMediaService, ClubActivityService, ClubActivityMatchService, ClubCompetitionService, ClubMatchService, ClubMemberStatsService, ClubScoreService, WaitlistAutoPromotionService
 
-League: LeagueService, LeagueScheduleService, LeagueStandingsService, LeagueAutoTeamService, LeagueRegistrationService
+League (5): LeagueService, LeagueScheduleService, LeagueStandingsService, LeagueAutoTeamService, LeagueRegistrationService
 
-Tournament (11 total): TournamentCrudService, TournamentDrawService, TournamentMatchService, TournamentStandingService, KnockoutBracketService, KnockoutMatchBuilder, KnockoutBracketQuery, BracketSeedingHelper, DrawAssignmentHelper, MatchCreationHelper, RankingQueryHelper
+Tournament (11): TournamentCrudService, TournamentDrawService, TournamentMatchService, TournamentStandingService, KnockoutBracketService, KnockoutMatchBuilder, KnockoutBracketQuery, BracketSeedingHelper, DrawAssignmentHelper, MatchCreationHelper, RankingQueryHelper
+
+Booking (1): BookingCodeService
 
 ## Controllers Overview
 
