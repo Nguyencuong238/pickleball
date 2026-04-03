@@ -54,8 +54,6 @@
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 100vh;
-  padding-top: 100px;
   padding-bottom: 80px;
   padding-left: 24px;
   padding-right: 24px;
