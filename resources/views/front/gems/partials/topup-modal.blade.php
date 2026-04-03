@@ -2,13 +2,13 @@
     <div class="gems-modal-overlay" onclick="closeTopupModal()"></div>
     <div class="gems-modal-content">
         <div class="gems-modal-header">
-            <h3>Nap Gems</h3>
+            <h3>Nạp Gems</h3>
             <button class="gems-modal-close" onclick="closeTopupModal()">&times;</button>
         </div>
         <div class="gems-modal-body">
             <!-- Step 1: Amount selection -->
             <div id="topupStep1">
-                <label class="gems-input-label">Nhap so tien (VND):</label>
+                <label class="gems-input-label">Nhập số tiền (VND):</label>
                 <input type="number" id="topupAmount" class="gems-input"
                     placeholder="{{ number_format($minTopup) }}"
                     min="{{ $minTopup }}" max="{{ $maxTopup }}"
@@ -22,11 +22,11 @@
                 </div>
 
                 <div class="gems-calc">
-                    Ban se nhan: <strong id="gemsPreview">0</strong> Gems
+                    Bạn sẽ nhận: <strong id="gemsPreview">0</strong> Gems
                 </div>
 
                 <button class="btn-gems-primary" id="btnCreateQr" onclick="createTopup()">
-                    Tao ma QR
+                    Tạo mã QR
                 </button>
             </div>
 
@@ -38,25 +38,25 @@
 
                 <div class="gems-bank-info">
                     <div class="gems-info-row">
-                        <span>So tien:</span>
+                        <span>Số tiền:</span>
                         <strong id="qrAmountVnd"></strong>
-                        <button class="btn-copy" onclick="copyText(this, 'qrAmountVndRaw')">Sao chep</button>
+                        <button class="btn-copy" onclick="copyText(this, 'qrAmountVndRaw')">Sao chép</button>
                         <input type="hidden" id="qrAmountVndRaw">
                     </div>
                     <div class="gems-info-row">
-                        <span>Noi dung CK:</span>
+                        <span>Nội dung CK:</span>
                         <strong id="qrTransferContent"></strong>
-                        <button class="btn-copy" onclick="copyText(this, 'qrTransferContentRaw')">Sao chep</button>
+                        <button class="btn-copy" onclick="copyText(this, 'qrTransferContentRaw')">Sao chép</button>
                         <input type="hidden" id="qrTransferContentRaw">
                     </div>
                 </div>
 
                 <div class="gems-polling-status" id="pollingStatus">
-                    Dang cho thanh toan...
+                    Đang chờ thanh toán...
                     <div class="gems-countdown" id="countdown"></div>
                 </div>
 
-                <button class="btn-gems-secondary" onclick="cancelTopup()">Huy</button>
+                <button class="btn-gems-secondary" onclick="cancelTopup()">Hủy</button>
             </div>
         </div>
     </div>

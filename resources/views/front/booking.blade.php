@@ -600,16 +600,16 @@
 
                             <!-- Payment Method Selection -->
                             <div class="form-group">
-                                <label>Phuong thuc thanh toan</label>
+                                <label>Phương thức thanh toán</label>
                                 <div class="payment-method-options">
                                     <label class="payment-option">
                                         <input type="radio" name="payment_method" value="transfer" checked>
-                                        <span class="payment-option-label">Chuyen khoan ngan hang</span>
+                                        <span class="payment-option-label">Chuyển khoản ngân hàng</span>
                                     </label>
                                     @auth
                                     <label class="payment-option">
                                         <input type="radio" name="payment_method" value="wallet">
-                                        <span class="payment-option-label">Thanh toan bang Gems</span>
+                                        <span class="payment-option-label">Thanh toán bằng Gems</span>
                                         <span class="gems-badge">{{ number_format($gemsBalance ?? 0) }} Gems</span>
                                     </label>
                                     @endauth
@@ -620,11 +620,11 @@
                             @auth
                             <div id="gemsPaymentInfo" style="display:none;" class="gems-booking-info">
                                 <div class="gems-needed-row">
-                                    Can thanh toan: <strong id="gemsNeeded">0</strong> Gems
+                                    Cần thanh toán: <strong id="gemsNeeded">0</strong> Gems
                                 </div>
                                 <div id="gemsInsufficient" style="display:none;" class="gems-insufficient">
-                                    Thieu <strong id="gemsShortfall">0</strong> Gems.
-                                    <a href="{{ route('user.gems.index') }}">Nap them Gems</a>
+                                    Thiếu <strong id="gemsShortfall">0</strong> Gems.
+                                    <a href="{{ route('user.gems.index') }}">Nạp thêm Gems</a>
                                 </div>
                             </div>
                             @endauth
@@ -1516,7 +1516,7 @@
                         } else {
                             // For wallet/other: show success modal immediately
                             if (paymentMethod === 'wallet' && result.cashback_points) {
-                                toastr.success('Da thanh toan bang Gems! Hoan +' + result.cashback_points + ' diem');
+                                toastr.success('Đã thanh toán bằng Gems! Hoàn +' + result.cashback_points + ' diem');
                             }
                             showBookingSuccessModal(displayCode);
                             

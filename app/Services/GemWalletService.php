@@ -27,7 +27,7 @@ class GemWalletService
 
         if ($amountVnd < $minVnd || $amountVnd > $maxVnd) {
             throw new \InvalidArgumentException(
-                "So tien nap phai tu " . number_format($minVnd) . " den " . number_format($maxVnd) . " VND."
+                "Số tiền nạp phải từ " . number_format($minVnd) . " đến " . number_format($maxVnd) . " VND."
             );
         }
 
@@ -41,7 +41,7 @@ class GemWalletService
             'type' => 'top_up',
             'amount' => $gems,
             'balance_after' => $wallet->balance,
-            'description' => "Nap " . number_format($gems) . " Gems",
+            'description' => "Nạp " . number_format($gems) . " Gems",
             'metadata' => ['amount_vnd' => $amountVnd, 'exchange_rate' => $exchangeRate],
             'status' => 'pending',
         ]);
@@ -88,7 +88,7 @@ class GemWalletService
 
         $gemTx = $this->deduct(
             $user, $gemsNeeded, Booking::class, $booking->id,
-            "Dat san - {$booking->booking_code}"
+            "Đặt sân - {$booking->booking_code}"
         );
 
         $booking->update(['confirmed_at' => now(), 'status' => 'confirmed']);
@@ -105,7 +105,7 @@ class GemWalletService
             $wallet = GemWallet::where('user_id', $user->id)->lockForUpdate()->firstOrFail();
 
             if ($wallet->balance < $gems) {
-                throw new \RuntimeException("So du Gems khong du. Can {$gems} Gems, hien co {$wallet->balance} Gems.");
+                throw new \RuntimeException("Số dư Gems không đủ. Cần {$gems} Gems, hiện có {$wallet->balance} Gems.");
             }
 
             $wallet->decrement('balance', $gems);
@@ -127,7 +127,7 @@ class GemWalletService
     public function refund(GemTransaction $originalTx): GemTransaction
     {
         if ($originalTx->status !== 'completed' || $originalTx->type !== 'payment') {
-            throw new \RuntimeException('Chi co the hoan tien giao dich thanh toan da hoan tat.');
+            throw new \RuntimeException('Chỉ có thể hoàn tiền giao dịch thanh toán đã hoàn tất.');
         }
 
         return DB::transaction(function () use ($originalTx) {
@@ -143,7 +143,7 @@ class GemWalletService
                 'balance_after' => $wallet->balance,
                 'reference_type' => $originalTx->reference_type,
                 'reference_id' => $originalTx->reference_id,
-                'description' => "Hoan tien: {$originalTx->description}",
+                'description' => "Hoàn tiền: {$originalTx->description}",
                 'metadata' => ['original_transaction_id' => $originalTx->id],
                 'status' => 'completed',
             ]);

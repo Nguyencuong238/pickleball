@@ -627,10 +627,10 @@
                                 ⭐ Kiếm điểm
                             </a> --}}
                             <a href="{{ route('user.wallet.index') }}" class="nav-link">
-                                💰 Vi diem ({{ auth()->user()->getPoints() }})
+                                💰 Ví điểm ({{ auth()->user()->getPoints() }})
                             </a>
                             <a href="{{ route('user.gems.index') }}" class="nav-link">
-                                💎 Vi Gems ({{ number_format(auth()->user()->gemWallet?->balance ?? 0) }})
+                                💎 Ví Gems ({{ number_format(auth()->user()->gemWallet?->balance ?? 0) }})
                             </a>
                             <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
                                 👤 Profile

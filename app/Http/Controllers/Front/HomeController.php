@@ -331,7 +331,7 @@ class HomeController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Dat san thanh cong.',
+            'message' => 'Đặt sân thành công.',
             'booking' => [
                 'id' => $booking->id,
                 'booking_code' => $booking->booking_code,

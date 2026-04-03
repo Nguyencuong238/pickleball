@@ -25,7 +25,7 @@ class GemCashbackService
             return;
         }
 
-        $user->addPoints($points, 'gems_cashback', "Hoan diem tu thanh toan Gems", [
+        $user->addPoints($points, 'gems_cashback', "Hoàn điểm từ thanh toán Gems", [
             'gem_transaction_id' => $transaction->id,
             'gems_spent' => abs($transaction->amount),
             'cashback_percent' => $percent,

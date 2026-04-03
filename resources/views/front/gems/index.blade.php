@@ -1,16 +1,16 @@
 @extends('layouts.front')
 
 @section('seo')
-    <title>Vi Gems - OnePickleball</title>
-    <meta name="description" content="Quan ly vi Gems cua ban tren OnePickleball">
+    <title>Ví Gems - OnePickleball</title>
+    <meta name="description" content="Quản lý ví Gems của bạn trên OnePickleball">
 @endsection
 
 @section('content')
 <div class="gems-container" style="margin-top: 100px">
     <div class="gems-header">
         <div class="container">
-            <h1 class="gems-title">Vi Gems</h1>
-            <p class="gems-subtitle">Nap Gems de thanh toan dat san nhanh chong</p>
+            <h1 class="gems-title">Ví Gems</h1>
+            <p class="gems-subtitle">Nạp Gems để thanh toán đặt sân nhanh chóng</p>
         </div>
     </div>
 
@@ -24,25 +24,25 @@
 
             <div class="gems-sidebar">
                 <div class="info-card">
-                    <h3 class="info-title">Gems la gi?</h3>
+                    <h3 class="info-title">Gems là gì?</h3>
                     <ul class="info-list">
                         <li>
                             <span class="icon">1</span>
-                            <span>Nap tien vao vi Gems qua chuyen khoan</span>
+                            <span>Nạp tiền vào ví Gems qua chuyển khoản</span>
                         </li>
                         <li>
                             <span class="icon">2</span>
-                            <span>Dung Gems de thanh toan dat san</span>
+                            <span>Dùng Gems để thanh toán đặt sân</span>
                         </li>
                         <li>
                             <span class="icon">3</span>
-                            <span>Nhan {{ config('gems.cashback_percent') }}% hoan diem cho moi giao dich</span>
+                            <span>Nhận {{ config('gems.cashback_percent') }}% hoàn điểm cho mỗi giao dịch</span>
                         </li>
                     </ul>
                 </div>
 
                 <div class="info-card">
-                    <h3 class="info-title">Ty gia</h3>
+                    <h3 class="info-title">Tỷ giá</h3>
                     <p class="exchange-rate-display">
                         1 Gem = {{ number_format($exchangeRate) }} VND
                     </p>
@@ -662,14 +662,14 @@ function createTopup() {
     var amount = parseInt(document.getElementById('topupAmount').value);
     if (!amount || amount < {{ $minTopup }} || amount > {{ $maxTopup }}) {
         if (typeof toastr !== 'undefined') {
-            toastr.error('Vui long nhap so tien hop le ({{ number_format($minTopup) }} - {{ number_format($maxTopup) }} VND)');
+            toastr.error('Vui lòng nhập số tiền hợp lệ ({{ number_format($minTopup) }} - {{ number_format($maxTopup) }} VND)');
         }
         return;
     }
 
     var btn = document.getElementById('btnCreateQr');
     btn.disabled = true;
-    btn.textContent = 'Dang tao...';
+    btn.textContent = 'Đang tạo...';
 
     var token = document.querySelector('meta[name="csrf-token"]');
     var headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
@@ -689,7 +689,7 @@ function createTopup() {
     .then(function(r) { return r.json(); })
     .then(function(data) {
         btn.disabled = false;
-        btn.textContent = 'Tao ma QR';
+        btn.textContent = 'Tạo mã QR';
 
         if (data.success) {
             currentTxId = data.transaction_id;
@@ -704,13 +704,13 @@ function createTopup() {
 
             startPolling(data.transaction_id);
         } else {
-            if (typeof toastr !== 'undefined') toastr.error(data.message || 'Co loi xay ra');
+            if (typeof toastr !== 'undefined') toastr.error(data.message || 'Có lỗi xảy ra');
         }
     })
     .catch(function() {
         btn.disabled = false;
-        btn.textContent = 'Tao ma QR';
-        if (typeof toastr !== 'undefined') toastr.error('Khong the ket noi. Vui long thu lai.');
+        btn.textContent = 'Tạo mã QR';
+        if (typeof toastr !== 'undefined') toastr.error('Không thể kết nối. Vui lòng thử lại.');
     });
 }
 
@@ -727,7 +727,7 @@ function startPolling(txId) {
         .then(function(data) {
             if (data.success && data.transaction && data.transaction.status === 'completed') {
                 cancelPolling();
-                if (typeof toastr !== 'undefined') toastr.success('Nap Gems thanh cong!');
+                if (typeof toastr !== 'undefined') toastr.success('Nạp Gems thành công!');
                 closeTopupModal();
                 location.reload();
             }
@@ -739,11 +739,11 @@ function startPolling(txId) {
         var mins = Math.floor(remaining / 60000);
         var secs = Math.floor((remaining % 60000) / 1000);
         document.getElementById('countdown').textContent =
-            'Het han sau: ' + mins + ':' + (secs < 10 ? '0' : '') + secs;
+            'Hết hạn sau:' + mins + ':' + (secs < 10 ? '0' : '') + secs;
 
         if (remaining <= 0) {
             cancelPolling();
-            document.getElementById('pollingStatus').textContent = 'Da het han. Vui long tao giao dich moi.';
+            document.getElementById('pollingStatus').textContent = 'Đã hết hạn. Vui lòng tạo giao dịch mới.';
             document.getElementById('countdown').textContent = '';
         }
     }, 1000);
@@ -764,7 +764,7 @@ function copyText(btn, inputId) {
     var value = document.getElementById(inputId).value;
     navigator.clipboard.writeText(value).then(function() {
         var original = btn.textContent;
-        btn.textContent = 'Da sao chep!';
+        btn.textContent = 'Đã sao chép!';
         setTimeout(function() { btn.textContent = original; }, 2000);
     });
 }
