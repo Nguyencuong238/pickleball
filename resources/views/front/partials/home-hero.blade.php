@@ -39,13 +39,41 @@
                     </div>
                 </div>
                 <div class="court-illustration">
-                    <div class="court-lines"></div>
-                    <div class="court-net"></div>
-                    <div class="court-kitchen-left"></div>
-                    <div class="court-kitchen-right"></div>
+                    <!-- Court boundary -->
+                    <div class="court-boundary">
+                        <!-- Left baseline -->
+                        <div class="court-line court-baseline-left"></div>
+                        <!-- Right baseline -->
+                        <div class="court-line court-baseline-right"></div>
+                        <!-- Top sideline -->
+                        <div class="court-line court-sideline-top"></div>
+                        <!-- Bottom sideline -->
+                        <div class="court-line court-sideline-bottom"></div>
+                        <!-- Net -->
+                        <div class="court-line court-net-center"></div>
+                        <!-- Left kitchen line -->
+                        <div class="court-line court-kitchen-line-left"></div>
+                        <!-- Right kitchen line -->
+                        <div class="court-line court-kitchen-line-right"></div>
+                        <!-- Left center service line -->
+                        <div class="court-line court-centerline-left"></div>
+                        <!-- Right center service line -->
+                        <div class="court-line court-centerline-right"></div>
+                        <!-- Net posts -->
+                        <div class="court-net-post court-net-post-top"></div>
+                        <div class="court-net-post court-net-post-bottom"></div>
+                    </div>
+                    <!-- Ball -->
                     <div class="court-ball"></div>
-                    <div class="court-player-left"></div>
-                    <div class="court-player-right"></div>
+                    <!-- Players -->
+                    <div class="court-player court-player-left">
+                        <div class="player-body"></div>
+                        <div class="player-paddle"></div>
+                    </div>
+                    <div class="court-player court-player-right">
+                        <div class="player-body"></div>
+                        <div class="player-paddle"></div>
+                    </div>
                 </div>
                 <div style="margin-top:14px;">
                     <div class="live-chip">

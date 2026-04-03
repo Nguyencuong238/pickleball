@@ -250,6 +250,12 @@
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.12);
   overflow: visible;
   position: relative;
+  transform: perspective(800px) rotateY(-3deg) rotateX(2deg);
+  transition: transform 0.4s ease;
+}
+
+.homepage .hp-court-card:hover {
+  transform: perspective(800px) rotateY(0deg) rotateX(0deg);
 }
 
 .homepage .hp-court-card-stripe {
@@ -264,83 +270,187 @@
 .homepage .court-illustration {
   border-radius: 14px;
   overflow: hidden;
-  background: linear-gradient(160deg, #006646 0%, #008a5c 100%);
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 8px,
+      rgba(0, 0, 0, 0.02) 8px,
+      rgba(0, 0, 0, 0.02) 16px
+    ),
+    linear-gradient(145deg, #2a6847 0%, #256040 50%, #2d6b4a 100%);
   height: 220px;
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   margin-bottom: 16px;
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.12);
 }
 
-.homepage .court-lines {
+/* Court boundary container */
+.homepage .court-boundary {
   position: absolute;
-  inset: 0;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  margin: 16px;
-  border-radius: 4px;
+  top: 16px;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
 }
 
-.homepage .court-net {
+/* Base court line style */
+.homepage .court-line {
   position: absolute;
-  top: 50%;
-  left: 16px;
-  right: 16px;
-  height: 3px;
+  background: rgba(255, 255, 255, 0.55);
+}
+
+/* Baselines (left & right vertical edges) */
+.homepage .court-baseline-left {
+  left: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+}
+.homepage .court-baseline-right {
+  right: 0;
+  top: 0;
+  width: 2px;
+  height: 100%;
+}
+
+/* Sidelines (top & bottom horizontal edges) */
+.homepage .court-sideline-top {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+.homepage .court-sideline-bottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+}
+
+/* Net (center vertical line - thicker, brighter) */
+.homepage .court-net-center {
+  left: 50%;
+  top: -4px;
+  bottom: -4px;
+  width: 3px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+  z-index: 1;
+}
+
+/* Net posts */
+.homepage .court-net-post {
+  position: absolute;
+  left: 50%;
+  width: 6px;
+  height: 6px;
   background: rgba(255, 255, 255, 0.7);
-  transform: translateY(-50%);
+  border-radius: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+}
+.homepage .court-net-post-top {
+  top: -6px;
+}
+.homepage .court-net-post-bottom {
+  bottom: -6px;
 }
 
-.homepage .court-kitchen-left {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  width: 28%;
-  height: 38%;
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  transform: translateY(-50%);
+/* Kitchen (non-volley zone) lines - 7/22 = ~32% from net */
+.homepage .court-kitchen-line-left {
+  left: 18%;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
+}
+.homepage .court-kitchen-line-right {
+  right: 18%;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.5);
 }
 
-.homepage .court-kitchen-right {
-  position: absolute;
-  right: 16px;
+/* Center service lines (horizontal, in service area only) */
+.homepage .court-centerline-left {
+  left: 0;
   top: 50%;
-  width: 28%;
-  height: 38%;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  width: 18%;
+  height: 2px;
   transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.4);
+}
+.homepage .court-centerline-right {
+  right: 0;
+  top: 50%;
+  width: 18%;
+  height: 2px;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.4);
 }
 
 .homepage .court-ball {
   position: absolute;
-  width: 16px;
-  height: 16px;
+  width: 18px;
+  height: 18px;
   border-radius: 50%;
-  background: #ffdd57;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  animation: hp-ballBounce 1.2s ease-in-out infinite alternate;
-  top: 30%;
-  left: 45%;
+  background: radial-gradient(circle at 38% 32%, #ffe680, #f5c518 60%, #d4a010);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35), 0 0 12px rgba(255, 221, 87, 0.25);
+  animation: hp-ballBounce 1.5s ease-in-out infinite alternate;
+  top: 42%;
+  left: 52%;
+  z-index: 3;
+}
+
+.homepage .court-ball::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 14px;
+  height: 5px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 50%;
+  animation: hp-ballShadow 1.5s ease-in-out infinite alternate;
+}
+
+.homepage .court-player {
+  position: absolute;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.homepage .court-player .player-body {
+  width: 20px;
+  height: 20px;
+  background: rgba(160, 185, 175, 0.9);
+  border-radius: 50%;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.25), 0 8px 12px -4px rgba(0, 0, 0, 0.3);
+}
+
+.homepage .court-player .player-paddle {
+  width: 10px;
+  height: 18px;
+  background: rgba(230, 240, 235, 0.95);
+  border-radius: 5px 5px 2px 2px;
+  margin-top: -4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
 .homepage .court-player-left {
-  position: absolute;
-  left: 22%;
-  bottom: 20%;
-  width: 18px;
-  height: 28px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50% 50% 0 0;
+  right: 20%;
+  top: 18%;
 }
 
 .homepage .court-player-right {
-  position: absolute;
-  right: 22%;
-  top: 20%;
-  width: 18px;
-  height: 28px;
-  background: rgba(255, 255, 255, 0.6);
-  border-radius: 50% 50% 0 0;
+  left: 20%;
+  bottom: 18%;
 }
 
 /* Score row */
@@ -359,11 +469,12 @@
 }
 
 .homepage .card-score-row .score {
-  font-size: 1.2rem;
-  font-weight: 800;
+  font-size: 1.5rem;
+  font-weight: 900;
   color: var(--text-muted);
-  min-width: 28px;
+  min-width: 32px;
   text-align: center;
+  line-height: 1;
 }
 
 .homepage .card-score-row .score.win {
@@ -1476,6 +1587,17 @@
   50% {
     opacity: 0.55;
     transform: scale(1.25);
+  }
+}
+
+@keyframes hp-ballShadow {
+  from {
+    width: 14px;
+    opacity: 0.2;
+  }
+  to {
+    width: 8px;
+    opacity: 0.1;
   }
 }
 
