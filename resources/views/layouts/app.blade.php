@@ -498,6 +498,20 @@
 
             <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
 
+            <p style="padding: 0 20px; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">Gems</p>
+
+            <a href="{{ route('admin.gem-topups.index') }}" class="nav-link {{ request()->routeIs('admin.gem-topups.*') ? 'active' : '' }}">
+                <i class="fas fa-gem"></i> Nạp Gems
+                @php
+                    $pendingGemTopups = \App\Models\GemTransaction::where('type', 'top_up')->where('status', 'pending')->count();
+                @endphp
+                @if($pendingGemTopups > 0)
+                    <span class="badge bg-warning text-dark rounded-pill ms-auto">{{ $pendingGemTopups }}</span>
+                @endif
+            </a>
+
+            <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+
             <p style="padding: 0 20px; font-size: 0.8rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px;">OCR</p>
 
             <a href="{{ route('admin.ocr.matches.index') }}" class="nav-link {{ request()->routeIs('admin.ocr.matches.*') ? 'active' : '' }}">

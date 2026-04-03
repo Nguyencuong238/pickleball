@@ -96,7 +96,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-**Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency system with SePay VietQR top-up, instant gem payment for bookings, 5% cashback to Points wallet
+**Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency system with VietQR default (SePay fallback), admin approval workflow at /admin/gem-topups, instant gem payment for bookings, 5% cashback to Points wallet
 
 ## Services Overview (37 Services)
 
@@ -112,7 +112,7 @@ Booking (1): BookingCodeService
 
 ## Controllers Overview
 
-### Admin Controllers (23)
+### Admin Controllers (24)
 | Controller | Purpose |
 |------------|---------|
 | `DashboardController` | Admin dashboard |
@@ -139,6 +139,7 @@ Booking (1): BookingCodeService
 | `UserImportController` | Bulk user import |
 | `QuizController` | Quiz management |
 | `OcrLeaderboardController` | OCR leaderboard admin |
+| `GemTopupController` | Gems wallet top-up approval/rejection |
 
 ### API Controllers (30)
 | Controller | Purpose |

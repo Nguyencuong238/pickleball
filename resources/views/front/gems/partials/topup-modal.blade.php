@@ -37,6 +37,26 @@
                 </div>
 
                 <div class="gems-bank-info">
+                    @if(config('gems.bank.name'))
+                    <div class="gems-info-row">
+                        <span>Ngân hàng:</span>
+                        <strong>{{ config('gems.bank.name') }}</strong>
+                    </div>
+                    @endif
+                    @if(config('gems.bank.account_number'))
+                    <div class="gems-info-row">
+                        <span>Số tài khoản:</span>
+                        <strong>{{ config('gems.bank.account_number') }}</strong>
+                        <button class="btn-copy" onclick="copyText(this, 'bankAccountRaw')">Sao chép</button>
+                        <input type="hidden" id="bankAccountRaw" value="{{ config('gems.bank.account_number') }}">
+                    </div>
+                    @endif
+                    @if(config('gems.bank.account_name'))
+                    <div class="gems-info-row">
+                        <span>Chủ tài khoản:</span>
+                        <strong>{{ config('gems.bank.account_name') }}</strong>
+                    </div>
+                    @endif
                     <div class="gems-info-row">
                         <span>Số tiền:</span>
                         <strong id="qrAmountVnd"></strong>

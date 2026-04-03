@@ -59,13 +59,12 @@ class GemWalletService
         ];
     }
 
-    public function confirmTopUp(GemTransaction $transaction): void
+    public function confirmTopUp(GemTransaction $transaction): bool
     {
-        DB::transaction(function () use ($transaction) {
-            // Lock transaction row to prevent duplicate processing from webhook retries
+        return DB::transaction(function () use ($transaction) {
             $tx = GemTransaction::where('id', $transaction->id)->lockForUpdate()->first();
             if ($tx->status !== 'pending' || $tx->type !== 'top_up') {
-                return;
+                return false;
             }
 
             $wallet = GemWallet::where('id', $tx->gem_wallet_id)->lockForUpdate()->first();
@@ -75,6 +74,8 @@ class GemWalletService
                 'balance_after' => $wallet->balance,
                 'status' => 'completed',
             ]);
+
+            return true;
         });
     }
 
@@ -121,6 +122,18 @@ class GemWalletService
                 'description' => $desc,
                 'status' => 'completed',
             ]);
+        });
+    }
+
+    public function cancelTopUp(GemTransaction $transaction): bool
+    {
+        return DB::transaction(function () use ($transaction) {
+            $tx = GemTransaction::where('id', $transaction->id)->lockForUpdate()->first();
+            if ($tx->status !== 'pending' || $tx->type !== 'top_up') {
+                return false;
+            }
+            $tx->update(['status' => 'cancelled']);
+            return true;
         });
     }
 

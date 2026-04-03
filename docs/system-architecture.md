@@ -118,7 +118,8 @@ app/Http/Controllers/
 │   ├── UserPermissionController.php
 │   ├── VideoController.php
 │   ├── OcrDisputeController.php
-│   └── OcrBadgeController.php
+│   ├── OcrBadgeController.php
+│   └── GemTopupController.php        # Gems wallet top-up approval
 ├── Api/
 │   ├── MediaUploadController.php
 │   ├── InstructorReviewController.php

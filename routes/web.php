@@ -816,6 +816,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
     Route::resource('special-challenges', \App\Http\Controllers\Admin\SpecialChallengeController::class);
 
+    // Gem Top-up Management
+    Route::prefix('gem-topups')->name('gem-topups.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\GemTopupController::class, 'index'])->name('index');
+        Route::post('{transaction}/approve', [\App\Http\Controllers\Admin\GemTopupController::class, 'approve'])->name('approve');
+        Route::post('{transaction}/reject', [\App\Http\Controllers\Admin\GemTopupController::class, 'reject'])->name('reject');
+    });
+
     // League Management (Admin)
     Route::resource('leagues', AdminLeagueController::class)->only(['index', 'show']);
 });

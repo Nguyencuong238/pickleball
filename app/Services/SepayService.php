@@ -9,14 +9,28 @@ class SepayService
 {
     public function buildQrUrl(int $amountVnd, string $description): string
     {
+        // Fallback to SePay QR if sepay account is configured
+        if (config('gems.sepay.account_number')) {
+            $params = http_build_query([
+                'accountNumber' => config('gems.sepay.account_number'),
+                'bankCode' => config('gems.sepay.bank_code'),
+                'amount' => $amountVnd,
+                'description' => $description,
+            ]);
+
+            return "https://qr.sepay.vn/img?{$params}";
+        }
+
+        // VietQR (free, no API key required)
+        $bin = config('gems.bank.bin');
+        $accountNumber = config('gems.bank.account_number');
         $params = http_build_query([
-            'accountNumber' => config('gems.sepay.account_number'),
-            'bankCode' => config('gems.sepay.bank_code'),
             'amount' => $amountVnd,
-            'description' => $description,
+            'addInfo' => $description,
+            'accountName' => config('gems.bank.account_name'),
         ]);
 
-        return "https://qr.sepay.vn/img?{$params}";
+        return "https://img.vietqr.io/image/{$bin}-{$accountNumber}-compact.png?{$params}";
     }
 
     public function handleWebhook(array $payload): void
