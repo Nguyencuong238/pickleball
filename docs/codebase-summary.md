@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-04-03
+**Last Updated**: 2026-04-03 (Gems Wallet Feature)
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -11,7 +11,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 ## Project Structure
 
 **File Counts (Current - Apr 2026):**
-- PHP files: 360+ (Controllers 116, Models 84, Services 34, Commands 22, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
+- PHP files: 365+ (Controllers 118, Models 86, Services 37, Commands 22, Policies 8, Middleware 10, Events 12+, Listeners 9, Observers 6, Form Requests 6)
   - Front/Tournament/: 9 controllers + 5 traits
 - Blade templates: 273 (Admin 54, Front 53, Home-yard 65, Clubs 50, Layouts 5, User/Auth/Referee 45)
   - home-yard/tournaments/: dashboard + 25+ partials
@@ -96,9 +96,11 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-## Services Overview (34 Services)
+**Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency system with SePay VietQR top-up, instant gem payment for bookings, 5% cashback to Points wallet
 
-Core (11): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService
+## Services Overview (37 Services)
+
+Core (14): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService, GemWalletService, SepayService, GemCashbackService
 
 Club & Social (8): ClubPostMediaService, ClubActivityService, ClubActivityMatchService, ClubCompetitionService, ClubMatchService, ClubMemberStatsService, ClubScoreService, WaitlistAutoPromotionService
 
@@ -158,6 +160,8 @@ Booking (1): BookingCodeService
 | `SpecialChallengeController` | Active challenges API |
 | `EventCheckinController` | Event check-in API |
 | `SocialController` | Social verification status and URLs |
+| `GemController` | Gems wallet balance, history, top-up requests |
+| `SepayWebhookController` | SePay VietQR webhook for top-up confirmation |
 | `ClubController` | Club CRUD, join requests, member management |
 | `ClubActivityController` | Club activities API |
 | `ClubActivityParticipantController` | Activity RSVP and participation |
@@ -175,7 +179,7 @@ Booking & Instructor: BookingInstructorController
 Content: NewsController, VideoCommentController, VideoLikeController
 OCR/OPRS: OcrController, OprVerificationController
 Referee: RefereeController, RefereeProfileController
-Points & Wallet: UserPointController, SkillQuizController, PointController, PointSubmissionController, SpecialChallengeController, WalletController
+Points & Wallet: UserPointController, SkillQuizController, PointController, PointSubmissionController, SpecialChallengeController, WalletController, GemController
 Social: ReferralController
 
 #### Tournament Rewrite Controllers (New - Mar 2026)
@@ -486,6 +490,10 @@ AuthController, FavoriteController, ReviewController, SocialController, ClubActi
 ### League Registration Tables (2026-03-09)
 - `league_registrations` - Registration records with league_id, user_id, phone (normalized), payment_proof, status, approved_by, approved_at
 - `league_registration_players` - Player roster from registration with league_registration_id, player_id
+
+### Gems Wallet Tables (2026-04-03)
+- `gem_wallets` - User gems balance with user_id, balance
+- `gem_transactions` - Gems transaction history with type (topup/payment/cashback), amount, reference (booking/user), status (pending/completed)
 
 ### League Management Tables (2026-02-25+)
 - `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)

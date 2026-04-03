@@ -3251,16 +3251,29 @@ class HomeYardTournamentController extends Controller
             ]);
         });
 
+        // Handle wallet (Gems) payment
+        $cashbackPoints = 0;
+        if ($request->payment_method === 'wallet' && auth()->check()) {
+            try {
+                [$gemTx, $cashbackPoints] = app(\App\Services\GemWalletService::class)
+                    ->payForBooking(auth()->user(), $booking, $totalPrice);
+            } catch (\RuntimeException $e) {
+                $booking->update(['status' => 'cancelled']);
+                return response()->json(['success' => false, 'message' => $e->getMessage()]);
+            }
+        }
+
         return response()->json([
             'success' => true,
-            'message' => 'Đặt sân thành công. Đơn đặt của bạn đang chờ xác nhận.',
+            'message' => 'Dat san thanh cong.',
             'booking' => [
                 'id' => $booking->id,
                 'booking_code' => $booking->booking_code,
                 'formatted_booking_code' => $booking->formatted_booking_code,
                 'booking_id' => $booking->formatted_booking_code,
                 'status' => $booking->status,
-            ]
+            ],
+            'cashback_points' => $cashbackPoints,
         ]);
     }
 

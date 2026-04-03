@@ -2,6 +2,63 @@
 
 @section('css')
     <style>
+        /* Payment Method Selector */
+        .payment-method-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+        .payment-option {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .payment-option:has(input:checked) {
+            border-color: #006646;
+            background: #f0fdf4;
+        }
+        .payment-option-label {
+            font-weight: 500;
+            flex: 1;
+        }
+        .gems-badge {
+            background: #006646;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        .gems-booking-info {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+        }
+        .gems-needed-row {
+            color: #006646;
+            font-size: 0.95rem;
+        }
+        .gems-insufficient {
+            margin-top: 0.5rem;
+            color: #d97706;
+            background: #fef3c7;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .gems-insufficient a {
+            color: #006646;
+            font-weight: 600;
+        }
+
         .alert-danger {
             background-color: #f8d7da;
             border: 1px solid #f5c6cb;
@@ -541,8 +598,36 @@
                                 <textarea class="form-control" name="notes" rows="3" placeholder="Ghi chú thêm..."></textarea>
                             </div>
 
-                            <!-- Payment method fixed to transfer -->
-                            <input type="hidden" name="payment_method" value="transfer">
+                            <!-- Payment Method Selection -->
+                            <div class="form-group">
+                                <label>Phuong thuc thanh toan</label>
+                                <div class="payment-method-options">
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment_method" value="transfer" checked>
+                                        <span class="payment-option-label">Chuyen khoan ngan hang</span>
+                                    </label>
+                                    @auth
+                                    <label class="payment-option">
+                                        <input type="radio" name="payment_method" value="wallet">
+                                        <span class="payment-option-label">Thanh toan bang Gems</span>
+                                        <span class="gems-badge">{{ number_format($gemsBalance ?? 0) }} Gems</span>
+                                    </label>
+                                    @endauth
+                                </div>
+                            </div>
+
+                            <!-- Gems Payment Info (shown when wallet selected) -->
+                            @auth
+                            <div id="gemsPaymentInfo" style="display:none;" class="gems-booking-info">
+                                <div class="gems-needed-row">
+                                    Can thanh toan: <strong id="gemsNeeded">0</strong> Gems
+                                </div>
+                                <div id="gemsInsufficient" style="display:none;" class="gems-insufficient">
+                                    Thieu <strong id="gemsShortfall">0</strong> Gems.
+                                    <a href="{{ route('user.gems.index') }}">Nap them Gems</a>
+                                </div>
+                            </div>
+                            @endauth
 
                             <input type="hidden" id="hourlyRate" name="hourly_rate" value="0">
                         </div>
@@ -729,6 +814,42 @@
             let timeSlots = [];
             let closingHour = 22;
             let openingHour = 6;
+
+            // Payment method toggle
+            var gemsBalance = {{ $gemsBalance ?? 0 }};
+            var gemsExchangeRate = {{ config('gems.exchange_rate') }};
+            var paymentRadios = document.querySelectorAll('input[name="payment_method"]');
+            var gemsPaymentInfo = document.getElementById('gemsPaymentInfo');
+
+            paymentRadios.forEach(function(radio) {
+                radio.addEventListener('change', function() {
+                    if (gemsPaymentInfo) {
+                        gemsPaymentInfo.style.display = this.value === 'wallet' ? 'block' : 'none';
+                    }
+                    if (this.value === 'wallet') {
+                        updateGemsNeeded();
+                    }
+                });
+            });
+
+            function updateGemsNeeded() {
+                var totalEl = document.getElementById('summaryTotal');
+                if (!totalEl || !gemsPaymentInfo) return;
+                var totalPrice = parseInt(totalEl.textContent.replace(/[^\d]/g, '')) || 0;
+                var gemsNeeded = Math.ceil(totalPrice / gemsExchangeRate);
+                var neededEl = document.getElementById('gemsNeeded');
+                if (neededEl) neededEl.textContent = gemsNeeded.toLocaleString();
+                var insufficientEl = document.getElementById('gemsInsufficient');
+                var shortfallEl = document.getElementById('gemsShortfall');
+                if (insufficientEl && shortfallEl) {
+                    if (gemsNeeded > gemsBalance) {
+                        insufficientEl.style.display = 'block';
+                        shortfallEl.textContent = (gemsNeeded - gemsBalance).toLocaleString();
+                    } else {
+                        insufficientEl.style.display = 'none';
+                    }
+                }
+            }
 
             // Load available time slots from API
             async function loadAvailableSlots() {
@@ -1084,6 +1205,7 @@
                 document.getElementById('summarySubtotal').textContent = subtotal.toLocaleString('vi-VN') + 'đ';
                 document.getElementById('summaryFee').textContent = fee.toLocaleString('vi-VN') + 'đ';
                 document.getElementById('summaryTotal').textContent = total.toLocaleString('vi-VN') + 'đ';
+                updateGemsNeeded();
             }
 
             // Event listeners
@@ -1392,7 +1514,10 @@
                             // For transfer: show QR modal first, then success modal after payment confirmation
                             showPaymentQRModal(bookingData, displayCode, result.booking.id);
                         } else {
-                            // For other payment methods: show success modal immediately
+                            // For wallet/other: show success modal immediately
+                            if (paymentMethod === 'wallet' && result.cashback_points) {
+                                toastr.success('Da thanh toan bang Gems! Hoan +' + result.cashback_points + ' diem');
+                            }
                             showBookingSuccessModal(displayCode);
                             
                             // Reset form after 2 seconds

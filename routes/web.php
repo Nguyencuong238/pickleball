@@ -195,6 +195,10 @@ Route::prefix('academy')->name('academy.')->group(function () {
     Route::get('referees/{referee:slug}', [RefereeProfileController::class, 'show'])->name('referees.show');
 });
 
+// SePay Webhook (public, IP-restricted via middleware)
+Route::post('/webhook/sepay', [\App\Http\Controllers\Api\SepayWebhookController::class, 'handle'])
+    ->middleware('verify.sepay.webhook');
+
 // Booking API for front-end
 Route::post('/api/bookings', [HomeController::class, 'bookingCourt'])->name('api.bookings.store');
 Route::post('/api/bookings/{bookingId}/upload-proof', [\App\Http\Controllers\Api\BookingController::class, 'uploadTransferProof'])->name('api.bookings.upload-proof');
@@ -263,6 +267,9 @@ Route::middleware('auth')->group(function () {
          Route::get('/history', [WalletController::class, 'history'])->name('history');
          Route::get('/{id}', [WalletController::class, 'show'])->name('show');
      });
+
+     // User Gems Wallet Routes
+     Route::get('user/gems', [\App\Http\Controllers\Front\GemController::class, 'index'])->name('user.gems.index');
 
      // User Booking History Routes
      Route::prefix('user/booking-history')->name('user.booking-history.')->group(function () {

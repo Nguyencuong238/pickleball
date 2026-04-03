@@ -167,15 +167,17 @@ app/Http/Controllers/
 HTTP Request
     │
     ▼
-┌─────────────────┐
-│ EncryptCookies  │
-├─────────────────┤
-│ VerifyCsrfToken │
-├─────────────────┤
-│  Authenticate   │ ─── Redirects unauthenticated users
-├─────────────────┤
-│  Role Check     │ ─── Spatie Permission
-└─────────────────┘
+┌─────────────────────────┐
+│ EncryptCookies          │
+├─────────────────────────┤
+│ VerifyCsrfToken         │
+├─────────────────────────┤
+│ Authenticate            │ ─── Redirects unauthenticated users
+├─────────────────────────┤
+│ Role Check              │ ─── Spatie Permission
+├─────────────────────────┤
+│ VerifySepayWebhook      │ ─── Validate SePay webhook IP (webhook routes)
+└─────────────────────────┘
     │
     ▼
 Controller Action
@@ -398,10 +400,15 @@ User ──┬── Club (creator)
 │ events         │ Workshop/event system with QR           │
 │ event_checkins │ User event attendance                   │
 ├─────────────────────────────────────────────────────────┤
+│             Gems Wallet Tables (Apr 2026)                │
+├─────────────────────────────────────────────────────────┤
+│ gem_wallets    │ Gems virtual currency balance per user │
+│ gem_transactions │ Gems top-up, payment, cashback       │
+├─────────────────────────────────────────────────────────┤
 │              Booking Enhancement Tables                  │
 ├─────────────────────────────────────────────────────────┤
 │ bookings       │ Added booking_code, confirmed_at,      │
-│                │ transfer_proof for booking management   │
+│                │ transfer_proof, payment_method         │
 ├─────────────────────────────────────────────────────────┤
 │               League Management Tables                   │
 ├─────────────────────────────────────────────────────────┤
@@ -579,6 +586,11 @@ Admin: Admin login → Check role 'admin' → Create admin session
 │   ├── domains                 # Get all 6 skill domains
 │   ├── questions               # Get 36 quiz questions
 │   └── submit                  # Submit quiz answers
+├── gems/
+│   ├── balance                 # Get gems wallet balance
+│   ├── history                 # Get gems transaction history
+│   ├── topup                   # Request top-up (redirects to SePay)
+│   └── transactions            # Get filtered transactions
 ├── points/
 │   ├── tasks                   # Get available tasks with eligibility
 │   ├── balance                 # Get wallet balance
@@ -597,6 +609,11 @@ Admin: Admin login → Check role 'admin' → Create admin session
     ├── {league}/teams          # Team roster management
     ├── {league}/matches        # Match listing and scoring
     └── {league}/standings      # Real-time standings
+
+### Webhook Routes
+
+```
+/webhook/sepay                 POST   # SePay VietQR top-up webhook (verify.sepay.webhook)
 ```
 
 ### Knockout Bracket Routes (Web)

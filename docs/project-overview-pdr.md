@@ -2,7 +2,7 @@
 
 **Project Name**: Pickleball Platform
 **Version**: 1.12.0
-**Last Updated**: 2026-04-03
+**Last Updated**: 2026-04-03 (Gems Wallet Feature)
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -241,12 +241,20 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Race-condition safe with DB::transaction + lockForUpdate
 - Email notification on registration status changes
 
-### 16. News & CMS
+### 16. Gems Wallet System [NEW - Apr 2026]
+- **Virtual Currency**: Gems for booking payments (instant confirmation)
+- **Top-up Payment**: SePay VietQR integration for VND to Gems conversion
+- **Gems Payment**: Use gems to pay for court bookings instantly
+- **Cashback Rewards**: 5% of booking gems converted to Points wallet automatically
+- **Transaction History**: Complete tracking of top-ups, payments, and cashback
+- **Configuration**: Flexible exchange rate, cashback percentage, min/max top-up limits
+
+### 17. News & CMS
 - News articles with categories
 - Featured content
 - Static pages (About, Contact, etc.)
 
-### 17. User Authentication
+### 18. User Authentication
 - Email/password registration
 - OAuth (Google, Facebook)
 - Role-based access control
@@ -367,6 +375,15 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Auto team generation with random pairing mode
 - Race-condition safe DB operations with pessimistic locking
 - Email notifications for registration status changes
+
+**FR14: Gems Wallet System**
+- Virtual currency management for instant booking payments
+- SePay VietQR top-up integration with webhook confirmation
+- Configurable exchange rate (VND to Gems)
+- Instant gems payment confirmation for bookings
+- Automatic 5% cashback conversion to Points wallet
+- Complete transaction history tracking
+- Wallet balance queries via API
 
 ### Non-Functional Requirements
 
@@ -523,6 +540,10 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **league_registrations**: Registration records with league_id, user_id, phone (normalized), payment_proof, status (pending/approved/rejected), approved_by, approved_at
 - **league_registration_players**: Player roster assignments from registration with league_registration_id, player_id
 
+### Gems Wallet Entities (2026-04-03)
+- **gem_wallets**: User gems balance with user_id, balance
+- **gem_transactions**: Gems transaction history with user_id, type (topup/payment/cashback), amount, reference_type/reference_id (polymorphic: booking/user), status (pending/completed), metadata
+
 ## Success Metrics
 
 ### User Metrics
@@ -579,7 +600,8 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - [x] Transfer proof system for booking transfers
 - [x] League management with MLP format (260309)
 - [x] Club management API endpoints
-- [ ] Online payment integration
+- [x] Gems Wallet system with SePay integration (260403)
+- [ ] Online payment integration (beyond SePay VietQR)
 - [ ] Real-time notifications for match invites and activities
 - [ ] Mobile app with OPRS integration
 - [ ] Advanced analytics dashboard
