@@ -48,11 +48,14 @@ class GemWalletService
 
         $sepayService = app(SepayService::class);
         $description = "GEMS{$user->id}T{$transaction->id}";
-        $qrUrl = $sepayService->buildQrUrl($amountVnd, $description);
+        $paymentInfo = $sepayService->buildPaymentInfo($amountVnd, $description);
 
         return [
             'transaction' => $transaction,
-            'qr_url' => $qrUrl,
+            'qr_url' => $paymentInfo['qr_url'],
+            'bank_name' => $paymentInfo['bank_name'],
+            'account_number' => $paymentInfo['account_number'],
+            'account_name' => $paymentInfo['account_name'],
             'amount_vnd' => $amountVnd,
             'gems' => $gems,
             'transfer_content' => $description,

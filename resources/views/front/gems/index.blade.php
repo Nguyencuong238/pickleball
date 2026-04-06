@@ -689,6 +689,16 @@ function createTopup() {
         if (data.success) {
             currentTxId = data.transaction_id;
             document.getElementById('qrImage').src = data.qr_url;
+
+            // Bank info from API (single source of truth)
+            document.getElementById('qrBankName').textContent = data.bank_name || '';
+            document.getElementById('qrBankNameRow').style.display = data.bank_name ? '' : 'none';
+            document.getElementById('qrAccountNumber').textContent = data.account_number || '';
+            document.getElementById('qrAccountNumberRaw').value = data.account_number || '';
+            document.getElementById('qrAccountNumberRow').style.display = data.account_number ? '' : 'none';
+            document.getElementById('qrAccountName').textContent = data.account_name || '';
+            document.getElementById('qrAccountNameRow').style.display = data.account_name ? '' : 'none';
+
             document.getElementById('qrAmountVnd').textContent = Number(data.amount_vnd).toLocaleString() + ' VND';
             document.getElementById('qrAmountVndRaw').value = data.amount_vnd;
             document.getElementById('qrTransferContent').textContent = data.transfer_content;

@@ -7,21 +7,30 @@ use Illuminate\Support\Facades\Log;
 
 class SepayService
 {
-    public function buildQrUrl(int $amountVnd, string $description): string
+    /**
+     * Build QR URL and return bank info used for the transfer.
+     * Single source of truth: modal displays whatever config generated the QR.
+     */
+    public function buildPaymentInfo(int $amountVnd, string $description): array
     {
-        // Fallback to SePay QR if sepay account is configured
         if (config('gems.sepay.account_number')) {
+            $accountNumber = config('gems.sepay.account_number');
+            $bankCode = config('gems.sepay.bank_code');
             $params = http_build_query([
-                'acc' => config('gems.sepay.account_number'),
-                'bank' => config('gems.sepay.bank_code'),
+                'acc' => $accountNumber,
+                'bank' => $bankCode,
                 'amount' => $amountVnd,
                 'des' => $description,
             ]);
 
-            return "https://qr.sepay.vn/img?{$params}";
+            return [
+                'qr_url' => "https://qr.sepay.vn/img?{$params}",
+                'bank_name' => $bankCode,
+                'account_number' => $accountNumber,
+                'account_name' => config('gems.bank.account_name', ''),
+            ];
         }
 
-        // VietQR (free, no API key required)
         $bin = config('gems.bank.bin');
         $accountNumber = config('gems.bank.account_number');
         $params = http_build_query([
@@ -30,7 +39,12 @@ class SepayService
             'accountName' => config('gems.bank.account_name'),
         ]);
 
-        return "https://img.vietqr.io/image/{$bin}-{$accountNumber}-compact.png?{$params}";
+        return [
+            'qr_url' => "https://img.vietqr.io/image/{$bin}-{$accountNumber}-compact.png?{$params}",
+            'bank_name' => config('gems.bank.name', ''),
+            'account_number' => $accountNumber,
+            'account_name' => config('gems.bank.account_name', ''),
+        ];
     }
 
     public function handleWebhook(array $payload): void
