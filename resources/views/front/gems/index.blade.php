@@ -523,6 +523,7 @@
         height: 200px;
         border-radius: 8px;
         border: 2px solid #e2e8f0;
+        margin: 0 auto;
     }
 
     .gems-bank-info {
@@ -675,13 +676,7 @@ function createTopup() {
     var headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' };
     if (token) headers['X-CSRF-TOKEN'] = token.content;
 
-    // Try JWT token from localStorage
-    var jwtToken = localStorage.getItem('token');
-    if (jwtToken) {
-        headers['Authorization'] = 'Bearer ' + jwtToken;
-    }
-
-    fetch('/api/gems/topup', {
+    fetch('{{ route("user.gems.topup") }}', {
         method: 'POST',
         headers: headers,
         body: JSON.stringify({ amount_vnd: amount })
@@ -718,11 +713,9 @@ function startPolling(txId) {
     var deadline = Date.now() + 15 * 60 * 1000; // 15 minutes
 
     var headers = { 'Accept': 'application/json' };
-    var jwtToken = localStorage.getItem('token');
-    if (jwtToken) headers['Authorization'] = 'Bearer ' + jwtToken;
 
     pollingTimer = setInterval(function() {
-        fetch('/api/gems/transactions/' + txId, { headers: headers })
+        fetch('{{ url("user/gems/transactions") }}/' + txId, { headers: headers })
         .then(function(r) { return r.json(); })
         .then(function(data) {
             if (data.success && data.transaction && data.transaction.status === 'completed') {

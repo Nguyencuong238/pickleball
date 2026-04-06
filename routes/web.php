@@ -270,6 +270,8 @@ Route::middleware('auth')->group(function () {
 
      // User Gems Wallet Routes
      Route::get('user/gems', [\App\Http\Controllers\Front\GemController::class, 'index'])->name('user.gems.index');
+     Route::post('user/gems/topup', [\App\Http\Controllers\Front\GemController::class, 'topUp'])->name('user.gems.topup');
+     Route::get('user/gems/transactions/{transaction}', [\App\Http\Controllers\Front\GemController::class, 'transactionStatus'])->name('user.gems.transaction-status');
 
      // User Booking History Routes
      Route::prefix('user/booking-history')->name('user.booking-history.')->group(function () {

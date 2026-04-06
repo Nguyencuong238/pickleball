@@ -12,10 +12,10 @@ class SepayService
         // Fallback to SePay QR if sepay account is configured
         if (config('gems.sepay.account_number')) {
             $params = http_build_query([
-                'accountNumber' => config('gems.sepay.account_number'),
-                'bankCode' => config('gems.sepay.bank_code'),
+                'acc' => config('gems.sepay.account_number'),
+                'bank' => config('gems.sepay.bank_code'),
                 'amount' => $amountVnd,
-                'description' => $description,
+                'des' => $description,
             ]);
 
             return "https://qr.sepay.vn/img?{$params}";
@@ -37,6 +37,19 @@ class SepayService
     {
         if (!$this->isValidPayload($payload)) {
             Log::warning('SePay webhook: invalid payload', $payload);
+            return;
+        }
+
+        $sepayId = (int) $payload['id'];
+
+        // Idempotency: skip if this SePay transaction was already processed
+        $alreadyProcessed = GemTransaction::where('type', 'top_up')
+            ->where('status', 'completed')
+            ->whereJsonContains('metadata->sepay_transaction_id', $sepayId)
+            ->exists();
+
+        if ($alreadyProcessed) {
+            Log::info('SePay webhook: duplicate ignored', ['sepay_id' => $sepayId]);
             return;
         }
 
@@ -76,8 +89,19 @@ class SepayService
             return;
         }
 
+        // Store SePay transaction ID in metadata for audit trail and dedup
+        $metadata = $transaction->metadata ?? [];
+        $metadata['sepay_transaction_id'] = $sepayId;
+        $metadata['sepay_reference_code'] = $payload['referenceCode'] ?? null;
+        $metadata['sepay_gateway'] = $payload['gateway'] ?? null;
+        $transaction->update(['metadata' => $metadata]);
+
         app(GemWalletService::class)->confirmTopUp($transaction);
-        Log::info('SePay webhook: top-up confirmed', ['tx_id' => $txId, 'gems' => $transaction->amount]);
+        Log::info('SePay webhook: top-up confirmed', [
+            'tx_id' => $txId,
+            'gems' => $transaction->amount,
+            'sepay_id' => $sepayId,
+        ]);
     }
 
     public function isValidPayload(array $payload): bool

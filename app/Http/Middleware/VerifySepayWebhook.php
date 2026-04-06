@@ -26,7 +26,7 @@ class VerifySepayWebhook
 
         // API key check (always required)
         $authHeader = $request->header('Authorization', '');
-        if ($authHeader !== "Apikey {$apiKey}") {
+        if (!hash_equals("Apikey {$apiKey}", $authHeader)) {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
