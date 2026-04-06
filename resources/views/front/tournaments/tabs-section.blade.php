@@ -988,29 +988,32 @@
                     @php
                         $timelineLines = array_filter(array_map('trim', explode("\n", $tournament->event_timeline)));
                     @endphp
-                    @foreach ($timelineLines as $line)
-                        <div
-                            class="timeline-item @if (preg_match('/Hoàn thành|✓/i', $line)) completed @elseif(preg_match('/Hiện tại|→/i', $line)) current @endif">
-                            <div class="timeline-marker"></div>
-                            <div class="timeline-content">
-                                @php
-                                    $cleanLine = preg_replace(
-                                        '/^(Hoàn thành|Completed|Hiện tại|Current|✓|→)\s*/i',
-                                        '',
-                                        $line,
-                                    );
-                                    $hasDate = preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $cleanLine);
-                                @endphp
-                                @if ($hasDate)
-                                    <div class="timeline-date">
-                                        {{ preg_replace('/^(\d{1,2}\/\d{1,2}\/\d{4})(.*)/', '$1', $cleanLine) }}</div>
-                                    <p>{{ preg_replace('/^\d{1,2}\/\d{1,2}\/\d{4}\s*/', '', $cleanLine) }}</p>
-                                @else
-                                    <p>{{ $cleanLine }}</p>
-                                @endif
+                    <div class="timeline">
+                        @foreach ($timelineLines as $line)
+                            <div
+                                class="timeline-item @if (preg_match('/Hoàn thành|✓/i', $line)) completed @elseif(preg_match('/Hiện tại|→/i', $line)) current @endif">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    @php
+                                        $cleanLine = preg_replace(
+                                            '/^(Hoàn thành|Completed|Hiện tại|Current|✓|→)\s*/i',
+                                            '',
+                                            $line,
+                                        );
+                                        $hasDate = preg_match('/\d{1,2}\/\d{1,2}\/\d{4}/', $cleanLine);
+                                    @endphp
+                                    @if ($hasDate)
+                                        <div class="timeline-date">
+                                            {{ preg_replace('/^(\d{1,2}\/\d{1,2}\/\d{4})(.*)/', '$1', $cleanLine) }}
+                                        </div>
+                                        <p>{{ preg_replace('/^\d{1,2}\/\d{1,2}\/\d{4}\s*/', '', $cleanLine) }}</p>
+                                    @else
+                                        <p>{{ $cleanLine }}</p>
+                                    @endif
+                                </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
                 @else
                     <p style="color: #6b7280;">Chưa có thông tin timeline</p>
                 @endif
