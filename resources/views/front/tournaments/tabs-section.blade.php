@@ -840,19 +840,7 @@
                         @endif
                     </ul>
 
-                    @if ($tournament->registration_benefits)
-                        <h3>Quyền lợi khi đăng ký:</h3>
-                        <ul style="list-style: none; padding: 0; margin: 0;">
-                            @php
-                                $benefitText = str_replace('/', "\n", $tournament->registration_benefits);
-                                $benefits = array_filter(array_map('trim', explode("\n", $benefitText)));
-                            @endphp
-                            @foreach ($benefits as $benefit)
-                                <li style="padding: 8px 0; color: #1f2937; font-weight: 500;">✓
-                                    {{ preg_replace('/^✓\s*/', '', $benefit) }}</li>
-                            @endforeach
-                        </ul>
-                    @endif
+
                 </div>
             </div>
 
@@ -994,8 +982,7 @@
                 @endif
             </div>
 
-            <!-- Timeline -->
-            {{-- <div class="content-card">
+            <div class="content-card">
                 <h2 class="content-title">Timeline sự kiện</h2>
                 @if ($tournament->event_timeline)
                     @php
@@ -1027,7 +1014,7 @@
                 @else
                     <p style="color: #6b7280;">Chưa có thông tin timeline</p>
                 @endif
-            </div> --}}
+            </div> 
         </div>
 
         <!-- Schedule Tab -->
