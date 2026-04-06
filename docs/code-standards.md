@@ -793,6 +793,10 @@ Score confirmation states: pending_confirmation → confirmed/rejected → admin
 
 Match format support: Best of 1/3/5 with configurable points_per_set (default: 21)
 
+## Gems Wallet Service Pattern (Apr 2026)
+
+Gems wallet services: GemWalletService (balance, top-up, payment), GemCashbackService (Points conversion), SepayService (VietQR). Key: VerifySepayWebhook middleware validates IP; transaction status pending → completed; webhook metadata for exchange rate; cashback auto-triggers after payment.
+
 ## Related Documentation
 
 - [Project Overview PDR](./project-overview-pdr.md) | [Codebase Summary](./codebase-summary.md) | [System Architecture](./system-architecture.md)

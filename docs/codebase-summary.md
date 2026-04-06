@@ -40,7 +40,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - **Vite**: 5.0+ (Asset bundling)
 - **Axios**: 1.6+ (HTTP client)
 
-## Models Overview (84 Models)
+## Models Overview (86 Models)
 
 ### User & Auth
 - `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data (avatar, location, province, gender), referee fields
@@ -98,9 +98,11 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency system with VietQR default (SePay fallback), admin approval workflow at /admin/gem-topups, instant gem payment for bookings, 5% cashback to Points wallet
 
-## Services Overview (37 Services)
+## Services Overview (40 Services)
 
-Core (14): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService, GemWalletService, SepayService, GemCashbackService
+Core (14): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService, BookingCodeService
+
+Gems (3): GemWalletService, SepayService, GemCashbackService
 
 Club & Social (8): ClubPostMediaService, ClubActivityService, ClubActivityMatchService, ClubCompetitionService, ClubMatchService, ClubMemberStatsService, ClubScoreService, WaitlistAutoPromotionService
 
@@ -141,7 +143,7 @@ Booking (1): BookingCodeService
 | `OcrLeaderboardController` | OCR leaderboard admin |
 | `GemTopupController` | Gems wallet top-up approval/rejection |
 
-### API Controllers (30)
+### API Controllers (32)
 | Controller | Purpose |
 |------------|---------|
 | `MediaUploadController` | Media file uploads |
@@ -406,7 +408,26 @@ AuthController, FavoriteController, ReviewController, SocialController, ClubActi
 - Enhanced round editing for format support
 - Full game-by-game tracking
 
-## Database Migrations (193 files)
+### 11. Gems Wallet System (NEW - Apr 2026)
+- **Virtual Currency**: Gems for instant booking payments
+- **Top-up Integration**:
+  - SePay VietQR payment gateway with QR code generation
+  - Webhook-based transaction confirmation (VerifySepayWebhook middleware)
+  - Manual top-up with admin approval workflow at `/admin/gem-topups`
+  - Configurable exchange rate (VND to Gems) via `config/gems.php`
+- **Payment Features**:
+  - Gems payment for court bookings (instant confirmation)
+  - Booking integration with gems balance check
+  - Transaction status tracking (pending/completed)
+- **Cashback System**:
+  - 5% of booking amount converted to Points wallet automatically
+  - GemCashbackService handles conversion
+- **Transaction History**:
+  - Complete tracking of top-ups, payments, cashback
+  - Filtering by type and date range
+  - API endpoints for wallet balance and transactions
+
+## Database Migrations (197 files)
 
 ### Core Tables (2014-2019)
 - `users`, `password_reset_tokens`, `failed_jobs`, `personal_access_tokens`
@@ -493,8 +514,14 @@ AuthController, FavoriteController, ReviewController, SocialController, ClubActi
 - `league_registration_players` - Player roster from registration with league_registration_id, player_id
 
 ### Gems Wallet Tables (2026-04-03)
-- `gem_wallets` - User gems balance with user_id, balance
-- `gem_transactions` - Gems transaction history with type (topup/payment/cashback), amount, reference (booking/user), status (pending/completed)
+- `gem_wallets` - User gems balance with user_id, balance, updated_at for tracking
+- `gem_transactions` - Gems transaction history with:
+  - `type` (topup, payment, cashback) - Transaction type
+  - `amount` - Gems amount
+  - `reference_type` (booking, user) - Polymorphic reference
+  - `reference_id` - ID of referenced entity
+  - `status` (pending, completed) - Transaction status
+  - `metadata` - JSON for additional details (exchange_rate, order_id for topups, etc.)
 
 ### League Management Tables (2026-02-25+)
 - `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)

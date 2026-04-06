@@ -403,8 +403,9 @@ User ──┬── Club (creator)
 ├─────────────────────────────────────────────────────────┤
 │             Gems Wallet Tables (Apr 2026)                │
 ├─────────────────────────────────────────────────────────┤
-│ gem_wallets    │ Gems virtual currency balance per user │
-│ gem_transactions │ Gems top-up, payment, cashback       │
+│ gem_wallets    │ User gems balance (balance field)      │
+│ gem_transactions │ Gems ledger (type: topup, payment,  │
+│                │ cashback; status: pending, completed) │
 ├─────────────────────────────────────────────────────────┤
 │              Booking Enhancement Tables                  │
 ├─────────────────────────────────────────────────────────┤

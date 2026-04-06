@@ -242,12 +242,25 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Email notification on registration status changes
 
 ### 16. Gems Wallet System [NEW - Apr 2026]
-- **Virtual Currency**: Gems for booking payments (instant confirmation)
-- **Top-up Payment**: SePay VietQR integration for VND to Gems conversion
-- **Gems Payment**: Use gems to pay for court bookings instantly
-- **Cashback Rewards**: 5% of booking gems converted to Points wallet automatically
-- **Transaction History**: Complete tracking of top-ups, payments, and cashback
-- **Configuration**: Flexible exchange rate, cashback percentage, min/max top-up limits
+- **Virtual Currency**: Gems for instant booking payments
+  - User wallet balance tracking per user
+  - Gems-to-VND exchange rate configurable via `config/gems.php`
+- **Payment Methods**:
+  - **SePay VietQR Integration**: QR code generation for top-up requests with webhook confirmation (VerifySepayWebhook middleware)
+  - **Manual Top-up with Admin Approval**: At `/admin/gem-topups`, admin reviews and approves/rejects requests
+  - **Instant Gems Payment**: Direct payment for court bookings with balance validation
+- **Cashback System**:
+  - 5% of booking gems automatically converted to Points wallet
+  - GemCashbackService handles conversion after payment confirmation
+- **Transaction History**:
+  - Complete ledger with type (topup, payment, cashback)
+  - Status tracking (pending for webhook-awaiting, completed for confirmed)
+  - Filtering by transaction type and date range
+  - Reference tracking (booking or user) for analytics
+- **Configuration** (`config/gems.php`):
+  - Exchange rate (default: 1 gem = 1000 VND)
+  - Cashback percentage (default: 5%)
+  - SePay bank account details (GEMS_BANK_ACCOUNT, GEMS_BANK_NAME, GEMS_BANK_TEMPLATE_ID, GEMS_BANK_ACCOUNT_NO)
 
 ### 17. News & CMS
 - News articles with categories
@@ -377,13 +390,27 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Email notifications for registration status changes
 
 **FR14: Gems Wallet System**
-- Virtual currency management for instant booking payments
-- SePay VietQR top-up integration with webhook confirmation
-- Configurable exchange rate (VND to Gems)
-- Instant gems payment confirmation for bookings
-- Automatic 5% cashback conversion to Points wallet
-- Complete transaction history tracking
-- Wallet balance queries via API
+- **Wallet Management**: User gems balance tracking with real-time updates
+- **Top-up Methods**:
+  - SePay VietQR integration (primary): QR code generation, webhook IP validation, transaction confirmation
+  - Manual top-up with admin approval: Admin dashboard at `/admin/gem-topups` for approve/reject with audit trail
+- **Payment Integration**:
+  - Instant gems payment for court bookings (no pending state, immediate confirmation)
+  - Gems balance validation before booking confirmation
+  - Transaction logging with booking reference
+- **Cashback System**:
+  - Automatic 5% conversion of booking payment to Points wallet
+  - GemCashbackService handles conversion logic
+  - Separate transaction records for tracking
+- **Transaction History**:
+  - Transaction types: topup (manual/SePay), payment (booking), cashback (automatic)
+  - Status tracking: pending (webhook-awaiting), completed (confirmed)
+  - Metadata storage for exchange rates, webhook references, order IDs
+  - Filtering by type, status, date range via API
+- **Configuration** (`config/gems.php`):
+  - Exchange rate (VND to Gems ratio)
+  - Cashback percentage
+  - SePay bank account and template configuration
 
 ### Non-Functional Requirements
 

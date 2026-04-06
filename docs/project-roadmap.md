@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-04-03
-**Current Version:** 1.12.0 (Score Flow Complete)
+**Last Updated:** 2026-04-06
+**Current Version:** 1.12.1 (Gems Wallet Complete)
 **Project:** Pickleball Platform
 
 ## Executive Summary
