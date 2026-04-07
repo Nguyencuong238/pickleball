@@ -417,6 +417,19 @@ Route::get('leagues/{league}/schedule', [LeagueApiController::class, 'schedule']
 
 /*
 |--------------------------------------------------------------------------
+| Gems Wallet Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('gems')->middleware('auth:api')->group(function () {
+    Route::get('/wallet', [\App\Http\Controllers\Api\GemController::class, 'wallet']);
+    Route::post('/topup', [\App\Http\Controllers\Api\GemController::class, 'topUp']);
+    Route::get('/transactions', [\App\Http\Controllers\Api\GemController::class, 'transactions']);
+    Route::get('/transactions/{transaction}', [\App\Http\Controllers\Api\GemController::class, 'transactionDetail']);
+});
+
+/*
+|--------------------------------------------------------------------------
 | Media Upload Routes (Works for both Web & API)
 |--------------------------------------------------------------------------
 */

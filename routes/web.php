@@ -195,6 +195,10 @@ Route::prefix('academy')->name('academy.')->group(function () {
     Route::get('referees/{referee:slug}', [RefereeProfileController::class, 'show'])->name('referees.show');
 });
 
+// SePay Webhook (public, IP-restricted via middleware)
+Route::post('/webhook/sepay', [\App\Http\Controllers\Api\SepayWebhookController::class, 'handle'])
+    ->middleware('verify.sepay.webhook');
+
 // Booking API for front-end
 Route::post('/api/bookings', [HomeController::class, 'bookingCourt'])->name('api.bookings.store');
 Route::post('/api/bookings/{bookingId}/upload-proof', [\App\Http\Controllers\Api\BookingController::class, 'uploadTransferProof'])->name('api.bookings.upload-proof');
@@ -263,6 +267,11 @@ Route::middleware('auth')->group(function () {
          Route::get('/history', [WalletController::class, 'history'])->name('history');
          Route::get('/{id}', [WalletController::class, 'show'])->name('show');
      });
+
+     // User Gems Wallet Routes
+     Route::get('user/gems', [\App\Http\Controllers\Front\GemController::class, 'index'])->name('user.gems.index');
+     Route::post('user/gems/topup', [\App\Http\Controllers\Front\GemController::class, 'topUp'])->name('user.gems.topup');
+     Route::get('user/gems/transactions/{transaction}', [\App\Http\Controllers\Front\GemController::class, 'transactionStatus'])->name('user.gems.transaction-status');
 
      // User Booking History Routes
      Route::prefix('user/booking-history')->name('user.booking-history.')->group(function () {
@@ -808,6 +817,13 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     });
 
     Route::resource('special-challenges', \App\Http\Controllers\Admin\SpecialChallengeController::class);
+
+    // Gem Top-up Management
+    Route::prefix('gem-topups')->name('gem-topups.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\GemTopupController::class, 'index'])->name('index');
+        Route::post('{transaction}/approve', [\App\Http\Controllers\Admin\GemTopupController::class, 'approve'])->name('approve');
+        Route::post('{transaction}/reject', [\App\Http\Controllers\Admin\GemTopupController::class, 'reject'])->name('reject');
+    });
 
     // League Management (Admin)
     Route::resource('leagues', AdminLeagueController::class)->only(['index', 'show']);

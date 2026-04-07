@@ -724,6 +724,18 @@ class User extends Authenticatable implements JWTSubject
         return $this->hasMany(UserPointTransaction::class);
     }
 
+    // ==================== Gem Wallet Relationships ====================
+
+    public function gemWallet(): HasOne
+    {
+        return $this->hasOne(GemWallet::class);
+    }
+
+    public function gemTransactions(): HasMany
+    {
+        return $this->hasMany(GemTransaction::class);
+    }
+
     /**
      * Get or create user's wallet
      */

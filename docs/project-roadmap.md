@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-04-03
-**Current Version:** 1.12.0 (Score Flow Complete)
+**Last Updated:** 2026-04-06
+**Current Version:** 1.12.1 (Gems Wallet Complete)
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -480,6 +480,8 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 ---
 
 ## Change Log (Compact)
+
+**v1.12.1 (2026-04-03)** - Gems Manual Top-up with Admin Approval: VietQR as default QR generator (SePay fallback), admin page at /admin/gem-topups for approve/reject, 4 env vars (GEMS_BANK_*), GemTopupController, cancelTopUp/confirmTopUp in GemWalletService
 
 **v1.12.0 (2026-03-25)** - Club Activity Match End & Score Flow: playerEndMatch endpoint, admin/player score submission branching, score confirmation/rejection workflow, best_of and points_per_set config, score_status and score_confirmed_by tracking, ClubScoreService
 

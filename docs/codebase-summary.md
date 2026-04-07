@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-04-03
+**Last Updated**: 2026-04-03 (Gems Wallet Feature)
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -11,7 +11,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 ## Project Structure
 
 **File Counts (Current - Apr 2026):**
-- PHP files: 360+ (Controllers 116, Models 84, Services 34, Commands 22, Policies 8, Middleware 9, Events 12+, Listeners 9, Observers 6, Form Requests 6)
+- PHP files: 365+ (Controllers 118, Models 86, Services 37, Commands 22, Policies 8, Middleware 10, Events 12+, Listeners 9, Observers 6, Form Requests 6)
   - Front/Tournament/: 9 controllers + 5 traits
 - Blade templates: 273 (Admin 54, Front 53, Home-yard 65, Clubs 50, Layouts 5, User/Auth/Referee 45)
   - home-yard/tournaments/: dashboard + 25+ partials
@@ -40,7 +40,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 - **Vite**: 5.0+ (Asset bundling)
 - **Axios**: 1.6+ (HTTP client)
 
-## Models Overview (84 Models)
+## Models Overview (86 Models)
 
 ### User & Auth
 - `User` - User accounts with OAuth, roles, Elo rating, OPRS fields, profile data (avatar, location, province, gender), referee fields
@@ -96,9 +96,13 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-## Services Overview (34 Services)
+**Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency system with VietQR default (SePay fallback), admin approval workflow at /admin/gem-topups, instant gem payment for bookings, 5% cashback to Points wallet
 
-Core (11): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService
+## Services Overview (40 Services)
+
+Core (14): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService, BookingCodeService
+
+Gems (3): GemWalletService, SepayService, GemCashbackService
 
 Club & Social (8): ClubPostMediaService, ClubActivityService, ClubActivityMatchService, ClubCompetitionService, ClubMatchService, ClubMemberStatsService, ClubScoreService, WaitlistAutoPromotionService
 
@@ -110,7 +114,7 @@ Booking (1): BookingCodeService
 
 ## Controllers Overview
 
-### Admin Controllers (23)
+### Admin Controllers (24)
 | Controller | Purpose |
 |------------|---------|
 | `DashboardController` | Admin dashboard |
@@ -137,8 +141,9 @@ Booking (1): BookingCodeService
 | `UserImportController` | Bulk user import |
 | `QuizController` | Quiz management |
 | `OcrLeaderboardController` | OCR leaderboard admin |
+| `GemTopupController` | Gems wallet top-up approval/rejection |
 
-### API Controllers (30)
+### API Controllers (32)
 | Controller | Purpose |
 |------------|---------|
 | `MediaUploadController` | Media file uploads |
@@ -158,6 +163,8 @@ Booking (1): BookingCodeService
 | `SpecialChallengeController` | Active challenges API |
 | `EventCheckinController` | Event check-in API |
 | `SocialController` | Social verification status and URLs |
+| `GemController` | Gems wallet balance, history, top-up requests |
+| `SepayWebhookController` | SePay VietQR webhook for top-up confirmation |
 | `ClubController` | Club CRUD, join requests, member management |
 | `ClubActivityController` | Club activities API |
 | `ClubActivityParticipantController` | Activity RSVP and participation |
@@ -175,7 +182,7 @@ Booking & Instructor: BookingInstructorController
 Content: NewsController, VideoCommentController, VideoLikeController
 OCR/OPRS: OcrController, OprVerificationController
 Referee: RefereeController, RefereeProfileController
-Points & Wallet: UserPointController, SkillQuizController, PointController, PointSubmissionController, SpecialChallengeController, WalletController
+Points & Wallet: UserPointController, SkillQuizController, PointController, PointSubmissionController, SpecialChallengeController, WalletController, GemController
 Social: ReferralController
 
 #### Tournament Rewrite Controllers (New - Mar 2026)
@@ -401,7 +408,26 @@ AuthController, FavoriteController, ReviewController, SocialController, ClubActi
 - Enhanced round editing for format support
 - Full game-by-game tracking
 
-## Database Migrations (193 files)
+### 11. Gems Wallet System (NEW - Apr 2026)
+- **Virtual Currency**: Gems for instant booking payments
+- **Top-up Integration**:
+  - SePay VietQR payment gateway with QR code generation
+  - Webhook-based transaction confirmation (VerifySepayWebhook middleware)
+  - Manual top-up with admin approval workflow at `/admin/gem-topups`
+  - Configurable exchange rate (VND to Gems) via `config/gems.php`
+- **Payment Features**:
+  - Gems payment for court bookings (instant confirmation)
+  - Booking integration with gems balance check
+  - Transaction status tracking (pending/completed)
+- **Cashback System**:
+  - 5% of booking amount converted to Points wallet automatically
+  - GemCashbackService handles conversion
+- **Transaction History**:
+  - Complete tracking of top-ups, payments, cashback
+  - Filtering by type and date range
+  - API endpoints for wallet balance and transactions
+
+## Database Migrations (197 files)
 
 ### Core Tables (2014-2019)
 - `users`, `password_reset_tokens`, `failed_jobs`, `personal_access_tokens`
@@ -486,6 +512,16 @@ AuthController, FavoriteController, ReviewController, SocialController, ClubActi
 ### League Registration Tables (2026-03-09)
 - `league_registrations` - Registration records with league_id, user_id, phone (normalized), payment_proof, status, approved_by, approved_at
 - `league_registration_players` - Player roster from registration with league_registration_id, player_id
+
+### Gems Wallet Tables (2026-04-03)
+- `gem_wallets` - User gems balance with user_id, balance, updated_at for tracking
+- `gem_transactions` - Gems transaction history with:
+  - `type` (topup, payment, cashback) - Transaction type
+  - `amount` - Gems amount
+  - `reference_type` (booking, user) - Polymorphic reference
+  - `reference_id` - ID of referenced entity
+  - `status` (pending, completed) - Transaction status
+  - `metadata` - JSON for additional details (exchange_rate, order_id for topups, etc.)
 
 ### League Management Tables (2026-02-25+)
 - `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)
