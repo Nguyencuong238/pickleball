@@ -20,7 +20,54 @@
 @endsection
 
 @section('css')
+    <link rel="stylesheet" href="{{ asset('assets/css/homepage.css') }}">
     <style>
+        /* Vertical Tournament Card Styles */
+        .card-vertical {
+            display: block !important;
+            height: auto !important; /* Override fixed height from homepage.css */
+            background: #fff;
+            border-radius: 20px !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            margin-bottom: 0;
+            overflow: hidden;
+        }
+
+        .card-vertical:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .tournament-image {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+        }
+
+        .tournament-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .tournament-body {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .hp-tournaments-grid {
+            display: grid !important;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)) !important;
+            gap: 24px !important;
+        }
+
+        .homepage {
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
         .filter-body {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             max-height: 1000px;
@@ -322,83 +369,75 @@
                     </div>
 
                     <!-- Tournaments Grid -->
-                    <div class="tournaments-grid" id="tournamentsGrid">
-                        @forelse($tournaments as $tournament)
-                            <div class="tournament-item" data-tournament-id="{{ $tournament->id }}">
-                                <a href="{{ route('tournaments-detail', $tournament->slug) }}" class="tournament-link">
+                    <div class="homepage">
+                        <div class="hp-tournaments-grid" id="tournamentsGrid">
+                            @forelse($tournaments as $tournament)
+                                @php
+                                    $media = $tournament->getFirstMedia('banner');
+                                    $imageUrl = $media
+                                        ? $media->getUrl()
+                                        : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 250%22%3E%3Cdefs%3E%3ClinearGradient id=%22t' .
+                                            $tournament->id .
+                                            '%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 style=%22stop-color:%2300D9B5;stop-opacity:1%22 /%3E%3Cstop offset=%22100%25%22 style=%22stop-color:%230099CC;stop-opacity:1%22 /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill=%22url(%23t' .
+                                            $tournament->id .
+                                            ')%22 width=%22400%22 height=%22250%22/%3E%3C/text%3E%3C/svg%3E';
+                                    
+                                    $now = now();
+                                    $deadline = $tournament->registration_deadline ?? $tournament->start_date;
+                                    $isExpired = $deadline && $now->greaterThan($deadline);
+                                    $tagClass = $isExpired ? 'tag-closed' : 'tag-open';
+                                    $tagText = $isExpired ? 'Hết hạn đăng ký' : 'Đang mở đăng ký';
+                                @endphp
+                                <div class="hp-tournament-card card-vertical" data-tournament-id="{{ $tournament->id }}">
                                     <div class="tournament-image">
-                                        @php
-                                            $media = $tournament->getFirstMedia('banner');
-                                            $imageUrl = $media
-                                                ? $media->getUrl()
-                                                : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 250%22%3E%3Cdefs%3E%3ClinearGradient id=%22t' .
-                                                    $tournament->id .
-                                                    '%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22%3E%3Cstop offset=%220%25%22 style=%22stop-color:%2300D9B5;stop-opacity:1%22 /%3E%3Cstop offset=%22100%25%22 style=%22stop-color:%230099CC;stop-opacity:1%22 /%3E%3C/linearGradient%3E%3C/defs%3E%3Crect fill=%22url(%23t' .
-                                                    $tournament->id .
-                                                    ')%22 width=%22400%22 height=%22250%22/%3E%3Ctext x=%22200%22 y=%22125%22 font-family=%22Arial%22 font-size=%2224%22 fill=%22white%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 font-weight=%22bold%22%3E' .
-                                                    strtoupper(substr($tournament->name, 0, 20)) .
-                                                    '%3C/text%3E%3C/svg%3E';
-                                        @endphp
                                         <img src="{{ $imageUrl }}" alt="{{ $tournament->name }}">
-                                        {{-- <div class="tournament-badges">
-                                            <span class="badge badge-status status-open">Đang mở</span>
-                                        </div> --}}
-                                        <div class="tournament-overlay">
-                                            <span class="overlay-text">Xem chi tiết →</span>
-                                        </div>
                                     </div>
-                                    <div class="tournament-content">
-                                        <div class="tournament-date-badge">
-                                            <div class="date-icon">📅</div>
-                                            <div class="date-text">
-                                                <span class="date-day">{{ $tournament->start_date->format('d-m') }}</span>
-                                                <span
-                                                    class="date-month">{{ $tournament->start_date->format('M Y') }}</span>
-                                            </div>
+                                    <div class="tournament-body" style="padding: 20px !important;">
+                                        <div class="tournament-meta" style="margin-bottom: 12px !important;">
+                                            <span class="tag {{ $tagClass }}">{{ $tagText }}</span>
+                                            <span class="tournament-date">{{ $tournament->start_date->format('d/m/Y') }}</span>
                                         </div>
-                                        <h3 class="tournament-title">{{ $tournament->name }}</h3>
-                                        {{-- <p class="tournament-excerpt">{{ substr($tournament->description, 0, 80) }}...</p> --}}
-
-                                        <div class="tournament-meta">
-                                            <div class="meta-item">
-                                                <svg class="icon" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor">
-                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                                    <circle cx="12" cy="10" r="3" />
+                                        
+                                        <a href="{{ route('tournaments-detail', $tournament->slug) }}" class="tournament-name">{{ $tournament->name }}</a>
+                                        
+                                        <div class="tournament-info" style="margin-bottom: 16px !important; gap: 12px !important;">
+                                            <div class="tournament-info-item">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                                    <circle cx="12" cy="10" r="3"></circle>
                                                 </svg>
-                                                <span>{{ $tournament->location }}</span>
+                                                {{ $tournament->location ?? 'Chưa xác định' }}
                                             </div>
-                                            <div class="meta-item">
-                                                <svg class="icon" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor">
-                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                                    <circle cx="9" cy="7" r="4" />
-                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                            <div class="tournament-info-item">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="9" cy="7" r="4"></circle>
                                                 </svg>
-                                                <span>{{ $tournament->athletes()->count() }} VĐV</span>
+                                                {{ $tournament->athletes()->count() }} VĐV
                                             </div>
                                         </div>
 
                                         <div class="tournament-footer">
-                                            <div class="tournament-prize">
-                                                <span class="prize-label">Giải thưởng</span>
-                                                <span
-                                                    class="prize-amount">{{ $tournament->prizes ? number_format($tournament->prizes, 0, '.', ',') . ' VNĐ' : 'N/A' }}</span>
+                                            <div class="prize">
+                                                @if($tournament->prizes)
+                                                    {{ number_format($tournament->prizes, 0, ',', '.') }} VNĐ
+                                                    <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: normal; margin-left: 4px;">Giải thưởng</span>
+                                                @else
+                                                    Giải thưởng hấp dẫn
+                                                @endif
                                             </div>
-                                            <a href="{{ route('tournaments-detail', $tournament->slug) }}" class="btn btn-primary btn-sm tournament-register-btn" style="text-decoration: none; display: inline-block;">
+                                            <a class="hp-btn-sm" href="{{ route('tournaments-detail', $tournament->slug) }}">
                                                 Xem ngay
                                             </a>
                                         </div>
                                     </div>
-                                </a>
-                            </div>
-                        @empty
-                            <div
-                                style="grid-column: 1/-1; padding: 3rem; text-align: center; color: var(--text-secondary);">
-                                <p>Không có giải đấu nào</p>
-                            </div>
-                        @endforelse
+                                </div>
+                            @empty
+                                <div style="grid-column: 1/-1; padding: 3rem; text-align: center; color: var(--text-secondary);">
+                                    <p>Không có giải đấu nào</p>
+                                </div>
+                            @endforelse
+                        </div>
                     </div>
 
                     <!-- Pagination -->

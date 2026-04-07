@@ -345,7 +345,7 @@ const observer = new IntersectionObserver((entries) => {
 }, observerOptions);
 
 // Set initial state and observe
-document.querySelectorAll('.tournament-item').forEach((item) => {
+document.querySelectorAll('.tournament-item, .hp-tournament-card').forEach((item) => {
     item.style.opacity = '0';
     item.style.transform = 'translateY(20px)';
     item.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
@@ -411,12 +411,15 @@ if (quickStats) {
 }
 
 // Prevent default on register buttons in tournament cards
-document.querySelectorAll('.tournament-footer .btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        alert('Chức năng đăng ký đang được phát triển!');
-    });
+document.querySelectorAll('.tournament-footer .btn, .tournament-footer .hp-btn-sm').forEach(btn => {
+    // Check if it's a register button (not a details link)
+    if (btn.textContent.trim().toLowerCase() === 'đăng ký') {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            alert('Chức năng đăng ký đang được phát triển!');
+        });
+    }
 });
 
 console.log('Tournaments page loaded successfully! 🎾');

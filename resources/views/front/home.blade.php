@@ -16,8 +16,8 @@
     @include('front.partials.home-tournaments')
     @include('front.partials.home-courts')
     @include('front.partials.home-community')
-    @include('front.partials.home-features')
     @include('front.partials.home-news')
+    @include('front.partials.home-features')
     @include('front.partials.home-cta')
 </div>
 
