@@ -72,8 +72,8 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 ### Club System (2026-02+)
 - `Club` - Club management
-- `ClubActivity` - Activity tracking (recurring/one-off/competition types)
-- `ClubActivityParticipant` - RSVP with status & auto-promotion
+- `ClubActivity` - Activity tracking (recurring/one-off/competition types, fee_gems field for activity fees)
+- `ClubActivityParticipant` - RSVP with status & auto-promotion, gem_transaction_id (FK to GemTransaction)
 - `ClubActivityMatchRound` - Casual match rounds (singles/doubles)
 - `ClubActivityMatch` - Individual casual matches with scores
 - `ClubActivityMatchStanding` - Per-player standings & stats
@@ -96,7 +96,7 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-**Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency system with VietQR default (SePay fallback), admin approval workflow at /admin/gem-topups, instant gem payment for bookings, 5% cashback to Points wallet
+**Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency system with VietQR default (SePay fallback), admin approval workflow at /admin/gem-topups, instant gem payment for bookings, club activity fees (RSVP/cancel/checkin deduction, auto-skip on insufficient balance), 5% cashback to Points wallet
 
 ## Services Overview (40 Services)
 

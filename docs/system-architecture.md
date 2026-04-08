@@ -376,8 +376,8 @@ User ──┬── Club (creator)
 │                     Club System Tables                   │
 ├─────────────────────────────────────────────────────────┤
 │ clubs          │ Club management and configuration       │
-│ club_activities │ Club activity tracking (type: one_off/recurring/competition) │
-│ club_activity_participants │ RSVP/participation tracking │
+│ club_activities │ Club activity tracking (type, fee_gems for payments) │
+│ club_activity_participants │ RSVP/participation with gem_transaction_id (FK) │
 │ club_activity_match_rounds │ Match rounds with status     │
 │ club_activity_matches │ Matches (singles/doubles)        │
 │ club_activity_match_standings │ Per-player standings      │
@@ -465,7 +465,10 @@ View tasks → Get eligible tasks by role → Auto-award or require proof submis
 Start quiz → Check eligibility → Answer 36 questions (0-3 scale) → Validate time (3-20 min) → Calculate score & ELO → Cross-validate answers → Gender-aware skill level mapping → Check consistency → Assign ELO or flag for admin → Set re-quiz cooldown → Display results
 
 ### Club Activity RSVP Flow (All Types)
-Show page loaded → User clicks RSVP button (AJAX) → Check spots available vs max_participants → If confirmed: create ClubActivityParticipant with status='confirmed' → If waitlisted: create with status='waitlisted' + position → Update participant count & avatars on frontend → Enable cancel button
+Show page loaded → User clicks RSVP button (AJAX) → Check spots available vs max_participants → Check user gem balance if activity has fee → If confirmed: charge gems (if hasFee) → create ClubActivityParticipant with status='confirmed' + gem_transaction_id → If waitlisted: create with status='waitlisted' + position (no charge) → Update participant count & avatars on frontend → Enable cancel button. On cancel: refund gems if confirmed + not started
+
+### Club Activity Gems Payment Flow (Apr 2026)
+RSVP confirmed (has fee) → ClubActivityService.rsvp() calls chargeGems() → GemWalletService.deduct() atomically reduces gem_wallet.balance → GemTransaction created with type='payment', status='completed' → GemCashbackService awards 5% to points wallet → gem_transaction_id stored on ClubActivityParticipant. On cancel: ClubActivityService.cancelRsvp() refunds if confirmed + before activity_date → GemWalletService.refund() creates refund transaction → gems restored to wallet. On waitlist promotion: promoteFromWaitlist() loops through waitlist, skips users with insufficient gems (auto-cancels), promotes first user with sufficient balance
 
 ### Club Activity Competition Flow (Competition Type)
 RSVP phase complete → Management assigns RSVPd players to teams (AJAX) → Click "Tao lich thi dau" → Select format (round_robin|pool_play|single_elimination) → ClubCompetitionService generates matches grouped by round → View schedule matrix → Enter scores per match (AJAX PUT) → Recalculate standings (wins, losses, points) → Display real-time standings

@@ -1,9 +1,9 @@
 # Club Activities Feature Guide
 
-**Last Updated**: 2026-04-03
-**Status**: Complete (All 6 Phases Done + Mar Updates)
+**Last Updated**: 2026-04-08
+**Status**: Complete (All 6 Phases Done + Mar & Apr Updates)
 **Phases Complete**: Database, Models, Controllers, Views, Scheduling, Testing
-**Enhancement Note**: Auto-create club post when activity is created (2026-03-14+)
+**Enhancement Note**: Auto-create club post when activity is created (2026-03-14+), Gems payment system added (2026-04-08)
 
 **Mar 2026 Updates**:
 - Check-in system: Real-time participant tracking with timestamps and status management
@@ -14,6 +14,20 @@
 - Match settings: `best_of` (1/3/5 sets) and `points_per_set` (default: 21) configuration
 - New controllers: `ClubCheckinController`, `ClubLeaderboardController`
 - New service: `WaitlistAutoPromotionService` for automatic promotion from waitlist
+
+**Apr 2026 Updates (v1.13.0 - Gems Payment)**:
+- Gems Payment System: Virtual currency fees for club activity participation
+- Fee field: `fee_gems` (nullable unsigned int, optional) on ClubActivity model
+- RSVP deduction: Gems charged when participant confirmed + activity has fee
+- Cancel refund: Full gem refund on cancel if confirmed + activity not yet started
+- Waitlist auto-skip: `promoteFromWaitlist()` skips users without sufficient gems, auto-cancels them
+- Fee lock: Update blocked if >= 1 confirmed participant exists
+- Deletion guard: Activity deletion blocked if >= 1 confirmed participant
+- Check-in fee: Gems charged for walk-in users via `checkinByPhone()`
+- Recurring copy: `fee_gems` copied from template when creating recurring instances
+- Transaction tracking: `gem_transaction_id` (FK) links participants to GemTransaction records
+- Service methods: rsvp(), cancelRsvp(), promoteFromWaitlist(), checkinByPhone(), createRecurringInstance()
+- Private helpers: chargeGems(), refundGems() with atomic transaction handling
 
 ---
 
@@ -32,6 +46,48 @@ All activity types support:
 - Match generation with 3 algorithms (singles round-robin, rotating doubles, fixed doubles)
 - Score confirmation workflow (pending → confirmed/rejected → admin_confirmed)
 - Management controls and admin overrides
+- Optional gems payment fees (charged at confirmation, refunded at cancellation)
+
+---
+
+## Gems Payment System (Apr 2026)
+
+### Fee Structure
+- **Field**: `fee_gems` on ClubActivity (nullable unsigned int)
+- **Optional**: Fee only applies if `fee_gems > 0`
+- **Methods**: `hasFee()` checks if fee exists; `isFeeEditable()` checks if fee can be modified
+
+### Deduction Flow
+| Event | Trigger | Amount | Condition |
+|-------|---------|--------|-----------|
+| RSVP | Participant confirmed | fee_gems | status = 'confirmed' AND hasFee() |
+| Check-in | Walk-in via phone | fee_gems | First-time user + activity has fee |
+| Recurring | Template instance | fee_gems | fee_gems copied to new instance |
+
+### Refund Policy
+- **Eligible**: Confirmed participants who cancel
+- **Condition**: Only if activity has not started (`activity_date > now()`)
+- **Method**: Full refund to gem wallet + credit GemTransaction record
+- **Return**: `['gems_refunded' => int]` from `cancelRsvp()`
+
+### Waitlist Auto-Skip Logic
+When confirmed slot opens, `promoteFromWaitlist()` loops through waitlist:
+1. Check if activity has fee
+2. If no fee: promote immediately
+3. If fee: attempt gem charge via `chargeGems()`
+4. Success: promote with gem_transaction_id
+5. Insufficient balance: auto-cancel & try next user
+
+### Fee Lock & Deletion Guard
+- **Update Lock**: Cannot modify `fee_gems` if >= 1 confirmed participant
+- **Delete Guard**: Cannot delete activity if >= 1 confirmed participant (gem refund liability)
+
+### Frontend Integration
+- Create/edit forms: `fee_gems` input, disabled when locked
+- Index view: Gems badge showing fee amount
+- Show view: Fee section with VND conversion (1 gem = exchange_rate VND)
+- RSVP button: Shows gem balance, disabled if insufficient, fee in button label
+- Check-in page: Shows fee + handles insufficient_gems error
 
 ---
 

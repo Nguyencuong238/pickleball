@@ -1,8 +1,8 @@
 # Project Overview & Product Development Requirements (PDR)
 
 **Project Name**: Pickleball Platform
-**Version**: 1.12.0
-**Last Updated**: 2026-04-03 (Gems Wallet Feature)
+**Version**: 1.13.0
+**Last Updated**: 2026-04-08 (Gems Wallet + Club Activities Integration)
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -242,21 +242,31 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - Email notification on registration status changes
 
 ### 16. Gems Wallet System [NEW - Apr 2026]
-- **Virtual Currency**: Gems for instant booking payments
+- **Virtual Currency**: Gems for instant booking payments and club activity fees
   - User wallet balance tracking per user
   - Gems-to-VND exchange rate configurable via `config/gems.php`
 - **Payment Methods**:
   - **SePay VietQR Integration**: QR code generation for top-up requests with webhook confirmation (VerifySepayWebhook middleware)
   - **Manual Top-up with Admin Approval**: At `/admin/gem-topups`, admin reviews and approves/rejects requests
   - **Instant Gems Payment**: Direct payment for court bookings with balance validation
+  - **Club Activity Fees**: Optional gem fees charged at RSVP confirmation, refunded on cancellation
+- **Club Activity Integration** (v1.13.0):
+  - `fee_gems` field on ClubActivity for optional activity fees
+  - Gems deducted on RSVP confirmation if participant confirmed and activity has fee
+  - Full gem refund on RSVP cancellation if within activity window (before activity_date)
+  - Automatic waitlist skip for users with insufficient gems (auto-cancel, promote next)
+  - Fee lock: Cannot modify fee_gems after >= 1 confirmed participant
+  - Deletion guard: Cannot delete activity with >= 1 confirmed participant
+  - Check-in gem deduction for walk-in users via `checkinByPhone()`
+  - Recurring instance fee copy: fee_gems inherited from template
 - **Cashback System**:
-  - 5% of booking gems automatically converted to Points wallet
+  - 5% of booking/activity gems automatically converted to Points wallet
   - GemCashbackService handles conversion after payment confirmation
 - **Transaction History**:
-  - Complete ledger with type (topup, payment, cashback)
+  - Complete ledger with type (topup, payment, cashback, refund)
   - Status tracking (pending for webhook-awaiting, completed for confirmed)
   - Filtering by transaction type and date range
-  - Reference tracking (booking or user) for analytics
+  - Reference tracking (booking, activity, or user) for analytics
 - **Configuration** (`config/gems.php`):
   - Exchange rate (default: 1 gem = 1000 VND)
   - Cashback percentage (default: 5%)

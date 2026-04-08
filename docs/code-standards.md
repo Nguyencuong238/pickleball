@@ -1,6 +1,6 @@
 # Code Standards & Conventions
 
-**Last Updated**: 2026-04-03
+**Last Updated**: 2026-04-08
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -796,6 +796,14 @@ Match format support: Best of 1/3/5 with configurable points_per_set (default: 2
 ## Gems Wallet Service Pattern (Apr 2026)
 
 Gems wallet services: GemWalletService (balance, top-up, payment), GemCashbackService (Points conversion), SepayService (VietQR). Key: VerifySepayWebhook middleware validates IP; transaction status pending → completed; webhook metadata for exchange rate; cashback auto-triggers after payment.
+
+### Club Activity Gems Payment Pattern
+ClubActivityService integrates gems deduction for activity fees:
+- `chargeGems(activity, user)` → GemWalletService.deduct() atomically reduces balance → GemTransaction created
+- `refundGems(participant)` → GemWalletService.refund() restores gems if transaction.status='completed'
+- `promoteFromWaitlist(activity)` → Loop through waitlist, skip users with insufficient gems, auto-cancel them
+- All operations wrapped in DB::transaction() with lockForUpdate() for race condition safety
+- Example: RSVP confirmed + activity has fee → chargeGems() throws RuntimeException on insufficient balance → controller catches and returns error flag
 
 ## Related Documentation
 

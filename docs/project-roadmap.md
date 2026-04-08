@@ -474,6 +474,8 @@ Referee management system for tournament match officiating.
 | Club Activity Casual Matches | Complete | 2026-03-03 | 100% |
 | Tournament Management Rewrite | Complete | 2026-03-13 | 100% |
 | Knockout Bracket System | Complete | 2026-03-13 | 100% |
+| Gems Wallet System | Complete | 2026-04-03 | 100% |
+| Gems Payment for Club Activities | Complete | 2026-04-08 | 100% |
 | Payment Gateway Integration | 🔄 In Progress | 2026-03-31 | 30% |
 | Notification System Design | Planned | 2026-03-15 | 0% |
 
@@ -490,6 +492,8 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 ---
 
 ## Change Log (Compact)
+
+**v1.13.0 (2026-04-08)** - Gems Payment for Club Activities: fee_gems on activities (nullable), gem deduction on RSVP confirmed, gem refund on cancel, promote loop with insufficient gem skip, fee lock after confirmed participants, deletion guard, check-in fee for open_play, Vietnamese diacritics on all UI/service messages
 
 **v1.12.1 (2026-04-03)** - Gems Manual Top-up with Admin Approval: VietQR as default QR generator (SePay fallback), admin page at /admin/gem-topups for approve/reject, 4 env vars (GEMS_BANK_*), GemTopupController, cancelTopUp/confirmTopUp in GemWalletService
 
