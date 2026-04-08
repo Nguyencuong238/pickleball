@@ -80,6 +80,20 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label for="fee_gems">Phí tham gia (Gems)</label>
+                @if($activity->isFeeEditable())
+                    <input type="number" id="fee_gems" name="fee_gems"
+                        value="{{ old('fee_gems', $activity->fee_gems) }}"
+                        min="1" max="10000" placeholder="Để trống nếu miễn phí">
+                @else
+                    <input type="number" id="fee_gems" value="{{ $activity->fee_gems }}" disabled
+                        style="background: #f3f4f6; cursor: not-allowed;">
+                    <small style="color: #ef4444;">Không thể thay đổi phí khi đã có người đăng ký.</small>
+                @endif
+                <small style="color: #6b7280;">1 Gem = {{ number_format(config('gems.exchange_rate')) }} VND</small>
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="status">Trạng Thái <span style="color: red;">*</span></label>

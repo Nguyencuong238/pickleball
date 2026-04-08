@@ -41,6 +41,7 @@ class ClubActivity extends Model
         'points_per_set',
         'started_at',
         'ended_at',
+        'fee_gems',
     ];
 
     protected $casts = [
@@ -58,6 +59,7 @@ class ClubActivity extends Model
         'points_per_set' => 'integer',
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
+        'fee_gems' => 'integer',
     ];
 
     // Relationships
@@ -175,6 +177,16 @@ class ClubActivity extends Model
     public function isRecurringTemplate(): bool
     {
         return $this->type === 'recurring' && $this->parent_activity_id === null;
+    }
+
+    public function hasFee(): bool
+    {
+        return $this->fee_gems > 0;
+    }
+
+    public function isFeeEditable(): bool
+    {
+        return $this->confirmedParticipants()->count() === 0;
     }
 
     public function spotsLeft(): int

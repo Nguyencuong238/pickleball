@@ -15,6 +15,7 @@ class ClubActivityParticipant extends Model
         'user_id',
         'status',
         'waitlist_position',
+        'gem_transaction_id',
         'responded_at',
         'checked_in_at',
         'gender_preference',

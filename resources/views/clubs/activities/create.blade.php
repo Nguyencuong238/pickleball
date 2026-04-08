@@ -74,6 +74,13 @@
                 </div>
             </div>
 
+            <div class="form-group">
+                <label for="fee_gems">Phí tham gia (Gems)</label>
+                <input type="number" id="fee_gems" name="fee_gems" value="{{ old('fee_gems') }}"
+                    min="1" max="10000" placeholder="Để trống nếu miễn phí">
+                <small style="color: #6b7280;">1 Gem = {{ number_format(config('gems.exchange_rate')) }} VND</small>
+            </div>
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="status">Trạng Thái <span style="color: red;">*</span></label>

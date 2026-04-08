@@ -24,6 +24,9 @@
         @if($activity->location)
             <p class="ca-checkin-location">{{ $activity->location }}</p>
         @endif
+        @if($activity->hasFee())
+            <p style="color:#d97706;font-weight:600;margin-top:8px;">Phí tham gia: {{ $activity->fee_gems }} Gems</p>
+        @endif
     </div>
 
     {{-- Step 1: Phone input --}}

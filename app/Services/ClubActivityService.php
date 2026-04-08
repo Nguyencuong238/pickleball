@@ -4,15 +4,18 @@ namespace App\Services;
 
 use App\Models\ClubActivity;
 use App\Models\ClubActivityParticipant;
+use App\Models\GemTransaction;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use RuntimeException;
 
 class ClubActivityService
 {
     /**
-     * RSVP: xac nhan tham gia hoac them vao danh sach cho
+     * RSVP: xac nhan tham gia hoac them vao danh sach cho.
+     * Thu Gems khi confirmed + activity co fee.
      */
     public function rsvp(ClubActivity $activity, User $user): ClubActivityParticipant
     {
@@ -26,7 +29,6 @@ class ClubActivityService
         }
 
         return DB::transaction(function () use ($activity, $user, $existing) {
-            // Lock to prevent race condition on spot count
             $confirmedCount = $activity->confirmedParticipants()->lockForUpdate()->count();
             $isFull = $activity->max_participants && $confirmedCount >= $activity->max_participants;
 
@@ -35,31 +37,38 @@ class ClubActivityService
                 ? ($activity->waitlistedParticipants()->max('waitlist_position') ?? 0) + 1
                 : null;
 
+            $gemTxId = null;
+            if ($status === 'confirmed' && $activity->hasFee()) {
+                $gemTx = $this->chargeGems($activity, $user);
+                $gemTxId = $gemTx->id;
+            }
+
+            $data = [
+                'status' => $status,
+                'waitlist_position' => $waitlistPos,
+                'gem_transaction_id' => $gemTxId,
+                'responded_at' => now(),
+            ];
+
             if ($existing) {
-                $existing->update([
-                    'status' => $status,
-                    'waitlist_position' => $waitlistPos,
-                    'responded_at' => now(),
-                ]);
+                $existing->update($data);
                 return $existing->fresh();
             }
 
-            return $activity->participants()->create([
-                'user_id' => $user->id,
-                'status' => $status,
-                'waitlist_position' => $waitlistPos,
-                'responded_at' => now(),
-            ]);
+            return $activity->participants()->create(array_merge(
+                ['user_id' => $user->id],
+                $data,
+            ));
         });
     }
 
     /**
-     * Check-in nguoi choi qua QR (open play)
+     * Check-in nguoi choi qua QR (open play).
+     * Thu Gems khi user chua RSVP truoc + activity co fee.
      */
     public function checkinByPhone(ClubActivity $activity, User $user): ClubActivityParticipant
     {
         return DB::transaction(function () use ($activity, $user) {
-            // Auto-add to club if not member
             $club = $activity->club;
             if (!$club->members()->where('user_id', $user->id)->exists()) {
                 $club->members()->attach($user->id, [
@@ -68,19 +77,18 @@ class ClubActivityService
                 ]);
             }
 
-            // Check if already participant
             $existing = $activity->participants()
                 ->where('user_id', $user->id)
                 ->lockForUpdate()
                 ->first();
 
             if ($existing && $existing->checked_in_at) {
-                // Already checked in, just return
                 return $existing;
             }
 
             $nextPos = ($activity->participants()->lockForUpdate()->max('queue_position') ?? 0) + 1;
 
+            // User da RSVP truoc (da thu phi) -> chi check-in
             if ($existing) {
                 $existing->update([
                     'checked_in_at' => now(),
@@ -90,9 +98,17 @@ class ClubActivityService
                 return $existing->fresh();
             }
 
+            // User moi (chua RSVP) -> thu Gems neu activity co fee
+            $gemTxId = null;
+            if ($activity->hasFee()) {
+                $gemTx = $this->chargeGems($activity, $user);
+                $gemTxId = $gemTx->id;
+            }
+
             return $activity->participants()->create([
                 'user_id' => $user->id,
                 'status' => 'confirmed',
+                'gem_transaction_id' => $gemTxId,
                 'responded_at' => now(),
                 'checked_in_at' => now(),
                 'current_status' => 'queued',
@@ -102,30 +118,40 @@ class ClubActivityService
     }
 
     /**
-     * Huy dang ky va tu dong nang hang nguoi cho
+     * Huy dang ky. Hoan Gems neu confirmed + chua bat dau.
+     * Return so Gems da hoan.
      */
-    public function cancelRsvp(ClubActivity $activity, User $user): void
+    public function cancelRsvp(ClubActivity $activity, User $user): array
     {
-        DB::transaction(function () use ($activity, $user) {
+        return DB::transaction(function () use ($activity, $user) {
             $participant = $activity->participants()
                 ->where('user_id', $user->id)
+                ->lockForUpdate()
                 ->firstOrFail();
 
             $wasConfirmed = $participant->status === 'confirmed';
+            $gemsRefunded = 0;
+
+            // Hoan Gems neu confirmed + activity co fee + chua bat dau
+            if ($wasConfirmed && $activity->hasFee() && $activity->activity_date > now()) {
+                $gemsRefunded = $this->refundGems($participant);
+            }
+
             $participant->update(['status' => 'cancelled', 'waitlist_position' => null]);
 
             if ($wasConfirmed) {
                 $this->promoteFromWaitlist($activity);
             }
+
+            return ['gems_refunded' => $gemsRefunded];
         });
     }
 
     /**
-     * Nang hang nguoi dau tien trong danh sach cho
+     * Nang hang nguoi cho. Loop qua waitlist, skip neu khong du Gems.
      */
     public function promoteFromWaitlist(ClubActivity $activity): void
     {
-        // Re-check capacity with lock to prevent race conditions
         if ($activity->max_participants) {
             $confirmedCount = $activity->confirmedParticipants()->lockForUpdate()->count();
             if ($confirmedCount >= $activity->max_participants) {
@@ -133,9 +159,26 @@ class ClubActivityService
             }
         }
 
-        $next = $activity->waitlistedParticipants()->lockForUpdate()->first();
-        if ($next) {
-            $next->update(['status' => 'confirmed', 'waitlist_position' => null]);
+        $waitlisted = $activity->waitlistedParticipants()->lockForUpdate()->get();
+
+        foreach ($waitlisted as $next) {
+            if (!$activity->hasFee()) {
+                $next->update(['status' => 'confirmed', 'waitlist_position' => null]);
+                return;
+            }
+
+            try {
+                $gemTx = $this->chargeGems($activity, $next->user);
+                $next->update([
+                    'status' => 'confirmed',
+                    'waitlist_position' => null,
+                    'gem_transaction_id' => $gemTx->id,
+                ]);
+                return;
+            } catch (RuntimeException) {
+                // Khong du Gems -> cancel va thu nguoi tiep
+                $next->update(['status' => 'cancelled', 'waitlist_position' => null]);
+            }
         }
     }
 
@@ -156,11 +199,51 @@ class ClubActivityService
             'location' => $template->location,
             'max_participants' => $template->max_participants,
             'parent_activity_id' => $template->id,
+            'fee_gems' => $template->fee_gems,
             'recurrence_day' => $template->recurrence_day,
             'auto_approve' => $template->auto_approve,
             'min_skill_level' => $template->min_skill_level,
             'max_skill_level' => $template->max_skill_level,
             'status' => 'upcoming',
         ]);
+    }
+
+    /**
+     * Thu Gems tu user cho activity. Throw RuntimeException neu khong du.
+     */
+    private function chargeGems(ClubActivity $activity, User $user): GemTransaction
+    {
+        $walletService = app(GemWalletService::class);
+        $gemTx = $walletService->deduct(
+            $user,
+            $activity->fee_gems,
+            ClubActivity::class,
+            $activity->id,
+            "Phí tham gia: {$activity->title}"
+        );
+
+        app(GemCashbackService::class)->award($gemTx);
+
+        return $gemTx;
+    }
+
+    /**
+     * Hoan Gems cho participant. Return so Gems da hoan.
+     */
+    private function refundGems(ClubActivityParticipant $participant): int
+    {
+        if (!$participant->gem_transaction_id) {
+            return 0;
+        }
+
+        $originalTx = GemTransaction::find($participant->gem_transaction_id);
+        if (!$originalTx || $originalTx->status !== 'completed' || $originalTx->type !== 'payment') {
+            return 0;
+        }
+
+        $walletService = app(GemWalletService::class);
+        $refundTx = $walletService->refund($originalTx);
+
+        return $refundTx->amount;
     }
 }

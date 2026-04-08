@@ -19,13 +19,19 @@ function rsvpAction(action) {
             'X-Requested-With': 'XMLHttpRequest',
         },
     })
-    .then(function(res) {
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        return res.json();
-    })
+    .then(function(res) { return res.json(); })
     .then(function(data) {
         if (data.success) {
+            if (data.gems_charged) {
+                alert(data.message);
+            }
+            if (data.gems_refunded > 0) {
+                alert(data.message);
+            }
             location.reload();
+        } else if (data.insufficient_gems) {
+            alert(data.message + '\n\nVui lòng nạp thêm Gems để tham gia.');
+            _rsvpReset(btns);
         } else {
             alert(data.message || 'Có lỗi xảy ra');
             _rsvpReset(btns);

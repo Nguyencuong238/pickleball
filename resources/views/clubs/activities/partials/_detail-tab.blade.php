@@ -137,6 +137,22 @@
     </div>
     @endif
 
+    {{-- Fee info --}}
+    @if($activity->hasFee())
+    <div class="detail-section">
+        <div class="section-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+            </svg>
+        </div>
+        <div class="section-content">
+            <strong>Phí tham gia</strong>
+            <span style="color:#d97706;font-weight:600;">{{ $activity->fee_gems }} Gems</span>
+            <span style="color:#6b7280;font-size:13px;">(~{{ number_format($activity->fee_gems * ($exchangeRate ?? config('gems.exchange_rate'))) }} VND)</span>
+        </div>
+    </div>
+    @endif
+
     {{-- Activity type --}}
     <div class="detail-section">
         <div class="section-icon">

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Club;
 use App\Models\ClubActivity;
 use App\Models\ClubPost;
+use App\Services\GemWalletService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -74,6 +75,7 @@ class ClubActivityController extends Controller
             'competition_config.format' => 'nullable|in:round_robin,pool_play,single_elimination',
             'competition_config.points_for_win' => 'nullable|integer|min:0',
             'competition_config.points_for_loss' => 'nullable|integer|min:0',
+            'fee_gems' => 'nullable|integer|min:1|max:10000',
             // Open play fields
             'courts_count' => 'required_if:type,open_play|nullable|integer|min:1|max:20',
             'avg_match_duration' => 'nullable|integer|min:5|max:60',
@@ -130,8 +132,14 @@ class ClubActivityController extends Controller
             ? $activity->participants()->where('user_id', Auth::id())->first()
             : null;
 
+        $userGemBalance = Auth::check()
+            ? app(GemWalletService::class)->getBalance(Auth::user())
+            : 0;
+        $exchangeRate = config('gems.exchange_rate');
+
         return view('clubs.activities.show', compact(
-            'club', 'activity', 'isManagement', 'isMember', 'userParticipation'
+            'club', 'activity', 'isManagement', 'isMember', 'userParticipation',
+            'userGemBalance', 'exchangeRate'
         ));
     }
 
@@ -168,6 +176,7 @@ class ClubActivityController extends Controller
             'auto_approve' => 'boolean',
             'min_skill_level' => 'nullable|numeric|min:1.0|max:6.0',
             'max_skill_level' => 'nullable|numeric|min:1.0|max:6.0|gte:min_skill_level',
+            'fee_gems' => 'nullable|integer|min:1|max:10000',
             'recurrence_day' => 'nullable|integer|min:0|max:6',
             'competition_config' => 'nullable|array',
             'competition_config.format' => 'nullable|in:round_robin,pool_play,single_elimination',
@@ -179,6 +188,19 @@ class ClubActivityController extends Controller
 
         // Prevent type change after creation
         unset($validated['type']);
+
+        // Khong cho sua fee khi da co nguoi dang ky confirmed
+        if (
+            array_key_exists('fee_gems', $validated)
+            && (int) ($validated['fee_gems'] ?? 0) !== (int) ($activity->fee_gems ?? 0)
+            && !$activity->isFeeEditable()
+        ) {
+            $error = 'Không thể thay đổi phí khi đã có người đăng ký.';
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $error], 422);
+            }
+            return back()->withErrors(['fee_gems' => $error]);
+        }
 
         $activity->update($validated);
 
@@ -228,6 +250,15 @@ class ClubActivityController extends Controller
                 return response()->json(['message' => 'Không tìm thấy'], 404);
             }
             abort(404);
+        }
+
+        // Block deletion if confirmed participants have paid gems
+        if ($activity->hasFee() && $activity->confirmedParticipants()->whereNotNull('gem_transaction_id')->exists()) {
+            $error = 'Không thể xóa hoạt động có người đã thanh toán Gems. Vui lòng hủy hoạt động thay vì xóa.';
+            if ($request->ajax()) {
+                return response()->json(['success' => false, 'message' => $error], 422);
+            }
+            return back()->withErrors(['delete' => $error]);
         }
 
         // Hard-delete linked post before activity deletion

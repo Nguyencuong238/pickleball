@@ -75,6 +75,8 @@ function caCheckin(config) {
                 const data = await res.json();
                 if (data.success) {
                     window.location.href = data.redirect;
+                } else if (data.insufficient_gems) {
+                    this.error = data.message || 'Không đủ Gems để tham gia.';
                 } else {
                     this.error = data.message || 'Lỗi check-in. Vui lòng thử lại.';
                 }
@@ -110,6 +112,8 @@ function caCheckin(config) {
                 const data = await res.json();
                 if (data.success) {
                     window.location.href = data.redirect;
+                } else if (data.insufficient_gems) {
+                    this.error = data.message || 'Không đủ Gems để tham gia.';
                 } else {
                     this.error = data.message || 'Lỗi đăng ký. Vui lòng thử lại.';
                 }

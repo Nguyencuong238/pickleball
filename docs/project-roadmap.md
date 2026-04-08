@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-04-06
-**Current Version:** 1.12.1 (Gems Wallet Complete)
+**Last Updated:** 2026-04-08
+**Current Version:** 1.13.0 (Gems Payment for Club Activities)
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -229,6 +229,15 @@ Referee management system for tournament match officiating.
   - [x] Configurable match settings (best_of, points_per_set)
   - [x] Score status tracking (pending_confirmation, confirmed, rejected, admin_confirmed)
   - [x] Integration with ELO/OPRS processing and member stats updates
+- [x] **Gems Payment for Club Activities (Apr 8, 2026)** NEW
+  - [x] fee_gems field on ClubActivity (optional, nullable)
+  - [x] Gem deduction on RSVP with confirmed status
+  - [x] Gem refund on cancel (within activity window)
+  - [x] Promote loop with gem deduction (skip users with insufficient gems)
+  - [x] Fee lock (prevent changes after >= 1 confirmed participant)
+  - [x] Deletion guard (prevent deletion with >= 1 confirmed participant)
+  - [x] Check-in fee deduction for open_play activities
+  - [x] Vietnamese diacritics in all UI text and service messages
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -304,7 +313,7 @@ Referee management system for tournament match officiating.
 - ✅ News & CMS
 - ✅ OCR Ranking System
 
-### Recent Additions (Dec 2025 - Mar 2026)
+### Recent Additions (Dec 2025 - Apr 2026)
 - OCR Elo system with Elo history and badges (Dec 2, 2025)
 - OPRS multi-component rating with challenges & community (Dec 5)
 - User profile management with avatar and location (Dec 7)
@@ -322,6 +331,7 @@ Referee management system for tournament match officiating.
 - League registration system with payment proof and auto team generation (Mar 9, 2026)
 - LeagueAutoTeamService with skill-ranked snake-draft and random modes (Mar 9, 2026)
 - Pessimistic locking for race-condition safe team generation (Mar 9, 2026)
+- Gems payment for club activities with RSVP/cancel refund/promote skip (Apr 8, 2026)
 
 ### v1.9.0 Changelog (2026-03-09)
 - **New**: MLP league format with 6 sub-game doubles pairing structure (player pair support)

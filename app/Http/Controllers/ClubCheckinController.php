@@ -61,9 +61,18 @@ class ClubCheckinController extends Controller
         ]);
 
         $user = User::findOrFail($request->user_id);
-        $participant = $this->activityService->checkinByPhone($activity, $user);
 
-        // Store user_id in session for queue access
+        try {
+            $participant = $this->activityService->checkinByPhone($activity, $user);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không đủ Gems. Cần nạp thêm trước khi check-in.',
+                'insufficient_gems' => true,
+                'required' => $activity->fee_gems,
+            ], 422);
+        }
+
         session(['checkin_user_id' => $user->id]);
 
         return response()->json([
@@ -96,7 +105,16 @@ class ClubCheckinController extends Controller
             ]);
         }
 
-        $participant = $this->activityService->checkinByPhone($activity, $user);
+        try {
+            $participant = $this->activityService->checkinByPhone($activity, $user);
+        } catch (\RuntimeException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Vui lòng đăng nhập và nạp Gems trước khi tham gia hoạt động có phí.',
+                'insufficient_gems' => true,
+                'required' => $activity->fee_gems,
+            ], 422);
+        }
 
         session(['checkin_user_id' => $user->id]);
 

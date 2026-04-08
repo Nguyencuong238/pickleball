@@ -68,6 +68,7 @@ class ClubActivityController extends Controller
             'competition_config.format' => 'nullable|in:round_robin,pool_play,single_elimination',
             'competition_config.points_for_win' => 'nullable|integer|min:0',
             'competition_config.points_for_loss' => 'nullable|integer|min:0',
+            'fee_gems' => 'nullable|integer|min:1|max:10000',
             'best_of' => 'nullable|integer|in:1,3',
             'points_per_set' => 'nullable|integer|in:11,15,21',
         ]);
@@ -142,6 +143,7 @@ class ClubActivityController extends Controller
             'auto_approve' => 'boolean',
             'min_skill_level' => 'nullable|numeric|min:1.0|max:6.0',
             'max_skill_level' => 'nullable|numeric|min:1.0|max:6.0|gte:min_skill_level',
+            'fee_gems' => 'nullable|integer|min:1|max:10000',
             'recurrence_day' => 'nullable|integer|min:0|max:6',
             'competition_config' => 'nullable|array',
             'competition_config.format' => 'nullable|in:round_robin,pool_play,single_elimination',
@@ -153,6 +155,18 @@ class ClubActivityController extends Controller
 
         // Prevent type change after creation
         unset($validated['type']);
+
+        // Khong cho sua fee khi da co nguoi dang ky confirmed
+        if (
+            array_key_exists('fee_gems', $validated)
+            && (int) ($validated['fee_gems'] ?? 0) !== (int) ($activity->fee_gems ?? 0)
+            && !$activity->isFeeEditable()
+        ) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể thay đổi phí khi đã có người đăng ký.',
+            ], 422);
+        }
 
         $activity->update($validated);
 
@@ -179,6 +193,14 @@ class ClubActivityController extends Controller
 
         if ($activity->club_id !== $club->id) {
             return response()->json(['message' => 'Không tìm thấy'], 404);
+        }
+
+        // Block deletion if confirmed participants have paid gems
+        if ($activity->hasFee() && $activity->confirmedParticipants()->whereNotNull('gem_transaction_id')->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa hoạt động có người đã thanh toán Gems. Vui lòng hủy hoạt động thay vì xóa.',
+            ], 422);
         }
 
         // Hard-delete linked post before activity deletion

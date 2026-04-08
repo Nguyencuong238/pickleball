@@ -98,6 +98,9 @@
                                 <a href="{{ route('clubs.activities.show', [$club, $activity]) }}" class="ca-idx-title-link">
                                     {{ $activity->title }}
                                 </a>
+                                @if($activity->fee_gems)
+                                    <span style="display:inline-block;background:#fbbf24;color:#78350f;font-size:11px;padding:1px 6px;border-radius:4px;margin-left:6px;font-weight:600;">{{ $activity->fee_gems }} Gems</span>
+                                @endif
                             </td>
                             <td>
                                 <span class="ca-idx-type-badge type-{{ $activity->type }}">{{ $typeLabels[$activity->type] ?? $activity->type }}</span>
