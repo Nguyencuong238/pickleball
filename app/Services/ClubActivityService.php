@@ -14,8 +14,8 @@ use RuntimeException;
 class ClubActivityService
 {
     /**
-     * RSVP: xac nhan tham gia hoac them vao danh sach cho.
-     * Thu Gems khi confirmed + activity co fee.
+     * RSVP: xác nhận tham gia hoặc thêm vào danh sách chờ.
+     * Thu Gems khi confirmed + activity có phí.
      */
     public function rsvp(ClubActivity $activity, User $user): ClubActivityParticipant
     {
@@ -63,8 +63,8 @@ class ClubActivityService
     }
 
     /**
-     * Check-in nguoi choi qua QR (open play).
-     * Thu Gems khi user chua RSVP truoc + activity co fee.
+     * Check-in người chơi qua QR (open play).
+     * Thu Gems khi user chưa RSVP trước + activity có phí.
      */
     public function checkinByPhone(ClubActivity $activity, User $user): ClubActivityParticipant
     {
@@ -88,7 +88,7 @@ class ClubActivityService
 
             $nextPos = ($activity->participants()->lockForUpdate()->max('queue_position') ?? 0) + 1;
 
-            // User da RSVP truoc (da thu phi) -> chi check-in
+            // User đã RSVP trước (đã thu phí) -> chỉ check-in
             if ($existing) {
                 $existing->update([
                     'checked_in_at' => now(),
@@ -98,7 +98,7 @@ class ClubActivityService
                 return $existing->fresh();
             }
 
-            // User moi (chua RSVP) -> thu Gems neu activity co fee
+            // User mới (chưa RSVP) -> thu Gems nếu activity có phí
             $gemTxId = null;
             if ($activity->hasFee()) {
                 $gemTx = $this->chargeGems($activity, $user);
@@ -118,8 +118,8 @@ class ClubActivityService
     }
 
     /**
-     * Huy dang ky. Hoan Gems neu confirmed + chua bat dau.
-     * Return so Gems da hoan.
+     * Hủy đăng ký. Hoàn Gems nếu confirmed + chưa bắt đầu.
+     * Return số Gems đã hoàn.
      */
     public function cancelRsvp(ClubActivity $activity, User $user): array
     {
@@ -132,7 +132,7 @@ class ClubActivityService
             $wasConfirmed = $participant->status === 'confirmed';
             $gemsRefunded = 0;
 
-            // Hoan Gems neu confirmed + activity co fee + chua bat dau
+            // Hoàn Gems nếu confirmed + activity có phí + chưa bắt đầu
             if ($wasConfirmed && $activity->hasFee() && $activity->activity_date > now()) {
                 $gemsRefunded = $this->refundGems($participant);
             }
@@ -148,7 +148,7 @@ class ClubActivityService
     }
 
     /**
-     * Nang hang nguoi cho. Loop qua waitlist, skip neu khong du Gems.
+     * Nâng hạng người chờ. Loop qua waitlist, skip nếu không đủ Gems.
      */
     public function promoteFromWaitlist(ClubActivity $activity): void
     {
@@ -176,14 +176,14 @@ class ClubActivityService
                 ]);
                 return;
             } catch (RuntimeException) {
-                // Khong du Gems -> cancel va thu nguoi tiep
+                // Không đủ Gems -> cancel và thử người tiếp
                 $next->update(['status' => 'cancelled', 'waitlist_position' => null]);
             }
         }
     }
 
     /**
-     * Tao buoi choi tu dong tu recurring template
+     * Tạo buổi chơi tự động từ recurring template
      */
     public function createRecurringInstance(ClubActivity $template, Carbon $date): ClubActivity
     {
@@ -209,7 +209,7 @@ class ClubActivityService
     }
 
     /**
-     * Thu Gems tu user cho activity. Throw RuntimeException neu khong du.
+     * Thu Gems từ user cho activity. Throw RuntimeException nếu không đủ.
      */
     private function chargeGems(ClubActivity $activity, User $user): GemTransaction
     {
@@ -228,7 +228,7 @@ class ClubActivityService
     }
 
     /**
-     * Hoan Gems cho participant. Return so Gems da hoan.
+     * Hoàn Gems cho participant. Return số Gems đã hoàn.
      */
     private function refundGems(ClubActivityParticipant $participant): int
     {

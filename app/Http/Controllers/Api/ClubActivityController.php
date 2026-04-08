@@ -156,7 +156,7 @@ class ClubActivityController extends Controller
         // Prevent type change after creation
         unset($validated['type']);
 
-        // Khong cho sua fee khi da co nguoi dang ky confirmed
+        // Không cho sửa fee khi đã có người đăng ký confirmed
         if (
             array_key_exists('fee_gems', $validated)
             && (int) ($validated['fee_gems'] ?? 0) !== (int) ($activity->fee_gems ?? 0)

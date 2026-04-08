@@ -38,7 +38,7 @@
             @include('clubs.activities.partials._detail-tab')
         </div>
 
-        {{-- Tab: Nguoi tham gia --}}
+        {{-- Tab: Người tham gia --}}
         <div class="tab-content" id="tab-participants" role="tabpanel">
             @include('clubs.activities.partials._participants-tab')
         </div>
