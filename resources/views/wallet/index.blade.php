@@ -10,7 +10,7 @@
     <!-- Header -->
     <div class="wallet-header">
         <div class="container">
-            <h1 class="wallet-title">💰 Ví Điểm Của Bạn</h1>
+            <h1 class="wallet-title">Ví Điểm Của Bạn</h1>
             <p class="wallet-subtitle">Quản lý và theo dõi điểm của bạn</p>
         </div>
     </div>
@@ -452,6 +452,10 @@
     .info-list .icon {
         font-size: 1.2rem;
         flex-shrink: 0;
+        width: 28px;
+        text-align: center;
+        display: inline-block;
+        line-height: 1;
     }
 
     /* Pagination */

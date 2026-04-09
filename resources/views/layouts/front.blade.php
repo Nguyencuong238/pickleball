@@ -146,7 +146,9 @@
 
     /* Link trong dropdown */
     .dropdown-info .nav-link {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
         padding: clamp(0.4rem, 1vw, 0.5rem) clamp(0.75rem, 2vw, 1rem);
         color: #1e293b;
         text-decoration: none;
@@ -627,27 +629,34 @@
                                 ⭐ Kiếm điểm
                             </a> --}}
                             <a href="{{ route('user.wallet.index') }}" class="nav-link">
-                                💰 Ví điểm ({{ auth()->user()->getPoints() }})
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg>
+                                Ví Điểm ({{ auth()->user()->getPoints() }})
                             </a>
                             <a href="{{ route('user.gems.index') }}" class="nav-link">
-                                💎 Ví Gems ({{ number_format(auth()->user()->gemWallet?->balance ?? 0) }})
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9Z"/><path d="M11 3 8 9l4 13 4-13-3-6"/><path d="M2 9h20"/></svg>
+                                Ví Gems ({{ number_format(auth()->user()->gemWallet?->balance ?? 0) }})
                             </a>
                             <a href="{{ route('ocr.profile', auth()->user()) }}" class="nav-link">
-                                👤 Profile
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                Profile
                             </a>
                             <a href="{{ route('homeyard.overview') }}" class="nav-link">
-                                🏘️ Quản lý cộng đồng
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                                Quản lý cộng đồng
                             </a>
                             <a href="{{ route('user.referral.index') }}" class="nav-link">
-                                💼 Giới thiệu người dùng
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                                Giới thiệu người dùng
                             </a>
                             <a href="{{ route('user.profile.edit') }}" class="nav-link">
-                                ✏️ Chỉnh sửa hồ sơ
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                Chỉnh sửa hồ sơ
                             </a>
                             @if(auth()->check())
                                 @if(auth()->user()->hasRole('admin'))
                                     <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                                        ⚙️ Bảng điều khiển Admin
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Bảng điều khiển Admin
                                     </a>
                                 @endif
                                 {{-- @if(auth()->user()->hasRole('home_yard'))
@@ -662,12 +671,14 @@
                                 @endif --}}
                                 @if(auth()->user()->hasRole('referee'))
                                     <a href="{{ route('referee.dashboard') }}" class="nav-link">
-                                        🏆 Bảng điều khiển Trọng tài
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 7 7 7 7"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 17 7 17 7"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+                                        Bảng điều khiển Trọng tài
                                     </a>
                                 @endif
                                 @if(auth()->user()->canVerifyElo())
                                     <a href="{{ route('verifier.dashboard') }}" class="nav-link">
-                                        ✅ Xác thực tài khoản OPR
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg>
+                                        Xác thực tài khoản OPR
                                     </a>
                                 @endif
                             @endif
@@ -675,7 +686,8 @@
                                 @csrf
                                 <a href="{{ route('logout') }}" class="nav-link" style="color: red;"
                                     onclick="event.preventDefault();this.closest('form').submit();">
-                                    🚪 Đăng xuất
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                                    Đăng xuất
                                 </a>
                             </form>
                         </div>
