@@ -291,6 +291,20 @@ class BookingController extends Controller
             ], 422);
         }
 
+        // Hoàn Gems trong cửa sổ refund (nếu bật flag)
+        if (config('gems.transfer_enabled')) {
+            try {
+                app(\App\Services\GemPaymentProcessor::class)->refundFor($booking);
+            } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                // Booking không thanh toán bằng Gems — bỏ qua.
+            } catch (\App\Exceptions\GemTransferException $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+        }
+
         $booking->cancel();
 
         return response()->json([
@@ -830,6 +844,21 @@ class BookingController extends Controller
             }
 
             $reason = $request->input('reason', 'Không có lý do');
+
+            // Hoàn Gems nếu booking đã thanh toán bằng Gems (pending path hiếm gặp)
+            if (config('gems.transfer_enabled')) {
+                try {
+                    app(\App\Services\GemPaymentProcessor::class)->refundFor($booking);
+                } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                    // Booking không thanh toán bằng Gems — bỏ qua.
+                } catch (\App\Exceptions\GemTransferException $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $e->getMessage(),
+                    ], 422);
+                }
+            }
+
             $booking->cancel();
 
             return response()->json([

@@ -32,6 +32,12 @@ class Kernel extends ConsoleKernel
 
         // Club Activities - Generate recurring meet instances 7 days ahead
         $schedule->command('clubs:generate-recurring-meets')->daily()->at('06:00');
+
+        // Gems - Giải phóng các khoản nhận Gems đã đáo hạn cửa sổ hoàn tiền.
+        // Ghi chú: CACHE_DRIVER=file → không dùng ->onOneServer(); an toàn trên single-server.
+        $schedule->command('gems:release-locked')
+            ->everyFiveMinutes()
+            ->withoutOverlapping(10);
     }
 
     /**

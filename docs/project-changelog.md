@@ -6,6 +6,35 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), versio
 
 ---
 
+## [1.14.0] - 2026-04-10
+
+### Added — Gems Transfer + Escrow Refund Window
+- **Mô hình chuyển Gems mới**: thay cho cơ chế đốt trực tiếp, Gems giờ được chuyển từ payer → owner (chủ sân/CLB) khi thanh toán dịch vụ.
+- **Cửa sổ hoàn tiền 1 ngày (escrow)**: Gems bên nhận bị khóa trong `locked_balance` cho đến khi hết cửa sổ refund; sau đó được giải phóng tự động.
+- **Clawback khi hoàn tiền**: hủy trong cửa sổ → payer được hoàn, owner bị thu hồi từ khóa. Hủy ngoài cửa sổ → HARD BLOCK với thông báo Tiếng Việt.
+- **Console command `gems:release-locked`**: chạy mỗi 5 phút, quét và giải phóng các receipt đã đáo hạn. An toàn với race condition và idempotent.
+- **Abstraction `App\Contracts\Payable`**: cho phép thêm dịch vụ mới (League, Tournament, ...) chỉ với ~10 LOC.
+- **GemPaymentProcessor**: chỗ duy nhất điều phối pay/refund cho mọi Payable. Áp dụng cho `Booking` và `ClubActivity`.
+- **UI ví Gems**: hiển thị 3 giá trị (Tổng / Có thể sử dụng / Đang khóa) + badge "Đang chờ giải phóng" cho receipt chưa mở khóa, định dạng tiếng Việt có dấu.
+- **Feature flag `GEMS_TRANSFER_ENABLED`**: mặc định OFF. Có thể rollback tức thời bằng env var.
+
+### Technical Details
+- **Migrations**:
+  - `gem_wallets.locked_balance` (unsigned int, default 0)
+  - `gem_transactions` thêm: `counterparty_user_id`, `counterparty_transaction_id`, `platform_fee`, `available_at`, `released_at`
+  - ENUM `type`/`status` → VARCHAR (mở rộng cho `receipt`, `refund_clawback`, `refunded`, future `withdraw_*`)
+  - Unique index `ux_gem_tx_ref_type_user` chống trùng giao dịch
+  - Index `idx_release_scan (type, available_at, released_at)` cho cron job
+- **Service**: `GemWalletService::transfer/refund/releaseReceipt` + legacy fallback cho flag OFF
+- **Exception**: `App\Exceptions\GemTransferException` với thông báo Tiếng Việt có dấu
+- **Tests**: 18 feature tests mới trong `tests/Feature/Gems/*` (228 assertions)
+- **Ghi chú rollout**: phí nền tảng (nếu bật) hiện đang bị đốt — không được ghi vào ví nền tảng. `SUM(platform_fee)` là doanh thu đã thu nhưng chưa materialize.
+- **Ghi chú multi-server**: schedule dùng `withoutOverlapping` với `CACHE_DRIVER=file` — chỉ an toàn single-server. Khi scale sang nhiều server, đổi `CACHE_DRIVER=database` và bật `->onOneServer()`.
+- **Mixed-mode data**: không backfill các giao dịch burn-model cũ. Hai mô hình coexist cho đến khi xóa nhánh legacy (follow-up).
+- **Branch**: main
+
+---
+
 ## [1.13.0] - 2026-04-08
 
 ### Added

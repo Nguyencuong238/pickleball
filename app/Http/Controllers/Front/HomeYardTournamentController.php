@@ -5120,6 +5120,20 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
 
+            // Hoàn Gems trong cửa sổ refund (nếu bật flag)
+            if (config('gems.transfer_enabled')) {
+                try {
+                    app(\App\Services\GemPaymentProcessor::class)->refundFor($booking);
+                } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+                    // Booking không thanh toán bằng Gems — bỏ qua.
+                } catch (\App\Exceptions\GemTransferException $e) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $e->getMessage(),
+                    ], 422);
+                }
+            }
+
             // Update booking status to cancelled
             $booking->update(['status' => 'cancelled']);
 

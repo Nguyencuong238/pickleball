@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Concerns\IsPayable;
+use App\Contracts\Payable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,9 +11,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
-class ClubActivity extends Model
+class ClubActivity extends Model implements Payable
 {
     use HasFactory;
+    use IsPayable;
 
     protected $fillable = [
         'club_id',
@@ -229,5 +232,34 @@ class ClubActivity extends Model
 
         $safeTitle = e($this->title);
         return "<p>CLB vừa đăng {$typeLabel} mới: <strong>{$safeTitle}</strong></p>";
+    }
+
+    // ---- Hợp đồng Payable ----
+
+    public function getPayer(): ?User
+    {
+        // Activity không có payer cố định — caller phải truyền rõ người tham gia.
+        return null;
+    }
+
+    public function getPayee(): ?User
+    {
+        $this->loadMissing('club.creator');
+        return $this->club?->creator;
+    }
+
+    public function getPayableAmountVnd(): int
+    {
+        return (int) ($this->fee_gems * (int) config('gems.exchange_rate'));
+    }
+
+    public function getPayableDescription(): string
+    {
+        return "Phí tham gia: {$this->title}";
+    }
+
+    public function markPaidWithGems(GemTransaction $debitTx): void
+    {
+        // No-op: trạng thái participant do ClubActivityService quản lý ngoài transaction.
     }
 }

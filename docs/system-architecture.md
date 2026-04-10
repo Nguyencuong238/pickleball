@@ -403,9 +403,11 @@ User ──┬── Club (creator)
 ├─────────────────────────────────────────────────────────┤
 │             Gems Wallet Tables (Apr 2026)                │
 ├─────────────────────────────────────────────────────────┤
-│ gem_wallets    │ User gems balance (balance field)      │
-│ gem_transactions │ Gems ledger (type: topup, payment,  │
-│                │ cashback; status: pending, completed) │
+│ gem_wallets    │ User gems (balance + locked_balance)   │
+│ gem_transactions │ Gems ledger (type: top_up, payment, │
+│                │ receipt, refund, refund_clawback,     │
+│                │ admin_adjust; escrow via available_at, │
+│                │ released_at, counterparty_* columns)  │
 ├─────────────────────────────────────────────────────────┤
 │              Booking Enhancement Tables                  │
 ├─────────────────────────────────────────────────────────┤
@@ -466,6 +468,18 @@ Start quiz → Check eligibility → Answer 36 questions (0-3 scale) → Validat
 
 ### Club Activity RSVP Flow (All Types)
 Show page loaded → User clicks RSVP button (AJAX) → Check spots available vs max_participants → Check user gem balance if activity has fee → If confirmed: charge gems (if hasFee) → create ClubActivityParticipant with status='confirmed' + gem_transaction_id → If waitlisted: create with status='waitlisted' + position (no charge) → Update participant count & avatars on frontend → Enable cancel button. On cancel: refund gems if confirmed + not started
+
+### Gems Transfer + Escrow Model (Apr 2026 — `GEMS_TRANSFER_ENABLED`)
+
+When `GEMS_TRANSFER_ENABLED=true`, Gems payments use a payer → owner transfer model instead of burn-from-payer:
+
+1. **Transfer (`GemWalletService::transfer`)**: debit payer's balance, credit payee's `balance` AND `locked_balance`. Double-entry ledger rows (`payment` + `receipt`) back-link via `counterparty_transaction_id`. Wallets locked in `user_id ASC` order to prevent deadlocks.
+2. **Escrow lock**: `receipt` rows carry `available_at = now + refund_window_days` (default 1 day). Owner's spendable balance = `balance - locked_balance`.
+3. **Refund (`refund()`)**: within window, payer gets full credit back, payee is clawed back from locked_balance. Hard block if `released_at != null` — returns Vietnamese error "Không thể hoàn Gems sau 24 giờ...".
+4. **Release (`gems:release-locked` cron, every 5min)**: scans matured receipts where `released_at IS NULL AND available_at <= NOW()`, decrements `locked_balance`, sets `released_at`. Idempotent and race-safe with refund.
+5. **Abstraction**: any model implementing `App\Contracts\Payable` (6 methods via `IsPayable` trait) plugs into `GemPaymentProcessor::pay()` / `refundFor()`. Currently: `Booking`, `ClubActivity`. Future: `League`, `Tournament`.
+6. **Feature flag**: when OFF, legacy burn-model (`deduct()`) remains active. Mixed-mode data coexistence supported; no backfill.
+7. **Invariants enforced**: `balance >= 0 && locked_balance >= 0 && locked_balance <= balance` — asserted at start/end of every Gems test.
 
 ### Club Activity Gems Payment Flow (Apr 2026)
 RSVP confirmed (has fee) → ClubActivityService.rsvp() calls chargeGems() → GemWalletService.deduct() atomically reduces gem_wallet.balance → GemTransaction created with type='payment', status='completed' → GemCashbackService awards 5% to points wallet → gem_transaction_id stored on ClubActivityParticipant. On cancel: ClubActivityService.cancelRsvp() refunds if confirmed + before activity_date → GemWalletService.refund() creates refund transaction → gems restored to wallet. On waitlist promotion: promoteFromWaitlist() loops through waitlist, skips users with insufficient gems (auto-cancels), promotes first user with sufficient balance

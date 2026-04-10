@@ -14,10 +14,12 @@ class GemWallet extends Model
     protected $fillable = [
         'user_id',
         'balance',
+        'locked_balance',
     ];
 
     protected $casts = [
         'balance' => 'integer',
+        'locked_balance' => 'integer',
     ];
 
     public function user(): BelongsTo
@@ -28,5 +30,13 @@ class GemWallet extends Model
     public function transactions(): HasMany
     {
         return $this->hasMany(GemTransaction::class);
+    }
+
+    /**
+     * Số Gems có thể sử dụng = tổng số dư trừ số bị khóa.
+     */
+    public function getSpendableBalanceAttribute(): int
+    {
+        return max(0, (int) $this->balance - (int) $this->locked_balance);
     }
 }

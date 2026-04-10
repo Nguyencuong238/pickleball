@@ -5,6 +5,14 @@ return [
     'cashback_percent' => (int) env('GEMS_CASHBACK_PERCENT', 5),
     'min_topup_vnd' => (int) env('GEMS_MIN_TOPUP_VND', 50000),
     'max_topup_vnd' => (int) env('GEMS_MAX_TOPUP_VND', 5000000),
+
+    // Cờ bật mô hình chuyển Gems (payer → payee với escrow)
+    'transfer_enabled' => (bool) env('GEMS_TRANSFER_ENABLED', false),
+    // Cửa sổ hoàn tiền (ngày) — Gems bên nhận bị khóa trong khoảng này
+    'refund_window_days' => (int) env('GEMS_REFUND_WINDOW_DAYS', 1),
+    // Phí nền tảng theo % (giai đoạn 1: phí bị đốt, không ghi vào ví nền tảng)
+    'platform_fee_percent' => (int) env('GEMS_PLATFORM_FEE_PERCENT', 0),
+
     'bank' => [
         'account_number' => env('GEMS_BANK_ACCOUNT_NUMBER'),
         'bin' => env('GEMS_BANK_BIN'),

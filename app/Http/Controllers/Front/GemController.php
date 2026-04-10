@@ -23,10 +23,13 @@ class GemController extends Controller
 
         return view('front.gems.index', [
             'wallet' => $wallet,
+            'spendableBalance' => $wallet->spendable_balance,
+            'lockedBalance' => (int) $wallet->locked_balance,
             'transactions' => $transactions,
             'exchangeRate' => config('gems.exchange_rate'),
             'minTopup' => config('gems.min_topup_vnd'),
             'maxTopup' => config('gems.max_topup_vnd'),
+            'refundWindowDays' => (int) config('gems.refund_window_days'),
         ]);
     }
 

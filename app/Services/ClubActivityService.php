@@ -209,9 +209,22 @@ class ClubActivityService
     }
 
     /**
-     * Thu Gems từ user cho activity. Throw RuntimeException nếu không đủ.
+     * Thu Gems từ user cho activity.
+     * - Flag ON: dùng GemPaymentProcessor (transfer → owner CLB).
+     * - Flag OFF: fallback sang mô hình đốt cũ (deduct).
+     *
+     * @throws RuntimeException khi không đủ Gems
      */
     private function chargeGems(ClubActivity $activity, User $user): GemTransaction
+    {
+        if (config('gems.transfer_enabled')) {
+            [$debitTx, ] = app(GemPaymentProcessor::class)->pay($activity, $user);
+            return $debitTx;
+        }
+        return $this->legacyChargeGems($activity, $user);
+    }
+
+    private function legacyChargeGems(ClubActivity $activity, User $user): GemTransaction
     {
         $walletService = app(GemWalletService::class);
         $gemTx = $walletService->deduct(
@@ -229,6 +242,7 @@ class ClubActivityService
 
     /**
      * Hoàn Gems cho participant. Return số Gems đã hoàn.
+     * Hỗ trợ cả luồng mới (clawback) lẫn legacy (credit-only).
      */
     private function refundGems(ClubActivityParticipant $participant): int
     {
@@ -237,13 +251,13 @@ class ClubActivityService
         }
 
         $originalTx = GemTransaction::find($participant->gem_transaction_id);
-        if (!$originalTx || $originalTx->status !== 'completed' || $originalTx->type !== 'payment') {
+        if (!$originalTx || $originalTx->status !== GemTransaction::STATUS_COMPLETED || $originalTx->type !== GemTransaction::TYPE_PAYMENT) {
             return 0;
         }
 
         $walletService = app(GemWalletService::class);
-        $refundTx = $walletService->refund($originalTx);
+        [$refundTx, ] = $walletService->refund($originalTx);
 
-        return $refundTx->amount;
+        return (int) $refundTx->amount;
     }
 }

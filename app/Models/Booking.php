@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Concerns\IsPayable;
+use App\Contracts\Payable;
+use App\Models\GemTransaction;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,9 +12,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Storage;
 use OverflowException;
 
-class Booking extends Model
+class Booking extends Model implements Payable
 {
     use HasFactory;
+    use IsPayable;
 
     protected $fillable = [
         'booking_code',
@@ -84,6 +88,37 @@ class Booking extends Model
     public function cancel(): void
     {
         $this->update(['status' => 'cancelled']);
+    }
+
+    // ---- Hợp đồng Payable ----
+
+    public function getPayer(): ?User
+    {
+        return $this->user;
+    }
+
+    public function getPayee(): ?User
+    {
+        $this->loadMissing('court.stadium.user');
+        return $this->court?->stadium?->user;
+    }
+
+    public function getPayableAmountVnd(): int
+    {
+        return (int) $this->total_price;
+    }
+
+    public function getPayableDescription(): string
+    {
+        return "Đặt sân - {$this->booking_code}";
+    }
+
+    public function markPaidWithGems(GemTransaction $debitTx): void
+    {
+        $this->update([
+            'status' => 'confirmed',
+            'confirmed_at' => now(),
+        ]);
     }
 
     /**
