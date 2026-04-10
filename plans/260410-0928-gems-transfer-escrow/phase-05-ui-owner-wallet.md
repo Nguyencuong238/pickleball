@@ -6,7 +6,7 @@
 - Parent: `./plan.md` | Deps: phase-01
 
 ## Overview
-**Priority:** P2 | **Status:** pending | **Est:** 2h
+**Priority:** P2 | **Status:** completed | **Est:** 2h
 
 Update existing user wallet page to display three values: total balance, spendable, locked — plus label "receipt" tx type with "Đang chờ giải phóng" badge for unreleased rows. Serves both regular users and stadium/club owners (same page).
 

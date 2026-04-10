@@ -250,6 +250,41 @@
             text-decoration: none;
         }
 
+        .btn-cancel {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background-color: #c82333;
+        }
+
+        .flash-message {
+            padding: 12px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
         .notes-section {
             background: #f0f8ff;
             border-left: 4px solid #2196F3;
@@ -300,6 +335,10 @@
             <a href="{{ route('user.booking-history.index') }}">Lịch sử đặt sân</a> /
             <span>Chi tiết đơn đặt</span>
         </div>
+
+        @if(session('error'))
+            <div class="flash-message flash-error">{{ session('error') }}</div>
+        @endif
 
         <div class="booking-header">
             <div class="booking-header-top">
@@ -455,6 +494,14 @@
 
         <div class="action-buttons">
             <a href="{{ route('user.booking-history.index') }}" class="btn-secondary">← Quay lại</a>
+            @if(in_array($booking->status, ['pending', 'confirmed']))
+                <form method="POST" action="{{ route('user.booking-history.cancel', $booking) }}"
+                      onsubmit="return confirm('Bạn có chắc chắn muốn hủy đơn đặt sân này?');"
+                      style="display:inline">
+                    @csrf
+                    <button type="submit" class="btn-cancel">Hủy đơn đặt</button>
+                </form>
+            @endif
         </div>
     </section>
 @endsection

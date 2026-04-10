@@ -6,7 +6,7 @@
 - Parent: `./plan.md` | Prev: `phase-01-schema-migrations.md`
 
 ## Overview
-**Priority:** P1 | **Status:** pending | **Est:** 3h
+**Priority:** P1 | **Status:** completed | **Est:** 3h
 
 Add `transfer()` method implementing double-entry payer→payee Gem movement with locked escrow on credit side. Add config keys. Add ownership resolvers.
 

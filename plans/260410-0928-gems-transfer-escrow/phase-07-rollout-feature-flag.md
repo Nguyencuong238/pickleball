@@ -5,7 +5,7 @@
 - Env: `GEMS_TRANSFER_ENABLED`, `GEMS_REFUND_WINDOW_DAYS`, `GEMS_PLATFORM_FEE_PERCENT`
 
 ## Overview
-**Priority:** P1 | **Status:** pending | **Est:** 2h
+**Priority:** P1 | **Status:** completed | **Est:** 2h
 
 Controlled rollout: document env vars, flip flag on staging → observe → production. No data backfill. Document mixed-mode in changelog. Add appendix on future withdraw design.
 

@@ -8,7 +8,7 @@
 - Parent: `./plan.md` | Deps: phases 02.5, 03
 
 ## Overview
-**Priority:** P1 | **Status:** pending | **Est:** 2h
+**Priority:** P1 | **Status:** completed | **Est:** 2h
 
 Replace 4 burn-model call sites with `transfer()` call. Resolve owner via ownership chain. Wire cancellation paths to call `refund()`. Gate behind feature flag `config('gems.transfer_enabled')`.
 

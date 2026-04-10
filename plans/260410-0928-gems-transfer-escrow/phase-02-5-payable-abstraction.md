@@ -5,7 +5,7 @@
 - Future consumers: League, Tournament (verified: both have `user_id` owner column)
 
 ## Overview
-**Priority:** P2 | **Status:** pending | **Est:** 1.5h
+**Priority:** P2 | **Status:** completed | **Est:** 1.5h
 
 Extract generic `Payable` contract + `GemPaymentProcessor` service to eliminate boilerplate when adding new paid services (League, Tournament, Coach, Shop...). Each new service implements 6 interface methods instead of duplicating owner resolution + validation + transfer + cashback + refund wiring.
 

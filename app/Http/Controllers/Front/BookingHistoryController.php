@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Front;
 
+use App\Exceptions\GemTransferException;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\RedirectResponse;
 
 class BookingHistoryController extends Controller
 {
@@ -38,5 +41,35 @@ class BookingHistoryController extends Controller
         $booking->load(['court', 'court.stadium']);
 
         return view('front.booking-history.show', compact('booking'));
+    }
+
+    /**
+     * Huy booking va hoan Gems (neu thanh toan bang Gems trong cua so refund).
+     */
+    public function cancel(Booking $booking): RedirectResponse
+    {
+        if ($booking->user_id !== auth()->id()) {
+            abort(403);
+        }
+
+        if (!in_array($booking->status, ['pending', 'confirmed'])) {
+            return back()->with('error', 'Không thể hủy đơn đặt ở trạng thái hiện tại.');
+        }
+
+        // Hoan Gems trong cua so refund (neu bat flag)
+        if (config('gems.transfer_enabled')) {
+            try {
+                app(\App\Services\GemPaymentProcessor::class)->refundFor($booking);
+            } catch (ModelNotFoundException $e) {
+                // Booking khong thanh toan bang Gems — bo qua.
+            } catch (GemTransferException $e) {
+                return back()->with('error', $e->getMessage());
+            }
+        }
+
+        $booking->cancel();
+
+        return redirect()->route('user.booking-history.index')
+            ->with('success', 'Đã hủy đơn đặt sân thành công.');
     }
 }

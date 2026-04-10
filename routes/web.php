@@ -277,6 +277,7 @@ Route::middleware('auth')->group(function () {
      Route::prefix('user/booking-history')->name('user.booking-history.')->group(function () {
          Route::get('/', [\App\Http\Controllers\Front\BookingHistoryController::class, 'index'])->name('index');
          Route::get('/{booking}', [\App\Http\Controllers\Front\BookingHistoryController::class, 'show'])->name('show');
+         Route::post('/{booking}/cancel', [\App\Http\Controllers\Front\BookingHistoryController::class, 'cancel'])->name('cancel');
      });
 
      // Permission Request Routes

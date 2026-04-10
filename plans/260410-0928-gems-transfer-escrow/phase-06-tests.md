@@ -5,7 +5,7 @@
 - Memory note: Gems payment logic has ZERO existing test coverage
 
 ## Overview
-**Priority:** P1 | **Status:** pending | **Est:** 5h
+**Priority:** P1 | **Status:** completed | **Est:** 5h
 
 First real test suite for the Gems subsystem. Cover transfer, refund, release command, controller integration, invariants. No mocks of the database — use `RefreshDatabase` with real MySQL/SQLite.
 

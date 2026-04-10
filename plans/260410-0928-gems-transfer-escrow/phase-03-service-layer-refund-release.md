@@ -6,7 +6,7 @@
 - Parent: `./plan.md` | Prev: `phase-02-service-layer-transfer.md`
 
 ## Overview
-**Priority:** P1 | **Status:** pending | **Est:** 3h
+**Priority:** P1 | **Status:** completed | **Est:** 3h
 
 Rewrite `refund()` to clawback from owner's locked balance. Add `gems:release-locked` console command + schedule.
 
