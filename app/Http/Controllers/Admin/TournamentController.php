@@ -206,8 +206,6 @@ class TournamentController extends Controller
             'social_information' => 'nullable|string',
             'organizer_email' => 'nullable|email',
             'organizer_hotline' => 'nullable|string|max:20',
-            'category_types' => 'required|array|min:1',
-            'category_types.*' => 'string|in:single_men,single_women,double_men,double_women,double_mixed',
         ]);
 
         $data = $request->only([
@@ -252,19 +250,6 @@ class TournamentController extends Controller
         $tournament->syncMediaCollection('banner', 'banner', $request);
 
         $tournament->update($data);
-
-        // Delete existing categories and create new ones
-        if ($request->has('category_types') && is_array($request->category_types)) {
-            $tournament->categories()->delete();
-            
-            foreach ($request->category_types as $categoryType) {
-                $tournament->categories()->create([
-                    'category_type' => $categoryType,
-                    'category_name' => $this->getCategoryName($categoryType),
-                    'status' => 1,
-                ]);
-            }
-        }
 
         return redirect()->route('admin.tournaments.index')->with('success', 'Tournament updated successfully.');
     }
