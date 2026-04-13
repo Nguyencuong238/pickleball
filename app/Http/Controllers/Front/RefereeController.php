@@ -7,9 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\MatchModel;
 use App\Models\MatchEvent;
 use App\Models\ActivityLog;
-use App\Models\GroupStanding;
-use App\Models\TournamentAthlete;
 use App\Models\Tournament;
+use App\Services\Tournament\TournamentStandingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;
@@ -191,7 +190,7 @@ class RefereeController extends Controller
 
             // If match is completed, update group standings and tournament athlete stats
             if ($validated['status'] === 'completed' && $match->athlete1_id && $match->athlete2_id) {
-                $this->updateGroupStandingsAndAthleteStats($match, $validated['set_scores']);
+                $this->updateGroupStandingsAndAthleteStats($match);
             }
 
             DB::commit();
@@ -245,232 +244,29 @@ class RefereeController extends Controller
     }
 
     /**
-     * Update group standings and tournament athlete statistics
-     * Tương tự logic ở HomeYardTournamentController
+     * Delegate standings + athlete stats update sang service idempotent.
+     * Service recompute từ matches table → safe với double-submit.
      */
-    private function updateGroupStandingsAndAthleteStats(MatchModel $match, array $setScores): void
+    private function updateGroupStandingsAndAthleteStats(MatchModel $match): void
     {
         try {
-            // Calculate sets won for each athlete
-            $setsWonAthlete1 = 0;
-            $setsWonAthlete2 = 0;
+            $service = app(TournamentStandingService::class);
 
-            foreach ($setScores as $set) {
-                if ($set['athlete1'] > $set['athlete2']) {
-                    $setsWonAthlete1++;
-                } elseif ($set['athlete2'] > $set['athlete1']) {
-                    $setsWonAthlete2++;
-                }
-            }
-
-            // Update group standings if match has a group
             if ($match->group_id) {
-                $this->updateGroupStandingsWithSets($match, $setsWonAthlete1, $setsWonAthlete2);
+                $service->recalculateGroupStandings((int) $match->group_id);
+            }
+            if ($match->athlete1_id) {
+                $service->recalculateTournamentAthleteStats((int) $match->athlete1_id);
+            }
+            if ($match->athlete2_id) {
+                $service->recalculateTournamentAthleteStats((int) $match->athlete2_id);
             }
 
-            // Update tournament athlete statistics
-            $this->updateTournamentAthleteStats($match, $setsWonAthlete1, $setsWonAthlete2);
-
-            Log::info('Group standings and athlete stats updated by referee', [
+            Log::info('Group standings + athlete stats recomputed by referee', [
                 'match_id' => $match->id,
-                'sets_won_athlete1' => $setsWonAthlete1,
-                'sets_won_athlete2' => $setsWonAthlete2,
             ]);
         } catch (\Exception $e) {
             Log::error('Update group standings error: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Update group standings with set information
-     */
-    private function updateGroupStandingsWithSets(MatchModel $match, int $setsWonAthlete1, int $setsWonAthlete2): void
-    {
-        try {
-            $athlete1Id = $match->athlete1_id;
-            $athlete2Id = $match->athlete2_id;
-            $groupId = $match->group_id;
-
-            // Get or create standings for both athletes
-            $standing1 = GroupStanding::firstOrCreate(
-                ['group_id' => $groupId, 'athlete_id' => $athlete1Id],
-                [
-                    'rank_position' => 0,
-                    'matches_played' => 0,
-                    'matches_won' => 0,
-                    'matches_lost' => 0,
-                    'matches_drawn' => 0,
-                    'points' => 0,
-                    'sets_won' => 0,
-                    'sets_lost' => 0,
-                    'sets_differential' => 0,
-                    'games_won' => 0,
-                    'games_lost' => 0,
-                    'games_differential' => 0,
-                ]
-            );
-
-            $standing2 = GroupStanding::firstOrCreate(
-                ['group_id' => $groupId, 'athlete_id' => $athlete2Id],
-                [
-                    'rank_position' => 0,
-                    'matches_played' => 0,
-                    'matches_won' => 0,
-                    'matches_lost' => 0,
-                    'matches_drawn' => 0,
-                    'points' => 0,
-                    'sets_won' => 0,
-                    'sets_lost' => 0,
-                    'sets_differential' => 0,
-                    'games_won' => 0,
-                    'games_lost' => 0,
-                    'games_differential' => 0,
-                ]
-            );
-
-            // Determine winner and update standings based on sets won
-            if ($setsWonAthlete1 > $setsWonAthlete2) {
-                // Athlete 1 wins
-                $standing1->updateAfterMatch(true, $setsWonAthlete1, $setsWonAthlete2, 0, 0);
-                $standing2->updateAfterMatch(false, $setsWonAthlete2, $setsWonAthlete1, 0, 0);
-            } elseif ($setsWonAthlete2 > $setsWonAthlete1) {
-                // Athlete 2 wins
-                $standing1->updateAfterMatch(false, $setsWonAthlete1, $setsWonAthlete2, 0, 0);
-                $standing2->updateAfterMatch(true, $setsWonAthlete2, $setsWonAthlete1, 0, 0);
-            } else {
-                // Draw
-                $standing1->update([
-                    'matches_played' => $standing1->matches_played + 1,
-                    'matches_drawn' => $standing1->matches_drawn + 1,
-                    'sets_won' => $standing1->sets_won + $setsWonAthlete1,
-                    'sets_lost' => $standing1->sets_lost + $setsWonAthlete2,
-                ]);
-                $standing2->update([
-                    'matches_played' => $standing2->matches_played + 1,
-                    'matches_drawn' => $standing2->matches_drawn + 1,
-                    'sets_won' => $standing2->sets_won + $setsWonAthlete2,
-                    'sets_lost' => $standing2->sets_lost + $setsWonAthlete1,
-                ]);
-            }
-
-            // Recalculate rankings for the group
-            $this->recalculateGroupRankings($groupId);
-
-            Log::info('Group standings updated with sets', [
-                'group_id' => $groupId,
-                'match_id' => $match->id,
-                'sets_won_athlete1' => $setsWonAthlete1,
-                'sets_won_athlete2' => $setsWonAthlete2,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Update group standings error: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Update tournament athlete statistics (supports singles and doubles)
-     */
-    private function updateTournamentAthleteStats(MatchModel $match, int $setsWonAthlete1, int $setsWonAthlete2): void
-    {
-        try {
-            $athlete1Id = $match->athlete1_id;
-            $athlete2Id = $match->athlete2_id;
-
-            if (!$athlete1Id || !$athlete2Id) {
-                return;
-            }
-
-            // Get both athletes with partner relationship
-            $athlete1 = TournamentAthlete::with('partner')->find($athlete1Id);
-            $athlete2 = TournamentAthlete::with('partner')->find($athlete2Id);
-
-            if (!$athlete1 || !$athlete2) {
-                return;
-            }
-
-            // Determine winner
-            $athlete1Wins = $setsWonAthlete1 > $setsWonAthlete2;
-            $athlete2Wins = $setsWonAthlete2 > $setsWonAthlete1;
-
-            // Update athlete1 statistics
-            $athlete1->matches_played = ($athlete1->matches_played ?? 0) + 1;
-            $athlete1->sets_won = ($athlete1->sets_won ?? 0) + $setsWonAthlete1;
-            $athlete1->sets_lost = ($athlete1->sets_lost ?? 0) + $setsWonAthlete2;
-
-            if ($athlete1Wins) {
-                $athlete1->matches_won = ($athlete1->matches_won ?? 0) + 1;
-            } elseif (!$athlete2Wins) {
-                // Hòa - không tính vào matches_won hay matches_lost
-            } else {
-                $athlete1->matches_lost = ($athlete1->matches_lost ?? 0) + 1;
-            }
-
-            $athlete1->save();
-
-            // Update athlete2 statistics
-            $athlete2->matches_played = ($athlete2->matches_played ?? 0) + 1;
-            $athlete2->sets_won = ($athlete2->sets_won ?? 0) + $setsWonAthlete2;
-            $athlete2->sets_lost = ($athlete2->sets_lost ?? 0) + $setsWonAthlete1;
-
-            if ($athlete2Wins) {
-                $athlete2->matches_won = ($athlete2->matches_won ?? 0) + 1;
-            } elseif (!$athlete1Wins) {
-                // Hòa - không tính vào matches_won hay matches_lost
-            } else {
-                $athlete2->matches_lost = ($athlete2->matches_lost ?? 0) + 1;
-            }
-
-            $athlete2->save();
-
-            // For doubles matches, also update partner statistics
-            if ($match->isDoubles()) {
-                $this->updatePartnerStats($athlete1, $setsWonAthlete1, $setsWonAthlete2, $athlete1Wins);
-                $this->updatePartnerStats($athlete2, $setsWonAthlete2, $setsWonAthlete1, $athlete2Wins);
-            }
-
-            Log::info('Tournament athlete stats updated', [
-                'match_id' => $match->id,
-                'is_doubles' => $match->isDoubles(),
-                'athlete1_id' => $athlete1Id,
-                'athlete1_matches_played' => $athlete1->matches_played,
-                'athlete1_matches_won' => $athlete1->matches_won,
-                'athlete1_sets_won' => $athlete1->sets_won,
-                'athlete2_id' => $athlete2Id,
-                'athlete2_matches_played' => $athlete2->matches_played,
-                'athlete2_matches_won' => $athlete2->matches_won,
-                'athlete2_sets_won' => $athlete2->sets_won,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Update tournament athlete stats error: ' . $e->getMessage());
-            throw $e;
-        }
-    }
-
-    /**
-     * Recalculate rankings for a group
-     */
-    private function recalculateGroupRankings($groupId): void
-    {
-        try {
-            $standings = GroupStanding::where('group_id', $groupId)
-                ->get()
-                ->sortByDesc(function ($standing) {
-                    return [
-                        $standing->points,
-                        $standing->sets_differential,
-                    ];
-                })
-                ->values();
-
-            foreach ($standings as $index => $standing) {
-                $standing->update(['rank_position' => $index + 1]);
-            }
-
-            Log::info('Group rankings recalculated', ['group_id' => $groupId]);
-        } catch (\Exception $e) {
-            Log::error('Recalculate group rankings error: ' . $e->getMessage());
             throw $e;
         }
     }
@@ -594,7 +390,7 @@ class RefereeController extends Controller
 
             // Update group standings and athlete stats
             if ($match->athlete1_id && $match->athlete2_id) {
-                $this->updateGroupStandingsAndAthleteStats($match, $setScores);
+                $this->updateGroupStandingsAndAthleteStats($match);
             }
 
             DB::commit();
@@ -636,31 +432,4 @@ class RefereeController extends Controller
         ]);
     }
 
-    /**
-     * Helper: Update partner stats for doubles matches
-     */
-    private function updatePartnerStats(TournamentAthlete $athlete, int $setsWon, int $setsLost, bool $won): void
-    {
-        $partner = $athlete->partner;
-        if (!$partner) {
-            return;
-        }
-
-        $partner->matches_played = ($partner->matches_played ?? 0) + 1;
-        $partner->sets_won = ($partner->sets_won ?? 0) + $setsWon;
-        $partner->sets_lost = ($partner->sets_lost ?? 0) + $setsLost;
-
-        if ($won) {
-            $partner->matches_won = ($partner->matches_won ?? 0) + 1;
-        } else {
-            $partner->matches_lost = ($partner->matches_lost ?? 0) + 1;
-        }
-
-        $partner->save();
-
-        Log::info('Partner stats updated', [
-            'partner_id' => $partner->id,
-            'matches_played' => $partner->matches_played,
-        ]);
-    }
 }

@@ -3920,21 +3920,20 @@ class HomeYardTournamentController extends Controller
      */
     private function handleEndSet(MatchModel $match, array $validated)
     {
-        $setScores = $match->set_scores ? json_decode($match->set_scores, true) : [];
+        // `set_scores` đã cast thành array ở MatchModel → đọc/gán trực tiếp, Eloquent tự encode.
+        $setScores = $match->set_scores ?? [];
         if (!is_array($setScores)) {
             $setScores = [];
         }
 
-        // Thêm set mới vào mảng
         $setScores[] = [
             'athlete1_score' => $validated['athlete1_score'],
             'athlete2_score' => $validated['athlete2_score'],
             'completed_at' => now()->toDateTimeString()
         ];
 
-        // Cập nhật match
         $match->update([
-            'set_scores' => json_encode($setScores),
+            'set_scores' => $setScores,
             'status' => 'in_progress'
         ]);
 
@@ -3956,9 +3955,9 @@ class HomeYardTournamentController extends Controller
         // Load tournament để check is_ocr
         $match->load('tournament');
 
-        // Lưu set cuối cùng vào set_scores nếu có điểm
+        // `set_scores` đã cast thành array ở MatchModel → thao tác trực tiếp trên array.
         if ($validated['athlete1_score'] > 0 || $validated['athlete2_score'] > 0) {
-            $setScores = $match->set_scores ? json_decode($match->set_scores, true) : [];
+            $setScores = $match->set_scores ?? [];
             if (!is_array($setScores)) {
                 $setScores = [];
             }
@@ -3969,7 +3968,7 @@ class HomeYardTournamentController extends Controller
                 'completed_at' => now()->toDateTimeString()
             ];
 
-            $match->set_scores = json_encode($setScores);
+            $match->set_scores = $setScores;
         }
 
         // Cập nhật match - đánh dấu hoàn thành
@@ -4293,282 +4292,29 @@ class HomeYardTournamentController extends Controller
     }
 
     /**
-     * Update group standings with set information
+     * Idempotent wrappers → delegate sang TournamentStandingService.
+     * Giữ signature cũ để các call site private bên trong controller khỏi vỡ.
      */
     private function updateGroupStandingsWithSets(MatchModel $match, int $setsWonAthlete1, int $setsWonAthlete2)
     {
-        try {
-            $athlete1Id = $match->athlete1_id;
-            $athlete2Id = $match->athlete2_id;
-            $groupId = $match->group_id;
-
-            // Get or create standings for both athletes
-            $standing1 = GroupStanding::firstOrCreate(
-                ['group_id' => $groupId, 'athlete_id' => $athlete1Id],
-                [
-                    'rank_position' => 0,
-                    'matches_played' => 0,
-                    'matches_won' => 0,
-                    'matches_lost' => 0,
-                    'matches_drawn' => 0,
-                    'points' => 0,
-                    'sets_won' => 0,
-                    'sets_lost' => 0,
-                    'sets_differential' => 0,
-                    'games_won' => 0,
-                    'games_lost' => 0,
-                    'games_differential' => 0,
-                ]
-            );
-
-            $standing2 = GroupStanding::firstOrCreate(
-                ['group_id' => $groupId, 'athlete_id' => $athlete2Id],
-                [
-                    'rank_position' => 0,
-                    'matches_played' => 0,
-                    'matches_won' => 0,
-                    'matches_lost' => 0,
-                    'matches_drawn' => 0,
-                    'points' => 0,
-                    'sets_won' => 0,
-                    'sets_lost' => 0,
-                    'sets_differential' => 0,
-                    'games_won' => 0,
-                    'games_lost' => 0,
-                    'games_differential' => 0,
-                ]
-            );
-
-            // Determine winner and update standings based on sets won
-            if ($setsWonAthlete1 > $setsWonAthlete2) {
-                // Athlete 1 wins - thêm sets_won cho athlete1, sets_lost cho athlete2
-                $standing1->updateAfterMatch(true, $setsWonAthlete1, $setsWonAthlete2, 0, 0);
-                $standing2->updateAfterMatch(false, $setsWonAthlete2, $setsWonAthlete1, 0, 0);
-            } elseif ($setsWonAthlete2 > $setsWonAthlete1) {
-                // Athlete 2 wins
-                $standing1->updateAfterMatch(false, $setsWonAthlete1, $setsWonAthlete2, 0, 0);
-                $standing2->updateAfterMatch(true, $setsWonAthlete2, $setsWonAthlete1, 0, 0);
-            } else {
-                // Draw
-                $standing1->update([
-                    'matches_played' => $standing1->matches_played + 1,
-                    'matches_drawn' => $standing1->matches_drawn + 1,
-                    'sets_won' => $standing1->sets_won + $setsWonAthlete1,
-                    'sets_lost' => $standing1->sets_lost + $setsWonAthlete2,
-                ]);
-                $standing2->update([
-                    'matches_played' => $standing2->matches_played + 1,
-                    'matches_drawn' => $standing2->matches_drawn + 1,
-                    'sets_won' => $standing2->sets_won + $setsWonAthlete2,
-                    'sets_lost' => $standing2->sets_lost + $setsWonAthlete1,
-                ]);
-            }
-
-            // Recalculate rankings for the group
-            $this->recalculateGroupRankings($groupId);
-
-            Log::info('Group standings updated with sets', [
-                'group_id' => $groupId,
-                'match_id' => $match->id,
-                'sets_won_athlete1' => $setsWonAthlete1,
-                'sets_won_athlete2' => $setsWonAthlete2,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Update group standings error: ' . $e->getMessage());
-            throw $e;
-        }
+        app(\App\Services\Tournament\TournamentStandingService::class)
+            ->recalculateGroupStandings((int) $match->group_id);
     }
 
-    /**
-     * Update group standings after a match completes
-     */
     private function updateGroupStandings(MatchModel $match)
     {
-        try {
-            $athlete1Id = $match->athlete1_id;
-            $athlete2Id = $match->athlete2_id;
-            $groupId = $match->group_id;
-
-            $athlete1Score = $match->athlete1_score;
-            $athlete2Score = $match->athlete2_score;
-
-            // Get or create standings for both athletes
-            $standing1 = GroupStanding::firstOrCreate(
-                ['group_id' => $groupId, 'athlete_id' => $athlete1Id],
-                [
-                    'rank_position' => 0,
-                    'matches_played' => 0,
-                    'matches_won' => 0,
-                    'matches_lost' => 0,
-                    'matches_drawn' => 0,
-                    'points' => 0,
-                    'sets_won' => 0,
-                    'sets_lost' => 0,
-                    'sets_differential' => 0,
-                    'games_won' => 0,
-                    'games_lost' => 0,
-                    'games_differential' => 0,
-                ]
-            );
-
-            $standing2 = GroupStanding::firstOrCreate(
-                ['group_id' => $groupId, 'athlete_id' => $athlete2Id],
-                [
-                    'rank_position' => 0,
-                    'matches_played' => 0,
-                    'matches_won' => 0,
-                    'matches_lost' => 0,
-                    'matches_drawn' => 0,
-                    'points' => 0,
-                    'sets_won' => 0,
-                    'sets_lost' => 0,
-                    'sets_differential' => 0,
-                    'games_won' => 0,
-                    'games_lost' => 0,
-                    'games_differential' => 0,
-                ]
-            );
-
-            // Determine winner and update standings
-            if ($athlete1Score > $athlete2Score) {
-                // Athlete 1 wins
-                $standing1->updateAfterMatch(true, 0, 0, $athlete1Score, $athlete2Score);
-                $standing2->updateAfterMatch(false, 0, 0, $athlete2Score, $athlete1Score);
-            } elseif ($athlete2Score > $athlete1Score) {
-                // Athlete 2 wins
-                $standing1->updateAfterMatch(false, 0, 0, $athlete1Score, $athlete2Score);
-                $standing2->updateAfterMatch(true, 0, 0, $athlete2Score, $athlete1Score);
-            } else {
-                // Draw
-                $standing1->update([
-                    'matches_played' => $standing1->matches_played + 1,
-                    'matches_drawn' => $standing1->matches_drawn + 1,
-                    'games_won' => $standing1->games_won + $athlete1Score,
-                    'games_lost' => $standing1->games_lost + $athlete2Score,
-                ]);
-                $standing2->update([
-                    'matches_played' => $standing2->matches_played + 1,
-                    'matches_drawn' => $standing2->matches_drawn + 1,
-                    'games_won' => $standing2->games_won + $athlete2Score,
-                    'games_lost' => $standing2->games_lost + $athlete1Score,
-                ]);
-            }
-
-            // Recalculate rankings for the group
-            $this->recalculateGroupRankings($groupId);
-
-            Log::info('Group standings updated', [
-                'group_id' => $groupId,
-                'match_id' => $match->id
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Update group standings error: ' . $e->getMessage());
-            throw $e;
-        }
+        app(\App\Services\Tournament\TournamentStandingService::class)
+            ->recalculateGroupStandings((int) $match->group_id);
     }
 
-    /**
-     * Update tournament athlete statistics
-     * Cập nhật matches_played, matches_won, matches_lost, sets_won, sets_lost vào bảng tournament_athlete
-     */
     private function updateTournamentAthleteStats(MatchModel $match, int $setsWonAthlete1, int $setsWonAthlete2)
     {
-        try {
-            $athlete1Id = $match->athlete1_id;
-            $athlete2Id = $match->athlete2_id;
-
-            if (!$athlete1Id || !$athlete2Id) {
-                return;
-            }
-
-            // Get both athletes
-            $athlete1 = TournamentAthlete::find($athlete1Id);
-            $athlete2 = TournamentAthlete::find($athlete2Id);
-
-            if (!$athlete1 || !$athlete2) {
-                return;
-            }
-
-            // Determine winner
-            $athlete1Wins = $setsWonAthlete1 > $setsWonAthlete2;
-            $athlete2Wins = $setsWonAthlete2 > $setsWonAthlete1;
-
-            // Update athlete1 statistics
-            $athlete1->matches_played = ($athlete1->matches_played ?? 0) + 1;
-            $athlete1->sets_won = ($athlete1->sets_won ?? 0) + $setsWonAthlete1;
-            $athlete1->sets_lost = ($athlete1->sets_lost ?? 0) + $setsWonAthlete2;
-
-            if ($athlete1Wins) {
-                $athlete1->matches_won = ($athlete1->matches_won ?? 0) + 1;
-            } elseif (!$athlete2Wins) {
-                // Draw - không tính vào matches_won hay matches_lost
-            } else {
-                $athlete1->matches_lost = ($athlete1->matches_lost ?? 0) + 1;
-            }
-
-            $athlete1->save();
-
-            // Update athlete2 statistics
-            $athlete2->matches_played = ($athlete2->matches_played ?? 0) + 1;
-            $athlete2->sets_won = ($athlete2->sets_won ?? 0) + $setsWonAthlete2;
-            $athlete2->sets_lost = ($athlete2->sets_lost ?? 0) + $setsWonAthlete1;
-
-            if ($athlete2Wins) {
-                $athlete2->matches_won = ($athlete2->matches_won ?? 0) + 1;
-            } elseif (!$athlete1Wins) {
-                // Draw - không tính vào matches_won hay matches_lost
-            } else {
-                $athlete2->matches_lost = ($athlete2->matches_lost ?? 0) + 1;
-            }
-
-            $athlete2->save();
-
-            Log::info('Tournament athlete stats updated', [
-                'match_id' => $match->id,
-                'athlete1_id' => $athlete1Id,
-                'athlete1_matches_played' => $athlete1->matches_played,
-                'athlete1_matches_won' => $athlete1->matches_won,
-                'athlete1_matches_lost' => $athlete1->matches_lost,
-                'athlete1_sets_won' => $athlete1->sets_won,
-                'athlete1_sets_lost' => $athlete1->sets_lost,
-                'athlete2_id' => $athlete2Id,
-                'athlete2_matches_played' => $athlete2->matches_played,
-                'athlete2_matches_won' => $athlete2->matches_won,
-                'athlete2_matches_lost' => $athlete2->matches_lost,
-                'athlete2_sets_won' => $athlete2->sets_won,
-                'athlete2_sets_lost' => $athlete2->sets_lost,
-            ]);
-        } catch (\Exception $e) {
-            Log::error('Update tournament athlete stats error: ' . $e->getMessage());
-            throw $e;
+        if (!$match->athlete1_id || !$match->athlete2_id) {
+            return;
         }
-    }
-
-    /**
-     * Recalculate rankings for a group
-     */
-    private function recalculateGroupRankings($groupId)
-    {
-        try {
-            $standings = GroupStanding::where('group_id', $groupId)
-                ->get()
-                ->sortByDesc('points')
-                ->sortByDesc('matches_won')
-                ->sortByDesc(function ($standing) {
-                    return ($standing->games_won ?? 0) - ($standing->games_lost ?? 0);
-                })
-                ->values();
-
-            foreach ($standings as $index => $standing) {
-                $standing->update([
-                    'rank_position' => $index + 1,
-                    'win_rate' => $standing->calculateWinRate(),
-                ]);
-            }
-        } catch (\Exception $e) {
-            Log::error('Recalculate group rankings error: ' . $e->getMessage());
-            throw $e;
-        }
+        $service = app(\App\Services\Tournament\TournamentStandingService::class);
+        $service->recalculateTournamentAthleteStats((int) $match->athlete1_id);
+        $service->recalculateTournamentAthleteStats((int) $match->athlete2_id);
     }
 
     /**
