@@ -632,6 +632,8 @@ Route::middleware(['auth'])->prefix('tournament-manage')->name('tournament-manag
     Route::get('{tournament}/athletes/search-user', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'searchUser'])->name('athletes.searchUser');
     Route::get('{tournament}/athletes/by-status', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'listByStatus'])->name('athletes.byStatus');
     Route::post('{tournament}/athletes/bulk-approve', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'bulkApprove'])->name('athletes.bulkApprove');
+    Route::get('{tournament}/athletes/import-template', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'downloadTemplate'])->name('athletes.importTemplate');
+    Route::post('{tournament}/athletes/import', [\App\Http\Controllers\Front\Tournament\TournamentAthleteController::class, 'importExcel'])->name('athletes.import');
 
     // Cấu hình bảng đấu
     Route::get('{tournament}/groups', [\App\Http\Controllers\Front\Tournament\TournamentGroupController::class, 'index'])->name('groups.index');

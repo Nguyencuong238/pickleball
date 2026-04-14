@@ -7,6 +7,9 @@ function tournamentAthletes(config) {
         storeUrl: config.storeUrl,
         bulkApproveUrl: config.bulkApproveUrl,
         searchUserUrl: config.searchUserUrl,
+        indexUrl: config.indexUrl,
+        importUrl: config.importUrl,
+        importTemplateUrl: config.importTemplateUrl,
         csrfToken: config.csrfToken,
 
         // State
@@ -25,6 +28,12 @@ function tournamentAthletes(config) {
         form: { athlete_name: '', email: '', phone: '', category_id: '', partner_id: '' },
         formErrors: {},
         submitting: false,
+
+        // Import modal
+        showImportModal: false,
+        importFile: null,
+        importLoading: false,
+        importErrors: [],
 
         // User search in add modal
         userSearchQuery: '',
@@ -314,6 +323,83 @@ function tournamentAthletes(config) {
 
         paymentLabel(status) {
             return { unpaid: 'Chưa thanh toán', paid: 'Đã thanh toán' }[status] || status;
+        },
+
+        // Import Excel
+        openImportModal() {
+            this.showImportModal = true;
+            this.importFile = null;
+            this.importErrors = [];
+            this.importLoading = false;
+        },
+
+        closeImportModal() {
+            this.showImportModal = false;
+            this.importFile = null;
+            this.importErrors = [];
+            this.importLoading = false;
+            if (this.$refs.importFileInput) {
+                this.$refs.importFileInput.value = '';
+            }
+        },
+
+        async submitImport() {
+            if (!this.importFile) return;
+            this.importLoading = true;
+            this.importErrors = [];
+
+            const formData = new FormData();
+            formData.append('file', this.importFile);
+            formData.append('_token', this.csrfToken);
+
+            try {
+                const res = await fetch(this.importUrl, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': this.csrfToken,
+                    },
+                });
+                const data = await res.json();
+
+                if (res.status === 422 && Array.isArray(data.errors) && data.errors.length > 0) {
+                    this.importErrors = data.errors;
+                    return;
+                }
+                if (!res.ok) {
+                    toastr.error(data.message || 'Import thất bại.');
+                    return;
+                }
+
+                toastr.success(data.message);
+                await this.refreshAthletes();
+                this.closeImportModal();
+            } catch (e) {
+                console.error(e);
+                toastr.error('Lỗi mạng, vui lòng thử lại.');
+            } finally {
+                this.importLoading = false;
+            }
+        },
+
+        async refreshAthletes() {
+            try {
+                const res = await fetch(this.indexUrl, {
+                    headers: { 'Accept': 'application/json' },
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                this.athletes = data.athletes || [];
+                if (Array.isArray(data.categories)) {
+                    this.categories = data.categories;
+                }
+                // Stale IDs after reload → reset bulk selection
+                this.selectedIds = [];
+                this.selectAll = false;
+            } catch (e) {
+                console.error(e);
+            }
         },
     };
 }

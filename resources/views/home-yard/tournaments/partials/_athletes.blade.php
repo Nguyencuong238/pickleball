@@ -26,6 +26,9 @@
     storeUrl: '{{ route('tournament-manage.athletes.store', $tournament) }}',
     bulkApproveUrl: '{{ route('tournament-manage.athletes.bulkApprove', $tournament) }}',
     searchUserUrl: '{{ route('tournament-manage.athletes.searchUser', $tournament) }}',
+    indexUrl: '{{ route('tournament-manage.athletes.index', $tournament) }}',
+    importUrl: '{{ route('tournament-manage.athletes.import', $tournament) }}',
+    importTemplateUrl: '{{ route('tournament-manage.athletes.importTemplate', $tournament) }}',
     csrfToken: document.querySelector('meta[name=csrf-token]').content,
     athletes: {{ $athletesJson }},
     categories: {{ $categoriesJson }}
@@ -48,6 +51,9 @@
         </select>
         <button class="td-btn td-btn-primary" @click="openAddModal">
             + Thêm vận động viên
+        </button>
+        <button class="td-btn td-btn-ghost" @click="openImportModal" type="button">
+            Import Excel
         </button>
     </div>
 
@@ -175,5 +181,8 @@
 
     {{-- Add / Edit Modal --}}
     @include('home-yard.tournaments.partials._athletes-modal')
+
+    {{-- Import Excel Modal --}}
+    @include('home-yard.tournaments.partials._athletes-import-modal')
 
 </div>

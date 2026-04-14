@@ -24,9 +24,10 @@ Tournament views are organized into two main sections: Admin Dashboard (Home Yar
 - `_overview.blade.php` - Tournament summary and stats
 
 **Athlete Management:**
-- `_athletes.blade.php` - Athlete listing table
+- `_athletes.blade.php` - Athlete listing table (có nút "Import Excel" + "Tải template")
 - `_athletes-modal.blade.php` - Add/edit athlete modal
 - `_athletes-mobile-cards.blade.php` - Mobile-friendly athlete cards
+- `_athletes-import-modal.blade.php` - Modal upload file Excel với progress và error list
 
 **Draw & Seeding:**
 - `_draw.blade.php` - Draw execution container

@@ -644,6 +644,13 @@ Admin: Admin login → Check role 'admin' → Create admin session
 /tournament-manage/{tournament}/bracket/swap         POST # Swap bracket placement
 ```
 
+### Athlete Import Routes (Web)
+
+```
+/tournament-manage/{tournament}/athletes/import           POST # Import VĐV từ file Excel (max 500 rows, 2MB)
+/tournament-manage/{tournament}/athletes/import-template  GET  # Download template .xlsx động per-tournament
+```
+
 ### Response Format
 
 ```json

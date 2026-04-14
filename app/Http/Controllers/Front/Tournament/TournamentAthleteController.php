@@ -7,6 +7,7 @@ use App\Models\Tournament;
 use App\Models\TournamentAthlete;
 use App\Models\TournamentCategory;
 use App\Models\User;
+use App\Services\Tournament\AthleteImportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 class TournamentAthleteController extends Controller
 {
     use TournamentAthleteStatusTrait;
+    use TournamentAthleteImportTrait;
 
     public function __construct()
     {
@@ -91,17 +93,11 @@ class TournamentAthleteController extends Controller
             'partner_id'   => 'nullable|integer|exists:tournament_athletes,id',
         ]);
 
-        $athleteUser = \App\Models\User::where('phone', $validated['phone'])->first()
-            ?? \App\Models\User::where('email', $validated['email'])->first();
-
-        if (!$athleteUser) {
-            $athleteUser = \App\Models\User::create([
-                'name'     => $validated['athlete_name'],
-                'email'    => $validated['email'],
-                'phone'    => $validated['phone'],
-                'password' => bcrypt(\Illuminate\Support\Str::random(16)),
-            ]);
-        }
+        $athleteUser = (new AthleteImportService())->resolveOrCreateUser(
+            $validated['email'],
+            $validated['phone'],
+            $validated['athlete_name'],
+        );
         $userId = $athleteUser->id;
 
         $category = TournamentCategory::where('id', $validated['category_id'])

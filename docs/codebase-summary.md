@@ -108,7 +108,7 @@ Club & Social (8): ClubPostMediaService, ClubActivityService, ClubActivityMatchS
 
 League (5): LeagueService, LeagueScheduleService, LeagueStandingsService, LeagueAutoTeamService, LeagueRegistrationService
 
-Tournament (11): TournamentCrudService, TournamentDrawService, TournamentMatchService, TournamentStandingService, KnockoutBracketService, KnockoutMatchBuilder, KnockoutBracketQuery, BracketSeedingHelper, DrawAssignmentHelper, MatchCreationHelper, RankingQueryHelper
+Tournament (14): TournamentCrudService, TournamentDrawService, TournamentMatchService, TournamentStandingService, KnockoutBracketService, KnockoutMatchBuilder, KnockoutBracketQuery, BracketSeedingHelper, DrawAssignmentHelper, MatchCreationHelper, RankingQueryHelper, AthleteImportService, AthleteImportValidator, AthleteRowNormalizer
 
 Booking (1): BookingCodeService
 

@@ -6,6 +6,28 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), versio
 
 ---
 
+## [1.15.0] - 2026-04-14
+
+### Added — Import Excel VĐV cho Tournament Manage
+- **Import hàng loạt VĐV từ file Excel**: chủ giải đấu có thể upload file `.xlsx/.xls` tại trang quản lý VĐV thay vì thêm từng người qua modal.
+- **Validation all-or-nothing**: toàn bộ file được validate trước khi lưu — một lỗi bất kỳ sẽ abort toàn bộ import và trả về danh sách lỗi theo hàng/cột.
+- **Soft-skip trùng lặp**: VĐV đã tồn tại trong hạng mục được bỏ qua kèm cảnh báo, không abort.
+- **Partner linking 2-pass bidirectional**: cho hạng mục đôi, hệ thống tự link `partner_id` hai chiều sau khi tất cả VĐV được tạo.
+- **Template động per-tournament**: download file mẫu `.xlsx` có dropdown hạng mục theo từng giải đấu.
+- **Giới hạn bảo vệ**: tối đa 500 hàng, file size 2MB.
+- **Import idempotent**: re-upload cùng file → tất cả skip, không duplicate.
+
+### Technical Details
+- **Routes**: `POST tournament-manage/{tournament}/athletes/import` + `GET tournament-manage/{tournament}/athletes/import-template`
+- **Service**: `App\Services\Tournament\AthleteImportService` với helper `AthleteImportValidator`, `AthleteRowNormalizer`
+- **Controller**: `TournamentAthleteImportTrait` (mirror pattern `TournamentAthleteStatusTrait`)
+- **Thư viện**: `phpoffice/phpspreadsheet ^5.3` (có sẵn — không cài thêm)
+- **UI**: Modal upload + nút "Tải template" trong trang quản lý VĐV; Alpine.js component `tournamentAthletes()`
+- **Tests**: 51 tests passing
+- **Branch**: main
+
+---
+
 ## [1.14.0] - 2026-04-10
 
 ### Added — Gems Transfer + Escrow Refund Window
