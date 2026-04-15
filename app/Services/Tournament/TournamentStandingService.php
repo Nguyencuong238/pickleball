@@ -13,7 +13,8 @@ use Illuminate\Support\Facades\Log;
 class TournamentStandingService
 {
     public function __construct(
-        private RankingQueryHelper $rankingQuery
+        private RankingQueryHelper $rankingQuery,
+        private GroupRankingSorter $rankingSorter,
     ) {}
 
     /**
@@ -34,7 +35,6 @@ class TournamentStandingService
                     'sets_won' => 0,
                     'sets_lost' => 0,
                     'sets_differential' => 0,
-                    // games_won/games_lost giữ nguyên 0 (xem plan phase-01 note)
                     'games_won' => 0,
                     'games_lost' => 0,
                     'games_differential' => 0,
@@ -50,6 +50,7 @@ class TournamentStandingService
 
                 foreach ($matches as $match) {
                     [$setsWon1, $setsWon2] = $this->countSetsFromMatch($match);
+                    [$gamesWon1, $gamesWon2] = $this->countGamesFromMatch($match);
 
                     // Bỏ qua match không có set valid (set_scores rỗng) → tránh cộng dummy row
                     if ($setsWon1 === 0 && $setsWon2 === 0) {
@@ -59,7 +60,7 @@ class TournamentStandingService
                     $standing1 = $this->getOrCreateStanding($groupId, $match->athlete1_id);
                     $standing2 = $this->getOrCreateStanding($groupId, $match->athlete2_id);
 
-                    $this->applyMatchDeltas($standing1, $standing2, $setsWon1, $setsWon2);
+                    $this->applyMatchDeltas($standing1, $standing2, $setsWon1, $setsWon2, $gamesWon1, $gamesWon2);
                 }
 
                 $this->recalculateGroupRankings($groupId);
@@ -165,16 +166,10 @@ class TournamentStandingService
     public function recalculateGroupRankings(int $groupId): void
     {
         try {
-            $standings = GroupStanding::where('group_id', $groupId)
-                ->get()
-                ->sort(function ($a, $b) {
-                    return ($b->points <=> $a->points)
-                        ?: ($b->matches_won <=> $a->matches_won)
-                        ?: (($b->games_won - $b->games_lost) <=> ($a->games_won - $a->games_lost));
-                })
-                ->values();
+            $standings = GroupStanding::where('group_id', $groupId)->get()->all();
+            $sorted = $this->rankingSorter->sortStandings($standings, $groupId);
 
-            foreach ($standings as $index => $standing) {
+            foreach ($sorted as $index => $standing) {
                 $standing->update([
                     'rank_position' => $index + 1,
                     'win_rate' => $standing->calculateWinRate(),
@@ -182,7 +177,7 @@ class TournamentStandingService
             }
 
             $advancingCount = Group::find($groupId)?->advancing_count ?? 1;
-            foreach ($standings as $index => $standing) {
+            foreach ($sorted as $index => $standing) {
                 $standing->update(['is_advanced' => ($index + 1) <= $advancingCount]);
             }
         } catch (\Exception $e) {
@@ -235,11 +230,45 @@ class TournamentStandingService
     }
 
     /**
+     * Parse set_scores → [gamesWon1, gamesWon2] = tổng raw point scores mỗi bên qua mọi set.
+     * Hỗ trợ cả hai shape key như countSetsFromMatch.
+     */
+    private function countGamesFromMatch(MatchModel $match): array
+    {
+        $setScores = $match->set_scores ?? [];
+        if (!is_array($setScores)) {
+            return [0, 0];
+        }
+
+        $games1 = 0;
+        $games2 = 0;
+        foreach ($setScores as $set) {
+            if (!is_array($set)) {
+                continue;
+            }
+            $a1 = $set['athlete1_score'] ?? $set['athlete1'] ?? null;
+            $a2 = $set['athlete2_score'] ?? $set['athlete2'] ?? null;
+            if ($a1 === null || $a2 === null) {
+                continue;
+            }
+            $games1 += (int) $a1;
+            $games2 += (int) $a2;
+        }
+        return [$games1, $games2];
+    }
+
+    /**
      * Apply 1 match kết quả vào 2 standing rows (đã reset từ trước khi replay).
      * Preserve hành vi cũ: 3 điểm/win, draw không điểm.
      */
-    private function applyMatchDeltas(GroupStanding $s1, GroupStanding $s2, int $setsWon1, int $setsWon2): void
-    {
+    private function applyMatchDeltas(
+        GroupStanding $s1,
+        GroupStanding $s2,
+        int $setsWon1,
+        int $setsWon2,
+        int $gamesWon1,
+        int $gamesWon2
+    ): void {
         $s1->matches_played += 1;
         $s2->matches_played += 1;
         $s1->sets_won += $setsWon1;
@@ -262,6 +291,14 @@ class TournamentStandingService
 
         $s1->sets_differential = $s1->sets_won - $s1->sets_lost;
         $s2->sets_differential = $s2->sets_won - $s2->sets_lost;
+
+        $s1->games_won += $gamesWon1;
+        $s1->games_lost += $gamesWon2;
+        $s1->games_differential = $s1->games_won - $s1->games_lost;
+        $s2->games_won += $gamesWon2;
+        $s2->games_lost += $gamesWon1;
+        $s2->games_differential = $s2->games_won - $s2->games_lost;
+
         $s1->save();
         $s2->save();
     }

@@ -669,6 +669,7 @@ Route::middleware(['auth'])->prefix('tournament-manage')->name('tournament-manag
     Route::get('{tournament}/rankings', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'index'])->name('rankings.index');
     Route::get('{tournament}/rankings/category/{categoryId}', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'getCategoryRankings'])->name('rankings.category');
     Route::get('{tournament}/rankings/category/{categoryId}/groups', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'getCategoryGroups'])->name('rankings.categoryGroups');
+    Route::post('{tournament}/rankings/groups/{group}/rank-overrides', [\App\Http\Controllers\Front\Tournament\TournamentRankOverrideController::class, 'update'])->name('rankings.rankOverrides');
 });
 
 // Referee Routes

@@ -27,6 +27,7 @@ class GroupStanding extends Model
         'games_lost',
         'games_differential',
         'is_advanced',
+        'manual_rank_override',
     ];
 
     protected $casts = [
@@ -44,6 +45,7 @@ class GroupStanding extends Model
         'games_lost' => 'integer',
         'games_differential' => 'integer',
         'is_advanced' => 'boolean',
+        'manual_rank_override' => 'integer',
     ];
 
     /**

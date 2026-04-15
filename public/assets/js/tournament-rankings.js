@@ -4,8 +4,10 @@
  */
 function rankingsManager(config) {
     return {
+        ...rankOverrideMixin(),
         tournamentId: config.tournamentId,
         categoryRankingsUrl: config.categoryRankingsUrl,
+        rankOverrideUrl: config.rankOverrideUrl,
         tournamentStatus: config.tournamentStatus,
 
         // State

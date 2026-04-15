@@ -16,5 +16,6 @@
 
 @section('js')
 @parent
-<script src="{{ asset('assets/js/tournament-rankings.js') }}"></script>
+<script src="{{ asset('assets/js/tournament-rankings-override-mixin.js') }}?v={{ filemtime(public_path('assets/js/tournament-rankings-override-mixin.js')) }}"></script>
+<script src="{{ asset('assets/js/tournament-rankings.js') }}?v={{ filemtime(public_path('assets/js/tournament-rankings.js')) }}"></script>
 @endsection

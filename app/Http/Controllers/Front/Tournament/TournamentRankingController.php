@@ -8,6 +8,7 @@ use App\Models\GroupStanding;
 use App\Models\MatchModel;
 use App\Models\Tournament;
 use App\Models\TournamentCategory;
+use App\Services\Tournament\GroupRankingSorter;
 use App\Services\Tournament\TournamentStandingService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,8 @@ use Illuminate\Http\Request;
 class TournamentRankingController extends Controller
 {
     public function __construct(
-        private TournamentStandingService $standingService
+        private TournamentStandingService $standingService,
+        private GroupRankingSorter $rankingSorter,
     ) {
         $this->middleware(['auth']);
     }
@@ -116,29 +118,16 @@ class TournamentRankingController extends Controller
         }
 
         $groupsData = $groups->map(function (Group $group) use ($isDoubles, $gameScores) {
-            $standings = $group->standings;
+            $standings = $isDoubles
+                ? $this->dedupeDoublesStandings($group->standings)
+                : $group->standings;
 
-            if ($isDoubles) {
-                // Deduplicate: for each pair (A<->B), keep the standing with actual match data
-                $dedupMap = [];
-                foreach ($standings as $standing) {
-                    $athleteId = $standing->athlete_id;
-                    $partnerId = $standing->athlete?->partner_id;
+            $tiedIds = array_flip($this->rankingSorter->getUnresolvedTiedAthleteIds(
+                $standings->all(),
+                $group->id
+            ));
 
-                    if ($partnerId && isset($dedupMap[$partnerId])) {
-                        $existing = $dedupMap[$partnerId];
-                        if ($standing->matches_played > $existing->matches_played) {
-                            unset($dedupMap[$partnerId]);
-                            $dedupMap[$athleteId] = $standing;
-                        }
-                    } else {
-                        $dedupMap[$athleteId] = $standing;
-                    }
-                }
-                $standings = collect(array_values($dedupMap))->sortBy('rank_position')->values();
-            }
-
-            $standings = $standings->map(function (GroupStanding $standing, int $index) use ($group, $gameScores) {
+            $standingsArray = $standings->map(function (GroupStanding $standing, int $index) use ($group, $gameScores, $tiedIds) {
                 $athlete = $standing->athlete;
                 $athleteName = $athlete?->athlete_name ?? 'N/A';
                 if ($athlete?->partner) {
@@ -157,16 +146,20 @@ class TournamentRankingController extends Controller
                     'set_diff'     => $standing->sets_differential ?? 0,
                     'games_scored'   => $gameScores[$group->id][$standing->athlete_id]['scored'] ?? 0,
                     'games_conceded' => $gameScores[$group->id][$standing->athlete_id]['conceded'] ?? 0,
-                    'points'       => $standing->points ?? 0,
-                    'is_advanced'  => (bool) ($standing->is_advanced ?? false),
+                    'points'             => $standing->points ?? 0,
+                    'games_differential' => $standing->games_differential ?? 0,
+                    'games_lost'         => $standing->games_lost ?? 0,
+                    'manual_rank_override' => $standing->manual_rank_override,
+                    'is_tied'            => isset($tiedIds[(int) $standing->athlete_id]),
+                    'is_advanced'        => (bool) ($standing->is_advanced ?? false),
                 ];
-            });
+            })->all();
 
             return [
                 'group_id'        => $group->id,
                 'group_name'      => $group->group_name,
                 'advancing_count' => $group->advancing_count ?? 0,
-                'standings'       => $standings,
+                'standings'       => $standingsArray,
             ];
         });
 
@@ -174,5 +167,28 @@ class TournamentRankingController extends Controller
             'groups'      => $groupsData,
             'category_id' => $categoryId,
         ]);
+    }
+
+    /**
+     * Doubles dedup: với mỗi cặp partner, giữ lại standing có nhiều match đã đấu hơn.
+     */
+    private function dedupeDoublesStandings($standings)
+    {
+        $dedupMap = [];
+        foreach ($standings as $standing) {
+            $athleteId = $standing->athlete_id;
+            $partnerId = $standing->athlete?->partner_id;
+
+            if ($partnerId && isset($dedupMap[$partnerId])) {
+                $existing = $dedupMap[$partnerId];
+                if ($standing->matches_played > $existing->matches_played) {
+                    unset($dedupMap[$partnerId]);
+                    $dedupMap[$athleteId] = $standing;
+                }
+            } else {
+                $dedupMap[$athleteId] = $standing;
+            }
+        }
+        return collect(array_values($dedupMap))->sortBy('rank_position')->values();
     }
 }

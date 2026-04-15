@@ -28,8 +28,8 @@ class RankingQueryHelper
         $standings = $query->get()
             ->sort(function ($a, $b) {
                 return ($b->points <=> $a->points)
-                    ?: ($b->matches_won <=> $a->matches_won)
-                    ?: (($b->games_won - $b->games_lost) <=> ($a->games_won - $a->games_lost));
+                    ?: ($b->games_differential <=> $a->games_differential)
+                    ?: ($a->games_lost <=> $b->games_lost);
             })
             ->values();
 
@@ -113,13 +113,19 @@ class RankingQueryHelper
                 'matches_played' => $played,
                 'matches_won' => $won,
                 'matches_lost' => $rows->sum('matches_lost'),
+                'games_differential' => $rows->sum('games_differential'),
+                'games_lost' => $rows->sum('games_lost'),
                 'win_rate' => $played > 0 ? round(($won / $played) * 100, 2) : 0,
                 'tournaments_count' => $rows->count(),
                 'rank_change' => 0,
             ];
         });
 
-        $sorted = $athleteStats->sortByDesc('points')->sortByDesc('matches_won')->values();
+        $sorted = $athleteStats->sortBy([
+            ['points', 'desc'],
+            ['games_differential', 'desc'],
+            ['games_lost', 'asc'],
+        ])->values();
         $total = $sorted->count();
         $offset = ($page - 1) * $perPage;
 

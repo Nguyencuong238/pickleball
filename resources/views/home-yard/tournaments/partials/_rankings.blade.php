@@ -1,6 +1,7 @@
 {{-- Rankings & Standings Partial --}}
 @php
     $categoryRankingsUrl = route('tournament-manage.rankings.category', [$tournament, '__CATEGORY__']);
+    $rankOverrideUrl     = route('tournament-manage.rankings.rankOverrides', [$tournament, '__GROUP__']);
     $tournamentStatus    = $tournament->tournament_stage ?? 'registration';
     $defaultCategoryId   = $categories->first()?->id ?? 'null';
 @endphp
@@ -8,6 +9,7 @@
 <div x-data="rankingsManager({
     tournamentId:        {{ $tournament->id }},
     categoryRankingsUrl: '{{ $categoryRankingsUrl }}',
+    rankOverrideUrl:     '{{ $rankOverrideUrl }}',
     tournamentStatus:    '{{ $tournamentStatus }}',
     defaultCategoryId:   {{ $defaultCategoryId }},
 })" x-init="init()" @destroy.window="destroy()">
