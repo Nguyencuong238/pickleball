@@ -1224,7 +1224,14 @@
             <div class="content-card">
                 <h2 class="content-title">Danh sách vận động viên</h2>
                 @php
-                    $athletes = $tournament->athletes()->with('user')->get();
+                    $athletes = $tournament->athletes()->with('user')->get()
+                        ->unique(function ($a) {
+                            $email = strtolower(trim((string) $a->email));
+                            $phone = preg_replace('/\D/', '', (string) $a->phone);
+                            $name = strtolower(trim((string) $a->athlete_name));
+                            return $email . '|' . $phone . '|' . $name;
+                        })
+                        ->values();
                     $athleteCount = $athletes->count();
                     $remaining = $tournament->max_participants - $athleteCount;
                 @endphp
