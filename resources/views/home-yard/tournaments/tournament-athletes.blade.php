@@ -15,5 +15,5 @@
 
 @section('js')
 @parent
-<script src="{{ asset('assets/js/tournament-athletes.js') }}?v=1.0"></script>
+<script src="{{ asset('assets/js/tournament-athletes.js') }}?v=1.1"></script>
 @endsection

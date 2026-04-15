@@ -53,7 +53,7 @@
             + Thêm vận động viên
         </button>
         <button class="td-btn td-btn-ghost" @click="openImportModal" type="button">
-            Import Excel
+            Nhập Excel
         </button>
     </div>
 
