@@ -136,6 +136,7 @@ class KnockoutBracketQuery
             ->unique();
 
         return $eligible->whereNotIn('id', $usedInRound)
+            ->filter(fn ($a) => is_null($a->partner_id) || $a->id < $a->partner_id)
             ->map(fn ($a) => [
                 'id'           => $a->id,
                 'name'         => $a->athlete_name,
