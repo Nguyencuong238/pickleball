@@ -643,7 +643,7 @@
         flex-direction: column;
         justify-content: space-around;
         flex-shrink: 0;
-        min-width: 200px;
+        min-width: 260px;
         padding: 0 24px;
     }
 
@@ -741,13 +741,47 @@
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        max-width: 140px;
+        flex: 1;
+        min-width: 0;
     }
 
-    .front-bracket-slot-score {
-        font-weight: 700;
+    .front-bracket-slot-total {
+        font-weight: 800;
         min-width: 20px;
         text-align: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+        color: #6b7280;
+        margin-left: 4px;
+        padding-left: 5px;
+        border-left: 1px solid #e5e7eb;
+    }
+
+    .front-bracket-slot--winner .front-bracket-slot-total {
+        color: #065f46;
+    }
+
+    .front-bracket-slot-sets {
+        display: flex;
+        gap: 2px;
+        flex-shrink: 0;
+        margin-left: 6px;
+    }
+
+    .front-bracket-set-score {
+        font-weight: 600;
+        min-width: 20px;
+        text-align: center;
+        font-size: 0.75rem;
+        padding: 1px 3px;
+        border-radius: 2px;
+        background: #f0f1f3;
+        color: #6b7280;
+    }
+
+    .front-bracket-slot--winner .front-bracket-set-score {
+        background: #d1fae5;
+        color: #047857;
     }
 
     /* ===== Responsive ===== */
@@ -767,7 +801,7 @@
         }
 
         .front-bracket-round {
-            min-width: 170px;
+            min-width: 220px;
             padding: 0 16px;
         }
 
