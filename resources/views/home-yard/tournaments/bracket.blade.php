@@ -17,7 +17,7 @@
 <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 <script src="{{ asset('assets/js/tournament-dashboard.js') }}"></script>
 <script src="{{ asset('assets/js/bracket-data-fetcher.js') }}"></script>
-<script src="{{ asset('assets/js/bracket-score-entry.js') }}"></script>
+<script src="{{ asset('assets/js/bracket-score-entry.js') }}?v=1.0"></script>
 <script src="{{ asset('assets/js/bracket-swap-editor.js') }}?v=1.2"></script>
 <script src="{{ asset('assets/js/bracket-match-editor.js') }}?v=1.3"></script>
 <script src="{{ asset('assets/js/bracket-manager.js') }}"></script>
