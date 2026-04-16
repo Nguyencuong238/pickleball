@@ -16,17 +16,18 @@ Follow Laravel's standard structure:
 
 ```
 app/
-├── Console/Commands/      # Artisan commands (22 commands)
+├── Console/Commands/      # Artisan commands (25 commands)
+├── Contracts/             # Interfaces (e.g., Payable)
 ├── Exceptions/            # Exception handlers
 ├── Http/
-│   ├── Controllers/       # Route controllers (116 total)
-│   │   ├── Admin/        # Admin panel (23 controllers)
-│   │   ├── Api/          # API endpoints (30+ controllers)
-│   │   └── Front/        # Public frontend (46+ controllers)
-│   └── Middleware/        # HTTP middleware
-├── Models/                # Eloquent models (84 models)
+│   ├── Controllers/       # Route controllers (117 total)
+│   │   ├── Admin/        # Admin panel (24 controllers)
+│   │   ├── Api/          # API endpoints (32 controllers)
+│   │   └── Front/        # Public frontend (33 + 11 Tournament + 5 Traits)
+│   └── Middleware/        # HTTP middleware (10: 8 standard + Authenticate + VerifySepayWebhook)
+├── Models/                # Eloquent models (86 models)
 ├── Policies/              # Authorization policies (8)
-├── Services/              # Business logic (34 services)
+├── Services/              # Business logic (43 services)
 └── Providers/             # Service providers
 ```
 
@@ -542,116 +543,15 @@ class ChallengeService
 
 #### Skill Quiz Service Pattern
 
-```php
-// app/Services/SkillQuizService.php
-class SkillQuizService
-{
-    // Configuration constants
-    public const MIN_COMPLETION_TIME = 180; // 3 minutes
-    public const MAX_COMPLETION_TIME = 1200; // 20 minutes
-    public const ELO_CAP_NEW_PLAYER = 1100;
-    public const ELO_CAP_EXPERIENCED = 1200;
-
-    // Gender-aware ELO thresholds
-    public const ELO_THRESHOLDS_MALE = [
-        700  => '2.0',
-        800  => '2.5',
-        900  => '3.0',
-        1000 => '3.5',
-        1100 => '4.0',
-        1200 => '4.5',
-        1300 => '5.0',
-    ];
-
-    public const ELO_THRESHOLDS_FEMALE = [
-        700  => '2.5',  // +0.5 level
-        800  => '3.0',
-        900  => '3.5',
-        1000 => '4.0',
-        1100 => '4.5',
-        1200 => '5.0',
-        1300 => '5.5',
-    ];
-
-    public const SKILL_LEVEL_NAMES = [
-        '2.0'  => ['en' => 'Beginner',     'vi' => 'Moi choi'],
-        '2.5'  => ['en' => 'Novice',       'vi' => 'Tap su'],
-        '3.0'  => ['en' => 'Intermediate', 'vi' => 'So cap'],
-        '3.5'  => ['en' => 'Upper Int.',   'vi' => 'Trung cap'],
-        '4.0'  => ['en' => 'Advanced',     'vi' => 'Cao cap'],
-        '4.5'  => ['en' => 'Semi-Pro',     'vi' => 'Ban chuyen'],
-        '5.0'  => ['en' => 'Pro',          'vi' => 'Chuyen nghiep'],
-        '5.5+' => ['en' => 'Elite',        'vi' => 'Dinh cao'],
-    ];
-
-    /**
-     * Calculate ELO from quiz score
-     */
-    public function calculateElo(int $totalScore, int $maxScore): int
-    {
-        $percentage = ($totalScore / $maxScore) * 100;
-        $baseElo = 800 + ($percentage * 6);
-
-        return (int) min(max($baseElo, 800), 1400);
-    }
-
-    /**
-     * Map ELO to skill level (gender-aware)
-     * Female players get +0.5 level at same ELO
-     */
-    public function eloToSkillLevel(int $elo, ?string $gender = 'male'): string
-    {
-        $thresholds = ($gender === 'female')
-            ? self::ELO_THRESHOLDS_FEMALE
-            : self::ELO_THRESHOLDS_MALE;
-
-        foreach ($thresholds as $threshold => $level) {
-            if ($elo < $threshold) {
-                return $level;
-            }
-        }
-
-        return '5.5+';
-    }
-
-    /**
-     * Get localized skill level name
-     */
-    public function getSkillLevelName(string $level, string $locale = 'vi'): string
-    {
-        return self::SKILL_LEVEL_NAMES[$level][$locale]
-            ?? self::SKILL_LEVEL_NAMES['2.0'][$locale];
-    }
-
-    /**
-     * Cross-validate answers for consistency
-     */
-    public function crossValidate(array $answers): array
-    {
-        $inconsistencies = 0;
-
-        // Check for patterns that indicate random answers
-        // Implementation details...
-
-        return [
-            'is_consistent' => $inconsistencies < 3,
-            'inconsistency_count' => $inconsistencies,
-        ];
-    }
-
-    /**
-     * Determine re-quiz eligibility with cooldown
-     */
-    public function canRetakeQuiz(User $user): bool
-    {
-        if (!$user->quiz_completed_at) {
-            return true;
-        }
-
-        return now()->gte($user->can_retake_quiz_at);
-    }
-}
-```
+Key constants and methods in `app/Services/SkillQuizService.php`:
+- `MIN_COMPLETION_TIME=180`, `MAX_COMPLETION_TIME=1200`, `ELO_CAP_NEW_PLAYER=1100`, `ELO_CAP_EXPERIENCED=1200`
+- `ELO_THRESHOLDS_MALE` / `ELO_THRESHOLDS_FEMALE` arrays (female gets +0.5 level at same ELO)
+- `SKILL_LEVEL_NAMES`: 8 levels (2.0–5.5+) with `en`/`vi` keys
+- `calculateElo(int $totalScore, int $maxScore): int` — base 800 + percentage*6, capped 800–1400
+- `eloToSkillLevel(int $elo, ?string $gender = 'male'): string` — gender-aware threshold lookup
+- `getSkillLevelName(string $level, string $locale = 'vi'): string`
+- `crossValidate(array $answers): array` — returns `['is_consistent' => bool, 'inconsistency_count' => int]`
+- `canRetakeQuiz(User $user): bool` — checks `can_retake_quiz_at` cooldown
 
 ### Form Requests
 
@@ -795,7 +695,33 @@ Match format support: Best of 1/3/5 with configurable points_per_set (default: 2
 
 ## Gems Wallet Service Pattern (Apr 2026)
 
-Gems wallet services: GemWalletService (balance, top-up, payment), GemCashbackService (Points conversion), SepayService (VietQR). Key: VerifySepayWebhook middleware validates IP; transaction status pending → completed; webhook metadata for exchange rate; cashback auto-triggers after payment.
+Gems wallet services: GemWalletService (balance, top-up, transfer, refund, releaseReceipt), GemCashbackService (Points conversion), SepayService (VietQR), GemPaymentProcessor (orchestrator).
+
+Key: VerifySepayWebhook middleware validates IP; transaction status pending → completed; webhook metadata for exchange rate; cashback auto-triggers after payment.
+
+### Payable Contract Pattern (v1.14.0)
+
+Any model can plug into the Gems payment system by implementing `App\Contracts\Payable` via the `IsPayable` trait (~10 LOC). Currently: `Booking`, `ClubActivity`. Future: `League`, `Tournament`.
+
+```php
+// app/Contracts/Payable.php — 6 required methods
+interface Payable {
+    public function getPayableId(): int;
+    public function getPayableType(): string;
+    public function getGemAmount(): int;
+    public function getPayerId(): int;
+    public function getPayeeId(): int;
+    public function isRefundable(): bool;
+}
+
+// Usage via GemPaymentProcessor
+GemPaymentProcessor::pay($payable);      // debit payer, credit payee locked_balance
+GemPaymentProcessor::refundFor($payable); // clawback within window, hard-block after
+```
+
+### gems:release-locked Command
+
+Scheduled every 5 minutes. Scans `gem_transactions` where `type=receipt AND released_at IS NULL AND available_at <= NOW()`. Decrements `locked_balance`, sets `released_at`. Idempotent and race-safe with concurrent refunds. Single-server safe with `withoutOverlapping()`; use `onOneServer()` + database cache driver for multi-server.
 
 ### Club Activity Gems Payment Pattern
 ClubActivityService integrates gems deduction for activity fees:

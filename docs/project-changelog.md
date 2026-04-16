@@ -28,6 +28,16 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), versio
 
 ---
 
+## [1.15.1] - 2026-04-16
+
+### Fixed
+- **Bracket score entry**: added versioning to bracket score entry script to prevent stale cache issues
+- **Public bracket**: show full doubles athlete names and set scores in public bracket view
+- **Bracket match edit**: deduplicate doubles pairs in bracket match edit dropdown
+- **Reset score**: add reset score endpoint and UI button for completed matches; relax completed match guard to allow score reset
+
+---
+
 ## [1.14.0] - 2026-04-10
 
 ### Added — Gems Transfer + Escrow Refund Window
@@ -97,7 +107,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), versio
 
 ---
 
-## [1.12.0] - 2025-04-06
+## [1.12.0] - 2026-04-06
 
 ### Added
 - **Gems Wallet System** - In-app currency for premium features
@@ -360,4 +370,4 @@ Format based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), versio
 ---
 
 **Maintained By:** Development Team
-**Last Updated:** 2026-04-08
+**Last Updated:** 2026-04-16

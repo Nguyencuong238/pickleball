@@ -1,7 +1,7 @@
 # Pickleball Platform - Project Roadmap
 
-**Last Updated:** 2026-04-08
-**Current Version:** 1.13.0 (Gems Payment for Club Activities)
+**Last Updated:** 2026-04-16
+**Current Version:** 1.15.0 (Excel Athlete Import + Gems Transfer/Escrow)
 **Project:** Pickleball Platform
 
 ## Executive Summary
@@ -238,6 +238,18 @@ Referee management system for tournament match officiating.
   - [x] Deletion guard (prevent deletion with >= 1 confirmed participant)
   - [x] Check-in fee deduction for open_play activities
   - [x] Vietnamese diacritics in all UI text and service messages
+- [x] **Gems Transfer + Escrow Model (Apr 10, 2026)** NEW
+  - [x] locked_balance on gem_wallets, 1-day refund window
+  - [x] Clawback on cancel within window; hard block after window
+  - [x] gems:release-locked command (every 5min, idempotent)
+  - [x] App\Contracts\Payable + IsPayable trait abstraction
+  - [x] GemPaymentProcessor single orchestrator (Booking, ClubActivity)
+  - [x] GEMS_TRANSFER_ENABLED feature flag (default OFF)
+- [x] **Excel Athlete Bulk Import (Apr 14, 2026)** NEW
+  - [x] AthleteImportService with all-or-nothing validation
+  - [x] 2-pass partner linking for doubles categories
+  - [x] Dynamic template per tournament, 500-row/2MB limits
+  - [x] Idempotent: re-upload same file = all skip, no duplicates
 
 #### Planned Features
 - [ ] Online payment integration (MoMo, VNPay, ZaloPay)
@@ -476,8 +488,10 @@ Referee management system for tournament match officiating.
 | Knockout Bracket System | Complete | 2026-03-13 | 100% |
 | Gems Wallet System | Complete | 2026-04-03 | 100% |
 | Gems Payment for Club Activities | Complete | 2026-04-08 | 100% |
-| Payment Gateway Integration | 🔄 In Progress | 2026-03-31 | 30% |
-| Notification System Design | Planned | 2026-03-15 | 0% |
+| Gems Transfer + Escrow (v1.14.0) | Complete | 2026-04-10 | 100% |
+| Excel Athlete Import (v1.15.0) | Complete | 2026-04-14 | 100% |
+| Payment Gateway Integration | 🔄 In Progress | 2026-06-30 | 30% |
+| Notification System Design | Planned | 2026-06-30 | 0% |
 
 
 ### Q2 2026
@@ -492,6 +506,10 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 ---
 
 ## Change Log (Compact)
+
+**v1.15.0 (2026-04-14)** - Excel Athlete Import: AthleteImportService, all-or-nothing validation, 2-pass partner linking for doubles, dynamic template per tournament, 500 rows/2MB limits, idempotent re-upload
+
+**v1.14.0 (2026-04-10)** - Gems Transfer + Escrow: locked_balance, 1-day refund window, clawback on cancel, gems:release-locked cron, Payable contract + IsPayable trait, GemPaymentProcessor, GEMS_TRANSFER_ENABLED flag
 
 **v1.13.0 (2026-04-08)** - Gems Payment for Club Activities: fee_gems on activities (nullable), gem deduction on RSVP confirmed, gem refund on cancel, promote loop with insufficient gem skip, fee lock after confirmed participants, deletion guard, check-in fee for open_play, Vietnamese diacritics on all UI/service messages
 
@@ -540,5 +558,5 @@ See [Code Standards](./code-standards.md) for detailed guidelines. See [System A
 ---
 
 **Maintained By:** Development Team
-**Last Review:** 2026-04-03
-**Next Review Target:** 2026-04-30
+**Last Review:** 2026-04-16
+**Next Review Target:** 2026-05-31

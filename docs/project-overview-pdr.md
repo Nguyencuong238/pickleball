@@ -1,8 +1,8 @@
 # Project Overview & Product Development Requirements (PDR)
 
 **Project Name**: Pickleball Platform
-**Version**: 1.13.0
-**Last Updated**: 2026-04-08 (Gems Wallet + Club Activities Integration)
+**Version**: 1.15.0
+**Last Updated**: 2026-04-16 (Excel Athlete Import + Gems Transfer/Escrow)
 **Status**: Active Development
 **Framework**: Laravel 10.10+
 
@@ -122,7 +122,7 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **Multi-component scoring system**: Elo (70%) + Challenge (20%) + Community (10%)
 - **Seven OPR Levels**: 1.0 to 5.0+ (Beginner to Elite)
 - **Challenge System**:
-  - Five challenge types (serve, volley, dink, footwork, monthly test)
+  - Four challenge types: dinking_rally, drop_shot, serve_accuracy, monthly_test
   - Point-based scoring with pass/fail thresholds
   - Admin verification workflow
   - Monthly test limitation (once per month)
@@ -243,13 +243,20 @@ Create a centralized platform connecting pickleball players with courts, tournam
 
 ### 16. Gems Wallet System [NEW - Apr 2026]
 - **Virtual Currency**: Gems for instant booking payments and club activity fees
-  - User wallet balance tracking per user
+  - User wallet balance tracking per user (balance + locked_balance)
   - Gems-to-VND exchange rate configurable via `config/gems.php`
 - **Payment Methods**:
   - **SePay VietQR Integration**: QR code generation for top-up requests with webhook confirmation (VerifySepayWebhook middleware)
   - **Manual Top-up with Admin Approval**: At `/admin/gem-topups`, admin reviews and approves/rejects requests
   - **Instant Gems Payment**: Direct payment for court bookings with balance validation
   - **Club Activity Fees**: Optional gem fees charged at RSVP confirmation, refunded on cancellation
+- **Transfer + Escrow Model** (v1.14.0, `GEMS_TRANSFER_ENABLED`):
+  - Payer→owner transfer instead of burn; owner gems locked in `locked_balance` for 1-day refund window
+  - Clawback on cancel within window; hard block after window with Vietnamese error message
+  - `gems:release-locked` cron (every 5min) releases matured receipts idempotently
+  - `App\Contracts\Payable` + `IsPayable` trait: any model plugs in with ~10 LOC
+  - `GemPaymentProcessor`: single orchestrator for pay/refund across all Payable models (Booking, ClubActivity)
+  - Feature flag OFF = legacy burn-model active; mixed-mode data coexistence supported
 - **Club Activity Integration** (v1.13.0):
   - `fee_gems` field on ClubActivity for optional activity fees
   - Gems deducted on RSVP confirmation if participant confirmed and activity has fee
@@ -272,7 +279,16 @@ Create a centralized platform connecting pickleball players with courts, tournam
   - Cashback percentage (default: 5%)
   - SePay bank account details (GEMS_BANK_ACCOUNT, GEMS_BANK_NAME, GEMS_BANK_TEMPLATE_ID, GEMS_BANK_ACCOUNT_NO)
 
-### 17. News & CMS
+### 17. Excel Athlete Import (v1.15.0 - Apr 2026)
+- Bulk import athletes from `.xlsx/.xls` via `AthleteImportService`
+- All-or-nothing validation: one error aborts entire import, returns row/column error list
+- Soft-skip duplicates: existing athletes warned, not aborted
+- 2-pass partner linking: doubles partner_id linked bidirectionally after all athletes created
+- Dynamic template per tournament (category dropdown)
+- Limits: 500 rows max, 2MB file size; idempotent (re-upload same file = all skip)
+- Routes: `POST /tournament-manage/{tournament}/athletes/import`, `GET .../import-template`
+
+### 18. News & CMS
 - News articles with categories
 - Featured content
 - Static pages (About, Contact, etc.)
@@ -330,7 +346,7 @@ Create a centralized platform connecting pickleball players with courts, tournam
 **FR7: OPRS Rating System**
 - Multi-component score calculation (Elo 70%, Challenge 20%, Community 10%)
 - OPR Level determination and mapping
-- Challenge submission and verification
+- Challenge submission and verification (4 types: dinking_rally, drop_shot, serve_accuracy, monthly_test)
 - Community activity tracking and point awarding
 - OPRS history recording and audit trail
 - Level-based leaderboards and matchmaking
@@ -577,9 +593,9 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - **league_registrations**: Registration records with league_id, user_id, phone (normalized), payment_proof, status (pending/approved/rejected), approved_by, approved_at
 - **league_registration_players**: Player roster assignments from registration with league_registration_id, player_id
 
-### Gems Wallet Entities (2026-04-03)
-- **gem_wallets**: User gems balance with user_id, balance
-- **gem_transactions**: Gems transaction history with user_id, type (topup/payment/cashback), amount, reference_type/reference_id (polymorphic: booking/user), status (pending/completed), metadata
+### Gems Wallet Entities (2026-04-03, escrow columns added v1.14.0)
+- **gem_wallets**: User gems balance with user_id, balance, locked_balance
+- **gem_transactions**: Gems transaction history with user_id, type (topup/payment/cashback/receipt/refund/refund_clawback/admin_adjust), amount, reference_type/reference_id (polymorphic), status (pending/completed/refunded), metadata, counterparty_user_id, counterparty_transaction_id, available_at, released_at, platform_fee
 
 ## Success Metrics
 
@@ -638,6 +654,8 @@ Create a centralized platform connecting pickleball players with courts, tournam
 - [x] League management with MLP format (260309)
 - [x] Club management API endpoints
 - [x] Gems Wallet system with SePay integration (260403)
+- [x] Gems Transfer + Escrow model with clawback (v1.14.0 - 260410)
+- [x] Excel bulk athlete import with 2-pass partner linking (v1.15.0 - 260414)
 - [ ] Online payment integration (beyond SePay VietQR)
 - [ ] Real-time notifications for match invites and activities
 - [ ] Mobile app with OPRS integration

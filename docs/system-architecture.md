@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last Updated**: 2026-04-03
+**Last Updated**: 2026-04-16
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -56,7 +56,9 @@ The Pickleball Platform follows Laravel's Model-View-Controller (MVC) architectu
 │  └─────────────────────────────────────────────────────┘│
 │  ┌─────────────────────────────────────────────────────┐│
 │  │                   Services                           ││
-│  │  BookingService, TournamentService, etc.            ││
+│  │  BookingService, TournamentService, OprsService,    ││
+│  │  GemPaymentProcessor (Payable/IsPayable pattern),   ││
+│  │  AthleteImportService, etc.                         ││
 │  └─────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────┘
                            │
@@ -401,13 +403,14 @@ User ──┬── Club (creator)
 │ events         │ Workshop/event system with QR           │
 │ event_checkins │ User event attendance                   │
 ├─────────────────────────────────────────────────────────┤
-│             Gems Wallet Tables (Apr 2026)                │
+│         Gems Wallet Tables (Apr 2026, v1.14.0 escrow)    │
 ├─────────────────────────────────────────────────────────┤
-│ gem_wallets    │ User gems (balance + locked_balance)   │
-│ gem_transactions │ Gems ledger (type: top_up, payment, │
-│                │ receipt, refund, refund_clawback,     │
-│                │ admin_adjust; escrow via available_at, │
-│                │ released_at, counterparty_* columns)  │
+│ gem_wallets    │ balance, locked_balance per user       │
+│ gem_transactions │ type (topup/payment/cashback/receipt/│
+│                │ refund/refund_clawback/admin_adjust), │
+│                │ available_at, released_at,            │
+│                │ counterparty_user_id/transaction_id,  │
+│                │ platform_fee (escrow model v1.14.0)   │
 ├─────────────────────────────────────────────────────────┤
 │              Booking Enhancement Tables                  │
 ├─────────────────────────────────────────────────────────┤
@@ -701,6 +704,8 @@ Admin: Admin login → Check role 'admin' → Create admin session
 
 **Prod:** Nginx/Apache, PHP-FPM 8.1+, MySQL 8.0+, Redis (optional), SSL. Optimize: config/route/view cache, `npm run build`
 
+**Scheduled Commands:** `gems:release-locked` (every 5min, releases matured escrow receipts), `clubs:generate-recurring-meets` (daily 06:00), `oprs:recalculate`, `ocr:auto-confirm`, `check:weekly-bonus`
+
 ## Scalability Considerations
 
 - Stateless application design with session storage in database/Redis
@@ -722,108 +727,21 @@ Admin: Admin login → Check role 'admin' → Create admin session
 
 ## OPRS System Architecture
 
-### Service Layer Components
+**Formula:** `OPRS = (0.7 × Elo) + (0.2 × Challenge) + (0.1 × Community)`
 
-```
-OprsService (Core)
-├── calculateOprs()              # Calculate total OPRS from components
-├── calculateOprLevel()          # Map OPRS to OPR level
-├── updateUserOprs()             # Update and record history
-├── recalculateAfterMatch()      # Triggered by match result
-├── recalculateAfterChallenge()  # Triggered by challenge completion
-├── recalculateAfterActivity()   # Triggered by community activity
-├── getOprsBreakdown()           # Component breakdown for display
-├── getLeaderboard()             # OPRS-based leaderboard
-└── adminAdjustment()            # Manual score adjustment
+**OPR Levels:** 1.0 Beginner (0-599) | 2.0 Novice (600-899) | 3.0 Intermediate (900-1099) | 3.5 Upper-Int (1100-1349) | 4.0 Advanced (1350-1599) | 4.5 Pro (1600-1849) | 5.0+ Elite (1850+)
 
-ChallengeService
-├── submitChallenge()            # User challenge submission
-├── verifyChallenge()            # Admin verification
-├── revokeChallenge()            # Admin revocation
-├── canSubmitMonthlyTest()       # Monthly limit check
-├── getChallengeHistory()        # User history
-└── getChallengeStats()          # User statistics
+**Challenge Types:** dinking_rally (10pts) | drop_shot (8pts) | serve_accuracy (6pts) | monthly_test (30-50pts, once/month)
 
-CommunityService
-├── checkIn()                    # Stadium check-in
-├── recordEventParticipation()   # Event attendance
-├── recordReferral()             # Player referral
-├── checkWeeklyMatchBonus()      # Weekly bonus check
-├── recordMonthlyChallenge()     # Monthly challenge
-├── processWeeklyBonuses()       # Batch processing (scheduled)
-└── getActivityStats()           # User statistics
+**Community Activities:** check_in (10pts/day) | event_participation (50pts) | player_referral (100pts) | weekly_matches (30pts, 5+/week) | monthly_challenge (150pts)
 
-ProfileService
-├── updateBasicInfo()            # Update name, location, province
-├── updateAvatar()               # Upload/remove avatar
-├── deleteCurrentAvatar()        # Remove existing avatar file
-├── updateEmail()                # Change email (with password)
-├── updatePassword()             # Change password
-├── verifyPassword()             # Verify current password
-└── hasPassword()                # Check if user has password (OAuth)
+**Key Services:** OprsService (calculate, level-map, history, leaderboard, admin-adjust) | ChallengeService (submit, verify, revoke, monthly-limit) | CommunityService (checkin, event, referral, weekly-bonus, batch) | ProfileService (info, avatar, email, password) | SkillQuizService (calculateElo, eloToSkillLevel, crossValidate, canRetakeQuiz) — see `code-standards.md` for method signatures.
 
-SkillQuizService
-├── calculateElo()               # Convert quiz score to ELO
-├── calculateTotalScore()        # Sum weighted question scores
-├── crossValidate()              # Check answer consistency
-├── validateCompletionTime()     # Check 3-20 min window
-├── applyEloCap()                # Apply caps (1100/1200)
-├── eloToSkillLevel($elo, $gender) # Gender-aware skill level mapping
-├── getSkillLevelName($level, $locale) # Localized level names
-├── canRetakeQuiz()              # Check cooldown eligibility
-├── calculateRetakeCooldown()    # Determine next retake date
-├── flagSuspiciousAttempt()      # Mark for admin review
-└── getAttemptStatistics()       # Admin statistics
-```
-
-### Component Weights and Levels
-
-```php
-// Component Weights
-OPRS = (0.7 × Elo) + (0.2 × Challenge) + (0.1 × Community)
-
-// OPR Levels
-1.0 (Beginner)          0-599
-2.0 (Novice)            600-899
-3.0 (Intermediate)      900-1099
-3.5 (Upper Intermediate) 1100-1349
-4.0 (Advanced)          1350-1599
-4.5 (Pro)               1600-1849
-5.0+ (Elite)            1850+
-
-// Challenge Types: dinking_rally (10pts, rallies>=20), drop_shot (8pts, success>=5/10), serve_accuracy (6pts, success>=7/10), monthly_test (30-50pts, score>=70)
-// Community Activities: check_in (10pts daily), event_participation (50pts), player_referral (100pts), weekly_matches (30pts, 5+/week), monthly_challenge (150pts)
-```
-
-### OPRS Data Dependencies
-
-```
-User Model Fields:
-├── elo_rating          (from OCR system)
-├── challenge_score     (from ChallengeService)
-├── community_score     (from CommunityService)
-├── total_oprs          (calculated by OprsService)
-└── opr_level           (determined by OprsService)
-
-OprsHistory Record:
-├── user_id, elo_score, challenge_score, community_score (snapshots)
-├── total_oprs (calculated), opr_level (determined)
-└── change_reason (enum), metadata (JSON)
-
-SkillQuizAttempt Record:
-├── user_id, total_score, max_possible_score, elo_assigned
-├── completion_time, is_flagged, flag_reason
-└── started_at, completed_at
-
-User Gender: enum('male','female', nullable), defaults 'male'
-```
-
-### Skill Quiz Config
-See `code-standards.md`. Base ELO=800, Max=1400, anti-fraud, gender-aware, 30-90 day cooldowns.
+**User fields:** elo_rating, challenge_score, community_score, total_oprs, opr_level, gender (enum male/female nullable)
 
 ### Club Activity Match System (Mar 2026)
 3 algorithms: Singles RR, Rotating Doubles, Fixed Doubles. Service: ClubMatchService. 7 AJAX endpoints.
 
 ### Tournament Rewrite Architecture (Mar 2026)
-**Pattern:** Controller → Service → Model | **Frontend:** Alpine.js mixins | **Route:** tournament-manage | **Assets:** 8 JS + 11 CSS files
+**Pattern:** Controller → Service → Model | **Frontend:** Alpine.js mixins | **Route:** tournament-manage | **Assets:** 25 JS + 23 CSS files
 

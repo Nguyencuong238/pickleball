@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last Updated**: 2026-04-03 (Gems Wallet Feature)
+**Last Updated**: 2026-04-16 (v1.15.0 Athlete Import + v1.14.0 Gems Escrow)
 **Project**: Pickleball Platform
 **Framework**: Laravel 10.10+
 
@@ -11,15 +11,14 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 ## Project Structure
 
 **File Counts (Current - Apr 2026):**
-- PHP files: 365+ (Controllers 118, Models 86, Services 37, Commands 22, Policies 8, Middleware 10, Events 12+, Listeners 9, Observers 6, Form Requests 6)
-  - Front/Tournament/: 9 controllers + 5 traits
-- Blade templates: 273 (Admin 54, Front 53, Home-yard 65, Clubs 50, Layouts 5, User/Auth/Referee 45)
-  - home-yard/tournaments/: dashboard + 25+ partials
-- JS modules: 24 files (Alpine.js components for tournament dashboard, bracket editor, club activities)
-- CSS stylesheets: 34 files (20 feature-specific + 14 tournament-dashboard components)
-- Database migrations: 195
+- PHP files: 380+ (Controllers 117, Models 86, Services 43, Commands 25, Policies 8, Middleware 10, Events 12, Observers 6, Form Requests 6)
+  - Admin: 24 | API: 32 | Front: 33 + 11 Tournament + 5 Traits | Root: 16 | Verifier: 1
+- Blade templates: 278
+- JS modules: 25 files (Alpine.js components for tournament dashboard, bracket editor, club activities)
+- CSS stylesheets: 23 files
+- Database migrations: 202
 - Database seeders: 20
-- Routes: ~600 (web.php 430+, api.php 170+)
+- Routes: ~634 (web.php 458+, api.php 176+)
 
 ## Core Technologies
 
@@ -96,21 +95,19 @@ Laravel-based pickleball platform managing court bookings, tournaments, instruct
 
 **League Registration (Mar 2026)**: Payment proof upload, phone normalization, admin approval workflow, auto team generation (skill-ranked snake-draft and random modes), DB::transaction + lockForUpdate for race-condition safety
 
-**Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency system with VietQR default (SePay fallback), admin approval workflow at /admin/gem-topups, instant gem payment for bookings, club activity fees (RSVP/cancel/checkin deduction, auto-skip on insufficient balance), 5% cashback to Points wallet
+**Gems Wallet (Apr 2026)**: `GemWallet`, `GemTransaction` - Virtual currency with VietQR/SePay top-up, admin approval at /admin/gem-topups, instant gem payment for bookings, club activity fees (RSVP/cancel/checkin), 5% cashback to Points wallet. v1.14.0: transfer+escrow model (locked_balance, 1-day refund window, clawback), GemPaymentProcessor, Payable contract, IsPayable trait, gems:release-locked cron, GEMS_TRANSFER_ENABLED flag. v1.15.0: AthleteImportService bulk Excel import (500 rows/2MB, 2-pass partner linking, idempotent)
 
-## Services Overview (40 Services)
+## Services Overview (43 Services)
 
-Core (14): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService, BookingCodeService
+Core (12): EloService, BadgeService, OprsService, OprVerificationService, ChallengeService, CommunityService, ProfileService, SkillQuizService, PointEarningService, PointSubmissionService, SocialVerificationService, BookingCodeService
 
-Gems (3): GemWalletService, SepayService, GemCashbackService
+Gems (4): GemWalletService, SepayService, GemCashbackService, GemPaymentProcessor (`App\Contracts\Payable` + `IsPayable` trait; orchestrates pay/refund for Booking, ClubActivity)
 
 Club & Social (8): ClubPostMediaService, ClubActivityService, ClubActivityMatchService, ClubCompetitionService, ClubMatchService, ClubMemberStatsService, ClubScoreService, WaitlistAutoPromotionService
 
 League (5): LeagueService, LeagueScheduleService, LeagueStandingsService, LeagueAutoTeamService, LeagueRegistrationService
 
 Tournament (14): TournamentCrudService, TournamentDrawService, TournamentMatchService, TournamentStandingService, KnockoutBracketService, KnockoutMatchBuilder, KnockoutBracketQuery, BracketSeedingHelper, DrawAssignmentHelper, MatchCreationHelper, RankingQueryHelper, AthleteImportService, AthleteImportValidator, AthleteRowNormalizer
-
-Booking (1): BookingCodeService
 
 ## Controllers Overview
 
@@ -513,15 +510,9 @@ AuthController, FavoriteController, ReviewController, SocialController, ClubActi
 - `league_registrations` - Registration records with league_id, user_id, phone (normalized), payment_proof, status, approved_by, approved_at
 - `league_registration_players` - Player roster from registration with league_registration_id, player_id
 
-### Gems Wallet Tables (2026-04-03)
-- `gem_wallets` - User gems balance with user_id, balance, updated_at for tracking
-- `gem_transactions` - Gems transaction history with:
-  - `type` (topup, payment, cashback) - Transaction type
-  - `amount` - Gems amount
-  - `reference_type` (booking, user) - Polymorphic reference
-  - `reference_id` - ID of referenced entity
-  - `status` (pending, completed) - Transaction status
-  - `metadata` - JSON for additional details (exchange_rate, order_id for topups, etc.)
+### Gems Wallet Tables (2026-04-03, escrow cols added v1.14.0)
+- `gem_wallets` - user_id, balance, locked_balance
+- `gem_transactions` - type (topup/payment/cashback/receipt/refund/refund_clawback/admin_adjust), amount, status, metadata, counterparty_user_id, counterparty_transaction_id, available_at, released_at, platform_fee
 
 ### League Management Tables (2026-02-25+)
 - `leagues` - League configuration (name, description, sport, format, status, stadium_id, created_by)
@@ -612,6 +603,12 @@ php artisan oprs:recalculate [--user=ID] [--dry-run]
 php artisan oprs:weekly-bonus
 ```
 
+### Gems Commands
+```bash
+# Release matured escrow gems (scheduled every 5min, idempotent, race-safe)
+php artisan gems:release-locked
+```
+
 ### Existing Commands
 ```bash
 # Create admin user
@@ -683,13 +680,13 @@ php artisan db:seed --class=SkillQuestionSeeder
 - `/api/points/submissions` - Get/create submissions
 - `/api/points/challenges` - Get active special challenges
 
-## Frontend Assets (Tournament Rewrite - Mar 2026)
+## Frontend Assets
 
-### JavaScript Modules (`public/assets/js/`) - 18 files
-Tournament core (12): dashboard, athletes, draw (+3 mixins), matches (+api, schedule-mixin), rankings. Bracket (5): manager, data-fetcher, match-editor, score-entry, swap-editor. Utility: script.js
+### JavaScript Modules (`public/assets/js/`) - 25 files
+Tournament core: dashboard, athletes, draw (+mixins), matches (+api, schedule-mixin), rankings. Bracket: manager, data-fetcher, match-editor, score-entry, swap-editor. Club activities, open-play, leaderboard. Utility: script.js
 
-### CSS Stylesheets (`public/assets/css/`) - 26 files
-Feature-specific (15): style, tournaments, courts, bookings, clubs, coaches, news, galleries, instructor-review. Tournament dashboard (11): layout-sidebar, components (athletes, buttons, cards, draw, forms, matches, rankings, rankings-table, rankings-row-states), bracket-tree.
+### CSS Stylesheets (`public/assets/css/`) - 23 files
+Feature-specific: style, tournaments, courts, bookings, clubs, coaches, news, galleries, instructor-review. Tournament dashboard: layout-sidebar, athletes, buttons, cards, draw, forms, matches, rankings, rankings-table, rankings-row-states, bracket-tree.
 
 ## Authentication Flow
 
@@ -758,12 +755,8 @@ OPRS = (0.7 × Elo) + (0.2 × Challenge) + (0.1 × Community)
 | 4.5 | Pro | 1600-1849 |
 | 5.0+ | Elite | 1850+ |
 
-### Challenge Types
-- **Serve Accuracy**: Target accuracy test
-- **Volley Control**: Net play assessment
-- **Dink Precision**: Soft game evaluation
-- **Footwork Drill**: Movement assessment
-- **Monthly Test**: Comprehensive skill evaluation (once per month)
+### Challenge Types (4)
+dinking_rally (10pts), drop_shot (8pts), serve_accuracy (6pts), monthly_test (30-50pts, once/month)
 
 ### Community Activities
 - **Check-in**: Daily stadium check-ins (10 points)
