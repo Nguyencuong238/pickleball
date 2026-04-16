@@ -179,13 +179,6 @@ $registrationDaysRemaining = $isRegistrationOpen ? (int) now()->diffInDays($tour
                             Đã hết hạn đăng ký
                         </button>
                     @endif
-                    <button class="btn btn-secondary btn-lg">
-                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-                            <line x1="4" y1="22" x2="4" y2="15" />
-                        </svg>
-                        Lưu giải đấu
-                    </button>
                     <button class="btn btn-white btn-lg">
                         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="18" cy="5" r="3" />
@@ -795,7 +788,7 @@ $registrationDaysRemaining = $isRegistrationOpen ? (int) now()->diffInDays($tour
 @endsection
 
 @section('js')
-    <script src="{{ asset('assets/js/tournament-detail.js') }}?v=1.0"></script>
+    <script src="{{ asset('assets/js/tournament-detail.js') }}?v=1.1"></script>
     <script>
         // Doubles category types
         const DOUBLES_TYPES = ['double_men', 'double_women', 'double_mixed'];

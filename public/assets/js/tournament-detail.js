@@ -166,8 +166,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const heroShareBtn = document.querySelector('.hero-actions .btn-white');
     if (heroShareBtn) {
         heroShareBtn.addEventListener('click', () => {
-            // Show share options (could be a modal)
-            alert('Chức năng chia sẻ đang được phát triển!');
+            const tournamentUrl = window.location.href;
+            const facebookUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(tournamentUrl)}`;
+            window.open(facebookUrl, '_blank', 'width=600,height=400');
         });
     }
 
