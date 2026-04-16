@@ -253,7 +253,12 @@ class KnockoutBracketService
             }
 
             $this->bracketQuery->updateMatchAthletes($match, $data);
-            $this->reEvaluateMatch($match->fresh());
+
+            // Chỉ re-evaluate khi athlete thay đổi hoặc trận chưa completed
+            // Trận completed chỉ sửa metadata -> không cần re-evaluate (sẽ phá hủy kết quả)
+            if ($athleteChanged || $match->status !== 'completed') {
+                $this->reEvaluateMatch($match->fresh());
+            }
 
             return ['success' => true, 'message' => 'Cập nhật thành công'];
         });

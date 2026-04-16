@@ -664,6 +664,7 @@ Route::middleware(['auth'])->prefix('tournament-manage')->name('tournament-manag
     Route::post('{tournament}/bracket/swap', [\App\Http\Controllers\Front\Tournament\TournamentBracketController::class, 'swap'])->name('bracket.swap');
     Route::get('{tournament}/bracket/eligible-athletes', [\App\Http\Controllers\Front\Tournament\TournamentBracketController::class, 'getEligibleAthletes'])->name('bracket.eligible-athletes');
     Route::put('{tournament}/bracket/update-match', [\App\Http\Controllers\Front\Tournament\TournamentBracketController::class, 'updateMatch'])->name('bracket.update-match');
+    Route::delete('{tournament}/bracket/reset-score', [\App\Http\Controllers\Front\Tournament\TournamentBracketController::class, 'resetScore'])->name('bracket.reset-score');
 
     // Xếp hạng & bảng điểm
     Route::get('{tournament}/rankings', [\App\Http\Controllers\Front\Tournament\TournamentRankingController::class, 'index'])->name('rankings.index');

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Front\Tournament;
 use App\Http\Controllers\Controller;
 use App\Models\MatchModel;
 use App\Models\Tournament;
+use App\Services\Tournament\BracketScoreResetService;
 use App\Services\Tournament\KnockoutBracketService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -15,7 +16,8 @@ use InvalidArgumentException;
 class TournamentBracketController extends Controller
 {
     public function __construct(
-        private KnockoutBracketService $bracketService
+        private KnockoutBracketService $bracketService,
+        private BracketScoreResetService $resetService
     ) {
         $this->middleware(['auth']);
     }
@@ -149,10 +151,15 @@ class TournamentBracketController extends Controller
                 && $match->set_scores;
 
             if ($isCompleted) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Không thể chỉnh sửa trận đấu đã hoàn thành có tỉ số. Xóa tỉ số trước.',
-                ], 422);
+                $athleteChanging = (array_key_exists('athlete1_id', $validated) && (int) ($validated['athlete1_id'] ?? 0) !== (int) $match->athlete1_id)
+                    || (array_key_exists('athlete2_id', $validated) && (int) ($validated['athlete2_id'] ?? 0) !== (int) $match->athlete2_id);
+
+                if ($athleteChanging) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Không thể thay đổi VĐV trên trận đấu đã hoàn thành có tỉ số. Xóa tỉ số trước.',
+                    ], 422);
+                }
             }
 
             $result = $this->bracketService->updateMatch($match, $validated);
@@ -162,6 +169,47 @@ class TournamentBracketController extends Controller
         } catch (\Exception $e) {
             Log::error('Cập nhật trận đấu thất bại: ' . $e->getMessage(), ['exception' => $e]);
             return response()->json(['success' => false, 'message' => 'Cập nhật trận đấu thất bại'], 500);
+        }
+    }
+
+    public function resetScore(Request $request, Tournament $tournament): JsonResponse
+    {
+        $this->authorizeOwner($tournament);
+
+        $validated = $request->validate([
+            'match_id' => ['required', 'integer', Rule::exists('matches', 'id')->where('tournament_id', $tournament->id)],
+        ]);
+
+        try {
+            $match = MatchModel::findOrFail($validated['match_id']);
+
+            if ($match->status === 'in_progress') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa tỉ số trận đang diễn ra.',
+                ], 422);
+            }
+
+            if ($match->status === 'bye') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa tỉ số trận bye.',
+                ], 422);
+            }
+
+            if (!$match->set_scores && !$match->winner_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Trận đấu chưa có tỉ số để xóa.',
+                ], 422);
+            }
+
+            $result = $this->resetService->resetMatchScore($match);
+            $statusCode = ($result['success'] ?? false) ? 200 : 422;
+            return response()->json($result, $statusCode);
+        } catch (\Exception $e) {
+            Log::error('Xóa tỉ số thất bại: ' . $e->getMessage(), ['exception' => $e]);
+            return response()->json(['success' => false, 'message' => 'Xóa tỉ số thất bại'], 500);
         }
     }
 

@@ -211,12 +211,17 @@ class KnockoutBracketQuery
             if (!$nextMatch) break;
 
             $nextMatch->update([
-                'athlete1_id'   => null,
-                'athlete1_name' => null,
-                'athlete2_id'   => null,
-                'athlete2_name' => null,
-                'winner_id'     => null,
-                'status'        => 'scheduled',
+                'athlete1_id'     => null,
+                'athlete1_name'   => null,
+                'athlete2_id'     => null,
+                'athlete2_name'   => null,
+                'winner_id'       => null,
+                'set_scores'      => null,
+                'final_score'     => null,
+                'athlete1_score'  => 0,
+                'athlete2_score'  => 0,
+                'actual_end_time' => null,
+                'status'          => 'scheduled',
             ]);
 
             $currentMatch = $nextMatch;

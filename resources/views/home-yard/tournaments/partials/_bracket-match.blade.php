@@ -44,14 +44,21 @@
               x-text="match.athlete2_score"></span>
     </div>
 
-    {{-- Nút nhập tỉ số --}}
+    {{-- Nut nhap/sua/xoa ti so --}}
     <template x-if="(match.status === 'scheduled' || match.status === 'completed' || match.status === 'in_progress') && match.athlete1 && match.athlete2">
-        <div style="padding:4px 8px;text-align:center;border-top:1px solid #f1f5f9;">
+        <div style="padding:4px 8px;text-align:center;border-top:1px solid #f1f5f9;display:flex;justify-content:center;gap:12px;">
             <button class="bracket-score-btn"
                     @click="openScore(match.id)"
                     style="font-size:0.75rem;color:#0369a1;cursor:pointer;background:none;border:none;">
                 <span x-text="match.status === 'completed' ? 'S\u1EEDa t\u1EC9 s\u1ED1' : 'Nh\u1EADp t\u1EC9 s\u1ED1'"></span>
             </button>
+            <template x-if="match.status === 'completed' && match.set_scores">
+                <button class="bracket-score-btn"
+                        @click="resetScore(match.id)"
+                        style="font-size:0.75rem;color:#dc2626;cursor:pointer;background:none;border:none;">
+                    Xóa tỉ số
+                </button>
+            </template>
         </div>
     </template>
 
