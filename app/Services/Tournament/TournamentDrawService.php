@@ -7,13 +7,13 @@ use App\Models\Tournament;
 use App\Models\TournamentAthlete;
 use App\Models\TournamentCategory;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class TournamentDrawService
 {
     public function __construct(
-        private DrawAssignmentHelper $assignmentHelper
+        private DrawAssignmentHelper $assignmentHelper,
+        private ManualDrawPersistenceHelper $persistenceHelper,
     ) {}
 
     public function isDoubleCategory(int $categoryId, Tournament $tournament): bool
@@ -115,13 +115,7 @@ class TournamentDrawService
 
     public function resetDraw(Tournament $tournament, int $categoryId): void
     {
-        TournamentAthlete::where('tournament_id', $tournament->id)
-            ->where('category_id', $categoryId)
-            ->update(['group_id' => null, 'seed_number' => null, 'draw_order' => null]);
-
-        Group::where('tournament_id', $tournament->id)
-            ->where('category_id', $categoryId)
-            ->update(['current_participants' => 0]);
+        $this->persistenceHelper->resetDraw($tournament, $categoryId);
     }
 
     public function getManualDrawData(Tournament $tournament, int $categoryId): array
@@ -174,42 +168,6 @@ class TournamentDrawService
 
     public function saveManualDraw(Tournament $tournament, int $categoryId, array $assignments): int
     {
-        return DB::transaction(function () use ($tournament, $categoryId, $assignments) {
-            TournamentAthlete::where('tournament_id', $tournament->id)
-                ->where('category_id', $categoryId)
-                ->update(['group_id' => null, 'draw_order' => null]);
-
-            Group::where('tournament_id', $tournament->id)
-                ->where('category_id', $categoryId)
-                ->update(['current_participants' => 0]);
-
-            $athletesAssigned = 0;
-            foreach ($assignments as $groupId => $athleteList) {
-                if (empty($athleteList)) {
-                    continue;
-                }
-
-                foreach ($athleteList as $athleteData) {
-                    TournamentAthlete::where('id', $athleteData['athlete_id'])
-                        ->where('tournament_id', $tournament->id)
-                        ->update(['group_id' => (int)$groupId, 'draw_order' => $athleteData['draw_order'] ?? null]);
-                    $athletesAssigned++;
-
-                    if (!empty($athleteData['partner_id'])) {
-                        TournamentAthlete::where('id', $athleteData['partner_id'])
-                            ->where('tournament_id', $tournament->id)
-                            ->update(['group_id' => (int)$groupId, 'draw_order' => null]);
-                        $athletesAssigned++;
-                    }
-                }
-
-                $count = array_reduce($athleteList, function ($carry, $item) {
-                    return $carry + 1 + (!empty($item['partner_id']) ? 1 : 0);
-                }, 0);
-                Group::where('id', $groupId)->update(['current_participants' => $count]);
-            }
-
-            return $athletesAssigned;
-        });
+        return $this->persistenceHelper->saveManualDraw($tournament, $categoryId, $assignments);
     }
 }

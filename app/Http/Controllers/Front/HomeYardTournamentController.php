@@ -21,6 +21,7 @@ use App\Models\OprsHistory;
 use App\Models\TournamentCategory;
 use App\Services\EloService;
 use App\Services\OprsService;
+use App\Services\Tournament\ManualDrawPersistenceHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -2870,23 +2871,8 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
 
-            // Xóa gán bảng cho tất cả VĐV của nội dung này
-            TournamentAthlete::where('tournament_id', $tournament->id)
-                ->where('category_id', $categoryId)
-                ->update([
-                    'group_id' => null,
-                    'seed_number' => null,
-                    'draw_order' => null
-                ]);
-
-            // Reset số lượng VĐV trong các bảng
-            $groups = Group::where('tournament_id', $tournament->id)
-                ->where('category_id', $request->category_id)
-                ->get();
-
-            foreach ($groups as $group) {
-                $group->update(['current_participants' => 0]);
-            }
+            // Delegate sang helper: xoa ca GroupStanding cu, tranh bug stale standings
+            app(ManualDrawPersistenceHelper::class)->resetDraw($tournament, (int) $categoryId);
 
             return response()->json([
                 'success' => true,
@@ -2998,68 +2984,15 @@ class HomeYardTournamentController extends Controller
                 ], 422);
             }
 
-            DB::beginTransaction();
-
-            // Reset trước
-            TournamentAthlete::where('tournament_id', $tournament->id)
-                ->where('category_id', $categoryId)
-                ->update(['group_id' => null, 'draw_order' => null]);
-
-            // Cập nhật current_participants về 0
-            Group::where('tournament_id', $tournament->id)
-                ->where('category_id', $categoryId)
-                ->update(['current_participants' => 0]);
-
-            // Gán VĐV vào bảng với thứ tự
-            $athletesAssigned = 0;
-            foreach ($assignments as $groupId => $athletes) {
-                if (!empty($athletes)) {
-                    foreach ($athletes as $athleteData) {
-                        // Update athlete chính (primary) - có draw_order
-                        TournamentAthlete::where('id', $athleteData['athlete_id'])
-                            ->update([
-                                'group_id' => (int)$groupId,
-                                'draw_order' => $athleteData['draw_order'] ?? null
-                            ]);
-                        $athletesAssigned++;
-
-                        // Update partner nếu có (doubles) - KHÔNG set draw_order (để NULL)
-                        if (!empty($athleteData['partner_id'])) {
-                            TournamentAthlete::where('id', $athleteData['partner_id'])
-                                ->update([
-                                    'group_id' => (int)$groupId,
-                                    'draw_order' => null  // Partner không có draw_order
-                                ]);
-                            $athletesAssigned++;
-                        }
-                    }
-                }
-            }
-
-            // Cập nhật current_participants cho từng bảng
-            foreach ($assignments as $groupId => $athletes) {
-                if (!empty($athletes)) {
-                    // Đếm số VĐV thực tế (cả partner)
-                    $count = 0;
-                    foreach ($athletes as $athleteData) {
-                        $count++;
-                        if (!empty($athleteData['partner_id'])) {
-                            $count++;
-                        }
-                    }
-                    Group::where('id', $groupId)
-                        ->update(['current_participants' => $count]);
-                }
-            }
-
-            DB::commit();
+            // Delegate sang helper: xoa standings cu + tao standings moi theo assignments
+            $athletesAssigned = app(ManualDrawPersistenceHelper::class)
+                ->saveManualDraw($tournament, (int) $categoryId, $assignments);
 
             return response()->json([
                 'success' => true,
                 'message' => "Đã chia thành công {$athletesAssigned} vận động viên"
             ]);
         } catch (\Exception $e) {
-            DB::rollBack();
             Log::error('Save manual draw error: ' . $e->getMessage());
             return response()->json([
                 'success' => false,

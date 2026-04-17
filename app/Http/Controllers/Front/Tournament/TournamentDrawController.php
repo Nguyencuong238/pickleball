@@ -61,6 +61,10 @@ class TournamentDrawController extends Controller
         }
 
         try {
+            // Reset truoc khi draw lai: xoa standings cu + clear group_id,
+            // tranh updateOrCreate giu lai standing stale neu athlete bi doi group.
+            $this->drawService->resetDraw($tournament, $categoryId);
+
             $isDouble = $this->drawService->isDoubleCategory($categoryId, $tournament);
 
             if ($isDouble) {

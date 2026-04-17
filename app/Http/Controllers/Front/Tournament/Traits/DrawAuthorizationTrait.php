@@ -41,6 +41,7 @@ trait DrawAuthorizationTrait
     {
         return Group::where('tournament_id', $tournament->id)
             ->where('category_id', $categoryId)
+            ->orderBy('group_code')
             ->get();
     }
 

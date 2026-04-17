@@ -8,6 +8,7 @@ use App\Models\GroupStanding;
 use App\Models\MatchModel;
 use App\Models\Tournament;
 use App\Models\TournamentCategory;
+use App\Services\Tournament\DoublesStandingDeduplicator;
 use App\Services\Tournament\GroupRankingSorter;
 use App\Services\Tournament\TournamentStandingService;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,7 @@ class TournamentRankingController extends Controller
     public function __construct(
         private TournamentStandingService $standingService,
         private GroupRankingSorter $rankingSorter,
+        private DoublesStandingDeduplicator $doublesDedup,
     ) {
         $this->middleware(['auth']);
     }
@@ -85,10 +87,11 @@ class TournamentRankingController extends Controller
             ->where('category_id', $categoryId)
             ->with([
                 'standings' => fn($q) => $q->with([
-                    'athlete' => fn($aq) => $aq->select('id', 'athlete_name', 'category_id', 'partner_id'),
+                    'athlete' => fn($aq) => $aq->select('id', 'athlete_name', 'category_id', 'partner_id', 'group_id'),
                     'athlete.partner' => fn($pq) => $pq->select('id', 'athlete_name'),
                 ])->orderBy('rank_position'),
             ])
+            ->orderBy('group_code')
             ->get();
 
         // Compute cumulative game scores from set_scores JSON
@@ -118,9 +121,15 @@ class TournamentRankingController extends Controller
         }
 
         $groupsData = $groups->map(function (Group $group) use ($isDoubles, $gameScores) {
+            // Loc standing stale: athlete.group_id phai trung group.id moi hien thi.
+            // Phong ngua truong hop legacy data con sot sau khi athletes bi re-draw.
+            $validStandings = $group->standings->filter(
+                fn(GroupStanding $s) => $s->athlete && (int) $s->athlete->group_id === (int) $group->id
+            )->values();
+
             $standings = $isDoubles
-                ? $this->dedupeDoublesStandings($group->standings)
-                : $group->standings;
+                ? $this->doublesDedup->dedupe($validStandings)
+                : $validStandings;
 
             $tiedIds = array_flip($this->rankingSorter->getUnresolvedTiedAthleteIds(
                 $standings->all(),
@@ -169,26 +178,4 @@ class TournamentRankingController extends Controller
         ]);
     }
 
-    /**
-     * Doubles dedup: với mỗi cặp partner, giữ lại standing có nhiều match đã đấu hơn.
-     */
-    private function dedupeDoublesStandings($standings)
-    {
-        $dedupMap = [];
-        foreach ($standings as $standing) {
-            $athleteId = $standing->athlete_id;
-            $partnerId = $standing->athlete?->partner_id;
-
-            if ($partnerId && isset($dedupMap[$partnerId])) {
-                $existing = $dedupMap[$partnerId];
-                if ($standing->matches_played > $existing->matches_played) {
-                    unset($dedupMap[$partnerId]);
-                    $dedupMap[$athleteId] = $standing;
-                }
-            } else {
-                $dedupMap[$athleteId] = $standing;
-            }
-        }
-        return collect(array_values($dedupMap))->sortBy('rank_position')->values();
-    }
 }
