@@ -34,7 +34,7 @@ class AthleteImportService
             return ['created' => 0, 'skipped' => [], 'errors' => $errors];
         }
 
-        [$toPersist, $skipped] = $this->detectDuplicates($normalized, $tournament);
+        [$toPersist, $skipped] = $this->detectDuplicates($normalized, $tournament, $categoriesByName);
 
         $created = 0;
         if (!empty($toPersist)) {
@@ -79,37 +79,55 @@ class AthleteImportService
     }
 
     /**
-     * Skip rows that already exist in tournament (phone or email match).
+     * Skip rows already existing within the SAME (tournament, category) on phone/email/name.
+     * Cross-category collisions are allowed — one athlete may register in multiple categories.
      *
      * @param  array<int, array<string, mixed>>  $rows Normalized rows
+     * @param  array<string, TournamentCategory>  $categoriesByName Keyed by lowercase category_name
      * @return array{0: array<int, array<string, mixed>>, 1: array<int, array{row:int, athlete_name:string, reason:string}>}
      */
-    private function detectDuplicates(array $rows, Tournament $tournament): array
+    private function detectDuplicates(array $rows, Tournament $tournament, array $categoriesByName): array
     {
         $existing = TournamentAthlete::where('tournament_id', $tournament->id)
-            ->get(['phone', 'email']);
+            ->get(['phone', 'email', 'athlete_name', 'category_id']);
 
-        // Flip to associative hash for O(1) lookup
-        $existingPhones = [];
-        foreach ($existing->pluck('phone')->filter() as $p) {
-            $existingPhones[(string) $p] = true;
-        }
-        $existingEmails = [];
-        foreach ($existing->pluck('email')->filter() as $e) {
-            $existingEmails[mb_strtolower((string) $e)] = true;
+        $existingPhones = []; // key "categoryId|phone"
+        $existingEmails = []; // key "categoryId|emailLower"
+        $existingNames  = []; // key "categoryId|nameLower"
+        foreach ($existing as $e) {
+            if ($e->phone) {
+                $existingPhones[$e->category_id . '|' . $e->phone] = true;
+            }
+            if ($e->email) {
+                $existingEmails[$e->category_id . '|' . mb_strtolower($e->email)] = true;
+            }
+            if ($e->athlete_name) {
+                $existingNames[$e->category_id . '|' . mb_strtolower($e->athlete_name)] = true;
+            }
         }
 
         $toPersist = [];
         $skipped = [];
         foreach ($rows as $row) {
-            $phoneDup = $row['phone'] !== '' && isset($existingPhones[$row['phone']]);
-            $emailDup = $row['email'] !== '' && isset($existingEmails[$row['email']]);
+            $catKey = mb_strtolower($row['category_name']);
+            // Defensive: validator rejects unknown categories upstream, but guard against warnings.
+            if (!isset($categoriesByName[$catKey])) {
+                continue;
+            }
+            $category = $categoriesByName[$catKey];
+            $phoneKey = $category->id . '|' . $row['phone'];
+            $emailKey = $category->id . '|' . mb_strtolower($row['email']);
+            $nameKey  = $category->id . '|' . mb_strtolower($row['athlete_name']);
 
-            if ($phoneDup || $emailDup) {
+            $phoneDup = $row['phone'] !== '' && isset($existingPhones[$phoneKey]);
+            $emailDup = $row['email'] !== '' && isset($existingEmails[$emailKey]);
+            $nameDup  = $row['athlete_name'] !== '' && isset($existingNames[$nameKey]);
+
+            if ($phoneDup || $emailDup || $nameDup) {
                 $skipped[] = [
                     'row'          => $row['_row_number'],
                     'athlete_name' => $row['athlete_name'],
-                    'reason'       => 'Đã tồn tại trong giải.',
+                    'reason'       => "Đã tồn tại trong hạng mục '{$category->category_name}'.",
                 ];
                 continue;
             }

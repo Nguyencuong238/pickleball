@@ -45,23 +45,26 @@ class AthleteImportValidator
                 $errors[] = ['row' => $rowNum, 'field' => 'partner_name', 'message' => 'Hạng mục đôi phải có partner.'];
             }
 
-            if ($row['phone'] !== '' && isset($seenPhones[$row['phone']])) {
-                $errors[] = ['row' => $rowNum, 'field' => 'phone', 'message' => 'Trùng số điện thoại với dòng khác trong file.'];
+            $phoneKey = $category->id . '|' . $row['phone'];
+            $emailKey = $category->id . '|' . mb_strtolower($row['email']);
+            $nameKey  = $category->id . '|' . mb_strtolower($row['athlete_name']);
+
+            if ($row['phone'] !== '' && isset($seenPhones[$phoneKey])) {
+                $errors[] = ['row' => $rowNum, 'field' => 'phone', 'message' => 'Trùng số điện thoại với dòng khác trong cùng hạng mục.'];
             }
-            if ($row['email'] !== '' && isset($seenEmails[$row['email']])) {
-                $errors[] = ['row' => $rowNum, 'field' => 'email', 'message' => 'Trùng email với dòng khác trong file.'];
+            if ($row['email'] !== '' && isset($seenEmails[$emailKey])) {
+                $errors[] = ['row' => $rowNum, 'field' => 'email', 'message' => 'Trùng email với dòng khác trong cùng hạng mục.'];
             }
 
-            $nameKey = $category->id . '|' . mb_strtolower($row['athlete_name']);
             if (isset($seenNames[$nameKey])) {
                 $errors[] = ['row' => $rowNum, 'field' => 'athlete_name', 'message' => 'Trùng tên vận động viên trong cùng hạng mục.'];
             }
             $seenNames[$nameKey] = true;
             if ($row['phone'] !== '') {
-                $seenPhones[$row['phone']] = true;
+                $seenPhones[$phoneKey] = true;
             }
             if ($row['email'] !== '') {
-                $seenEmails[$row['email']] = true;
+                $seenEmails[$emailKey] = true;
             }
         }
 

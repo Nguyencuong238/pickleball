@@ -99,6 +99,30 @@ class AthleteImportValidatorBasicTest extends TestCase
         $this->assertEmpty($errors);
     }
 
+    public function test_cung_phone_o_2_category_khac_nhau_trong_file_khong_bao_loi(): void
+    {
+        $rows = [
+            $this->makeRow(['athlete_name' => 'A', 'phone' => '0901111111', 'category_name' => 'Nam Don', '_row_number' => 2]),
+            $this->makeRow(['athlete_name' => 'B', 'email' => 'b@b.com', 'phone' => '0901111111', 'category_name' => 'Nu Don', '_row_number' => 3]),
+        ];
+        $errors = $this->validator->validate($rows, $this->multiCategoryMap());
+
+        $phoneErrors = array_filter($errors, fn($e) => $e['field'] === 'phone');
+        $this->assertEmpty($phoneErrors);
+    }
+
+    public function test_cung_email_o_2_category_khac_nhau_trong_file_khong_bao_loi(): void
+    {
+        $rows = [
+            $this->makeRow(['athlete_name' => 'A', 'email' => 'same@mail.com', 'category_name' => 'Nam Don', '_row_number' => 2]),
+            $this->makeRow(['athlete_name' => 'B', 'phone' => '0902222222', 'email' => 'same@mail.com', 'category_name' => 'Nu Don', '_row_number' => 3]),
+        ];
+        $errors = $this->validator->validate($rows, $this->multiCategoryMap());
+
+        $emailErrors = array_filter($errors, fn($e) => $e['field'] === 'email');
+        $this->assertEmpty($emailErrors);
+    }
+
     // === Helpers ===
 
     private function makeRow(array $overrides = []): array
@@ -116,23 +140,29 @@ class AthleteImportValidatorBasicTest extends TestCase
     /** @return array<string, TournamentCategory> */
     private function singleCategoryMap(): array
     {
-        $cat = TournamentCategory::make([
-            'id'            => 1,
-            'category_name' => 'Nam Don',
-            'category_type' => 'single_men',
-        ]);
-        return ['nam don' => $cat];
+        return ['nam don' => $this->makeCategory(1, 'Nam Don', 'single_men')];
+    }
+
+    /** @return array<string, TournamentCategory> */
+    private function multiCategoryMap(): array
+    {
+        return [
+            'nam don' => $this->makeCategory(1, 'Nam Don', 'single_men'),
+            'nu don'  => $this->makeCategory(2, 'Nu Don', 'single_women'),
+        ];
     }
 
     /** @return array<string, TournamentCategory> */
     private function doublesCategoryMap(): array
     {
-        $cat = TournamentCategory::make([
-            'id'            => 2,
-            'category_name' => 'Nam Doi',
-            'category_type' => 'double_men',
-        ]);
-        return ['nam doi' => $cat];
+        return ['nam doi' => $this->makeCategory(2, 'Nam Doi', 'double_men')];
+    }
+
+    private function makeCategory(int $id, string $name, string $type): TournamentCategory
+    {
+        $cat = TournamentCategory::make(['category_name' => $name, 'category_type' => $type]);
+        $cat->forceFill(['id' => $id]);
+        return $cat;
     }
 
     /**
