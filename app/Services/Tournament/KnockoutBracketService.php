@@ -6,29 +6,27 @@ use App\Models\MatchModel;
 use App\Models\Round;
 use App\Models\Tournament;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use InvalidArgumentException;
 
 class KnockoutBracketService
 {
     public function __construct(
         private BracketSeedingHelper $seedingHelper,
+        private CyclicPairingHelper $cyclicHelper,
         private KnockoutMatchBuilder $matchBuilder,
         private KnockoutBracketQuery $bracketQuery
     ) {}
 
     /**
      * Tạo toàn bộ bảng đấu loại trực tiếp cho một hạng mục.
+     *
+     * Ưu tiên cyclic cross-group pairing khi điều kiện thoả (N ∈ {2,4,8,16} bảng,
+     * mỗi bảng đủ 2 VĐV advance). Ngược lại fallback về seed-based ordering.
      */
     public function generateBracket(Tournament $tournament, int $categoryId, bool $enableThirdPlace = false): void
     {
-        $seeded = $this->seedingHelper->collectSeededAthletes($tournament->id, $categoryId);
-
-        if (count($seeded) < 2) {
-            throw new InvalidArgumentException('Cần tối thiểu 2 vận động viên để tạo bảng đấu knockout.');
-        }
-
-        $bracketSize = $this->seedingHelper->calculateBracketSize(count($seeded));
-        $slots       = $this->seedingHelper->arrangeSeedsIntoBracket($seeded, $bracketSize);
+        [$slots, $bracketSize] = $this->buildBracketSlots($tournament->id, $categoryId);
         $totalRounds = (int) \round(\log($bracketSize, 2));
 
         DB::transaction(function () use ($tournament, $categoryId, $slots, $totalRounds, $enableThirdPlace) {
@@ -40,6 +38,43 @@ class KnockoutBracketService
                 $this->createThirdPlaceMatch($tournament, $categoryId);
             }
         });
+    }
+
+    /**
+     * Chọn thuật toán pairing + trả về slots + bracketSize.
+     *
+     * @return array{0: array<int, int|null>, 1: int}
+     */
+    private function buildBracketSlots(int $tournamentId, int $categoryId): array
+    {
+        $grouped = $this->cyclicHelper->collectGroupedAdvancers($tournamentId, $categoryId);
+
+        if ($this->cyclicHelper->isEligible($grouped)) {
+            $slots = $this->cyclicHelper->arrange($grouped);
+            return [$slots, count($slots)];
+        }
+
+        $groupCount = count($grouped);
+        $reason = !in_array($groupCount, [2, 4, 8, 16], true)
+            ? 'group_count_not_power_of_2'
+            : 'incomplete_advancers';
+
+        Log::warning('Bracket fallback to seed-based pairing', [
+            'tournament_id' => $tournamentId,
+            'category_id'   => $categoryId,
+            'group_count'   => $groupCount,
+            'reason'        => $reason,
+        ]);
+
+        $seeded = $this->seedingHelper->collectSeededAthletes($tournamentId, $categoryId);
+        if (count($seeded) < 2) {
+            throw new InvalidArgumentException('Cần tối thiểu 2 vận động viên để tạo bảng đấu knockout.');
+        }
+
+        $bracketSize = $this->seedingHelper->calculateBracketSize(count($seeded));
+        $slots       = $this->seedingHelper->arrangeSeedsIntoBracket($seeded, $bracketSize);
+
+        return [$slots, $bracketSize];
     }
 
     /**

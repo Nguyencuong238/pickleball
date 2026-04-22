@@ -3,7 +3,6 @@
 namespace App\Services\Tournament;
 
 use App\Models\Group;
-use App\Models\TournamentAthlete;
 use InvalidArgumentException;
 
 class BracketSeedingHelper
