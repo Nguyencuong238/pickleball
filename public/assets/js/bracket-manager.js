@@ -29,7 +29,7 @@ function bracketManager(config) {
 
         // Computed
         get hasBracket() {
-            return this.rounds.length > 0;
+            return this.rounds.some(r => r.matches && r.matches.length > 0);
         },
 
         get mainRounds() {

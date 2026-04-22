@@ -20,5 +20,5 @@
 <script src="{{ asset('assets/js/bracket-score-entry.js') }}?v=1.0"></script>
 <script src="{{ asset('assets/js/bracket-swap-editor.js') }}?v=1.2"></script>
 <script src="{{ asset('assets/js/bracket-match-editor.js') }}?v=1.3"></script>
-<script src="{{ asset('assets/js/bracket-manager.js') }}"></script>
+<script src="{{ asset('assets/js/bracket-manager.js') }}?v=1.0"></script>
 @endsection
