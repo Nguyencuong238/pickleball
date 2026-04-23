@@ -390,7 +390,7 @@
     .front-schedule-cat-tabs {
         display: flex;
         gap: 8px;
-        padding: 0 0 16px;
+        padding: 0 30px 16px;
         flex-wrap: wrap;
     }
 
@@ -1016,6 +1016,63 @@
                 @endif
             </div>
 
+            @if ($tournament->registration_benefits)
+                <div class="content-card">
+                    <h2 class="content-title">Quyền lợi khi đăng ký</h2>
+                    @php
+                        $benefitText = str_replace('/', "\n", $tournament->registration_benefits);
+                        $benefits = array_filter(array_map('trim', explode("\n", $benefitText)));
+                    @endphp
+                    <ul class="benefits-list">
+                        @foreach ($benefits as $benefit)
+                            <li>✓ {{ preg_replace('/^✓\s*/', '', $benefit) }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            @if ($tournament->organizer_email || $tournament->organizer_hotline || $tournament->social_information)
+                <div class="content-card">
+                    <h2 class="content-title">Thông tin liên hệ</h2>
+                    <div class="contact-grid">
+                        @if ($tournament->organizer_email)
+                            <div class="contact-item-h">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                <div>
+                                    <div class="contact-label">Email</div>
+                                    <div class="contact-value">{{ $tournament->organizer_email }}</div>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($tournament->organizer_hotline)
+                            <div class="contact-item-h">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
+                                </svg>
+                                <div>
+                                    <div class="contact-label">Hotline</div>
+                                    <div class="contact-value">{{ $tournament->organizer_hotline }}</div>
+                                </div>
+                            </div>
+                        @endif
+                        @if ($tournament->social_information)
+                            <div class="contact-item-h">
+                                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 6v6l4 2" />
+                                </svg>
+                                <div>
+                                    <div class="contact-label">Mạng xã hội</div>
+                                    <div class="contact-value">{!! nl2br(e($tournament->social_information)) !!}</div>
+                                </div>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <div class="content-card">
                 <h2 class="content-title">Timeline sự kiện</h2>
                 @if ($tournament->event_timeline)
@@ -1170,7 +1227,7 @@
                             </div>
 
                             {{-- Summary standings --}}
-                            @php
+                            {{-- @php
                                 $allStandings = $cat->groups->flatMap(fn($g) => $g->standings);
                                 // For doubles: filter out partner duplicates
                                 if ($cat->isDoubles()) {
@@ -1201,7 +1258,7 @@
                                         @endforeach
                                     </div>
                                 </div>
-                            @endif
+                            @endif--}}
                         @endif
 
                         {{-- Knockout bracket --}}
@@ -1288,7 +1345,6 @@
                                     <th>Tên VĐV</th>
                                     <th>Điện thoại</th>
                                     <th>Điểm trình độ</th>
-                                    <th>Trạng thái</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -1298,12 +1354,6 @@
                                         <td>{{ $athlete->athlete_name }}</td>
                                         <td>{{ $athlete->phone ? 'xxxx' . substr($athlete->phone, -4) : '--' }}</td>
                                         <td>{{ $athlete->user->opr_level ?? '--' }}</td>
-                                        <td>
-                                            <span
-                                                class="status-badge @if ($athlete->status == 1) status-confirmed @else status-pending @endif">
-                                                {{ $athlete->status == 1 ? 'Xác nhận' : 'Chờ xác nhận' }}
-                                            </span>
-                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>

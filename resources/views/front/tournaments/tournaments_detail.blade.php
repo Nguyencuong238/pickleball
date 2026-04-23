@@ -27,7 +27,7 @@ $registrationDaysRemaining = $isRegistrationOpen ? (int) now()->diffInDays($tour
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/tournament-detail.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/tournament-detail.css') }}?v=1.1">
     <style>
         .hero-title {
             text-align: left
@@ -248,193 +248,104 @@ $registrationDaysRemaining = $isRegistrationOpen ? (int) now()->diffInDays($tour
     <!-- Main Content -->
     <section class="tournament-detail-section section">
         <div class="container">
+            @php
+                $athletesCount = $tournament->athletes()->count();
+                $percentage =
+                    $tournament->max_participants > 0
+                        ? round(($athletesCount / $tournament->max_participants) * 100)
+                        : 0;
+            @endphp
+
+            <!-- Registration Strip -->
+            <div class="registration-strip {{ $isRegistrationOpen ? '' : 'is-closed' }}">
+                <div class="rs-info">
+                    <div class="rs-price">
+                        <span class="rs-label">Lệ phí đăng ký</span>
+                        <span class="rs-value">{{ $tournament->price > 0 ? number_format($tournament->price, 0, ',', '.') . ' VNĐ' : 'Miễn phí' }}</span>
+                    </div>
+                    <div class="rs-deadline">
+                        @if ($isRegistrationOpen)
+                            <span class="rs-badge">Còn {{ $registrationDaysRemaining }} ngày</span>
+                        @else
+                            <span class="rs-badge rs-badge-closed">Hết hạn</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="rs-progress-wrap">
+                    <div class="rs-progress-bar">
+                        <div class="rs-progress-fill" style="width: {{ $percentage }}%"></div>
+                    </div>
+                    <div class="rs-progress-text">
+                        <span>{{ $athletesCount }}/{{ $tournament->max_participants }} VĐV đã đăng ký</span>
+                        <span>{{ $percentage }}%</span>
+                    </div>
+                </div>
+                <div class="rs-action">
+                    @if ($tournament->is_watch == 1)
+                        <button class="btn btn-primary btn-lg tournament-detail-register-btn" onclick="openDetailModal()">
+                            Xem chi tiết
+                        </button>
+                    @elseif ($isRegistrationOpen)
+                        @if (!$registered)
+                            <button class="btn btn-primary btn-lg tournament-detail-register-btn" onclick="openRegisterModal()">
+                                Đăng ký ngay
+                            </button>
+                        @else
+                            <button class="btn btn-secondary btn-lg tournament-detail-register-btn" disabled
+                                style="opacity: 0.6; cursor: not-allowed;">
+                                Chờ xét duyệt
+                            </button>
+                        @endif
+                    @else
+                        <button class="btn btn-secondary btn-lg tournament-detail-register-btn" disabled
+                            style="opacity: 0.6; cursor: not-allowed;">
+                            Đã hết hạn đăng ký
+                        </button>
+                    @endif
+                </div>
+            </div>
+
             <div class="detail-layout">
                 @include('front.tournaments.tabs-section')
-
-                <!-- Sidebar -->
-                <aside class="detail-sidebar">
-                    <!-- Registration Card -->
-                    <div class="sidebar-card registration-card">
-                        <div class="card-header">
-                            <h3>Đăng ký tham gia</h3>
-                            @if ($isRegistrationOpen)
-                                <span class="urgency-badge">Còn {{ $registrationDaysRemaining }} ngày</span>
-                            @else
-                                <span class="urgency-badge" style="background: #fee2e2; color: #dc2626;">Hết hạn</span>
-                            @endif
-                        </div>
-
-                        <div class="price-section">
-                            <div class="price-item">
-                                <span class="price-label">Lệ phí đăng ký</span>
-                                <span class="price-value">{{ $tournament->price > 0 ? number_format($tournament->price, 0, ',', '.') . ' VNĐ' : 'Miễn phí' }}</span>
-                            </div>
-                        </div>
-
-                        @php
-                            $athletes = $tournament->athletes()->count();
-                            $percentage =
-                                $tournament->max_participants > 0
-                                    ? round(($athletes / $tournament->max_participants) * 100)
-                                    : 0;
-                        @endphp
-                        <div class="registration-progress">
-                            <div class="progress-bar">
-                                <div class="progress-fill" style="width: {{ $percentage }}%"></div>
-                            </div>
-                            <div class="progress-text">
-                                <span>{{ $athletes }}/{{ $tournament->max_participants }} VĐV đã đăng ký</span>
-                                <span>{{ $percentage }}%</span>
-                            </div>
-                        </div>
-                        @if ($tournament->is_watch == 1)
-                            <button class="btn btn-primary btn-block btn-lg tournament-detail-register-btn" onclick="openDetailModal()">
-                                Xem chi tiết
-                            </button>
-                        @elseif ($isRegistrationOpen)
-                            @if (!$registered)
-                                <button class="btn btn-primary btn-block btn-lg tournament-detail-register-btn"
-                                    onclick="openRegisterModal()">
-                                    Đăng ký ngay
-                                </button>
-                            @else
-                                <button class="btn btn-secondary btn-lg btn-block tournament-detail-register-btn" disabled
-                                    style="opacity: 0.6; cursor: not-allowed;">
-                                    Chờ xét duyệt
-                                </button>
-                            @endif
-                        @else
-                            <button class="btn btn-secondary btn-lg btn-block tournament-detail-register-btn" disabled
-                                style="opacity: 0.6; cursor: not-allowed;">
-                                Đã hết hạn đăng ký
-                            </button>
-                        @endif
-
-                        @if ($tournament->registration_benefits)
-                            <div class="registration-benefits">
-                                <h4>Quyền lợi khi đăng ký:</h4>
-                                <ul style="list-style: none; padding: 0; margin: 0;">
-                                    @php
-                                        // Handle both newline and "/" separators
-                                        $benefitText = str_replace('/', "\n", $tournament->registration_benefits);
-                                        $benefits = array_filter(array_map('trim', explode("\n", $benefitText)));
-                                    @endphp
-                                    @foreach ($benefits as $benefit)
-                                        <li style="padding: 6px 0; color: #1f2937; font-weight: 500;">✓
-                                            {{ preg_replace('/^✓\s*/', '', $benefit) }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        @endif
-                    </div>
-
-                    <!-- Contact Card -->
-                    <div class="sidebar-card contact-card">
-                        <h3 class="card-title">Thông tin liên hệ</h3>
-                        <div class="contact-list">
-                            @if ($tournament->organizer_email)
-                                <div class="contact-item">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path
-                                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                    </svg>
-                                    <div>
-                                        <div class="contact-label">Email</div>
-                                        <div class="contact-value">{{ $tournament->organizer_email }}</div>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($tournament->organizer_hotline)
-                                <div class="contact-item">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path
-                                            d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
-                                    </svg>
-                                    <div>
-                                        <div class="contact-label">Hotline</div>
-                                        <div class="contact-value">{{ $tournament->organizer_hotline }}</div>
-                                    </div>
-                                </div>
-                            @endif
-                            @if ($tournament->social_information)
-                                <div class="contact-item">
-                                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <circle cx="12" cy="12" r="10" />
-                                        <path d="M12 6v6l4 2" />
-                                    </svg>
-                                    <div>
-                                        <div class="contact-label">Mạng xã hội</div>
-                                        <div class="contact-value">{!! nl2br(e($tournament->social_information)) !!}</div>
-                                    </div>
-                                </div>
-                            @endif
-                        </div>
-                    </div>
-
-                    <!-- Share Card -->
-                    <div class="sidebar-card share-card">
-                        <h3 class="card-title">Chia sẻ giải đấu</h3>
-                        <div class="share-buttons">
-                            <button class="share-btn facebook">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                        d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                                </svg>
-                            </button>
-                            <button class="share-btn zalo">
-                                <svg viewBox="0 0 24 24" fill="currentColor">
-                                    <path
-                                        d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.894 14.79c-.28.4-.85.77-1.58.77-.16 0-.33-.02-.5-.06-1.72-.42-3.46-1.51-4.91-3.06-1.45-1.56-2.39-3.38-2.65-5.13-.03-.17-.04-.34-.04-.5 0-.73.34-1.33.71-1.64.37-.32.88-.51 1.42-.51.12 0 .24.01.35.03.61.09 1.15.64 1.42 1.44l.59 1.76c.14.43.11.89-.08 1.28-.18.39-.51.7-.9.86l-.28.11c.12.28.29.56.52.84.48.57 1.08 1.12 1.76 1.64.28.21.55.38.82.5l.11-.28c.16-.39.47-.72.86-.9.39-.19.85-.22 1.28-.08l1.76.59c.8.27 1.35.81 1.44 1.42.02.11.03.23.03.35 0 .54-.19 1.05-.51 1.42z" />
-                                </svg>
-                            </button>
-                            <button class="share-btn copy">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Related Tournaments -->
-                    <div class="sidebar-card related-card">
-                        <h3 class="card-title">Giải đấu liên quan</h3>
-                        <div class="related-list">
-                            @php
-                                $relatedTournaments = \App\Models\Tournament::where('id', '!=', $tournament->id)
-                                    ->where('status', true)
-                                    ->orderBy('start_date', 'asc')
-                                    ->limit(5)
-                                    ->get();
-                            @endphp
-                            @forelse($relatedTournaments as $related)
-                                <a href="{{ route('tournaments-detail', $related->slug) }}" class="related-item">
-                                    <div class="related-image">
-                                        @php
-                                            $media = $related->getFirstMedia('banner');
-                                            $imageUrl = $media
-                                                ? $media->getUrl()
-                                                : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 80%22%3E%3Crect fill=%2300D9B5%22 width=%22100%22 height=%2280%22/%3E%3C/svg%3E';
-                                        @endphp
-                                        <img src="{{ $imageUrl }}" alt="{{ $related->name }}">
-                                    </div>
-                                    <div class="related-content">
-                                        <h4>{{ $related->name }}</h4>
-                                        <p>{{ $related->start_date->format('d-m') }} -
-                                            {{ $related->end_date->format('d-m') }}</p>
-                                    </div>
-                                </a>
-                            @empty
-                                <div style="padding: 20px; text-align: center; color: #9ca3af;">
-                                    <p>Hiện không có giải đấu nào khác</p>
-                                </div>
-                            @endforelse
-                        </div>
-                    </div>
-                </aside>
             </div>
         </div>
     </section>
+
+    <!-- Related Tournaments -->
+    @php
+        $relatedTournaments = \App\Models\Tournament::where('id', '!=', $tournament->id)
+            ->where('status', true)
+            ->orderBy('start_date', 'asc')
+            ->limit(4)
+            ->get();
+    @endphp
+    @if ($relatedTournaments->isNotEmpty())
+        <section class="related-tournaments-section">
+            <div class="container">
+                <h2 class="related-title">Giải đấu liên quan</h2>
+                <div class="related-grid">
+                    @foreach ($relatedTournaments as $related)
+                        @php
+                            $relMedia = $related->getFirstMedia('banner');
+                            $relImageUrl = $relMedia
+                                ? $relMedia->getUrl()
+                                : 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 80%22%3E%3Crect fill=%2300D9B5%22 width=%22100%22 height=%2280%22/%3E%3C/svg%3E';
+                        @endphp
+                        <a href="{{ route('tournaments-detail', $related->slug) }}" class="related-card-h">
+                            <div class="related-card-image">
+                                <img src="{{ $relImageUrl }}" alt="{{ $related->name }}">
+                            </div>
+                            <div class="related-card-body">
+                                <h4>{{ $related->name }}</h4>
+                                <p>{{ $related->start_date->format('d-m-Y') }} -
+                                    {{ $related->end_date->format('d-m-Y') }}</p>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
 
     <!-- Detail Modal -->
     <div id="detailModal">
@@ -788,7 +699,7 @@ $registrationDaysRemaining = $isRegistrationOpen ? (int) now()->diffInDays($tour
 @endsection
 
 @section('js')
-    <script src="{{ asset('assets/js/tournament-detail.js') }}?v=1.1"></script>
+    <script src="{{ asset('assets/js/tournament-detail.js') }}?v=1.2"></script>
     <script>
         // Doubles category types
         const DOUBLES_TYPES = ['double_men', 'double_women', 'double_mixed'];

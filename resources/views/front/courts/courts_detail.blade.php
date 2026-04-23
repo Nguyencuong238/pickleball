@@ -25,7 +25,7 @@ $stadiumImage = $stadium->getFirstMediaUrl('banner') ?? asset('assets/images/cou
 
 @section('css')
     <link rel="stylesheet" href="{{ asset('assets/css/tournaments.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/tournament-detail.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/tournament-detail.css') }}?v=1.1">
     <link rel="stylesheet" href="{{ asset('assets/css/courts.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/court-detail.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/gallery-lightbox.css') }}">

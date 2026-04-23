@@ -263,7 +263,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 contentObserver.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.1 });
+    }, { threshold: 0, rootMargin: '0px 0px -10% 0px' });
 
     document.querySelectorAll('.content-card').forEach(card => {
         card.style.opacity = '0';
