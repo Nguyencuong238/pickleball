@@ -733,6 +733,29 @@
         display: none;
     }
 
+    /* 3rd place playoff — standalone block below main bracket */
+    .front-bracket-third-place {
+        margin-top: 28px;
+        padding-top: 20px;
+        border-top: 1px dashed #e5e7eb;
+        max-width: 320px;
+    }
+
+    .front-bracket-third-place-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 10px;
+        padding: 8px 12px;
+        background: #fef3c7;
+        border-radius: 6px;
+        text-align: center;
+    }
+
+    .front-bracket-third-place-match {
+        /* match card inside inherits .front-bracket-match styles */
+    }
+
     .front-bracket-match--done {
         border-color: #d1d5db;
     }
@@ -1372,7 +1395,9 @@
                                 <h2 class="content-title">Vòng đấu loại trực tiếp</h2>
                                 <div class="front-bracket-container">
                                     @php
-                                        $roundsList = $catBracketRounds->values();
+                                        // Separate 3rd-place playoff (round_number >= 90) from main knockout tree
+                                        $thirdPlaceRounds = $catBracketRounds->where('round_number', '>=', 90)->values();
+                                        $roundsList = $catBracketRounds->where('round_number', '<', 90)->values();
                                     @endphp
                                     @foreach ($roundsList as $roundIdx => $round)
                                         @php
@@ -1404,7 +1429,7 @@
                                         <div class="front-bracket-round">
                                             <div class="front-bracket-round-header">
                                                 {{ $round->round_name }}
-                                                <span class="front-bracket-round-count">({{ $round->completed_matches ?? 0 }}/{{ $round->total_matches ?? 0 }})</span>
+                                                <span class="front-bracket-round-count">({{ $round->matches->where('status', 'completed')->count() }}/{{ $round->matches->count() }})</span>
                                             </div>
                                             <div class="front-bracket-round-matches">
                                                 @foreach ($orderedMatches->chunk(2) as $pair)
@@ -1418,6 +1443,20 @@
                                         </div>
                                     @endforeach
                                 </div>
+
+                                @foreach ($thirdPlaceRounds as $tpRound)
+                                    @if ($tpRound->matches->isNotEmpty())
+                                        <div class="front-bracket-third-place">
+                                            <div class="front-bracket-third-place-title">
+                                                {{ $tpRound->round_name }}
+                                                <span class="front-bracket-round-count">({{ $tpRound->matches->where('status', 'completed')->count() }}/{{ $tpRound->matches->count() }})</span>
+                                            </div>
+                                            @foreach ($tpRound->matches as $match)
+                                                @include('front.tournaments.partials._front-bracket-match', ['match' => $match])
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                @endforeach
                             </div>
                         @endif
                     </div>
