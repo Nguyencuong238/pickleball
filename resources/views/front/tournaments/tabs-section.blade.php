@@ -672,12 +672,11 @@
     }
 
     .front-bracket-pair {
-        display: flex;
-        flex-direction: column;
-        justify-content: space-around;
+        display: grid;
+        grid-template-rows: 1fr 1fr;
+        align-items: center;
         position: relative;
         flex: 1 0 auto;
-        padding: 4px 0;
     }
 
     .front-bracket-match {
@@ -689,12 +688,13 @@
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
 
-    /* Horizontal stub from each match going right (14px) */
+    /* Horizontal stub from each match going right (14px), perfectly centered on match middle */
     .front-bracket-round:not(:last-child) .front-bracket-match::before {
         content: '';
         position: absolute;
         right: -14px;
         top: 50%;
+        transform: translateY(-50%);
         width: 14px;
         height: 2px;
         background: #f97316;
@@ -702,13 +702,14 @@
         z-index: 0;
     }
 
-    /* Vertical connector on pair spanning from first match center to second match center */
+    /* Vertical connector on pair spanning from first match center to second match center
+       (extended 1px past each end to guarantee overlap with horizontal stubs at subpixel rendering) */
     .front-bracket-round:not(:last-child) .front-bracket-pair::before {
         content: '';
         position: absolute;
         right: -14px;
-        top: 25%;
-        bottom: 25%;
+        top: calc(25% - 1px);
+        bottom: calc(25% - 1px);
         width: 2px;
         background: #f97316;
         pointer-events: none;
@@ -720,7 +721,8 @@
         content: '';
         position: absolute;
         right: -48px;
-        top: calc(50% - 1px);
+        top: 50%;
+        transform: translateY(-50%);
         width: 34px;
         height: 2px;
         background: #f97316;
@@ -728,7 +730,11 @@
         z-index: 0;
     }
 
-    /* Pair with only 1 match (odd tail) — no vertical, only straight line */
+    /* Pair with only 1 match (odd tail): collapse to single row so match center aligns with pair midpoint */
+    .front-bracket-pair:has(> .front-bracket-match:only-child) {
+        grid-template-rows: 1fr;
+    }
+
     .front-bracket-round:not(:last-child) .front-bracket-pair:has(> .front-bracket-match:only-child)::before {
         display: none;
     }
