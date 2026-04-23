@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tournament;
 use App\Models\TournamentAthlete;
 use App\Models\TournamentCategory;
+use App\Services\Tournament\MatchAthleteNameSyncer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -371,7 +372,14 @@ class AthleteManagementController extends Controller
             ]);
             
             $athlete->update(array_filter($validated));
-            
+
+            // Sync cached athlete names in matches (singles + doubles composite)
+            $affectedIds = [$athlete->id];
+            if ($athlete->partner_id) {
+                $affectedIds[] = $athlete->partner_id;
+            }
+            app(MatchAthleteNameSyncer::class)->syncMany($affectedIds);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Vận động viên đã được cập nhật thành công',

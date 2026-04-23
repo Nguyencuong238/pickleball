@@ -8,6 +8,7 @@ use App\Models\TournamentAthlete;
 use App\Models\TournamentCategory;
 use App\Models\User;
 use App\Services\Tournament\AthleteImportService;
+use App\Services\Tournament\MatchAthleteNameSyncer;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -161,10 +162,22 @@ class TournamentAthleteController extends Controller
             ->where('tournament_id', $tournament->id)
             ->firstOrFail();
 
-        DB::transaction(function () use ($athlete, $validated, $category) {
+        $affectedIds = [$athlete->id];
+
+        DB::transaction(function () use ($athlete, $validated, $category, &$affectedIds) {
             $oldPartnerId = $athlete->partner_id;
             $newPartnerId = $validated['partner_id'] ?? null;
             $isDoubles = $category->isDoubles();
+
+            // Always include old & new partner so their composite match names
+            // are refreshed — covers the "partner unchanged but our name changed"
+            // case where the partner is the primary in some matches ("B / A").
+            if ($oldPartnerId) {
+                $affectedIds[] = $oldPartnerId;
+            }
+            if ($newPartnerId) {
+                $affectedIds[] = $newPartnerId;
+            }
 
             $athlete->update([
                 'athlete_name' => $validated['athlete_name'],
@@ -191,6 +204,7 @@ class TournamentAthleteController extends Controller
                 if ($partner) {
                     // Unlink new partner's old partner if any
                     if ($partner->partner_id && $partner->partner_id !== $athlete->id) {
+                        $affectedIds[] = $partner->partner_id;
                         TournamentAthlete::where('id', $partner->partner_id)
                             ->update(['partner_id' => null]);
                     }
@@ -201,6 +215,8 @@ class TournamentAthleteController extends Controller
                 }
             }
         });
+
+        app(MatchAthleteNameSyncer::class)->syncMany($affectedIds);
 
         $athlete->load(['category', 'partner']);
 
