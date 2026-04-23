@@ -635,64 +635,101 @@
         gap: 0;
         overflow-x: auto;
         padding: 16px 0;
-        align-items: flex-start;
+        align-items: stretch;
     }
 
     .front-bracket-round {
         display: flex;
         flex-direction: column;
-        justify-content: space-around;
         flex-shrink: 0;
-        min-width: 260px;
+        min-width: 240px;
         padding: 0 24px;
     }
 
     .front-bracket-round-header {
         text-align: center;
-        font-size: 0.78rem;
+        font-size: 0.82rem;
         font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: #6b7280;
-        margin-bottom: 12px;
-        padding: 8px 12px;
-        background: #f9fafb;
+        color: #1f2937;
+        margin-bottom: 14px;
+        padding: 10px 14px;
+        background: #f3f4f6;
         border-radius: 6px;
     }
 
     .front-bracket-round-count {
-        font-weight: 400;
-        color: #9ca3af;
+        font-weight: 500;
+        color: #6b7280;
+        margin-left: 4px;
     }
 
     .front-bracket-round-matches {
         display: flex;
         flex-direction: column;
-        gap: 0;
+        justify-content: space-around;
+        flex: 1;
         position: relative;
+    }
+
+    .front-bracket-pair {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        position: relative;
+        flex: 1 0 auto;
+        padding: 4px 0;
     }
 
     .front-bracket-match {
         border: 1px solid #e5e7eb;
-        border-radius: 6px;
+        border-radius: 4px;
         background: #fff;
         position: relative;
-        margin: 8px 0;
-        overflow: hidden;
+        margin: 3px 0;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
 
-    .front-bracket-match::after {
+    /* Horizontal stub from each match going right (14px) */
+    .front-bracket-round:not(:last-child) .front-bracket-match::before {
         content: '';
         position: absolute;
-        right: -25px;
+        right: -14px;
         top: 50%;
-        width: 25px;
-        height: 1px;
-        background: #cbd5e1;
+        width: 14px;
+        height: 2px;
+        background: #f97316;
         pointer-events: none;
+        z-index: 0;
     }
 
-    .front-bracket-round:last-child .front-bracket-match::after {
+    /* Vertical connector on pair spanning from first match center to second match center */
+    .front-bracket-round:not(:last-child) .front-bracket-pair::before {
+        content: '';
+        position: absolute;
+        right: -14px;
+        top: 25%;
+        bottom: 25%;
+        width: 2px;
+        background: #f97316;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Horizontal bridge from pair midpoint across round gap into next round's match */
+    .front-bracket-round:not(:last-child) .front-bracket-pair::after {
+        content: '';
+        position: absolute;
+        right: -48px;
+        top: calc(50% - 1px);
+        width: 34px;
+        height: 2px;
+        background: #f97316;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    /* Pair with only 1 match (odd tail) — no vertical, only straight line */
+    .front-bracket-round:not(:last-child) .front-bracket-pair:has(> .front-bracket-match:only-child)::before {
         display: none;
     }
 
@@ -702,6 +739,10 @@
 
     .front-bracket-match--live {
         border-color: #f59e0b;
+    }
+
+    .front-bracket-match--bye {
+        opacity: 0.85;
     }
 
     .front-bracket-match-live {
@@ -714,7 +755,42 @@
         background: #f59e0b;
         border-radius: 3px;
         padding: 1px 5px;
-        z-index: 1;
+        z-index: 2;
+    }
+
+    /* Match banner header */
+    .front-bracket-match-banner {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: #16a34a;
+        color: #fff;
+        padding: 5px 8px;
+        font-size: 0.72rem;
+        font-weight: 600;
+        line-height: 1.2;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .front-bracket-banner-icon {
+        width: 13px;
+        height: 13px;
+        flex-shrink: 0;
+        color: #fff;
+        opacity: 0.9;
+    }
+
+    .front-bracket-banner-code {
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .front-bracket-banner-meta {
+        font-weight: 500;
+        opacity: 0.95;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .front-bracket-slot {
@@ -723,18 +799,31 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        gap: 6px;
         color: #374151;
         min-height: 32px;
+        position: relative;
+        background: #fff;
     }
 
-    .front-bracket-slot:first-child {
-        border-bottom: 1px solid #f1f5f9;
+    .front-bracket-slot + .front-bracket-slot {
+        border-top: 1px solid #f1f5f9;
     }
 
     .front-bracket-slot--winner {
-        background: #ecfdf5;
         font-weight: 700;
         color: #065f46;
+        background: #f0fdf4;
+    }
+
+    .front-bracket-slot--loser {
+        color: #9ca3af;
+    }
+
+    .front-bracket-slot--bye .front-bracket-slot-bye-label {
+        color: #9ca3af;
+        font-weight: 600;
+        font-style: italic;
     }
 
     .front-bracket-slot-name {
@@ -745,43 +834,43 @@
         min-width: 0;
     }
 
-    .front-bracket-slot-total {
-        font-weight: 800;
-        min-width: 20px;
-        text-align: center;
-        font-size: 0.85rem;
-        flex-shrink: 0;
-        color: #6b7280;
-        margin-left: 4px;
-        padding-left: 5px;
-        border-left: 1px solid #e5e7eb;
-    }
-
-    .front-bracket-slot--winner .front-bracket-slot-total {
-        color: #065f46;
-    }
-
     .front-bracket-slot-sets {
         display: flex;
         gap: 2px;
         flex-shrink: 0;
-        margin-left: 6px;
     }
 
     .front-bracket-set-score {
         font-weight: 600;
-        min-width: 20px;
+        min-width: 18px;
         text-align: center;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         padding: 1px 3px;
         border-radius: 2px;
-        background: #f0f1f3;
+        background: #f3f4f6;
         color: #6b7280;
     }
 
     .front-bracket-slot--winner .front-bracket-set-score {
-        background: #d1fae5;
-        color: #047857;
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .front-bracket-slot-total {
+        font-weight: 800;
+        min-width: 22px;
+        text-align: center;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        color: #6b7280;
+    }
+
+    .front-bracket-slot--winner .front-bracket-slot-total {
+        color: #059669;
+    }
+
+    .front-bracket-slot--loser .front-bracket-slot-total {
+        color: #9ca3af;
     }
 
     /* ===== Responsive ===== */
@@ -802,11 +891,26 @@
 
         .front-bracket-round {
             min-width: 220px;
-            padding: 0 16px;
+            padding: 0 18px;
         }
 
-        .front-bracket-match::after {
-            display: none;
+        .front-bracket-round:not(:last-child) .front-bracket-match::before {
+            right: -18px;
+            width: 18px;
+        }
+
+        .front-bracket-round:not(:last-child) .front-bracket-match::after {
+            right: -18px;
+        }
+
+        .front-bracket-match-banner {
+            font-size: 0.68rem;
+            padding: 4px 6px;
+        }
+
+        .front-bracket-slot {
+            padding: 6px 8px;
+            font-size: 0.78rem;
         }
     }
 </style>
@@ -1267,15 +1371,48 @@
                             <div class="content-card">
                                 <h2 class="content-title">Vòng đấu loại trực tiếp</h2>
                                 <div class="front-bracket-container">
-                                    @foreach ($catBracketRounds as $round)
+                                    @php
+                                        $roundsList = $catBracketRounds->values();
+                                    @endphp
+                                    @foreach ($roundsList as $roundIdx => $round)
+                                        @php
+                                            $nextRound = $roundsList[$roundIdx + 1] ?? null;
+                                            if ($nextRound) {
+                                                $nextMatches = $nextRound->matches->values();
+                                                $orderedMatches = $round->matches->sortBy(function ($m) use ($nextMatches) {
+                                                    $nextIdx = 9999;
+                                                    $subIdx = 9;
+                                                    // Prefer winner → next match mapping (actual advancement)
+                                                    if ($m->winner_id) {
+                                                        foreach ($nextMatches as $idx => $nm) {
+                                                            if ($nm->athlete1_id == $m->winner_id) { $nextIdx = $idx; $subIdx = 0; break; }
+                                                            if ($nm->athlete2_id == $m->winner_id) { $nextIdx = $idx; $subIdx = 1; break; }
+                                                        }
+                                                    }
+                                                    // Fallback: next_match_id
+                                                    if ($nextIdx === 9999 && $m->next_match_id) {
+                                                        foreach ($nextMatches as $idx => $nm) {
+                                                            if ($nm->id == $m->next_match_id) { $nextIdx = $idx; break; }
+                                                        }
+                                                    }
+                                                    return $nextIdx * 1000000 + $subIdx * 1000 + (int) ($m->bracket_position ?? $m->match_number ?? 0);
+                                                })->values();
+                                            } else {
+                                                $orderedMatches = $round->matches->values();
+                                            }
+                                        @endphp
                                         <div class="front-bracket-round">
                                             <div class="front-bracket-round-header">
                                                 {{ $round->round_name }}
                                                 <span class="front-bracket-round-count">({{ $round->completed_matches ?? 0 }}/{{ $round->total_matches ?? 0 }})</span>
                                             </div>
                                             <div class="front-bracket-round-matches">
-                                                @foreach ($round->matches as $match)
-                                                    @include('front.tournaments.partials._front-bracket-match', ['match' => $match])
+                                                @foreach ($orderedMatches->chunk(2) as $pair)
+                                                    <div class="front-bracket-pair">
+                                                        @foreach ($pair as $match)
+                                                            @include('front.tournaments.partials._front-bracket-match', ['match' => $match])
+                                                        @endforeach
+                                                    </div>
                                                 @endforeach
                                             </div>
                                         </div>
