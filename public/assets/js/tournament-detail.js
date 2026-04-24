@@ -90,48 +90,51 @@ function printTournamentInfo() {
 
 // Main initialization when DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('Tournament detail page loading...');
-
     // Tab Functionality
     const tabButtons = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
-    
-    console.log('Tab buttons found:', tabButtons.length);
-    console.log('Tab panes found:', tabPanes.length);
-    
+
+    function loadLazyPane(pane) {
+        if (!pane || pane.dataset.lazyLoaded === '1' || !pane.dataset.lazyUrl) return;
+        pane.dataset.lazyLoaded = '1';
+        fetch(pane.dataset.lazyUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(r => r.ok ? r.text() : Promise.reject(r.status))
+            .then(html => { pane.innerHTML = html; })
+            .catch(() => {
+                pane.dataset.lazyLoaded = '0';
+                pane.innerHTML = '<div class="content-card"><p style="color:#ef4444;text-align:center;padding:24px 0;">Không tải được dữ liệu. Vui lòng thử lại.</p></div>';
+            });
+    }
+
     tabButtons.forEach(button => {
         button.addEventListener('click', function(e) {
             e.preventDefault();
             const targetTab = this.dataset.tab;
-            
-            console.log('Tab clicked:', targetTab);
-            
-            // Remove active class from all tabs and panes
+
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabPanes.forEach(pane => pane.classList.remove('active'));
-            
-            // Add active class to clicked tab and corresponding pane
+
             this.classList.add('active');
             const targetPane = document.getElementById(targetTab);
             if (targetPane) {
                 targetPane.classList.add('active');
+                loadLazyPane(targetPane);
             }
-            
-            // Update URL hash without scrolling
+
             history.replaceState(null, '', '#' + targetTab);
 
-            // Smooth scroll to tab content on mobile
             if (window.innerWidth <= 768) {
                 const tabContent = document.querySelector('.tab-content');
                 if (tabContent) {
-                    tabContent.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'nearest'
-                    });
+                    tabContent.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 }
             }
         });
     });
+
+    // Preload lazy content for the initially-active tab (if any)
+    const activePane = document.querySelector('.tab-pane.active');
+    if (activePane) loadLazyPane(activePane);
 
     // Restore tab from URL hash
     const hash = window.location.hash.substring(1);
@@ -316,8 +319,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // Track which tab user is viewing (for analytics)
     tabButtons.forEach(button => {
         button.addEventListener('click', () => {
-            const tabName = button.dataset.tab;
-            console.log('User viewing tab:', tabName);
             // In real app, send to analytics
         });
     });
@@ -367,7 +368,6 @@ document.addEventListener('DOMContentLoaded', function() {
         printButton.addEventListener('click', printTournamentInfo);
     }
 
-    console.log('Tournament detail page loaded successfully! 🎾');
 });
 
 // Add animation styles to head

@@ -679,6 +679,13 @@ class HomeController extends Controller
         ]);
     }
 
+    public function tournamentParticipantsPartial(Tournament $tournament)
+    {
+        return response()
+            ->view('front.tournaments.partials._participants-tab', ['tournament' => $tournament])
+            ->header('Cache-Control', 'public, max-age=300');
+    }
+
     public function joinSocial(Social $social)
     {
         // Check if user is already a participant

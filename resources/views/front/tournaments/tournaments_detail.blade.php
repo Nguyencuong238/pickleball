@@ -699,7 +699,7 @@ $registrationDaysRemaining = $isRegistrationOpen ? (int) now()->diffInDays($tour
 @endsection
 
 @section('js')
-    <script src="{{ asset('assets/js/tournament-detail.js') }}?v=1.2"></script>
+    <script src="{{ asset('assets/js/tournament-detail.js') }}?v=1.3"></script>
     <script>
         // Doubles category types
         const DOUBLES_TYPES = ['double_men', 'double_women', 'double_mixed'];

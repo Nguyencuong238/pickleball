@@ -53,25 +53,23 @@
 
     .tab-pane {
         display: none;
-        opacity: 0;
-        animation: fadeIn 0.4s ease-out forwards;
+        opacity: 1;
+        content-visibility: hidden;
     }
 
     .tab-pane.active {
         display: block;
-        opacity: 1;
+        content-visibility: visible;
+        animation: fadeIn 0.2s ease-out forwards;
     }
 
     @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    @keyframes spin {
+        to { transform: rotate(360deg); }
     }
 
     .detail-main {
@@ -1492,58 +1490,15 @@
             @endif
         </div>
 
-        <!-- Participants Tab -->
-        <div class="tab-pane" id="participants">
+        <!-- Participants Tab (lazy-loaded) -->
+        <div class="tab-pane" id="participants"
+             data-lazy-url="{{ route('tournaments.participants-partial', $tournament) }}"
+             data-lazy-loaded="0">
             <div class="content-card">
-                <h2 class="content-title">Danh sách vận động viên</h2>
-                @php
-                    $athletes = $tournament->athletes()->with('user')->get()
-                        ->unique(function ($a) {
-                            $email = strtolower(trim((string) $a->email));
-                            $phone = preg_replace('/\D/', '', (string) $a->phone);
-                            $name = strtolower(trim((string) $a->athlete_name));
-                            return $email . '|' . $phone . '|' . $name;
-                        })
-                        ->values();
-                    $athleteCount = $athletes->count();
-                    $remaining = $tournament->max_participants - $athleteCount;
-                @endphp
-                <div class="participants-stats">
-                    <div class="participant-stat">
-                        <div class="stat-number">{{ $athleteCount }}/{{ $tournament->max_participants }}</div>
-                        <div class="stat-label">Đã đăng ký</div>
-                    </div>
-                    <div class="participant-stat">
-                        <div class="stat-number">{{ max(0, $remaining) }}</div>
-                        <div class="stat-label">Còn lại</div>
-                    </div>
+                <div class="participants-skeleton" style="padding: 40px 0; text-align: center; color: #9ca3af;">
+                    <div class="spinner" style="display: inline-block; width: 32px; height: 32px; border: 3px solid #e5e7eb; border-top-color: var(--primary-color, #006646); border-radius: 50%; animation: spin 0.8s linear infinite;"></div>
+                    <p style="margin: 12px 0 0;">Đang tải danh sách vận động viên...</p>
                 </div>
-                @if ($athletes->count() > 0)
-                    <div style="margin-top: 2rem; overflow-x: auto;">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Tên VĐV</th>
-                                    <th>Điện thoại</th>
-                                    <th>Điểm trình độ</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($athletes as $index => $athlete)
-                                    <tr>
-                                        <td>{{ $index + 1 }}</td>
-                                        <td>{{ $athlete->athlete_name }}</td>
-                                        <td>{{ $athlete->phone ? 'xxxx' . substr($athlete->phone, -4) : '--' }}</td>
-                                        <td>{{ $athlete->user->opr_level ?? '--' }}</td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @else
-                    <p class="text-muted">Danh sách VĐV sẽ được công bố sau khi đóng đăng ký (30/11/2025)</p>
-                @endif
             </div>
         </div>
 
@@ -1563,13 +1518,13 @@
                         @foreach ($galleryItems as $item)
                             <div class="gallery-item">
                                 @if (is_array($item) && isset($item['url']))
-                                    <img src="{{ $item['url'] }}" alt="{{ $item['title'] ?? 'Gallery' }}">
+                                    <img src="{{ $item['url'] }}" alt="{{ $item['title'] ?? 'Gallery' }}" loading="lazy" decoding="async">
                                     @if (isset($item['title']))
                                         <p style="text-align: center; padding: 0.5rem; font-size: 0.875rem;">
                                             {{ $item['title'] }}</p>
                                     @endif
                                 @else
-                                    <img src="{{ $item }}" alt="Gallery">
+                                    <img src="{{ $item }}" alt="Gallery" loading="lazy" decoding="async">
                                 @endif
                             </div>
                         @endforeach

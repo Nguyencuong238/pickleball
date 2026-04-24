@@ -160,6 +160,7 @@ Route::get('/news/{slug}', [FrontNewsController::class, 'show'])->name('news.sho
 Route::get('/page/{page}', [PageController::class, 'show'])->name('page.show');
 Route::get('/courts/{stadium}', [HomeController::class, 'courtsDetail'])->name('courts-detail');
 Route::get('/tournaments/{tournament}', [HomeController::class, 'tournamentsDetail'])->name('tournaments-detail');
+Route::get('/tournaments/{tournament}/participants-partial', [HomeController::class, 'tournamentParticipantsPartial'])->name('tournaments.participants-partial');
 Route::get('/instructors', [HomeController::class, 'instructors'])->name('instructors');
 Route::get('/instructors/{instructor}', [HomeController::class, 'instructorDetail'])->name('instructors.detail');
 Route::get('/course', [HomeController::class, 'course'])->name('course');
