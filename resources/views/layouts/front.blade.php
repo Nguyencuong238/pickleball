@@ -554,6 +554,7 @@
                         <li><a href="{{ route('ocr.matches.list') }}" class="dropdown-item">Trận đấu</a></li>
                     </ul>
                 </li>
+                {{-- Tạm ẩn: Bảng xếp hạng, Điểm trình OPR, Cộng đồng, Tin tức
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle">Bảng xếp hạng</a>
                     <span class="arrow-btn mobile-only">▼</span>
@@ -573,7 +574,6 @@
                         @auth
                             <li><a href="{{ route('ocr.profile.id', auth()->user()->id) }}" class="dropdown-item">Hồ sơ của tôi</a></li>
                             <li><a href="{{ route('ocr.matches.index') }}" class="dropdown-item">Trận đấu của tôi</a></li>
-                            <!-- <li><a href="{{ route('ocr.challenges.index') }}" class="dropdown-item">Challenge Center</a></li> -->
                         @endauth
                     </ul>
                 </li>
@@ -584,15 +584,15 @@
                         <li><a href="{{ route('skill-quiz.index') }}" class="dropdown-item">Đánh giá trình độ</a></li>
                         <li><a href="{{ route('clubs.index') }}" class="dropdown-item">Nhóm & CLB</a></li>
                         <li><a href="{{ route('instructors') }}" class="dropdown-item">Giảng viên</a></li>
-                        <li><a href="{{ route('academy.referees.index') }}" class="dropdown-item">Trọng tài</a></li>                       
+                        <li><a href="{{ route('academy.referees.index') }}" class="dropdown-item">Trọng tài</a></li>
                         <li><a href="{{ route('course') }}" class="dropdown-item">Video Pickleball</a></li>
                         @auth
-                            <!-- <li><a href="{{ route('quiz.index') }}" class="dropdown-item">Quiz Pickleball</a></li> -->
                             <li><a href="{{ route('ocr.community.index') }}" class="dropdown-item">Community Hub</a></li>
                         @endauth
                     </ul>
                 </li>
                 <li><a href="{{ route('news') }}" class="nav-link @if(request()->routeIs('news')) active @endif">Tin tức</a></li>
+                --}}
 
                 @guest
                     <li class="mobile-only login-register-btn">
